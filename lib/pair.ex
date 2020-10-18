@@ -1,0 +1,41 @@
+defmodule A.Pair do
+  @moduledoc ~S"""
+  Convenience helpers for working with `{atom, value}` tuples without breaking the pipe.
+  """
+
+  @doc """
+  Wraps the expression as an idiomatic `{atom, value}` tuple.
+  Convenient for not breaking the pipe.
+
+  ## Examples
+
+      iex> 55 |> A.Pair.wrap(:ok)
+      {:ok, 55}
+      iex> %{a: 5} |> Map.update!(:a, & &1 + 1) |> A.Pair.wrap(:no_reply)
+      {:no_reply, %{a: 6}}
+  """
+  def wrap(expression, atom) when is_atom(atom) do
+    {atom, expression}
+  end
+
+  @doc """
+  Unwraps an idiomatic `{atom, value}` tuple when the atom is what is being expected.
+  Convenient for not breaking the pipe.
+
+  ## Examples
+
+      iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
+      55
+      iex> :error |> A.Pair.unwrap!(:ok)
+      ** (ArgumentError) unwrap!/2 expected {:ok, _}, got: :error
+  """
+  def unwrap!(expression, atom) when is_atom(atom) do
+    case expression do
+      {^atom, value} ->
+        value
+
+      got ->
+        raise ArgumentError, "unwrap!/2 expected {#{inspect(atom)}, _}, got: #{inspect(got)}"
+    end
+  end
+end

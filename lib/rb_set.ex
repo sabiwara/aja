@@ -1,0 +1,541 @@
+defmodule A.RBSet do
+  @moduledoc ~S"""
+  A Red-Black tree implementation of a set. It keeps values sorted in ascending order.
+
+  It works as a drop-in replacement for the built-in `MapSet`.
+  Unlike `MapSet` which does not keep keys in any particular order,
+  `A.RBSet` stores keys in ascending order.
+
+  Erlang's `:gb_sets` offer a similar functionality.
+  However `A.RBSet`:
+  - is faster
+  - is easier to use (pipe-friendliness, `Enum` / `Inspect` / `Collectable` protocols)
+  - rebalances the tree on deletion [unlike `:gb_sets`](https://erlang.org/doc/man/gb_sets.html#balance-1)
+  - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
+
+  ## Examples
+
+  `A.RBSet` offers the same API as `MapSet`:
+
+      iex> rb_set = A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1.0, 5])
+      #A.RBSet<[1.0, 2, 3, 4, 5, 6, 7]>
+      iex> A.RBSet.member?(rb_set, 2)
+      true
+      iex> A.RBSet.member?(rb_set, 8)
+      false
+      iex> A.RBSet.put(rb_set, 4.25)
+      #A.RBSet<[1.0, 2, 3, 4, 4.25, 5, 6, 7]>
+      iex> A.RBSet.delete(rb_set, 1)
+      #A.RBSet<[2, 3, 4, 5, 6, 7]>
+      iex> A.RBSet.union(rb_set, A.RBSet.new([0, 2, 4, 6, 8]))
+      #A.RBSet<[0, 1.0, 2, 3, 4, 5, 6, 7, 8]>
+      iex> A.RBSet.intersection(rb_set, A.RBSet.new([0, 2, 4, 6, 8]))
+      #A.RBSet<[2, 4, 6]>
+      iex> A.RBSet.difference(rb_set, A.RBSet.new([0, 2, 4, 6, 8]))
+      #A.RBSet<[1.0, 3, 5, 7]>
+      iex> Enum.to_list(rb_set)
+      [1.0, 2, 3, 4, 5, 6, 7]
+      iex> [0, 1, 1.1, 2.2, 3.3] |> Enum.into(rb_set)
+      #A.RBSet<[0, 1, 1.1, 2, 2.2, 3, 3.3, 4, 5, 6, 7]>
+
+  Like for `MapSet`s, elements in a set don't have to be of the same type:
+
+      iex> A.RBSet.new([1, :two, {"three"}])
+      #A.RBSet<[1, :two, {"three"}]>
+
+  ## Tree-specific functions
+
+  Due to its sorted nature, `A.RBSet` also offers some extra methods not present in `MapSet`, like:
+  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) values
+  - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
+
+  Examples:
+
+      iex> rb_set = A.RBSet.new([8, 6, 0, 4, 2, 2, 2])
+      iex> A.RBSet.last(rb_set)
+      8
+      iex> A.RBSet.foldr(rb_set, [], fn value, acc -> [value + 1 | acc] end)
+      [1, 3, 5, 7, 9]
+
+  ## With `Jason`
+
+      iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1.0, 5]) |> Jason.encode!()
+      "[1.0,2,3,4,5,6,7]"
+
+      It also preserves the value order.
+
+  ## Pattern-match and opaque type
+
+  An `A.RBSet` is represented internally using the `%A.RBSet{}` struct. This struct
+  can be used whenever there's a need to pattern match on something being a `A.RBSet`:
+
+      iex> match?(%A.RBSet{}, A.RBSet.new())
+      true
+
+  Note, however, than `A.RBSet` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
+  its struct internal fields must not be accessed directly.
+
+  Use the functions in this module to perform operations on `A.RBSet`s, or the `Enum` module.
+
+  ## Underlying Red-Black Tree implementation
+
+  The underlying red-black tree implementation is available in `A.RBTree` and is used
+  in other modules such as `A.RBMap`, `A.OrdMap` as well.
+  The algorithm detail is described in [its documentation](`A.RBTree`).
+
+  ## Note about numbers
+
+  Unlike `MapSet`s, `A.RBSet`s only uses ordering for value comparisons,
+  not strict comparisons. Integers and floats are indistiguinshable as values.
+
+      iex> MapSet.new([1, 2, 3]) |> MapSet.member?(2.0)
+      false
+      iex> A.RBSet.new([1, 2, 3]) |> A.RBSet.member?(2.0)
+      true
+
+  Erlang's `:gb_sets` module works the same.
+  """
+
+  # TODO: inline what is relevant
+  # WARNING: be careful with non-tail recursive functions looping on the full tree!
+  @compile {:inline, size: 1, member?: 2, put: 2, delete: 2, equal?: 2, equal_loop: 2}
+
+  @type value :: term
+
+  @opaque t(value) :: %__MODULE__{root: A.RBTree.tree(value), size: non_neg_integer}
+  @type t :: t(term)
+
+  defstruct root: A.RBTree.empty(), size: 0
+
+  @doc """
+  Returns a new empty set.
+
+  ## Examples
+
+      iex> A.RBSet.new()
+      #A.RBSet<[]>
+
+  """
+  @spec new :: t
+  def new(), do: %A.RBSet{}
+
+  @doc """
+  Creates a set from an enumerable.
+
+  ## Examples
+
+      iex> A.RBSet.new([:b, :a, 3])
+      #A.RBSet<[3, :a, :b]>
+      iex> A.RBSet.new([3, 3, 3, 2, 2, 1])
+      #A.RBSet<[1, 2, 3]>
+
+  """
+  @spec new(Enum.t()) :: t
+  def new(enumerable)
+
+  def new(%__MODULE__{} = rb_set), do: rb_set
+
+  def new(enumerable) do
+    list = Enum.to_list(enumerable)
+    {size, root} = A.RBTree.empty() |> A.RBTree.set_insert_many(list)
+
+    %A.RBSet{root: root, size: size}
+  end
+
+  @doc """
+  Creates a set from an enumerable via the transformation function.
+
+  ## Examples
+
+      iex> A.RBSet.new([1, 2, 1], fn x -> 2 * x end)
+      #A.RBSet<[2, 4]>
+
+  """
+  @spec new(Enum.t(), (term -> val)) :: t(val) when val: value
+  def new(enumerable, transform) when is_function(transform, 1) do
+    enumerable
+    |> Enum.map(transform)
+    |> new()
+  end
+
+  @doc """
+  Deletes `value` from `rb_set`.
+
+  Returns a new set which is a copy of `rb_set` but without `value`.
+
+  ## Examples
+
+      iex> rb_set = A.RBSet.new([1, 2, 3])
+      iex> A.RBSet.delete(rb_set, 4)
+      #A.RBSet<[1, 2, 3]>
+      iex> A.RBSet.delete(rb_set, 2)
+      #A.RBSet<[1, 3]>
+
+  """
+  @spec delete(t(val1), val2) :: t(val1) when val1: value, val2: value
+  def delete(%__MODULE__{root: root, size: size} = rb_set, value) do
+    case A.RBTree.set_delete(root, value) do
+      {:ok, new_root} ->
+        %{rb_set | root: new_root, size: size - 1}
+
+      :error ->
+        rb_set
+    end
+  end
+
+  @doc """
+  Returns a set that is `rb_set1` without the members of `rb_set2`.
+
+  ## Examples
+
+      iex> A.RBSet.difference(A.RBSet.new([1, 2]), A.RBSet.new([2, 3, 4]))
+      #A.RBSet<[1]>
+
+  """
+  @spec difference(t(val), t(val)) :: t(val) when val: value
+  def difference(rb_set1, rb_set2)
+
+  def difference(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    A.RBTree.foldl(rb_set2.root, rb_set1, fn elem, acc -> delete(acc, elem) end)
+  end
+
+  # TODO same optimization as MapSet:
+  # If the first set is less than twice the size of the second map, it is fastest
+  # to re-accumulate elements in the first set that are not present in the second set.
+  # def difference(%A.RBSet{}, %A.RBSet{}) do
+  # end
+
+  @doc """
+  Checks if `rb_set1` and `rb_set2` have no members in common.
+
+  ## Examples
+
+      iex> A.RBSet.disjoint?(A.RBSet.new([1, 2]), A.RBSet.new([3, 4]))
+      true
+      iex> A.RBSet.disjoint?(A.RBSet.new([1, 2]), A.RBSet.new([2, 3]))
+      false
+
+  """
+  @spec disjoint?(t, t) :: boolean
+  def disjoint?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2)
+      when rb_set1.size < rb_set2.size do
+    intersection(rb_set2, rb_set1)
+  end
+
+  def disjoint?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    not Enum.any?(rb_set2, fn elem -> member?(rb_set1, elem) end)
+  end
+
+  @doc """
+  Checks if two sets are equal.
+
+  The comparison between elements is done using `==/2`, not strict equality `===/2`.
+
+  ## Examples
+
+      iex> A.RBSet.equal?(A.RBSet.new([1, 2]), A.RBSet.new([2, 1, 1]))
+      true
+      iex> A.RBSet.equal?(A.RBSet.new([1.0, 2.0]), A.RBSet.new([2, 1, 1]))
+      true
+      iex> A.RBSet.equal?(A.RBSet.new([1, 2]), A.RBSet.new([3, 4]))
+      false
+
+  """
+  @spec equal?(t, t) :: boolean
+  def equal?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    rb_set1.size == rb_set2.size &&
+      equal_loop(A.RBTree.iterator(rb_set1.root), A.RBTree.iterator(rb_set2.root))
+  end
+
+  defp equal_loop(iterator1, iterator2) do
+    case {A.RBTree.next(iterator1), A.RBTree.next(iterator2)} do
+      {nil, nil} ->
+        true
+
+      {{elem1, next_iter1}, {elem2, next_iter2}} when elem1 == elem2 ->
+        equal_loop(next_iter1, next_iter2)
+
+      _ ->
+        false
+    end
+  end
+
+  @doc """
+  Returns a set containing only members that `rb_set1` and `rb_set2` have in common.
+
+  ## Examples
+
+      iex> A.RBSet.intersection(A.RBSet.new([2, 1]), A.RBSet.new([3, 2, 4]))
+      #A.RBSet<[2]>
+
+      iex> A.RBSet.intersection(A.RBSet.new([2, 1]), A.RBSet.new([3, 4]))
+      #A.RBSet<[]>
+
+  """
+  @spec intersection(t(val), t(val)) :: t(val) when val: value
+  def intersection(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2)
+      when rb_set1.size < rb_set2.size do
+    intersection(rb_set2, rb_set1)
+  end
+
+  def intersection(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    rb_set2
+    |> Enum.filter(fn elem -> member?(rb_set1, elem) end)
+    |> new()
+  end
+
+  @doc """
+  Checks if `rb_set` contains `value`.
+
+  ## Examples
+
+      iex> A.RBSet.member?(A.RBSet.new([1, 2, 3]), 2)
+      true
+      iex> A.RBSet.member?(A.RBSet.new([1, 2, 3]), 4)
+      false
+
+  """
+  @spec member?(t, value) :: boolean
+  def member?(rb_set, value)
+
+  def member?(%__MODULE__{root: root}, value) do
+    A.RBTree.set_member?(root, value)
+  end
+
+  @doc """
+  Inserts `value` into `rb_set` if `rb_set` doesn't already contain it.
+
+  ## Examples
+
+      iex> A.RBSet.put(A.RBSet.new([1, 2, 3]), 3)
+      #A.RBSet<[1, 2, 3]>
+      iex> A.RBSet.put(A.RBSet.new([1, 2, 3]), 4)
+      #A.RBSet<[1, 2, 3, 4]>
+
+  """
+  @spec put(t(val), new_val) :: t(val | new_val) when val: value, new_val: value
+  def put(%__MODULE__{root: root, size: size} = rb_set, value) do
+    case A.RBTree.set_insert(root, value) do
+      {:new, new_root} -> %{rb_set | root: new_root, size: size + 1}
+      {:overwrite, new_root} -> %{rb_set | root: new_root}
+    end
+  end
+
+  @doc """
+  Returns the number of elements in `rb_set`.
+
+  ## Examples
+
+      iex> A.RBSet.size(A.RBSet.new([1, 2, 3]))
+      3
+      iex> A.RBSet.size(A.RBSet.new([1, 1, 1.0]))
+      1
+
+  """
+  @spec size(t) :: non_neg_integer
+  def size(rb_set)
+  def size(%__MODULE__{size: size}), do: size
+
+  @doc """
+  Checks if `rb_set1`'s members are all contained in `rb_set2`.
+
+  This function checks if `rb_set1` is a subset of `rb_set2`.
+
+  ## Examples
+
+      iex> A.RBSet.subset?(A.RBSet.new([1, 2]), A.RBSet.new([1, 2, 3]))
+      true
+      iex> A.RBSet.subset?(A.RBSet.new([1, 2, 3]), A.RBSet.new([1, 2]))
+      false
+
+  """
+  @spec subset?(t, t) :: boolean
+  def subset?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    rb_set1.size <= rb_set2.size and Enum.all?(rb_set1, fn elem -> member?(rb_set2, elem) end)
+  end
+
+  @doc """
+  Converts `rb_set` to a list.
+
+  ## Examples
+
+      iex> A.RBSet.to_list(A.RBSet.new([1, 2, 3]))
+      [1, 2, 3]
+
+  """
+  @spec to_list(t(val)) :: [val] when val: value
+  def to_list(rb_set)
+
+  def to_list(%__MODULE__{root: root}) do
+    A.RBTree.to_list(root)
+  end
+
+  @doc """
+  Returns a set containing all members of `rb_set1` and `rb_set2`.
+
+  ## Examples
+
+      iex> A.RBSet.union(A.RBSet.new([2, 1]), A.RBSet.new([4, 2, 3]))
+      #A.RBSet<[1, 2, 3, 4]>
+
+  """
+  @spec union(t(val1), t(val2)) :: t(val1 | val2) when val1: value, val2: value
+  def union(rb_set1, rb_set2)
+
+  def union(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) when rb_set1.size < rb_set2.size do
+    union(rb_set2, rb_set1)
+  end
+
+  def union(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
+    {size, root} =
+      A.RBTree.foldl(rb_set2.root, {rb_set1.size, rb_set1.root}, fn elem, {count, tree} ->
+        {result, new_tree} = A.RBTree.set_insert(tree, elem)
+
+        case result do
+          :new -> {count + 1, new_tree}
+          _ -> {count, new_tree}
+        end
+      end)
+
+    %{rb_set1 | size: size, root: root}
+  end
+
+  # Extra tree methods
+
+  @doc """
+  Finds the smallest element in the set.
+
+  This is very efficient and can be done in O(log(n)).
+  It should be preferred over `Enum.min/3`.
+
+  ## Examples
+
+      iex> A.RBSet.new([4, 2, 3]) |> A.RBSet.first()
+      2
+      iex> A.RBSet.new() |> A.RBSet.first()
+      nil
+
+  """
+  @spec first(t(val)) :: val | nil when val: value
+  def first(rb_set)
+
+  def first(%__MODULE__{root: root}) do
+    case A.RBTree.min(root) do
+      {:ok, value} -> value
+      :error -> nil
+    end
+  end
+
+  @doc """
+  Finds the largest element in the set.
+
+  This is very efficient and can be done in O(log(n)).
+  It should be preferred over `Enum.max/3`.
+
+  ## Examples
+
+      iex> A.RBSet.new([4, 2, 3]) |> A.RBSet.last()
+      4
+      iex> A.RBSet.new() |> A.RBSet.last()
+      nil
+
+  """
+  @spec last(t(val)) :: val | nil when val: value
+  def last(rb_set)
+
+  def last(%__MODULE__{root: root}) do
+    case A.RBTree.max(root) do
+      {:ok, value} -> value
+      :error -> nil
+    end
+  end
+
+  @doc """
+  Folds (reduces) the given set from the right with a function. Requires an accumulator.
+
+  ## Examples
+
+      iex> A.RBSet.new([22, 11, 33]) |> A.RBSet.foldl(0, &+/2)
+      66
+      iex> A.RBSet.new([22, 11, 33]) |> A.RBSet.foldl([], &([2 * &1 | &2]))
+      [66, 44, 22]
+
+  """
+  def foldl(%__MODULE__{} = rb_set, acc, fun) when is_function(fun, 2) do
+    A.RBTree.foldl(rb_set.root, acc, fun)
+  end
+
+  @doc """
+  Folds (reduces) the given set from the right with a function. Requires an accumulator.
+
+  Unlike linked lists, this is as efficient as `foldl/3`. This can typically save a call
+  to `Enum.reverse/1` on the result when building a list.
+
+  ## Examples
+
+      iex> A.RBSet.new([22, 11, 33]) |> A.RBSet.foldr(0, &+/2)
+      66
+      iex> A.RBSet.new([22, 11, 33]) |> A.RBSet.foldr([], &([2 * &1 | &2]))
+      [22, 44, 66]
+
+  """
+  def foldr(%__MODULE__{} = rb_set, acc, fun) when is_function(fun, 2) do
+    A.RBTree.foldr(rb_set.root, acc, fun)
+  end
+
+  # Not private, but only exposed for protocols
+
+  @doc false
+  def reduce(%__MODULE__{root: root}, acc, fun), do: A.RBTree.reduce(root, acc, fun)
+
+  defimpl Collectable do
+    def into(set) do
+      fun = fn
+        set_acc, {:cont, value} ->
+          A.RBSet.put(set_acc, value)
+
+        set_acc, :done ->
+          set_acc
+
+        _set_acc, :halt ->
+          :ok
+      end
+
+      {set, fun}
+    end
+  end
+
+  defimpl Enumerable do
+    def count(set) do
+      {:ok, A.RBSet.size(set)}
+    end
+
+    def member?(set, val) do
+      {:ok, A.RBSet.member?(set, val)}
+    end
+
+    def slice(set) do
+      size = A.RBSet.size(set)
+      {:ok, size, &Enumerable.List.slice(A.RBSet.to_list(set), &1, &2, size)}
+    end
+
+    defdelegate reduce(set, acc, fun), to: A.RBSet
+  end
+
+  defimpl Inspect do
+    import Inspect.Algebra
+
+    def inspect(set, opts) do
+      opts = %Inspect.Opts{opts | charlists: :as_lists}
+      concat(["#A.RBSet<", Inspect.List.inspect(A.RBSet.to_list(set), opts), ">"])
+    end
+  end
+
+  if Code.ensure_loaded?(Jason.Encoder) do
+    defimpl Jason.Encoder do
+      def encode(set, opts) do
+        set |> A.RBSet.to_list() |> Jason.Encode.list(opts)
+      end
+    end
+  end
+end
