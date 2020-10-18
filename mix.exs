@@ -14,6 +14,7 @@ defmodule Aja.MixProject do
       preferred_cli_env: [
         inch: :docs,
         docs: :docs,
+        "hex.publish": :docs,
         dialyzer: :dialyzer,
         cover: :test,
         propertest: :test
