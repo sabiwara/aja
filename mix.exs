@@ -17,7 +17,8 @@ defmodule Aja.MixProject do
         "hex.publish": :docs,
         dialyzer: :dialyzer,
         cover: :test,
-        propertest: :test
+        "test.all": :test,
+        "test.proper": :test
       ],
 
       # Hex
@@ -36,8 +37,12 @@ defmodule Aja.MixProject do
     case Mix.env() do
       :dialyzer ->
         [
-          extra_applications: [:jason],
-          mod: {A.Application, []}
+          extra_applications: [:jason]
+        ]
+
+      :test ->
+        [
+          extra_applications: [:stream_data]
         ]
 
       _ ->
@@ -52,7 +57,7 @@ defmodule Aja.MixProject do
 
       # CI
       {:dialyxir, "~> 1.0", only: :dialyzer, runtime: false},
-      {:stream_data, "~> 0.5", only: :test, runtime: false},
+      {:stream_data, "~> 0.5", only: [:test, :dev], runtime: false},
 
       # DOCS
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
@@ -65,7 +70,8 @@ defmodule Aja.MixProject do
 
   defp aliases do
     [
-      propertest: ["test --include property:true"]
+      "test.proper": ["test --only property:true"],
+      "test.all": ["test --include property:true"]
     ]
   end
 

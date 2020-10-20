@@ -1,0 +1,32 @@
+
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    strategy:
+      matrix:
+        include:
+          - elixir: 1.10.4
+            otp: 21.3.8.18
+          - elixir: 1.10.4
+            otp: 23.1.1
+          - elixir: 1.11.0
+            otp: 23.1.1
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-elixir@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: Install Dependencies
+        run: mix deps.get
+      - name: Check format
+        run: mix format --check-formatted
+      # TODO add dialyzer?
+      - name: Unit tests
+        run: mix test
+      - name: Property-based tests
+        run: mix test.proper
