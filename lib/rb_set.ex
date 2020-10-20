@@ -217,8 +217,8 @@ defmodule A.RBSet do
 
   """
   @spec disjoint?(t, t) :: boolean
-  def disjoint?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2)
-      when rb_set1.size < rb_set2.size do
+  def disjoint?(%__MODULE__{size: size1} = rb_set1, %__MODULE__{size: size2} = rb_set2)
+      when size1 < size2 do
     intersection(rb_set2, rb_set1)
   end
 
@@ -273,8 +273,8 @@ defmodule A.RBSet do
 
   """
   @spec intersection(t(val), t(val)) :: t(val) when val: value
-  def intersection(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2)
-      when rb_set1.size < rb_set2.size do
+  def intersection(%__MODULE__{size: size1} = rb_set1, %__MODULE__{size: size2} = rb_set2)
+      when size1 < size2 do
     intersection(rb_set2, rb_set1)
   end
 
@@ -382,7 +382,8 @@ defmodule A.RBSet do
   @spec union(t(val1), t(val2)) :: t(val1 | val2) when val1: value, val2: value
   def union(rb_set1, rb_set2)
 
-  def union(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) when rb_set1.size < rb_set2.size do
+  def union(%__MODULE__{size: size1} = rb_set1, %__MODULE__{size: size2} = rb_set2)
+      when size1 < size2 do
     union(rb_set2, rb_set1)
   end
 
