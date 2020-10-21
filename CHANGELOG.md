@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2 (dev)
+
+  * Add some guards to functions
+
 ## v0.1.1 (2020-10-21)
 
 ### Bug fixes

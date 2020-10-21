@@ -22,7 +22,8 @@ defmodule A.Integer do
 
   """
   @spec div_rem(integer, pos_integer | neg_integer) :: {integer, integer}
-  def div_rem(dividend, divisor) do
+  def div_rem(dividend, divisor)
+      when is_integer(dividend) and is_integer(divisor) do
     {div(dividend, divisor), rem(dividend, divisor)}
   end
 

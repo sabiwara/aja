@@ -199,7 +199,7 @@ defmodule A.Array do
   Note: in the erlang version, the array is fixed size by default.
   """
   @spec new(val, non_neg_integer()) :: t(val) when val: value
-  def duplicate(elem, n, opts \\ []) do
+  def duplicate(elem, n, opts \\ []) when is_integer(n) and n >= 0 do
     internal = :array.new(size: n, default: elem)
 
     internal =

@@ -36,7 +36,7 @@ defmodule A.IO do
   - loops within HTML templates
 
   """
-  def iodata_empty?(iodata) do
+  def iodata_empty?(iodata) when is_binary(iodata) or is_list(iodata) do
     iodata_empty?(iodata, [])
   end
 
