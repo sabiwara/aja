@@ -4,7 +4,7 @@ defmodule A.Pair do
   """
 
   @doc """
-  Wraps the expression as an idiomatic `{atom, value}` tuple.
+  Wraps the `value` as an idiomatic `{atom, value}` tuple.
   Convenient for not breaking the pipe.
 
   ## Examples
@@ -14,8 +14,8 @@ defmodule A.Pair do
       iex> %{a: 5} |> Map.update!(:a, & &1 + 1) |> A.Pair.wrap(:no_reply)
       {:no_reply, %{a: 6}}
   """
-  def wrap(expression, atom) when is_atom(atom) do
-    {atom, expression}
+  def wrap(value, atom) when is_atom(atom) do
+    {atom, value}
   end
 
   @doc """
@@ -29,8 +29,8 @@ defmodule A.Pair do
       iex> :error |> A.Pair.unwrap!(:ok)
       ** (ArgumentError) unwrap!/2 expected {:ok, _}, got: :error
   """
-  def unwrap!(expression, atom) when is_atom(atom) do
-    case expression do
+  def unwrap!(pair, atom) when is_atom(atom) do
+    case pair do
       {^atom, value} ->
         value
 
