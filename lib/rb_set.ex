@@ -219,7 +219,7 @@ defmodule A.RBSet do
   @spec disjoint?(t, t) :: boolean
   def disjoint?(%__MODULE__{size: size1} = rb_set1, %__MODULE__{size: size2} = rb_set2)
       when size1 < size2 do
-    intersection(rb_set2, rb_set1)
+    disjoint?(rb_set2, rb_set1)
   end
 
   def disjoint?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
