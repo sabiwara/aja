@@ -1,4 +1,8 @@
-# Aja [![Hex Version](https://img.shields.io/hexpm/v/aja.svg)](https://hex.pm/packages/aja) [![docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/aja/) ![CI](https://github.com/sabiwara/aja/workflows/CI/badge.svg)
+# Aja
+
+[![Hex Version](https://img.shields.io/hexpm/v/aja.svg)](https://hex.pm/packages/aja)
+[![docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/aja/)
+[![CI](https://github.com/sabiwara/aja/workflows/CI/badge.svg)](https://github.com/sabiwara/aja/actions?query=workflow%3ACI)
 
 Extension of the Elixir standard library focused on data stuctures and data manipulation.
 
