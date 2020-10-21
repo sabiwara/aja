@@ -4,6 +4,15 @@ defmodule A.RBMapTest do
 
   doctest A.RBMap
 
+  defmodule User do
+    defstruct name: nil, age: nil
+  end
+
+  test "new/1 should accept an A.RBMap and leave it untouched" do
+    rb_map = A.RBMap.new(%{1 => 1, 2 => 4, 3 => 9})
+    assert ^rb_map = A.RBMap.new(rb_map)
+  end
+
   test "put" do
     assert [{1, "一"}, {2, "二"}, {3, "三"}] =
              A.RBMap.new()
@@ -40,6 +49,12 @@ defmodule A.RBMapTest do
     map = A.RBMap.new([])
     iterator = A.RBMap.iterator(map)
     assert nil == A.RBMap.next(iterator)
+  end
+
+  test "from_struct/1" do
+    rb_map = %User{name: "John", age: 44} |> A.RBMap.from_struct()
+    expected = A.RBMap.new(age: 44, name: "John")
+    assert ^expected = rb_map
   end
 
   # Property testing:

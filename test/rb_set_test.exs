@@ -4,6 +4,11 @@ defmodule A.RBSetTest do
 
   doctest A.RBSet
 
+  test "new/1 should accept an A.RBSet and leave it untouched" do
+    rb_set = A.RBSet.new([4, 2, 5, 3, 1])
+    assert ^rb_set = A.RBSet.new(rb_set)
+  end
+
   # Property testing:
 
   # This test is a bit complex, but it should cover a lot of ground and helps building the confidence that
@@ -131,6 +136,10 @@ defmodule A.RBSetTest do
                A.RBSet.size(intersection) +
                  A.RBSet.size(diff_1_2) +
                  A.RBSet.size(diff_2_1)
+
+      assert true == A.RBSet.disjoint?(intersection, diff_1_2)
+      assert true == A.RBSet.disjoint?(intersection, diff_2_1)
+      assert true == A.RBSet.disjoint?(diff_1_2, diff_2_1)
 
       # TODO rewrite this condition in a way that account for floats/ints
       # assert Enum.to_list(diff_1_2) == Enum.to_list(rb_set1) -- Enum.to_list(rb_set2)

@@ -3,6 +3,11 @@ defmodule A.ArrayTest do
 
   doctest A.Array
 
+  test "new/1 should accept an array and leave it untouched" do
+    array = A.Array.new([1, 2, 3, 5, 8])
+    assert ^array = A.Array.new(array)
+  end
+
   test "improved errors" do
     assert_raise ArgumentError, "fixed? must be a boolean, got: nil", fn ->
       A.Array.new([1, 2, 3], fixed?: nil)

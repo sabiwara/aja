@@ -4,6 +4,15 @@ defmodule A.OrdMapTest do
 
   doctest A.OrdMap
 
+  defmodule User do
+    defstruct name: nil, age: nil
+  end
+
+  test "new/1 should accept an A.OrdMap and leave it untouched" do
+    ord_map = A.OrdMap.new(b: 2, a: 1, c: 3)
+    assert ^ord_map = A.OrdMap.new(ord_map)
+  end
+
   test "put" do
     assert [{"一", 1}, {"二", 2}, {"三", 3}] =
              A.OrdMap.new()
@@ -30,16 +39,22 @@ defmodule A.OrdMapTest do
   end
 
   test "iterator/1" do
-    map = A.OrdMap.new([{"一", 1}, {"二", 2}])
-    iterator = A.OrdMap.iterator(map)
+    ord_map = A.OrdMap.new([{"一", 1}, {"二", 2}])
+    iterator = A.OrdMap.iterator(ord_map)
 
     assert {"一", 1, iterator} = A.OrdMap.next(iterator)
     assert {"二", 2, iterator} = A.OrdMap.next(iterator)
     assert nil == A.OrdMap.next(iterator)
 
-    map = A.OrdMap.new([])
-    iterator = A.OrdMap.iterator(map)
+    ord_map = A.OrdMap.new([])
+    iterator = A.OrdMap.iterator(ord_map)
     assert nil == A.OrdMap.next(iterator)
+  end
+
+  test "from_struct/1" do
+    ord_map = %User{name: "John", age: 44} |> A.OrdMap.from_struct()
+    expected = A.OrdMap.new(age: 44, name: "John")
+    assert ^expected = ord_map
   end
 
   # Property testing:
