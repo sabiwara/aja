@@ -41,7 +41,8 @@ defmodule A.OrdMap do
   ## Tree-specific functions
 
   Due to its sorted nature, `A.OrdMap` also offers some extra methods not present in `Map`, like:
-  - `first/1` and `last/1` to efficiently retrieve the first / last key-value pairs
+  - `first/1` and `last/1` to efficiently retrieve the first / last key-value pair
+  - `pop_first/1` and `pop_last/1` to efficiently pop the first / last key-value pair
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
@@ -49,6 +50,9 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
       iex> A.OrdMap.first(ord_map)
       {:b, "Bat"}
+      iex> {:c, "Cat", updated} = A.OrdMap.pop_last(ord_map)
+      iex> updated
+      #A<ord(%{b: "Bat", a: "Ant"})>
       iex> A.OrdMap.foldr(ord_map, [], fn {_key, value}, acc -> [value <> "man" | acc] end)
       ["Batman", "Antman", "Catman"]
 
@@ -979,6 +983,65 @@ defmodule A.OrdMap do
       {:ok, {_index, key}} ->
         %{^key => {_index, value}} = map
         {key, value}
+
+      :error ->
+        nil
+    end
+  end
+
+  @doc """
+  Finds and pops the first `{key, value}` pair in `ord_map`.
+
+  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+
+  ## Examples
+
+      iex> ord_map = A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"])
+      #A<ord(%{b: "B", d: "D", a: "A", c: "C"})>
+      iex> {:b, "B", updated} = A.OrdMap.pop_first(ord_map)
+      iex> updated
+      #A<ord(%{d: "D", a: "A", c: "C"})>
+      iex> A.OrdMap.new() |> A.OrdMap.pop_first()
+      nil
+
+  """
+  @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
+
+  def pop_first(%__MODULE__{} = ord_map) do
+    case A.RBTree.map_pop_min(ord_map.tree) do
+      {:ok, {_index, key}, new_tree} ->
+        {{_index, value}, new_map} = Map.pop!(ord_map.map, key)
+        new_ord_map = %{ord_map | tree: new_tree, map: new_map}
+        {key, value, new_ord_map}
+
+      :error ->
+        nil
+    end
+  end
+
+  @doc """
+  Finds and pops the last `{key, value}` pair in `ord_map`.
+
+  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+
+  ## Examples
+
+      iex> ord_map = A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"])
+      #A<ord(%{b: "B", d: "D", a: "A", c: "C"})>
+      iex> {:c, "C", updated} = A.OrdMap.pop_last(ord_map)
+      iex> updated
+      #A<ord(%{b: "B", d: "D", a: "A"})>
+      iex> A.OrdMap.new() |> A.OrdMap.pop_last()
+      nil
+
+  """
+  @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
+  def pop_last(%__MODULE__{} = ord_map) do
+    case A.RBTree.map_pop_max(ord_map.tree) do
+      {:ok, {_index, key}, new_tree} ->
+        {{_index, value}, new_map} = Map.pop!(ord_map.map, key)
+        new_ord_map = %{ord_map | tree: new_tree, map: new_map}
+        {key, value, new_ord_map}
 
       :error ->
         nil

@@ -46,7 +46,8 @@ defmodule A.RBSet do
   ## Tree-specific functions
 
   Due to its sorted nature, `A.RBSet` also offers some extra methods not present in `MapSet`, like:
-  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) elements
+  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) element
+  - `pop_first/1` and `pop_last/1` to efficiently pop the first (smallest) / last (largest) element
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
@@ -54,6 +55,9 @@ defmodule A.RBSet do
       iex> rb_set = A.RBSet.new([8, 6, 0, 4, 2, 2, 2])
       iex> A.RBSet.last(rb_set)
       8
+      iex> {0, updated} = A.RBSet.pop_first(rb_set)
+      iex> updated
+      #A.RBSet<[2, 4, 6, 8]>
       iex> A.RBSet.foldr(rb_set, [], fn value, acc -> [value + 1 | acc] end)
       [1, 3, 5, 7, 9]
 
@@ -429,7 +433,7 @@ defmodule A.RBSet do
   # Extra tree methods
 
   @doc """
-  Finds the smallest element in the set.
+  Finds the smallest element in the set. Returns `nil` for empty sets.
 
   This is very efficient and can be done in O(log(n)).
   It should be preferred over `Enum.min/3`.
@@ -453,7 +457,7 @@ defmodule A.RBSet do
   end
 
   @doc """
-  Finds the largest element in the set.
+  Finds the largest element in the set. Returns `nil` for empty sets.
 
   This is very efficient and can be done in O(log(n)).
   It should be preferred over `Enum.max/3`.
@@ -473,6 +477,60 @@ defmodule A.RBSet do
     case A.RBTree.max(root) do
       {:ok, value} -> value
       :error -> nil
+    end
+  end
+
+  @doc """
+  Removes and returns the smallest element in the set.
+
+  Returns a `{value, new_rb_set}` tuple when non-empty, or `nil` for empty sets.
+
+  ## Examples
+
+      iex> rb_set = A.RBSet.new([4, 2, 5, 3])
+      iex> {2, updated} = A.RBSet.pop_first(rb_set)
+      iex> updated
+      #A.RBSet<[3, 4, 5]>
+      iex> A.RBSet.new() |> A.RBSet.pop_first()
+      nil
+
+  """
+  @spec pop_first(t(val)) :: {val, t(val)} | nil when val: value
+  def pop_first(%__MODULE__{size: size} = rb_set) do
+    case A.RBTree.set_pop_min(rb_set.root) do
+      {:ok, value, new_root} ->
+        new_rb_set = %{rb_set | root: new_root, size: size - 1}
+        {value, new_rb_set}
+
+      :error ->
+        nil
+    end
+  end
+
+  @doc """
+  Removes and returns the largest element in the set.
+
+  Returns a `{value, new_rb_set}` tuple when non-empty, or `nil` for empty sets.
+
+  ## Examples
+
+      iex> rb_set = A.RBSet.new([4, 2, 5, 3])
+      iex> {5, updated} = A.RBSet.pop_last(rb_set)
+      iex> updated
+      #A.RBSet<[2, 3, 4]>
+      iex> A.RBSet.new() |> A.RBSet.pop_last()
+      nil
+
+  """
+  @spec pop_last(t(val)) :: {val, t(val)} | nil when val: value
+  def pop_last(%__MODULE__{size: size} = rb_set) do
+    case A.RBTree.set_pop_max(rb_set.root) do
+      {:ok, value, new_root} ->
+        new_rb_set = %{rb_set | root: new_root, size: size - 1}
+        {value, new_rb_set}
+
+      :error ->
+        nil
     end
   end
 

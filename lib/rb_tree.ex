@@ -248,6 +248,64 @@ defmodule A.RBTree do
         when k: key, v: value
   defdelegate map_pop(tree, key), to: A.RBTree.CurseDeletion
 
+  @doc """
+  Finds and removes the leftmost (smallest) key in a map tree.
+
+  Returns both the key-value pair and the new tree.
+
+  ## Examples
+
+      iex> tree = A.RBTree.map_new(%{a: "A", b: "B", c: "C"})
+      iex> {:ok, {:a, "A"}, new_tree} = A.RBTree.map_pop_min(tree)
+      iex> new_tree
+      {:B, {:R, :E, {:b, "B"}, :E}, {:c, "C"}, :E}
+      iex> :error = A.RBTree.map_pop_min(A.RBTree.empty())
+      :error
+
+  """
+  @spec map_pop_min(tree({k, v})) :: {:ok, {k, v}, tree({k, v})} | :error
+        when k: key, v: value
+  def map_pop_min(tree) do
+    # TODO consider reimplement this as one pass? (optimization)
+    case min(tree) do
+      :error ->
+        :error
+
+      {:ok, {key, value}} ->
+        {:ok, _value, new_tree} = map_pop(tree, key)
+        {:ok, {key, value}, new_tree}
+    end
+  end
+
+  @doc """
+  Finds and removes the rightmost (largest) key in a map tree.
+
+  Returns both the key-value pair and the new tree.
+
+  ## Examples
+
+      iex> tree = A.RBTree.map_new(%{a: "A", b: "B", c: "C"})
+      iex> {:ok, {:c, "C"}, new_tree} = A.RBTree.map_pop_max(tree)
+      iex> new_tree
+      {:B, :E, {:a, "A"}, {:R, :E, {:b, "B"}, :E}}
+      iex> :error = A.RBTree.map_pop_max(A.RBTree.empty())
+      :error
+
+  """
+  @spec map_pop_max(tree({k, v})) :: {:ok, {k, v}, tree({k, v})} | :error
+        when k: key, v: value
+  def map_pop_max(tree) do
+    # TODO consider reimplement this as one pass? (optimization)
+    case max(tree) do
+      :error ->
+        :error
+
+      {:ok, {key, value}} ->
+        {:ok, _value, new_tree} = map_pop(tree, key)
+        {:ok, {key, value}, new_tree}
+    end
+  end
+
   # SET API
 
   @doc """
@@ -388,6 +446,60 @@ defmodule A.RBTree do
   @spec set_delete(tree(el), el) :: {:ok, tree(el)} | :error when el: elem
   defdelegate set_delete(tree, value), to: A.RBTree.CurseDeletion
 
+  @doc """
+  Finds and removes the leftmost (smallest) element in a set tree.
+
+  Returns both the element and the new tree.
+
+  ## Examples
+
+      iex> tree = A.RBTree.set_new([1, 2, 3, 4])
+      iex> {:ok, 1, new_tree} = A.RBTree.set_pop_min(tree)
+      iex> new_tree
+      {:B, {:R, :E, 2, :E}, 3, {:R, :E, 4, :E}}
+      iex> :error = A.RBTree.set_pop_min(A.RBTree.empty())
+      :error
+
+  """
+  @spec set_pop_min(tree(el)) :: {:ok, el, tree(el)} | :error when el: elem
+  def set_pop_min(tree) do
+    case min(tree) do
+      :error ->
+        :error
+
+      {:ok, value} ->
+        {:ok, new_tree} = set_delete(tree, value)
+        {:ok, value, new_tree}
+    end
+  end
+
+  @doc """
+  Finds and removes the rightmost (largest) element in a set tree.
+
+  Returns both the element and the new tree.
+
+  ## Examples
+
+      iex> tree = A.RBTree.set_new([1, 2, 3, 4])
+      iex> {:ok, 4, new_tree} = A.RBTree.set_pop_max(tree)
+      iex> new_tree
+      {:B, {:B, :E, 1, :E}, 2, {:B, :E, 3, :E}}
+      iex> :error = A.RBTree.set_pop_max(A.RBTree.empty())
+      :error
+
+  """
+  @spec set_pop_max(tree(el)) :: {:ok, el, tree(el)} | :error when el: elem
+  def set_pop_max(tree) do
+    case max(tree) do
+      :error ->
+        :error
+
+      {:ok, value} ->
+        {:ok, new_tree} = set_delete(tree, value)
+        {:ok, value, new_tree}
+    end
+  end
+
   # COMMON API
 
   @doc """
@@ -435,7 +547,7 @@ defmodule A.RBTree do
   end
 
   @doc """
-  Finds the lefmost (smallest) element of a tree
+  Finds the leftmost (smallest) element of a tree
 
   ## Examples
 

@@ -29,7 +29,8 @@ defmodule A.RBMap do
   ## Tree-specific functions
 
   Due to its sorted nature, `A.RBMap` also offers some extra methods not present in `Map`, like:
-  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) key-value pairs
+  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) key-value pair
+  - `pop_first/1` and `pop_last/1` to efficiently pop the first (smallest) / last (largest) key-value pair
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
@@ -37,6 +38,9 @@ defmodule A.RBMap do
       iex> rb_map = A.RBMap.new(%{1 => "一", 2 => "二", 3 => "三"})
       iex> A.RBMap.first(rb_map)
       {1, "一"}
+      iex> {3, "三", updated} = A.RBMap.pop_last(rb_map)
+      iex> updated
+      #A.RBMap<%{1 => "一", 2 => "二"}>
       iex> A.RBMap.foldr(rb_map, [], fn {_key, value}, acc -> [value | acc] end)
       ["一", "二", "三"]
 
@@ -837,6 +841,7 @@ defmodule A.RBMap do
 
   @doc """
   Finds the `{key, value}` pair corresponding to the smallest `key` in `rb_map`.
+  Returns `nil` for empty maps.
 
   This is very efficient and can be done in O(log(n)).
   It should be preferred over `Enum.min/3`.
@@ -861,6 +866,7 @@ defmodule A.RBMap do
 
   @doc """
   Finds the `{key, value}` pair corresponding to the largest `key` in `rb_map`.
+  Returns `nil` for empty maps.
 
   This is very efficient and can be done in O(log(n)).
   It should be preferred over `Enum.max/3`.
@@ -881,6 +887,58 @@ defmodule A.RBMap do
       {:ok, key_value} -> key_value
       :error -> nil
     end
+  end
+
+  @doc """
+  Finds and pops the `{key, value}` pair corresponding to the smallest `key` in `rb_map`.
+
+  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+
+  ## Examples
+
+      iex> rb_map = A.RBMap.new([b: "B", d: "D", a: "A", c: "C"])
+      #A.RBMap<%{a: "A", b: "B", c: "C", d: "D"}>
+      iex> {:a, "A", updated} = A.RBMap.pop_first(rb_map)
+      iex> updated
+      #A.RBMap<%{b: "B", c: "C", d: "D"}>
+      iex> A.RBMap.new() |> A.RBMap.pop_first()
+      nil
+
+  """
+  @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
+
+  def pop_first(%__MODULE__{size: 0}), do: nil
+
+  def pop_first(%__MODULE__{size: size} = rb_map) do
+    {:ok, {key, value}, new_root} = A.RBTree.map_pop_min(rb_map.root)
+    new_rb_map = %{rb_map | root: new_root, size: size - 1}
+    {key, value, new_rb_map}
+  end
+
+  @doc """
+  Finds and pops the `{key, value}` pair corresponding to the largest `key` in `rb_map`.
+
+  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+
+  ## Examples
+
+      iex> rb_map = A.RBMap.new([b: "B", d: "D", a: "A", c: "C"])
+      #A.RBMap<%{a: "A", b: "B", c: "C", d: "D"}>
+      iex> {:d, "D", updated} = A.RBMap.pop_last(rb_map)
+      iex> updated
+      #A.RBMap<%{a: "A", b: "B", c: "C"}>
+      iex> A.RBMap.new() |> A.RBMap.pop_last()
+      nil
+
+  """
+  @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
+
+  def pop_last(%__MODULE__{size: 0}), do: nil
+
+  def pop_last(%__MODULE__{size: size} = rb_map) do
+    {:ok, {key, value}, new_root} = A.RBTree.map_pop_max(rb_map.root)
+    new_rb_map = %{rb_map | root: new_root, size: size - 1}
+    {key, value, new_rb_map}
   end
 
   @doc """

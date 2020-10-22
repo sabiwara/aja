@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+  * Add `pop_first/1` and `pop_last/1` to `A.RBMap`, `A.RBSet` and `A.OrdMap`
   * Add some guards to functions
 
 ### Bug fixes
