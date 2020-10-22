@@ -60,18 +60,42 @@ defmodule A.RBMap do
       iex> A.RBMap.new(%{1 => "一", 2 => "二", 11 => "十一"}) |> Jason.encode!()
       "{\"1\":\"一\",\"2\":\"二\",\"11\":\"十一\"}"
 
-      It also preserves the key order.
+  It also preserves the key order.
 
-  ## Difference with `A.OrdMap`
+  ## Limitations: pattern-matching and equality
 
-  - `A.OrdMap` keeps track of key insertion order
-  - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
+  Like `:gb_trees`, `A.RBMap`s face two strong limitations:
+  - pattern-matching on key-values like maps is **NOT POSSIBLE**
+  - comparisons based on `==/2`, `===/2` or the pin operator `^` are **UNRELIABLE**
 
-  ## Underlying Red-Black Tree implementation
+  In Elixir, pattern-matching and equality for structs work based on their internal representation.
+  While this is a pragmatic design choice that simplifies the language, it means that we cannot
+  rededine how they work for custom data structures.
 
-  The underlying red-black tree implementation is available in `A.RBTree` and is used
-  in other modules such as `A.RBSet`, `A.OrdMap` as well.
-  The algorithm detail is described in [its documentation](`A.RBTree`).
+  Tree-based maps that are semantically equal (same key-value pairs in the same order) might be considered
+  non-equal when comparing their internals, because there is not a unique way of representing one same map.
+
+  `A.RBMap.equal?/2` should be used instead:
+
+      iex> rb_map1 = A.RBMap.new([a: "Ant", b: "Bat"])
+      #A.RBMap<%{a: "Ant", b: "Bat"}>
+      iex> rb_map2 = A.RBMap.new([b: "Bat", a: "Ant"])
+      #A.RBMap<%{a: "Ant", b: "Bat"}>
+      iex> rb_map1 == rb_map2
+      false
+      iex> A.RBMap.equal?(rb_map1, rb_map2)
+      true
+      iex> match?(^rb_map1, rb_map2)
+      false
+
+  An `A.RBMap` is represented internally using the `%A.RBMap{}` struct. This struct
+  can be used whenever there's a need to pattern match on something being an `A.RBMap`:
+
+      iex> match?(%A.RBMap{}, A.RBMap.new(a: "Ant"))
+      true
+
+  Note, however, than `A.RBMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
+  its struct internal fields must not be accessed directly.
 
   ## Note about numbers
 
@@ -84,6 +108,18 @@ defmodule A.RBMap do
       {:ok, "二"}
 
   Erlang's `:gb_trees` module works the same.
+
+  ## Difference with `A.OrdMap`
+
+  - `A.OrdMap` keeps track of key insertion order
+  - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
+
+  ## Underlying Red-Black Tree implementation
+
+  The underlying red-black tree implementation is available in `A.RBTree` and is used
+  in other modules such as `A.RBSet`, `A.OrdMap` as well.
+  The algorithm detail is described in [its documentation](`A.RBTree`).
+
   """
 
   @behaviour Access

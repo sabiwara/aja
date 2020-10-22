@@ -106,7 +106,7 @@ defmodule A.Array do
   ## Pattern-match and opaque type
 
   An `A.Array` is represented internally using the `%A.Array{}` struct. This struct
-  can be used whenever there's a need to pattern match on something being a `A.Array`:
+  can be used whenever there's a need to pattern match on something being an `A.Array`:
       iex> match?(%A.Array{}, A.Array.new())
       true
 

@@ -74,6 +74,10 @@ iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1.0, 5])
 #A.RBSet<[1.0, 2, 3, 4, 5, 6, 7]>
 ```
 
+When would you need a Red-Black Tree (map or set)? It depends, but it can typically be convenient
+when you want to keep entries sorted as you insert/delete, without any need for a sort when
+retrieving them.
+
 All those data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library

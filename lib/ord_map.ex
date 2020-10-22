@@ -72,8 +72,8 @@ defmodule A.OrdMap do
   The `A.OrdMap` module can be used without any macro.
   The `A.ord/1` macro does however provide some syntactic sugar to make
   it more convenient to work with ordered maps, namely:
-  - construct new ordered maps
-  - pattern match on ordered maps like one would do on regular maps
+  - construct new ordered maps without the clutter of a tuple list
+  - pattern match on key-values like regular maps
   - update some existing keys
 
   Examples:
@@ -101,20 +101,48 @@ defmodule A.OrdMap do
 
   There is no way as of now to decode JSON using `A.OrdMap`.
 
-  ## Pattern-match and opaque type
+  ## Limitations: equality
+
+  `A.OrdMap` comparisons based on `==/2`, `===/2` or the pin operator `^` are **UNRELIABLE**.
+
+  In Elixir, pattern-matching and equality for structs work based on their internal representation.
+  While this is a pragmatic design choice that simplifies the language, it means that we cannot
+  rededine how they work for custom data structures.
+
+  Two ordered maps that are semantically equal (same key-value pairs in the same order) might be considered
+  non-equal when comparing their internals, because there is not a unique way of representing one same map.
+
+  `A.OrdMap.equal?/2` should be used instead:
+
+      iex> ord_map1 = A.OrdMap.new(a: "Ant", b: "Bat")
+      #A<ord(%{a: "Ant", b: "Bat"})>
+      iex> ord_map2 = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
+      #A<ord(%{a: "Ant", b: "Bat"})>
+      iex> ord_map1 == ord_map2
+      false
+      iex> A.OrdMap.equal?(ord_map1, ord_map2)
+      true
+      iex> match?(^ord_map1, ord_map2)
+      false
+
+  ## Pattern-matching and opaque type
 
   An `A.OrdMap` is represented internally using the `%A.OrdMap{}` struct. This struct
-  can be used whenever there's a need to pattern match on something being a `A.OrdMap`:
+  can be used whenever there's a need to pattern match on something being an `A.OrdMap`:
       iex> match?(%A.OrdMap{}, A.OrdMap.new())
       true
 
   Note, however, than `A.OrdMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
   its struct internal fields must not be accessed directly.
 
-  As discussed in the previous section, [`ord/1`](`A.ord/1`) also makes it
+  As discussed in the previous section, [`ord/1`](`A.ord/1`) makes it
   possible to pattern match on keys as well as checking the type.
 
-  Use the functions in this module to perform operations on ordered maps, or the `Enum` module.
+  ## Difference with `A.RBMap`
+
+  - `A.OrdMap` keeps track of key insertion order
+  - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
+
   """
 
   @behaviour Access

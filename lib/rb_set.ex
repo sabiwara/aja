@@ -1,6 +1,6 @@
 defmodule A.RBSet do
   @moduledoc ~S"""
-  A Red-Black tree implementation of a set. It keeps values sorted in ascending order.
+  A Red-Black tree implementation of a set. It keeps elements sorted in ascending order.
 
   It works as a drop-in replacement for the built-in `MapSet`.
   Unlike `MapSet` which does not keep keys in any particular order,
@@ -46,7 +46,7 @@ defmodule A.RBSet do
   ## Tree-specific functions
 
   Due to its sorted nature, `A.RBSet` also offers some extra methods not present in `MapSet`, like:
-  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) values
+  - `first/1` and `last/1` to efficiently retrieve the first (smallest) / last (largest) elements
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
@@ -62,12 +62,36 @@ defmodule A.RBSet do
       iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1.0, 5]) |> Jason.encode!()
       "[1.0,2,3,4,5,6,7]"
 
-      It also preserves the value order.
+  It also preserves the element order.
 
-  ## Pattern-match and opaque type
+  ## Limitations: equality
+
+  Like `:gb_sets`, `A.RBSet` comparisons based on `==/2`, `===/2` or the pin operator `^` are **UNRELIABLE**.
+
+  In Elixir, pattern-matching and equality for structs work based on their internal representation.
+  While this is a pragmatic design choice that simplifies the language, it means that we cannot
+  rededine how they work for custom data structures.
+
+  Tree-based sets that are semantically equal (same elements in the same order) might be considered
+  non-equal when comparing their internals, because there is not a unique way of representing one same set.
+
+  `A.RBSet.equal?/2` should be used instead:
+
+      iex> rb_set1 = A.RBSet.new([1, 2])
+      #A.RBSet<[1, 2]>
+      iex> rb_set2 = A.RBSet.new([2, 1])
+      #A.RBSet<[1, 2]>
+      iex> rb_set1 == rb_set2
+      false
+      iex> A.RBSet.equal?(rb_set1, rb_set2)
+      true
+      iex> match?(^rb_set1, rb_set2)
+      false
+
+  ## Pattern-matching and opaque type
 
   An `A.RBSet` is represented internally using the `%A.RBSet{}` struct. This struct
-  can be used whenever there's a need to pattern match on something being a `A.RBSet`:
+  can be used whenever there's a need to pattern match on something being an `A.RBSet`:
 
       iex> match?(%A.RBSet{}, A.RBSet.new())
       true
@@ -77,16 +101,10 @@ defmodule A.RBSet do
 
   Use the functions in this module to perform operations on `A.RBSet`s, or the `Enum` module.
 
-  ## Underlying Red-Black Tree implementation
-
-  The underlying red-black tree implementation is available in `A.RBTree` and is used
-  in other modules such as `A.RBMap`, `A.OrdMap` as well.
-  The algorithm detail is described in [its documentation](`A.RBTree`).
-
   ## Note about numbers
 
-  Unlike `MapSet`s, `A.RBSet`s only uses ordering for value comparisons,
-  not strict comparisons. Integers and floats are indistiguinshable as values.
+  Unlike `MapSet`s, `A.RBSet`s only uses ordering for element comparisons,
+  not strict comparisons. Integers and floats are indistiguinshable as elements.
 
       iex> MapSet.new([1, 2, 3]) |> MapSet.member?(2.0)
       false
@@ -94,6 +112,13 @@ defmodule A.RBSet do
       true
 
   Erlang's `:gb_sets` module works the same.
+
+  ## Underlying Red-Black Tree implementation
+
+  The underlying red-black tree implementation is available in `A.RBTree` and is used
+  in other modules such as `A.RBMap`, `A.OrdMap` as well.
+  The algorithm detail is described in [its documentation](`A.RBTree`).
+
   """
 
   # TODO: inline what is relevant
