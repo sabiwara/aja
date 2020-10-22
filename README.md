@@ -134,7 +134,7 @@ Aja can be installed by adding `aja` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:aja, "~> 0.1.1"}
+    {:aja, "~> 0.1.2"}
   ]
 end
 ```
