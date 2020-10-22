@@ -906,13 +906,15 @@ defmodule A.RBMap do
 
   """
   @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-
-  def pop_first(%__MODULE__{size: 0}), do: nil
-
   def pop_first(%__MODULE__{size: size} = rb_map) do
-    {:ok, {key, value}, new_root} = A.RBTree.map_pop_min(rb_map.root)
-    new_rb_map = %{rb_map | root: new_root, size: size - 1}
-    {key, value, new_rb_map}
+    case A.RBTree.map_pop_min(rb_map.root) do
+      {:ok, {key, value}, new_root} ->
+        new_rb_map = %{rb_map | root: new_root, size: size - 1}
+        {key, value, new_rb_map}
+
+      :error ->
+        nil
+    end
   end
 
   @doc """
@@ -932,13 +934,15 @@ defmodule A.RBMap do
 
   """
   @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-
-  def pop_last(%__MODULE__{size: 0}), do: nil
-
   def pop_last(%__MODULE__{size: size} = rb_map) do
-    {:ok, {key, value}, new_root} = A.RBTree.map_pop_max(rb_map.root)
-    new_rb_map = %{rb_map | root: new_root, size: size - 1}
-    {key, value, new_rb_map}
+    case A.RBTree.map_pop_max(rb_map.root) do
+      {:ok, {key, value}, new_root} ->
+        new_rb_map = %{rb_map | root: new_root, size: size - 1}
+        {key, value, new_rb_map}
+
+      :error ->
+        nil
+    end
   end
 
   @doc """
