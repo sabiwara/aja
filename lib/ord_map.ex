@@ -132,7 +132,8 @@ defmodule A.OrdMap do
             replace_existing: 4,
             delete_existing: 3,
             equal?: 2,
-            equal_loop: 2}
+            equal_loop: 2,
+            replace_many!: 2}
 
   @type key :: term
   @type value :: term
@@ -1051,6 +1052,14 @@ defmodule A.OrdMap do
       nil ->
         nil
     end
+  end
+
+  @doc false
+  def replace_many!(%__MODULE__{} = ordered, key_values) do
+    Enum.reduce(key_values, ordered, fn
+      {key, value}, acc ->
+        A.OrdMap.replace!(acc, key, value)
+    end)
   end
 
   defimpl Enumerable do

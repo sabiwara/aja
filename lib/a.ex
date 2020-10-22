@@ -5,7 +5,7 @@ defmodule A do
   Use `import A` to import everything, or import only the macros you need.
   """
 
-  @compile {:inline, to_match_map: 2, replace_many!: 2}
+  @compile {:inline, to_match_map: 2}
 
   @wildcard quote do: _
 
@@ -73,7 +73,7 @@ defmodule A do
     end
 
     quote do
-      replace_many!(unquote(ordered), unquote(key_values))
+      A.OrdMap.replace_many!(unquote(ordered), unquote(key_values))
     end
   end
 
@@ -123,13 +123,5 @@ defmodule A do
       end
 
     {:%{}, context, wildcard_pairs}
-  end
-
-  @doc false
-  def replace_many!(ordered, key_values) do
-    Enum.reduce(key_values, ordered, fn
-      {key, value}, acc ->
-        A.OrdMap.replace!(acc, key, value)
-    end)
   end
 end
