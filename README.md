@@ -15,8 +15,8 @@ The Elixir standard library is so rich, ergonomic and well-documented that it fe
 And yet... some occasional friction might still remain.
 
 Aja aims to remove some of this friction by providing mostly:
-- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. erlang trees, arrays) data structures written in pure elixir
-- nice-to-have helper functions
+- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. binary search trees) data structures written in pure elixir
+- nice-to-have utility functions
 
 ### Data structures
 
@@ -59,24 +59,19 @@ iex> {one, three}
 {1, 3}
 ```
 
-Some existing erlang modules like [`:array`](https://erlang.org/doc/man/array.html) have simply
-been wrapped [(see why)](#why-erlang-wrappers) for convenience (`A.Array`),
-while other modules like general trees ([`:gb_trees`](https://erlang.org/doc/man/gb_trees.html)
-and [`:gb_sets`](https://erlang.org/doc/man/gb_sets.html)) have not, in favor of more efficient
-alternatives using Red-Black Trees (`A.RBMap` and `A.RBSet`) instead.
+Maps and sets based on Red-Black Trees (`A.RBMap` and `A.RBSet`) are useful when you want to
+keep a collection sorted.
 
 ```elixir
-iex> A.Array.new([1, 2, 3]) |> A.Array.append_many([5, 8, 13])
-#A.Array<[1, 2, 3, 5, 8, 13]>
-iex> A.RBMap.new([b: "Bat", a: "Ant", c: "Cat"])
-#A.RBMap<%{a: "Ant", b: "Bat", c: "Cat"}>
-iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1.0, 5])
-#A.RBSet<[1.0, 2, 3, 4, 5, 6, 7]>
+iex> A.RBMap.new([b: "Bat", a: "Ant", c: "Cat", b: "Buffalo"])
+#A.RBMap<%{a: "Ant", b: "Buffalo", c: "Cat"}>
+iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1, 5])
+#A.RBSet<[1, 2, 3, 4, 5, 6, 7]>
 ```
 
-When would you need a Red-Black Tree (map or set)? It depends, but it can typically be convenient
-when you want to keep entries sorted as you insert/delete, without any need for a sort when
-retrieving them.
+They offer similar functionalities as general balanced trees ([`:gb_trees`](https://erlang.org/doc/man/gb_trees.html)
+and [`:gb_sets`](https://erlang.org/doc/man/gb_sets.html)) included in the Erlang standard library.
+`A.RBMap` and `A.RBSet` should however offer better performance, and be more convenient to use.
 
 All those data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
@@ -85,7 +80,8 @@ All those data structures offer:
 - (except for sets) implementation of the `Access` behaviour
 - (optional if `Jason` is installed) implemention the `Jason.Encoder` protocol
 
-### Helper functions
+
+### Utility functions
 
 **Don't Break The Pipe!**
 
@@ -189,32 +185,6 @@ typically ETS if mutable state is acceptable.
 Benchmarking is still a work in progress, but you can check the
 [`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more detailed figures.
 
-### Why Erlang wrappers?
-
-As stated in [the getting started guide](https://elixir-lang.org/getting-started/erlang-libraries.html),
-
-> Elixir discourages simply wrapping Erlang libraries in favor of directly interfacing with Erlang code.
-
-Aja does not try to go against this philosophy, and the decision to wrap is not taken lightly.
-
-However, when it comes to data structures, plain erlang modules just introduce too much friction
-compared to built-ins:
-- lack of common protocols (`Inspect`, `Enumerable`, `Collectable`) or specific ones (`Jason.Encoder`)
-- order of params which is not pipe-friendly and hard to remember
-- documentation much harder to read than elixir's
-- lack of a struct to pattern-match upon
-- non-friendly error messages, e,g. when reaching an index outside of a fixed-sized array
-
-For these reasons, you might be tempted to give up and go for an inefficient data structure for
-your algorithm at hand, or you swallow the pill and suffer all of the above.
-
-In the same way you should reach for a `MapSet` and not a linked list when the algorithm demands it,
-you should be able to do the same for an array with a similar the same level of comfort.
-
-Finally, wrapped modules also provide documentation (with examples!) for all underlying erlang
-functions. Even if you don't install Aja, you can still use the wrapper docs as documentation
-for the underlying erlang module.
-
 ### Why is there a convenience macro for `A.OrdMap` but not for other structures?
 
 There are actually two reasons for this:
@@ -242,7 +212,7 @@ iex> ord(%{"one" => 1, "two" => 2, "three" => 3})
 #### 2. Pattern-matching
 
 Short answer: because the internal representation of ordered maps happens to use a map, it is possible
-to make `A.ord/1` work as it does. Tree-based `A.RBMap` or `A.Array` cannot enjoy this treatment.
+to make `A.ord/1` work as it does. Tree-based `A.RBMap`s cannot enjoy this treatment.
 
 Longer answer: Elixir (Erlang) is limited in what can be pattern-matched upon, because it does not offer
 [active patterns](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/active-patterns).

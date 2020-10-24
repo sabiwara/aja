@@ -32,7 +32,7 @@ defmodule A.IO do
 
   This is not a far-fetched scenario, and a production use case can easily include
   "big" IO-lists with:
-  - JSON encoding to IO-data of long arrays / nested objects
+  - JSON encoding to IO-data of long lists / nested objects
   - loops within HTML templates
 
   """
