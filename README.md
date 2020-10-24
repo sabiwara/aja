@@ -147,8 +147,8 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
   notably its [collection](https://docs.python.org/3/library/collections.html) module
 - the amazing [lodash](https://lodash.com/docs) which complements nicely the (historically rather small)
   javascript standard library, with a very consistent API
-- work on efficient immutable data structures, spearheaded by
-  [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+- various work on efficient [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure) spearheaded by Okasaki
+  (see [resources section](#resources) below)
 
 ### Goals
 
@@ -163,6 +163,12 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 - add every possible feature that has not been accepted in elixir core (Aja is opinionated!)
 - touching anything OTP-related / stateful
 
+### Resources
+
+- Chris Okasaki's [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+- [Deletion: The curse of the red-black tree](http://matt.might.net/papers/germane2014deletion.pdf)
+  by German and Might.
+
 ## FAQ
 
 ### How is the performance?
@@ -173,6 +179,7 @@ Aja data structures are implemented in plain erlang/elixir and cannot compete wi
 
 However:
 - `A.RBMap` / `A.OrdMap` / `A.RBSet` perform better than the also non-native `:gb_trees` / `:gb_sets` modules
+  (as promised by Okasaki, *"it really flies!"*)
 - the performance gap is consistent and doesn't degrade with the size (logarithmic time complexity)
 - with the [JIT compilation](https://github.com/erlang/otp/pull/2745) coming to the BEAM,
   we can expected the gap with native code to be reduced in the upcoming months.
@@ -263,7 +270,7 @@ Nothing is set in stone, but the next steps will probably be:
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
 - evaluate some other interesting data structures to add
   ([clojure's vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
-  or some equivalent?)
+  or [RRB Trees](https://hypirion.com/thesis.pdf))
 
 ## Copyright and License
 
