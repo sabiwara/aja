@@ -161,7 +161,6 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 ### Non-goals
 
 - add every possible feature that has not been accepted in elixir core (Aja is opinionated!)
-- wrap everything and remove the need to know Erlang
 - touching anything OTP-related / stateful
 
 ## FAQ
@@ -261,7 +260,6 @@ Nothing is set in stone, but the next steps will probably be:
 - keep working towards production-readiness: testing, improve documentation
 - more benchmarks and performance optimizations
 - add an `OrderedSet`
-- add a queue or a dequeue (wrap `:queue`?)
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
 - evaluate some other interesting data structures to add
   ([clojure's vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
