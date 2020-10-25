@@ -1,4 +1,4 @@
-<img width="180" src="https://raw.githubusercontent.com/sabiwara/aja/main/images/logo_large.png" alt="Aja">
+<img width="160" src="https://raw.githubusercontent.com/sabiwara/aja/main/images/logo_large.png" alt="Aja">
 
 [![Hex Version](https://img.shields.io/hexpm/v/aja.svg)](https://hex.pm/packages/aja)
 [![docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/aja/)
