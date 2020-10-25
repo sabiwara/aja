@@ -80,13 +80,14 @@ defmodule Aja.MixProject do
       maintainers: ["sabiwara"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/sabiwara/aja"},
-      files: ~w(lib mix.exs README.md LICENSE.md CHANGELOG.md)
+      files: ~w(lib mix.exs README.md LICENSE.md CHANGELOG.md images)
     ]
   end
 
   defp docs do
     [
       main: "readme",
+      logo: "images/logo_small.png",
       source_ref: "v#{@version}",
       source_url: "https://github.com/sabiwara/aja",
       homepage_url: "https://github.com/sabiwara/aja",
