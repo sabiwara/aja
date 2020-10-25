@@ -105,14 +105,16 @@ iex> Enum.map(0 ~> 5, &"id_#{&1}")
 Other helper examples:
 
 ```elixir
-iex> A.IO.iodata_empty?(["", []])
-true
+iex> A.String.slugify("> \"It Was Me, Dio!!!\"\n")
+"it-was-me-dio"
 iex> A.Integer.decimal_format(1234567)
 "1,234,567"
 iex> A.Integer.div_rem(7, 3)
 {2, 1}
 iex> A.List.repeatedly(&:rand.uniform/0, 3)
 [0.40502929729990744, 0.45336720247823126, 0.04094511692041057]
+iex> A.IO.iodata_empty?(["", []])
+true
 ```
 
 None of this is revolutionary, but having these helpers to hand might save you the implementation

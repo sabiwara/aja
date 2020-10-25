@@ -2,7 +2,13 @@
 
 ## Dev
 
-  * Remove `A.Array`
+### Enhancements
+
+  * Add `A.String.slugify/2`
+
+### Breaking changes
+
+  * Remove `A.Array` module
 
 ## v0.1.2 (2020-10-22)
 
