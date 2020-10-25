@@ -80,7 +80,7 @@ defmodule Aja.MixProject do
       maintainers: ["sabiwara"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/sabiwara/aja"},
-      files: ~w(lib mix.exs README.md LICENSE.md CHANGELOG.md images)
+      files: ~w(lib mix.exs README.md LICENSE.md CHANGELOG.md images/logo_small.png)
     ]
   end
 
