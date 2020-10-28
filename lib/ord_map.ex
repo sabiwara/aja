@@ -155,6 +155,8 @@ defmodule A.OrdMap do
   @compile {:inline,
             new: 1,
             fetch: 2,
+            fetch!: 2,
+            has_key?: 2,
             get: 2,
             put: 3,
             delete: 2,

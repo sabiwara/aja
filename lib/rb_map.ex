@@ -2,11 +2,11 @@ defmodule A.RBMap do
   @moduledoc ~S"""
   A Red-Black tree implementation of a map. It keeps keys sorted in ascending order.
 
-  Erlang's `:gb_trees` offer a similar functionality.
+  Erlang's `:gb_trees` offer similar functionalities and performance.
   However `A.RBMap`:
-  - is faster
-  - is easier to use: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
-  - rebalances the tree on deletion [unlike `:gb_trees`](https://erlang.org/doc/man/gb_trees.html#balance-1)
+  - is a better Elixir citizen: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
+  - is more convenient and safer to use: no unsafe functions like `:gb_trees.insert/3`, `:gb_trees.from_orddict/1`...
+  - keeps the tree balanced on deletion [unlike `:gb_trees`](`:gb_trees.balance/1`)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   ## Examples
@@ -130,7 +130,7 @@ defmodule A.RBMap do
 
   # TODO: inline what is relevant
   # WARNING: be careful with non-tail recursive functions looping on the full tree!
-  @compile {:inline, fetch: 2, put: 3, equal?: 2, equal_loop: 2}
+  @compile {:inline, fetch: 2, fetch!: 2, put: 3, has_key?: 2, equal?: 2, equal_loop: 2}
 
   @type key :: term
   @type value :: term

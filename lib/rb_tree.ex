@@ -7,7 +7,7 @@ defmodule A.RBTree do
   [Deletion: The curse of the red-black tree](http://matt.might.net/papers/germane2014deletion.pdf)
   from German and Might.
 
-  It should perform significantly better than built-in `:gb_trees` and `:gb_sets` (see benchmarks).
+  It should have equivalent performance as `:gb_trees` and `:gb_sets` from the Erlang standard library (see benchmarks).
 
   ## Disclaimer
 
@@ -95,6 +95,7 @@ defmodule A.RBTree do
             balance_right: 1,
             map_fetch: 2,
             map_insert: 3,
+            do_map_insert: 3,
             set_member?: 2,
             set_insert: 2,
             max: 1,
@@ -126,15 +127,15 @@ defmodule A.RBTree do
 
   """
   @spec map_fetch(tree({k, v}), k) :: v when k: key, v: value
+  def map_fetch({_color, left, {tree_key, value}, right}, key) do
+    cond do
+      key < tree_key -> map_fetch(left, key)
+      key > tree_key -> map_fetch(right, key)
+      true -> {:ok, value}
+    end
+  end
+
   def map_fetch(:E, _key), do: :error
-
-  def map_fetch({_color, left, {tree_key, _value}, _right}, key) when key < tree_key,
-    do: map_fetch(left, key)
-
-  def map_fetch({_color, _left, {tree_key, _value}, right}, key) when key > tree_key,
-    do: map_fetch(right, key)
-
-  def map_fetch({_color, _left, {_tree_key, value}, _right}, _key), do: {:ok, value}
 
   @doc """
   Inserts the key-value pair in a map tree and returns the updated tree.
@@ -161,8 +162,6 @@ defmodule A.RBTree do
     {result, new_root}
   end
 
-  defp do_map_insert(:E, key, value), do: {:new, {:R, :E, {key, value}, :E}}
-
   defp do_map_insert({color, left, {y_key, _y_value} = y, right}, key, value)
        when key < y_key do
     {kind, new_left} = do_map_insert(left, key, value)
@@ -181,6 +180,8 @@ defmodule A.RBTree do
   # we use the new one, meaning inserting `1.0` will overwrite `1`.
   defp do_map_insert({color, left, {_key, previous_value}, right}, key, value),
     do: {{:overwrite, previous_value}, {color, left, {key, value}, right}}
+
+  defp do_map_insert(:E, key, value), do: {:new, {:R, :E, {key, value}, :E}}
 
   @doc """
   Initializes a map tree from an enumerable.

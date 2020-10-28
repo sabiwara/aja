@@ -14,8 +14,8 @@ APIs might still change at any point.
 The Elixir standard library is so rich, ergonomic and well-documented that it feels there is not much left to add.
 And yet... some occasional friction might still remain.
 
-Aja aims to remove some of this friction by providing mostly:
-- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. binary search trees) data structures written in pure elixir
+Aja aims to improve productivity and remove some of this friction by providing mostly:
+- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. tree maps/sets) data structures written in pure elixir
 - nice-to-have utility functions
 
 ### Data structures
@@ -71,7 +71,7 @@ iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1, 5])
 
 They offer similar functionalities as general balanced trees ([`:gb_trees`](https://erlang.org/doc/man/gb_trees.html)
 and [`:gb_sets`](https://erlang.org/doc/man/gb_sets.html)) included in the Erlang standard library.
-`A.RBMap` and `A.RBSet` should however offer better performance, and be more convenient to use.
+`A.RBMap` and `A.RBSet` should however be more convenient to use while offering similar performance.
 
 All those data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
@@ -180,11 +180,11 @@ Performance for maps is still far from native maps (roughly 4 times slower inser
 Aja data structures are implemented in plain erlang/elixir and cannot compete with native code yet.
 
 However:
-- `A.RBMap` / `A.OrdMap` / `A.RBSet` perform better than the also non-native `:gb_trees` / `:gb_sets` modules
-  (as promised by Okasaki, *"it really flies!"*)
+- `A.RBMap` / `A.OrdMap` / `A.RBSet` offer performance similar to erlang's `:gb_trees` / `:gb_sets` modules
+  (depending on the operation, if data is ordered, ...)
 - the performance gap is consistent and doesn't degrade with the size (logarithmic time complexity)
 - with the [JIT compilation](https://github.com/erlang/otp/pull/2745) coming to the BEAM,
-  we can expected the gap with native code to be reduced in the upcoming months.
+  we can expect the gap with native code to be reduced in the upcoming months.
 
 Aja data structures should work fine in most cases, but if you're considering them for
 performance-critical sections of your code, make sure to benchmark them and also consider alternatives,
@@ -268,7 +268,6 @@ one flat dependency. This can help staying out of two extreme paths:
 Nothing is set in stone, but the next steps will probably be:
 - keep working towards production-readiness: testing, improve documentation
 - more benchmarks and performance optimizations
-- add an `OrderedSet`
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
 - evaluate some other interesting data structures to add
   ([clojure's vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)

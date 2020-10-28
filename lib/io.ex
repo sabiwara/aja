@@ -36,10 +36,12 @@ defmodule A.IO do
   - loops within HTML templates
 
   """
+  @compile {:inline, iodata_empty?: 1}
   def iodata_empty?(iodata) when is_binary(iodata) or is_list(iodata) do
     iodata_empty?(iodata, [])
   end
 
+  @compile {:inline, iodata_empty?: 2}
   # empty-case: depends what is left to check
   defp iodata_empty?(iodata, to_check) when iodata in ["", []] do
     case to_check do

@@ -6,11 +6,11 @@ defmodule A.RBSet do
   Unlike `MapSet` which does not keep keys in any particular order,
   `A.RBSet` stores keys in ascending order.
 
-  Erlang's `:gb_sets` offer a similar functionality.
+  Erlang's `:gb_sets` offer similar functionalities and performance.
   However `A.RBSet`:
-  - is faster
-  - is easier to use (pipe-friendliness, `Enum` / `Inspect` / `Collectable` protocols)
-  - rebalances the tree on deletion [unlike `:gb_sets`](https://erlang.org/doc/man/gb_sets.html#balance-1)
+  - is a better Elixir citizen: pipe-friendliness, `Enum` / `Inspect` / `Collectable` protocols
+  - is more convenient and safer to use: no unsafe functions like `:gb_sets.insert/2`, `:gb_sets.from_ordset/1`...
+  - keeps the tree balanced on deletion [unlike `:gb_sets`](`:gb_sets.balance/1`)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   ## Examples

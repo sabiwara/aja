@@ -1,4 +1,4 @@
-defmodule Bench.RBMap.Put do
+defmodule Bench.RBSet.Put do
   @moduledoc ~S"""
   Comparing insertion performance between `A.RBSet` and the built-ins `Set` and `:gb_sets`.
 
@@ -69,4 +69,4 @@ defmodule Bench.RBMap.Put do
   end
 end
 
-Bench.RBMap.Put.run()
+Bench.RBSet.Put.run()

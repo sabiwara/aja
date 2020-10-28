@@ -1,0 +1,27 @@
+Compiling 2 files (.ex)
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: n = 30
+Estimated total run time: 14 s
+
+Benchmarking A.RBMap with input n = 30...
+Benchmarking :gb_trees with input n = 30...
+
+##### With input n = 30 #####
+Name                ips        average  deviation         median         99th %
+:gb_trees        1.14 M        0.88 μs  ±3523.12%        0.73 μs        1.18 μs
+A.RBMap          0.89 M        1.12 μs  ±1530.09%        0.96 μs        1.73 μs
+
+Comparison: 
+:gb_trees        1.14 M
+A.RBMap          0.89 M - 1.28x slower +0.24 μs

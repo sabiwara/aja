@@ -1,0 +1,60 @@
+Compiling 1 file (.ex)
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: n = 0, n = 1, n = 10, n = 100
+Estimated total run time: 56 s
+
+Benchmarking IO.iodata_length() == 0 with input n = 0...
+Benchmarking IO.iodata_length() == 0 with input n = 1...
+Benchmarking IO.iodata_length() == 0 with input n = 10...
+Benchmarking IO.iodata_length() == 0 with input n = 100...
+Benchmarking A.IO.iodata_empty?/1 with input n = 0...
+Benchmarking A.IO.iodata_empty?/1 with input n = 1...
+Benchmarking A.IO.iodata_empty?/1 with input n = 10...
+Benchmarking A.IO.iodata_empty?/1 with input n = 100...
+
+##### With input n = 0 #####
+Name                              ips        average  deviation         median         99th %
+A.IO.iodata_empty?/1          31.05 M       32.20 ns ±15947.66%          23 ns          64 ns
+IO.iodata_length() == 0       22.98 M       43.52 ns  ±8507.11%          36 ns          80 ns
+
+Comparison: 
+A.IO.iodata_empty?/1          31.05 M
+IO.iodata_length() == 0       22.98 M - 1.35x slower +11.32 ns
+
+##### With input n = 1 #####
+Name                              ips        average  deviation         median         99th %
+IO.iodata_length() == 0       20.79 M       48.10 ns   ±249.13%          42 ns          88 ns
+A.IO.iodata_empty?/1          16.60 M       60.25 ns  ±9944.88%          51 ns         100 ns
+
+Comparison: 
+IO.iodata_length() == 0       20.79 M
+A.IO.iodata_empty?/1          16.60 M - 1.25x slower +12.15 ns
+
+##### With input n = 10 #####
+Name                              ips        average  deviation         median         99th %
+A.IO.iodata_empty?/1          16.57 M       60.34 ns  ±2802.77%          52 ns         106 ns
+IO.iodata_length() == 0       14.02 M       71.33 ns  ±2451.35%          63 ns         118 ns
+
+Comparison: 
+A.IO.iodata_empty?/1          16.57 M
+IO.iodata_length() == 0       14.02 M - 1.18x slower +11.00 ns
+
+##### With input n = 100 #####
+Name                              ips        average  deviation         median         99th %
+A.IO.iodata_empty?/1          15.80 M       63.31 ns  ±8967.83%          52 ns         131 ns
+IO.iodata_length() == 0        3.27 M      305.36 ns  ±4222.02%         289 ns         382 ns
+
+Comparison: 
+A.IO.iodata_empty?/1          15.80 M
+IO.iodata_length() == 0        3.27 M - 4.82x slower +242.05 ns

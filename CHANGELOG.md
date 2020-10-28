@@ -1,5 +1,11 @@
 # Changelog
 
+## Dev
+
+### Enhancements
+
+  * Minor peformance tweaks, inlining functions
+
 ## v0.2.0 (2020-10-25)
 
 ### Enhancements
