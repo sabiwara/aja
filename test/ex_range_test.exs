@@ -2,7 +2,7 @@ defmodule A.ExRangeTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  import A, only: [{:~>, 2}]
+  import A, only: [~>: 2]
 
   doctest A.ExRange
 

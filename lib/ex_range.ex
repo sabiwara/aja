@@ -37,7 +37,7 @@ defmodule A.ExRange do
   It is totally optional and needs to be imported:
 
       iex> import A
-      iex> import A, only: [{:~>, 2}]  # more selective
+      iex> import A, only: [~>: 2]  # more selective
 
   ## Examples:
 
@@ -65,7 +65,7 @@ defmodule A.ExRange do
   not materialize the whole list of integers.
   """
 
-  import A, only: [{:~>, 2}]
+  import A, only: [~>: 2]
 
   @type t :: %__MODULE__{start: integer, stop: integer}
   @enforce_keys [:start, :stop]

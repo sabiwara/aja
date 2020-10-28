@@ -12,7 +12,7 @@ defmodule A do
   @doc ~S"""
   Convenience macro to work with `A.ExRange`s (exclusive ranges).
 
-  Use `import A` to use it, or `import A, only: [{:~>, 2}]`.
+  Use `import A` to use it, or `import A, only: [~>: 2]`.
 
   ## Examples
 
@@ -42,7 +42,7 @@ defmodule A do
   @doc ~S"""
   Convenience macro to create or pattern match on `A.OrdMap`s.
 
-  Use `import A` to use it, or `import A, only: [{:ord, 1}]`.
+  Use `import A` to use it, or `import A, only: [ord: 1]`.
 
   ## Creation examples
 
