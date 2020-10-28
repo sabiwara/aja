@@ -29,4 +29,4 @@ jobs:
       - name: Unit tests
         run: mix test
       - name: Property-based tests
-        run: mix test.proper
+        run: mix test.prop

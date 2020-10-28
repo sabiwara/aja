@@ -18,7 +18,7 @@ defmodule Aja.MixProject do
         dialyzer: :dialyzer,
         cover: :test,
         "test.all": :test,
-        "test.proper": :test
+        "test.prop": :test
       ],
 
       # Hex
@@ -70,7 +70,7 @@ defmodule Aja.MixProject do
 
   defp aliases do
     [
-      "test.proper": ["test --only property:true"],
+      "test.prop": ["test --only property:true"],
       "test.all": ["test --include property:true"]
     ]
   end

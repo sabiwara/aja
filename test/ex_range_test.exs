@@ -1,6 +1,5 @@
 defmodule A.ExRangeTest do
   use ExUnit.Case, async: true
-  use ExUnitProperties
 
   import A, only: [~>: 2]
 
@@ -52,30 +51,5 @@ defmodule A.ExRangeTest do
 
     # first is greater than last
     assert [] = Enum.slice(1 ~> 10, 6..5)
-  end
-
-  @tag :property
-  property "should be consistent for any integer" do
-    check all(
-            start <- integer(),
-            stop <- integer()
-          ) do
-      range = start ~> stop
-      assert ^range = A.ExRange.new(start, stop)
-
-      expected_length = abs(stop - start)
-      list = Enum.to_list(range)
-      assert expected_length == Enum.count(range)
-      assert expected_length == length(list)
-
-      refute (max(start, stop) + 1) in range
-      refute (min(start, stop) - 1) in range
-      refute stop in range
-      refute stop in list
-      assert Enum.all?(list, fn i -> i in range end)
-      assert Enum.all?(range, fn i -> i in list end)
-      assert list == Enum.slice(range, 0..expected_length)
-      assert list == Enum.slice(range, -expected_length..-1)
-    end
   end
 end
