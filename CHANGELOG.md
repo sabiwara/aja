@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.3.0 (2020-10-31)
+
 ### Enhancements
 
   * Rework all internals, improved peformance for `A.OrdMap`, `A.RBMap`, `A.RBSet`
