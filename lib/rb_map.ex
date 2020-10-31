@@ -118,6 +118,28 @@ defmodule A.RBMap do
   - `A.OrdMap` keeps track of key insertion order
   - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
 
+  ## Comparison with `:gb_trees`
+
+  All operations on `A.RBMap` are safe to use and should not include any footgun / quirks.
+  Besides, every operation enforces the red-black invariant, so there is no need
+  to ever manually [balance](`:gb_trees.balance/1`).
+
+  Example of unsafe `:gb_trees` operations:
+
+     * `:gb_trees.from_orddict/1` needs sorted values without duplicate keys.
+
+      iex> tree = :gb_trees.from_orddict(d: "Dinosaur", b: "Bat", a: "Ant", c: "Cat")
+      iex> :gb_trees.get(:b, tree)
+      ** (FunctionClauseError) no function clause matching in :gb_trees.get_1/2
+
+    The creation won't fail, but it will return inconsistent results later down the line!
+
+     * `:gb_trees.insert/3` should not be used if the key already exists (use `:gb_trees.enter/3`)
+
+      iex> tree = :gb_trees.from_orddict(a: "Ant", b: "Bat", c: "Cat")
+      iex> :gb_trees.insert(:b, "Buffalo", tree)
+      ** (ErlangError) Erlang error: {:key_exists, :b}
+
   ## Memory overhead
 
   `A.RBMap` takes roughly 1.4x more memory than a regular map depending on the type of data:
@@ -135,7 +157,7 @@ defmodule A.RBMap do
   ## Underlying Red-Black Tree implementation
 
   The underlying red-black tree implementation is available in `A.RBTree.Map` and is used
-  in other modules such as `A.RBSet`, `A.OrdMap` as well.
+  in other modules such as `A.OrdMap` as well.
   The algorithm detail is described in [its documentation](`A.RBTree.Map`).
 
   """
