@@ -36,9 +36,9 @@ defmodule Bench.Maps.PutReduce do
          create_scenario(A.OrdMap.new(), fn map, key, value -> A.OrdMap.put(map, key, value) end)},
         {"A.RBMap",
          create_scenario(A.RBMap.new(), fn map, key, value -> A.RBMap.put(map, key, value) end)},
-        {"A.RBTree",
-         create_scenario(A.RBTree.empty(), fn tree, key, value ->
-           {_, tree} = A.RBTree.map_insert(tree, key, value)
+        {"A.RBTree.Map",
+         create_scenario(A.RBTree.Map.empty(), fn tree, key, value ->
+           {_, tree} = A.RBTree.Map.insert(tree, key, value)
            tree
          end)},
         {":gb_trees",

@@ -117,11 +117,24 @@ defmodule A.RBSet do
 
   Erlang's `:gb_sets` module works the same.
 
+  ## Memory overhead
+
+  `A.RBSet` takes roughly 1.2x more memory than a `MapSet` depending on the type of data:
+
+      iex> elements = Enum.map(1..100, fn i -> <<i>> end)
+      iex> map_set_size = MapSet.new(elements) |> :erts_debug.size()
+      684
+      iex> rb_set_size = A.RBSet.new(elements) |> :erts_debug.size()
+      810
+      iex> elements |> Enum.sort() |> :gb_sets.from_ordset() |> :erts_debug.size()
+      703
+      iex> div(100 * rb_set_size, map_set_size)
+      118
+
   ## Underlying Red-Black Tree implementation
 
-  The underlying red-black tree implementation is available in `A.RBTree` and is used
-  in other modules such as `A.RBMap`, `A.OrdMap` as well.
-  The algorithm detail is described in [its documentation](`A.RBTree`).
+  The underlying red-black tree implementation is available in `A.RBTree.Set`.
+  The algorithm detail is described in [its documentation](`A.RBTree.Set`).
 
   """
 
@@ -131,10 +144,10 @@ defmodule A.RBSet do
 
   @type value :: term
 
-  @opaque t(value) :: %__MODULE__{root: A.RBTree.tree(value), size: non_neg_integer}
+  @opaque t(value) :: %__MODULE__{root: A.RBTree.Set.tree(value), size: non_neg_integer}
   @type t :: t(term)
 
-  defstruct root: A.RBTree.empty(), size: 0
+  defstruct root: A.RBTree.Set.empty(), size: 0
 
   @doc """
   Returns a new empty set.
@@ -146,7 +159,7 @@ defmodule A.RBSet do
 
   """
   @spec new :: t
-  def new(), do: %A.RBSet{}
+  def new(), do: %__MODULE__{}
 
   @doc """
   Creates a set from an enumerable.
@@ -165,10 +178,9 @@ defmodule A.RBSet do
   def new(%__MODULE__{} = rb_set), do: rb_set
 
   def new(enumerable) do
-    list = Enum.to_list(enumerable)
-    {size, root} = A.RBTree.empty() |> A.RBTree.set_insert_many(list)
+    {size, root} = A.RBTree.Set.empty() |> A.RBTree.Set.insert_many(enumerable)
 
-    %A.RBSet{root: root, size: size}
+    %__MODULE__{root: root, size: size}
   end
 
   @doc """
@@ -203,12 +215,12 @@ defmodule A.RBSet do
   """
   @spec delete(t(val1), val2) :: t(val1) when val1: value, val2: value
   def delete(%__MODULE__{root: root, size: size} = rb_set, value) do
-    case A.RBTree.set_delete(root, value) do
-      {:ok, new_root} ->
-        %{rb_set | root: new_root, size: size - 1}
-
+    case A.RBTree.Set.delete(root, value) do
       :error ->
         rb_set
+
+      new_root ->
+        %__MODULE__{root: new_root, size: size - 1}
     end
   end
 
@@ -225,13 +237,13 @@ defmodule A.RBSet do
   def difference(rb_set1, rb_set2)
 
   def difference(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
-    A.RBTree.foldl(rb_set2.root, rb_set1, fn elem, acc -> delete(acc, elem) end)
+    A.RBTree.Set.foldl(rb_set2.root, rb_set1, fn elem, acc -> delete(acc, elem) end)
   end
 
   # TODO same optimization as MapSet:
   # If the first set is less than twice the size of the second map, it is fastest
   # to re-accumulate elements in the first set that are not present in the second set.
-  # def difference(%A.RBSet{}, %A.RBSet{}) do
+  # def difference(%__MODULE__{}, %__MODULE__{}) do
   # end
 
   @doc """
@@ -273,11 +285,11 @@ defmodule A.RBSet do
   @spec equal?(t, t) :: boolean
   def equal?(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
     rb_set1.size == rb_set2.size &&
-      equal_loop(A.RBTree.iterator(rb_set1.root), A.RBTree.iterator(rb_set2.root))
+      equal_loop(A.RBTree.Set.iterator(rb_set1.root), A.RBTree.Set.iterator(rb_set2.root))
   end
 
   defp equal_loop(iterator1, iterator2) do
-    case {A.RBTree.next(iterator1), A.RBTree.next(iterator2)} do
+    case {A.RBTree.Set.next(iterator1), A.RBTree.Set.next(iterator2)} do
       {nil, nil} ->
         true
 
@@ -328,7 +340,7 @@ defmodule A.RBSet do
   def member?(rb_set, value)
 
   def member?(%__MODULE__{root: root}, value) do
-    A.RBTree.set_member?(root, value)
+    A.RBTree.Set.member?(root, value)
   end
 
   @doc """
@@ -343,10 +355,12 @@ defmodule A.RBSet do
 
   """
   @spec put(t(val), new_val) :: t(val | new_val) when val: value, new_val: value
-  def put(%__MODULE__{root: root, size: size} = rb_set, value) do
-    case A.RBTree.set_insert(root, value) do
-      {:new, new_root} -> %{rb_set | root: new_root, size: size + 1}
-      {:overwrite, new_root} -> %{rb_set | root: new_root}
+  def put(rb_set, value)
+
+  def put(%__MODULE__{root: root, size: size}, value) do
+    case A.RBTree.Set.insert(root, value) do
+      {:new, new_root} -> %__MODULE__{root: new_root, size: size + 1}
+      {:overwrite, new_root} -> %__MODULE__{root: new_root, size: size}
     end
   end
 
@@ -396,7 +410,7 @@ defmodule A.RBSet do
   def to_list(rb_set)
 
   def to_list(%__MODULE__{root: root}) do
-    A.RBTree.to_list(root)
+    A.RBTree.Set.to_list(root)
   end
 
   @doc """
@@ -418,8 +432,8 @@ defmodule A.RBSet do
 
   def union(%__MODULE__{} = rb_set1, %__MODULE__{} = rb_set2) do
     {size, root} =
-      A.RBTree.foldl(rb_set2.root, {rb_set1.size, rb_set1.root}, fn elem, {count, tree} ->
-        {result, new_tree} = A.RBTree.set_insert(tree, elem)
+      A.RBTree.Set.foldl(rb_set2.root, {rb_set1.size, rb_set1.root}, fn elem, {count, tree} ->
+        {result, new_tree} = A.RBTree.Set.insert(tree, elem)
 
         case result do
           :new -> {count + 1, new_tree}
@@ -427,7 +441,7 @@ defmodule A.RBSet do
         end
       end)
 
-    %{rb_set1 | size: size, root: root}
+    %__MODULE__{root: root, size: size}
   end
 
   # Extra tree methods
@@ -444,15 +458,17 @@ defmodule A.RBSet do
       2
       iex> A.RBSet.new() |> A.RBSet.first()
       nil
+      iex> A.RBSet.new() |> A.RBSet.first(0)
+      0
 
   """
-  @spec first(t(val)) :: val | nil when val: value
-  def first(rb_set)
+  @spec first(t(val), val | nil) :: val | nil when val: value
+  def first(rb_set, default \\ nil)
 
-  def first(%__MODULE__{root: root}) do
-    case A.RBTree.min(root) do
+  def first(%__MODULE__{root: root}, default) do
+    case A.RBTree.Set.min(root) do
       {:ok, value} -> value
-      :error -> nil
+      :error -> default
     end
   end
 
@@ -468,15 +484,17 @@ defmodule A.RBSet do
       4
       iex> A.RBSet.new() |> A.RBSet.last()
       nil
+      iex> A.RBSet.new() |> A.RBSet.last(0)
+      0
 
   """
-  @spec last(t(val)) :: val | nil when val: value
-  def last(rb_set)
+  @spec last(t(val), val | nil) :: val | nil when val: value
+  def last(rb_set, default \\ nil)
 
-  def last(%__MODULE__{root: root}) do
-    case A.RBTree.max(root) do
+  def last(%__MODULE__{root: root}, default) do
+    case A.RBTree.Set.max(root) do
       {:ok, value} -> value
-      :error -> nil
+      :error -> default
     end
   end
 
@@ -496,10 +514,12 @@ defmodule A.RBSet do
 
   """
   @spec pop_first(t(val)) :: {val, t(val)} | nil when val: value
-  def pop_first(%__MODULE__{size: size} = rb_set) do
-    case A.RBTree.set_pop_min(rb_set.root) do
-      {:ok, value, new_root} ->
-        new_rb_set = %{rb_set | root: new_root, size: size - 1}
+  def pop_first(rb_set)
+
+  def pop_first(%__MODULE__{size: size, root: root}) do
+    case A.RBTree.Set.pop_min(root) do
+      {value, new_root} ->
+        new_rb_set = %__MODULE__{root: new_root, size: size - 1}
         {value, new_rb_set}
 
       :error ->
@@ -523,10 +543,12 @@ defmodule A.RBSet do
 
   """
   @spec pop_last(t(val)) :: {val, t(val)} | nil when val: value
-  def pop_last(%__MODULE__{size: size} = rb_set) do
-    case A.RBTree.set_pop_max(rb_set.root) do
-      {:ok, value, new_root} ->
-        new_rb_set = %{rb_set | root: new_root, size: size - 1}
+  def pop_last(rb_set)
+
+  def pop_last(%__MODULE__{size: size, root: root}) do
+    case A.RBTree.Set.pop_max(root) do
+      {value, new_root} ->
+        new_rb_set = %__MODULE__{root: new_root, size: size - 1}
         {value, new_rb_set}
 
       :error ->
@@ -546,7 +568,7 @@ defmodule A.RBSet do
 
   """
   def foldl(%__MODULE__{} = rb_set, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldl(rb_set.root, acc, fun)
+    A.RBTree.Set.foldl(rb_set.root, acc, fun)
   end
 
   @doc """
@@ -564,13 +586,13 @@ defmodule A.RBSet do
 
   """
   def foldr(%__MODULE__{} = rb_set, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldr(rb_set.root, acc, fun)
+    A.RBTree.Set.foldr(rb_set.root, acc, fun)
   end
 
   # Not private, but only exposed for protocols
 
   @doc false
-  def reduce(%__MODULE__{root: root}, acc, fun), do: A.RBTree.reduce(root, acc, fun)
+  def reduce(%__MODULE__{root: root}, acc, fun), do: A.RBTree.Set.reduce(root, acc, fun)
 
   defimpl Collectable do
     def into(set) do

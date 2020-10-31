@@ -93,7 +93,7 @@ defmodule A.RBMap.PropTest do
 
     assert A.RBMap.size(rb_map) == length(as_list)
     assert as_list == Enum.sort(as_list)
-    assert {:ok, _} = A.RBTree.check_invariant(rb_map.root)
+    assert {:ok, _} = A.RBTree.Map.check_invariant(rb_map.root)
 
     assert A.RBMap.first(rb_map) == Enum.min(as_list, fn -> nil end)
     assert A.RBMap.last(rb_map) == Enum.max(as_list, fn -> nil end)

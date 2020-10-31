@@ -1,4 +1,3 @@
-Compiling 2 files (.ex)
 Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
@@ -29,39 +28,39 @@ Benchmarking :gb_trees with input n = 10000...
 
 ##### With input n = 10 #####
 Name                ips        average  deviation         median         99th %
-Map              3.34 M      299.13 ns  ±9389.35%         198 ns         437 ns
-:gb_trees        1.35 M      743.24 ns  ±2742.96%         624 ns         978 ns
-A.RBMap          1.11 M      901.15 ns  ±3601.19%         726 ns        1372 ns
-A.OrdMap         0.76 M     1310.29 ns  ±1888.54%        1106 ns        2254 ns
+Map              2.84 M      351.89 ns  ±9053.48%         223 ns         583 ns
+:gb_trees        1.23 M      810.01 ns  ±2839.67%         648 ns        1347 ns
+A.RBMap          1.06 M      946.18 ns  ±1972.19%         789 ns        1943 ns
+A.OrdMap         0.74 M     1349.52 ns  ±1469.24%        1168 ns        2325 ns
 
 Comparison: 
-Map              3.34 M
-:gb_trees        1.35 M - 2.48x slower +444.11 ns
-A.RBMap          1.11 M - 3.01x slower +602.02 ns
-A.OrdMap         0.76 M - 4.38x slower +1011.16 ns
+Map              2.84 M
+:gb_trees        1.23 M - 2.30x slower +458.12 ns
+A.RBMap          1.06 M - 2.69x slower +594.29 ns
+A.OrdMap         0.74 M - 3.84x slower +997.63 ns
 
 ##### With input n = 100 #####
 Name                ips        average  deviation         median         99th %
-Map           3756.45 K        0.27 μs  ±1956.58%        0.25 μs        0.53 μs
-:gb_trees      932.25 K        1.07 μs  ±2558.76%        0.91 μs        1.80 μs
-A.RBMap        780.51 K        1.28 μs  ±1394.42%        1.14 μs        2.25 μs
-A.OrdMap       520.96 K        1.92 μs  ±1046.04%        1.72 μs        3.03 μs
+Map           3263.72 K        0.31 μs  ±1818.58%        0.26 μs        0.66 μs
+:gb_trees      872.10 K        1.15 μs  ±2598.59%        0.93 μs        2.02 μs
+A.RBMap        680.80 K        1.47 μs  ±1775.66%        1.21 μs        2.43 μs
+A.OrdMap       470.05 K        2.13 μs   ±830.52%        1.83 μs        3.68 μs
 
 Comparison: 
-Map           3756.45 K
-:gb_trees      932.25 K - 4.03x slower +0.81 μs
-A.RBMap        780.51 K - 4.81x slower +1.02 μs
-A.OrdMap       520.96 K - 7.21x slower +1.65 μs
+Map           3263.72 K
+:gb_trees      872.10 K - 3.74x slower +0.84 μs
+A.RBMap        680.80 K - 4.79x slower +1.16 μs
+A.OrdMap       470.05 K - 6.94x slower +1.82 μs
 
 ##### With input n = 10000 #####
 Name                ips        average  deviation         median         99th %
-Map           2709.62 K        0.37 μs   ±191.74%        0.34 μs        0.65 μs
-:gb_trees      583.44 K        1.71 μs   ±910.33%        1.56 μs        2.78 μs
-A.RBMap        484.84 K        2.06 μs  ±1165.81%        1.84 μs        3.22 μs
-A.OrdMap       334.16 K        2.99 μs   ±495.45%        2.72 μs        5.12 μs
+Map           2552.96 K        0.39 μs   ±690.04%        0.36 μs        0.77 μs
+:gb_trees      546.86 K        1.83 μs   ±930.67%        1.60 μs        2.87 μs
+A.RBMap        450.11 K        2.22 μs   ±796.02%        1.93 μs        5.48 μs
+A.OrdMap       297.07 K        3.37 μs   ±536.51%        2.82 μs       10.37 μs
 
 Comparison: 
-Map           2709.62 K
-:gb_trees      583.44 K - 4.64x slower +1.34 μs
-A.RBMap        484.84 K - 5.59x slower +1.69 μs
-A.OrdMap       334.16 K - 8.11x slower +2.62 μs
+Map           2552.96 K
+:gb_trees      546.86 K - 4.67x slower +1.44 μs
+A.RBMap        450.11 K - 5.67x slower +1.83 μs
+A.OrdMap       297.07 K - 8.59x slower +2.97 μs

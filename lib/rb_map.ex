@@ -41,7 +41,7 @@ defmodule A.RBMap do
       iex> {3, "三", updated} = A.RBMap.pop_last(rb_map)
       iex> updated
       #A.RBMap<%{1 => "一", 2 => "二"}>
-      iex> A.RBMap.foldr(rb_map, [], fn {_key, value}, acc -> [value | acc] end)
+      iex> A.RBMap.foldr(rb_map, [], fn _key, value, acc -> [value | acc] end)
       ["一", "二", "三"]
 
   ## Access behaviour
@@ -118,11 +118,25 @@ defmodule A.RBMap do
   - `A.OrdMap` keeps track of key insertion order
   - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
 
+  ## Memory overhead
+
+  `A.RBMap` takes roughly 1.4x more memory than a regular map depending on the type of data:
+
+      iex> key_values = Enum.map(1..100, fn i -> {i, <<i>>} end)
+      iex> map_size = Map.new(key_values) |> :erts_debug.size()
+      658
+      iex> rb_map_size = A.RBMap.new(key_values) |> :erts_debug.size()
+      910
+      iex> :gb_trees.from_orddict(key_values) |> :erts_debug.size()
+      803
+      iex> div(100 * rb_map_size, map_size)
+      138
+
   ## Underlying Red-Black Tree implementation
 
-  The underlying red-black tree implementation is available in `A.RBTree` and is used
+  The underlying red-black tree implementation is available in `A.RBTree.Map` and is used
   in other modules such as `A.RBSet`, `A.OrdMap` as well.
-  The algorithm detail is described in [its documentation](`A.RBTree`).
+  The algorithm detail is described in [its documentation](`A.RBTree.Map`).
 
   """
 
@@ -130,18 +144,19 @@ defmodule A.RBMap do
 
   # TODO: inline what is relevant
   # WARNING: be careful with non-tail recursive functions looping on the full tree!
-  @compile {:inline, fetch: 2, fetch!: 2, put: 3, has_key?: 2, equal?: 2, equal_loop: 2}
+  @compile {:inline,
+            fetch: 2, fetch!: 2, put: 3, has_key?: 2, equal?: 2, equal_loop: 2, pop_existing: 2}
 
   @type key :: term
   @type value :: term
   @opaque t(key, value) :: %__MODULE__{
-            root: A.RBTree.tree({key, value}),
+            root: A.RBTree.Map.tree(key, value),
             size: non_neg_integer
           }
   @opaque t :: t(key, value)
-  @opaque iterator(key, value) :: A.RBTree.iterator({key, value})
-  @enforce_keys [:root, :size]
-  defstruct [:root, :size]
+  @opaque iterator(key, value) :: A.RBTree.Map.iterator(key, value)
+
+  defstruct root: A.RBTree.Map.empty(), size: 0
 
   @doc """
   Returns the number of keys in `rb_map`.
@@ -172,7 +187,7 @@ defmodule A.RBMap do
   def keys(rb_map)
 
   def keys(%__MODULE__{root: root}) do
-    A.RBTree.foldr(root, [], fn {key, _value}, acc -> [key | acc] end)
+    A.RBTree.Map.foldr(root, [], fn key, _value, acc -> [key | acc] end)
   end
 
   @doc """
@@ -189,7 +204,7 @@ defmodule A.RBMap do
   def values(rb_map)
 
   def values(%__MODULE__{root: root}) do
-    A.RBTree.foldr(root, [], fn {_key, value}, acc -> [value | acc] end)
+    A.RBTree.Map.foldr(root, [], fn _key, value, acc -> [value | acc] end)
   end
 
   @doc """
@@ -203,7 +218,7 @@ defmodule A.RBMap do
 
   """
   @spec to_list(t(k, v)) :: [{k, v}] when k: key, v: value
-  def to_list(%__MODULE__{root: root}), do: A.RBTree.to_list(root)
+  def to_list(%__MODULE__{root: root}), do: A.RBTree.Map.to_list(root)
 
   @doc """
   Returns a new empty map.
@@ -215,7 +230,7 @@ defmodule A.RBMap do
 
   """
   @spec new() :: t
-  def new, do: %__MODULE__{root: A.RBTree.empty(), size: 0}
+  def new, do: %__MODULE__{}
 
   @doc """
   Creates a map from an `enumerable`.
@@ -233,7 +248,7 @@ defmodule A.RBMap do
   """
   @spec new(Enumerable.t()) :: t
   def new(enumerable) do
-    {size, root} = A.RBTree.empty() |> A.RBTree.map_insert_many(enumerable)
+    {size, root} = A.RBTree.Map.empty() |> A.RBTree.Map.insert_many(enumerable)
     %__MODULE__{root: root, size: size}
   end
 
@@ -293,7 +308,7 @@ defmodule A.RBMap do
   @impl Access
   @spec fetch(t(k, v), k) :: {:ok, v} | :error when k: key, v: value
   def fetch(rb_map, key)
-  def fetch(%__MODULE__{root: root}, key), do: A.RBTree.map_fetch(root, key)
+  def fetch(%__MODULE__{root: root}, key), do: A.RBTree.Map.fetch(root, key)
 
   @doc ~S"""
   Fetches the value for a specific `key` and returns it in a ok-tuple.
@@ -430,8 +445,8 @@ defmodule A.RBMap do
 
   def take(%__MODULE__{root: root}, keys) when is_list(keys) do
     keys
-    |> Enum.reduce([], fn key, acc ->
-      case A.RBTree.map_fetch(root, key) do
+    |> List.foldl([], fn key, acc ->
+      case A.RBTree.Map.fetch(root, key) do
         {:ok, value} ->
           [{key, value} | acc]
 
@@ -517,12 +532,14 @@ defmodule A.RBMap do
 
   """
   @spec put(t(k, v), k, v) :: v when k: key, v: value
-  def put(%__MODULE__{root: root, size: size} = rb_map, key, value) do
-    {result, new_root} = A.RBTree.map_insert(root, key, value)
+  def put(rb_map, key, value)
+
+  def put(%__MODULE__{root: root, size: size}, key, value) do
+    {result, new_root} = A.RBTree.Map.insert(root, key, value)
 
     case result do
-      :new -> %{rb_map | root: new_root, size: size + 1}
-      {:overwrite, _previous} -> %{rb_map | root: new_root}
+      :new -> %__MODULE__{root: new_root, size: size + 1}
+      :overwrite -> %__MODULE__{root: new_root, size: size}
     end
   end
 
@@ -543,8 +560,8 @@ defmodule A.RBMap do
   @spec delete(t(k, v), k) :: t(k, v) when k: key, v: value
   def delete(%__MODULE__{} = rb_map, key) do
     case pop_existing(rb_map, key) do
+      {_value, new_rb_map} -> new_rb_map
       :error -> rb_map
-      {:ok, _value, new_rb_map} -> new_rb_map
     end
   end
 
@@ -562,7 +579,8 @@ defmodule A.RBMap do
   """
   @spec merge(t(k, v), t(k, v)) :: t(k, v) when k: key, v: value
   def merge(%__MODULE__{} = rb_map1, %__MODULE__{} = rb_map2) do
-    A.RBTree.foldl(rb_map2.root, rb_map1, fn {key, value}, acc -> put(acc, key, value) end)
+    # TODO optimize
+    A.RBTree.Map.foldl(rb_map2.root, rb_map1, fn key, value, acc -> put(acc, key, value) end)
   end
 
   @doc """
@@ -617,8 +635,8 @@ defmodule A.RBMap do
   @spec pop(t(k, v), k, v) :: {v, t(k, v)} when k: key, v: value
   def pop(%__MODULE__{} = rb_map, key, default \\ nil) do
     case pop_existing(rb_map, key) do
+      {value, new_rb_map} -> {value, new_rb_map}
       :error -> {default, rb_map}
-      {:ok, value, new_rb_map} -> {value, new_rb_map}
     end
   end
 
@@ -639,8 +657,8 @@ defmodule A.RBMap do
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
   def pop!(%__MODULE__{} = rb_map, key) do
     case pop_existing(rb_map, key) do
+      {value, new_rb_map} -> {value, new_rb_map}
       :error -> raise KeyError, key: key, term: rb_map
-      {:ok, value, new_rb_map} -> {value, new_rb_map}
     end
   end
 
@@ -670,7 +688,7 @@ defmodule A.RBMap do
   @spec pop_lazy(t(k, v), k, (() -> v)) :: {v, t(k, v)} when k: key, v: value
   def pop_lazy(%__MODULE__{} = rb_map, key, fun) when is_function(fun, 0) do
     case pop_existing(rb_map, key) do
-      {:ok, value, new_rb_map} -> {value, new_rb_map}
+      {value, new_rb_map} -> {value, new_rb_map}
       :error -> {fun.(), rb_map}
     end
   end
@@ -689,7 +707,7 @@ defmodule A.RBMap do
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
   def drop(%__MODULE__{} = rb_map, keys) when is_list(keys) do
-    Enum.reduce(keys, rb_map, fn key, acc ->
+    List.foldl(keys, rb_map, fn key, acc ->
       delete(acc, key)
     end)
   end
@@ -821,15 +839,15 @@ defmodule A.RBMap do
   @spec equal?(t, t) :: boolean
   def equal?(%A.RBMap{} = rb_map1, %A.RBMap{} = rb_map2) do
     rb_map1.size == rb_map2.size &&
-      equal_loop(A.RBTree.iterator(rb_map1.root), A.RBTree.iterator(rb_map2.root))
+      equal_loop(A.RBTree.Map.iterator(rb_map1.root), A.RBTree.Map.iterator(rb_map2.root))
   end
 
   defp equal_loop(iterator1, iterator2) do
-    case {A.RBTree.next(iterator1), A.RBTree.next(iterator2)} do
+    case {A.RBTree.Map.next(iterator1), A.RBTree.Map.next(iterator2)} do
       {nil, nil} ->
         true
 
-      {{{key1, same_value}, next_iter1}, {{key2, same_value}, next_iter2}} when key1 == key2 ->
+      {{key1, same_value, next_iter1}, {key2, same_value, next_iter2}} when key1 == key2 ->
         equal_loop(next_iter1, next_iter2)
 
       _ ->
@@ -852,16 +870,15 @@ defmodule A.RBMap do
       {:a, "A"}
       iex> A.RBMap.new([]) |> A.RBMap.first()
       nil
+      iex> A.RBMap.new([]) |> A.RBMap.first(:error)
+      :error
 
   """
-  @spec first(t(k, v)) :: {k, v} | nil when k: key, v: value
-  def first(rb_map)
+  @spec first(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
+  def first(rb_map, default \\ nil)
 
-  def first(%__MODULE__{root: root}) do
-    case A.RBTree.min(root) do
-      {:ok, key_value} -> key_value
-      :error -> nil
-    end
+  def first(%__MODULE__{root: root}, default) do
+    A.RBTree.Map.min(root) || default
   end
 
   @doc """
@@ -877,16 +894,15 @@ defmodule A.RBMap do
       {:d, "D"}
       iex> A.RBMap.new([]) |> A.RBMap.last()
       nil
+      iex> A.RBMap.new([]) |> A.RBMap.last(:error)
+      :error
 
   """
-  @spec last(t(k, v)) :: {k, v} | nil when k: key, v: value
-  def last(rb_map)
+  @spec last(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
+  def last(rb_map, default \\ nil)
 
-  def last(%__MODULE__{root: root}) do
-    case A.RBTree.max(root) do
-      {:ok, key_value} -> key_value
-      :error -> nil
-    end
+  def last(%__MODULE__{root: root}, default) do
+    A.RBTree.Map.max(root) || default
   end
 
   @doc """
@@ -906,10 +922,12 @@ defmodule A.RBMap do
 
   """
   @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-  def pop_first(%__MODULE__{size: size} = rb_map) do
-    case A.RBTree.map_pop_min(rb_map.root) do
-      {:ok, {key, value}, new_root} ->
-        new_rb_map = %{rb_map | root: new_root, size: size - 1}
+  def pop_first(rb_map)
+
+  def pop_first(%__MODULE__{size: size, root: root}) do
+    case A.RBTree.Map.pop_min(root) do
+      {key, value, new_root} ->
+        new_rb_map = %__MODULE__{root: new_root, size: size - 1}
         {key, value, new_rb_map}
 
       :error ->
@@ -934,10 +952,12 @@ defmodule A.RBMap do
 
   """
   @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-  def pop_last(%__MODULE__{size: size} = rb_map) do
-    case A.RBTree.map_pop_max(rb_map.root) do
-      {:ok, {key, value}, new_root} ->
-        new_rb_map = %{rb_map | root: new_root, size: size - 1}
+  def pop_last(rb_map)
+
+  def pop_last(%__MODULE__{size: size, root: root}) do
+    case A.RBTree.Map.pop_max(root) do
+      {key, value, new_root} ->
+        new_rb_map = %__MODULE__{root: new_root, size: size - 1}
         {key, value, new_rb_map}
 
       :error ->
@@ -951,14 +971,16 @@ defmodule A.RBMap do
   ## Examples
 
       iex> rb_map = A.RBMap.new([b: 22, a: 11, c: 33])
-      iex> A.RBMap.foldl(rb_map, 0, fn {_key, value}, acc -> value + acc end)
+      iex> A.RBMap.foldl(rb_map, 0, fn _key, value, acc -> value + acc end)
       66
-      iex> A.RBMap.foldl(rb_map, [], fn {key, value}, acc -> [{key, value * 2} | acc] end)
+      iex> A.RBMap.foldl(rb_map, [], fn key, value, acc -> [{key, value * 2} | acc] end)
       [c: 66, b: 44, a: 22]
 
   """
-  def foldl(%__MODULE__{} = rb_map, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldl(rb_map.root, acc, fun)
+  def foldl(rb_map, acc, fun)
+
+  def foldl(%__MODULE__{root: root}, acc, fun) when is_function(fun, 3) do
+    A.RBTree.Map.foldl(root, acc, fun)
   end
 
   @doc """
@@ -970,38 +992,42 @@ defmodule A.RBMap do
   ## Examples
 
       iex> rb_map = A.RBMap.new([b: 22, a: 11, c: 33])
-      iex> A.RBMap.foldr(rb_map, 0, fn {_key, value}, acc -> value + acc end)
+      iex> A.RBMap.foldr(rb_map, 0, fn _key, value, acc -> value + acc end)
       66
-      iex> A.RBMap.foldr(rb_map, [], fn {key, value}, acc -> [{key, value * 2} | acc] end)
+      iex> A.RBMap.foldr(rb_map, [], fn key, value, acc -> [{key, value * 2} | acc] end)
       [a: 22, b: 44, c: 66]
 
   """
-  def foldr(%__MODULE__{} = rb_map, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldr(rb_map.root, acc, fun)
+  def foldr(rb_map, acc, fun)
+
+  def foldr(%__MODULE__{root: root}, acc, fun) when is_function(fun, 3) do
+    A.RBTree.Map.foldr(root, acc, fun)
   end
 
   # Iterators
 
-  @spec iterator(t(k, v)) :: A.RBTree.iterator({k, v}) when k: key, v: value
-  def iterator(%__MODULE__{root: root}), do: A.RBTree.iterator(root)
+  # TODO document or doc false?
 
-  @spec next(iterator(k, v)) :: {{k, v}, iterator(k, v)} | nil
+  @spec iterator(t(k, v)) :: iterator(k, v) when k: key, v: value
+  def iterator(%__MODULE__{root: root}), do: A.RBTree.Map.iterator(root)
+
+  @spec next(iterator(k, v)) :: {k, v, iterator(k, v)} | nil
         when k: key, v: value
-  defdelegate next(iterator), to: A.RBTree
+  defdelegate next(iterator), to: A.RBTree.Map
 
   # Private functions
 
-  defp pop_existing(%__MODULE__{root: root, size: size} = rb_map, key) do
-    case A.RBTree.map_pop(root, key) do
+  defp pop_existing(%{root: root, size: size}, key) do
+    case A.RBTree.Map.pop(root, key) do
+      {value, new_root} -> {value, %__MODULE__{root: new_root, size: size - 1}}
       :error -> :error
-      {:ok, value, new_root} -> {:ok, value, %{rb_map | root: new_root, size: size - 1}}
     end
   end
 
   # Not private, but only exposed for protocols
 
   @doc false
-  def reduce(%__MODULE__{root: root}, acc, fun), do: A.RBTree.reduce(root, acc, fun)
+  def reduce(%__MODULE__{root: root}, acc, fun), do: A.RBTree.Map.reduce(root, acc, fun)
 
   defimpl Enumerable do
     def count(rb_map) do

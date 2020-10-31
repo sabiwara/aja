@@ -25,71 +25,71 @@ Benchmarking A.RBMap with input n = 10...
 Benchmarking A.RBMap with input n = 100...
 Benchmarking A.RBMap with input n = 1000...
 Benchmarking A.RBMap with input n = 10000...
-Benchmarking A.RBTree with input n = 10...
-Benchmarking A.RBTree with input n = 100...
-Benchmarking A.RBTree with input n = 1000...
-Benchmarking A.RBTree with input n = 10000...
+Benchmarking A.RBTree.Map with input n = 10...
+Benchmarking A.RBTree.Map with input n = 100...
+Benchmarking A.RBTree.Map with input n = 1000...
+Benchmarking A.RBTree.Map with input n = 10000...
 Benchmarking :gb_trees with input n = 10...
 Benchmarking :gb_trees with input n = 100...
 Benchmarking :gb_trees with input n = 1000...
 Benchmarking :gb_trees with input n = 10000...
 
 ##### With input n = 10 #####
-Name                ips        average  deviation         median         99th %
-Map           1488.52 K        0.67 μs  ±5222.30%        0.49 μs        1.11 μs
-A.RBTree       677.49 K        1.48 μs  ±1260.95%        1.27 μs        2.54 μs
-:gb_trees      631.77 K        1.58 μs  ±1051.64%        1.46 μs        2.44 μs
-A.RBMap        507.22 K        1.97 μs  ±1123.48%        1.74 μs        2.90 μs
-A.OrdMap       341.74 K        2.93 μs   ±606.32%        2.63 μs        4.93 μs
+Name                   ips        average  deviation         median         99th %
+Map              1450.83 K        0.69 μs  ±3815.45%        0.49 μs        1.24 μs
+A.RBTree.Map      604.49 K        1.65 μs  ±1434.21%        1.37 μs        2.82 μs
+:gb_trees         578.73 K        1.73 μs  ±1110.00%        1.56 μs        2.69 μs
+A.RBMap           458.93 K        2.18 μs   ±790.12%        1.87 μs        3.71 μs
+A.OrdMap          312.55 K        3.20 μs   ±640.53%        2.84 μs        6.36 μs
 
 Comparison: 
-Map           1488.52 K
-A.RBTree       677.49 K - 2.20x slower +0.80 μs
-:gb_trees      631.77 K - 2.36x slower +0.91 μs
-A.RBMap        507.22 K - 2.93x slower +1.30 μs
-A.OrdMap       341.74 K - 4.36x slower +2.25 μs
+Map              1450.83 K
+A.RBTree.Map      604.49 K - 2.40x slower +0.97 μs
+:gb_trees         578.73 K - 2.51x slower +1.04 μs
+A.RBMap           458.93 K - 3.16x slower +1.49 μs
+A.OrdMap          312.55 K - 4.64x slower +2.51 μs
 
 ##### With input n = 100 #####
-Name                ips        average  deviation         median         99th %
-Map             97.14 K       10.29 μs    ±52.05%        9.53 μs       26.46 μs
-A.RBTree        36.96 K       27.06 μs    ±19.32%       26.18 μs       44.85 μs
-A.RBMap         31.86 K       31.39 μs    ±15.13%       30.47 μs       49.26 μs
-:gb_trees       30.21 K       33.10 μs    ±15.12%       32.24 μs       53.60 μs
-A.OrdMap        18.84 K       53.09 μs    ±12.59%       51.89 μs       82.02 μs
+Name                   ips        average  deviation         median         99th %
+Map                96.25 K       10.39 μs    ±39.42%        9.58 μs       28.88 μs
+A.RBTree.Map       32.36 K       30.90 μs    ±20.46%       29.41 μs       57.48 μs
+A.RBMap            28.61 K       34.95 μs    ±26.23%       33.35 μs       60.34 μs
+:gb_trees          28.23 K       35.43 μs    ±35.15%       32.92 μs       74.51 μs
+A.OrdMap           16.33 K       61.25 μs    ±14.37%       59.96 μs       98.96 μs
 
 Comparison: 
-Map             97.14 K
-A.RBTree        36.96 K - 2.63x slower +16.76 μs
-A.RBMap         31.86 K - 3.05x slower +21.09 μs
-:gb_trees       30.21 K - 3.22x slower +22.80 μs
-A.OrdMap        18.84 K - 5.16x slower +42.80 μs
+Map                96.25 K
+A.RBTree.Map       32.36 K - 2.97x slower +20.51 μs
+A.RBMap            28.61 K - 3.36x slower +24.56 μs
+:gb_trees          28.23 K - 3.41x slower +25.04 μs
+A.OrdMap           16.33 K - 5.90x slower +50.86 μs
 
 ##### With input n = 1000 #####
-Name                ips        average  deviation         median         99th %
-Map              5.96 K      167.85 μs    ±23.03%      157.79 μs      290.01 μs
-A.RBTree         1.78 K      563.28 μs    ±13.49%      543.43 μs      842.38 μs
-:gb_trees        1.69 K      590.97 μs    ±10.69%      576.25 μs      838.92 μs
-A.RBMap          1.62 K      616.32 μs    ±11.59%      593.88 μs      874.21 μs
-A.OrdMap         1.08 K      927.65 μs     ±6.71%      903.96 μs     1140.50 μs
+Name                   ips        average  deviation         median         99th %
+Map                 5.58 K      179.37 μs    ±24.66%      170.89 μs      335.67 μs
+A.RBTree.Map        1.64 K      608.39 μs    ±12.48%      587.95 μs      884.93 μs
+:gb_trees           1.60 K      625.15 μs    ±13.24%      600.34 μs      934.77 μs
+A.RBMap             1.50 K      667.39 μs    ±15.34%      634.40 μs     1071.19 μs
+A.OrdMap            0.95 K     1048.22 μs     ±9.86%     1008.48 μs     1461.23 μs
 
 Comparison: 
-Map              5.96 K
-A.RBTree         1.78 K - 3.36x slower +395.43 μs
-:gb_trees        1.69 K - 3.52x slower +423.12 μs
-A.RBMap          1.62 K - 3.67x slower +448.47 μs
-A.OrdMap         1.08 K - 5.53x slower +759.80 μs
+Map                 5.58 K
+A.RBTree.Map        1.64 K - 3.39x slower +429.03 μs
+:gb_trees           1.60 K - 3.49x slower +445.79 μs
+A.RBMap             1.50 K - 3.72x slower +488.02 μs
+A.OrdMap            0.95 K - 5.84x slower +868.85 μs
 
 ##### With input n = 10000 #####
-Name                ips        average  deviation         median         99th %
-Map              417.63        2.39 ms    ±12.46%        2.27 ms        3.54 ms
-A.RBTree         120.26        8.32 ms     ±9.87%        8.03 ms       10.24 ms
-A.RBMap          113.55        8.81 ms     ±9.57%        8.48 ms       11.13 ms
-:gb_trees        113.30        8.83 ms     ±8.16%        8.49 ms       10.88 ms
-A.OrdMap          82.35       12.14 ms     ±8.79%       11.61 ms       15.32 ms
+Name                   ips        average  deviation         median         99th %
+Map                 376.62        2.66 ms    ±13.88%        2.50 ms        4.06 ms
+A.RBTree.Map        111.54        8.97 ms    ±10.19%        8.77 ms       11.47 ms
+A.RBMap             107.96        9.26 ms    ±15.31%        8.41 ms       12.85 ms
+:gb_trees           107.26        9.32 ms    ±10.64%        8.95 ms       12.23 ms
+A.OrdMap             75.61       13.23 ms    ±10.60%       12.89 ms       16.75 ms
 
 Comparison: 
-Map              417.63
-A.RBTree         120.26 - 3.47x slower +5.92 ms
-A.RBMap          113.55 - 3.68x slower +6.41 ms
-:gb_trees        113.30 - 3.69x slower +6.43 ms
-A.OrdMap          82.35 - 5.07x slower +9.75 ms
+Map                 376.62
+A.RBTree.Map        111.54 - 3.38x slower +6.31 ms
+A.RBMap             107.96 - 3.49x slower +6.61 ms
+:gb_trees           107.26 - 3.51x slower +6.67 ms
+A.OrdMap             75.61 - 4.98x slower +10.57 ms

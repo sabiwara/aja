@@ -1,0 +1,57 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: n = 10, n = 100, n = 10000
+Estimated total run time: 1.05 min
+
+Benchmarking MapSet with input n = 10...
+Benchmarking MapSet with input n = 100...
+Benchmarking MapSet with input n = 10000...
+Benchmarking A.RBSet with input n = 10...
+Benchmarking A.RBSet with input n = 100...
+Benchmarking A.RBSet with input n = 10000...
+Benchmarking :gb_sets (safe) with input n = 10...
+Benchmarking :gb_sets (safe) with input n = 100...
+Benchmarking :gb_sets (safe) with input n = 10000...
+
+##### With input n = 10 #####
+Name                      ips        average  deviation         median         99th %
+MapSet              2984.78 K        0.34 μs  ±8087.03%        0.22 μs        0.49 μs
+A.RBSet              722.84 K        1.38 μs  ±1863.28%        1.15 μs        2.42 μs
+:gb_sets (safe)      684.59 K        1.46 μs  ±1435.80%        1.26 μs        2.50 μs
+
+Comparison: 
+MapSet              2984.78 K
+A.RBSet              722.84 K - 4.13x slower +1.05 μs
+:gb_sets (safe)      684.59 K - 4.36x slower +1.13 μs
+
+##### With input n = 100 #####
+Name                      ips        average  deviation         median         99th %
+MapSet               106.67 K        9.37 μs    ±90.72%        8.96 μs       18.45 μs
+A.RBSet               37.66 K       26.55 μs    ±32.79%       25.68 μs       43.67 μs
+:gb_sets (safe)       27.99 K       35.73 μs    ±14.83%       34.76 μs       56.70 μs
+
+Comparison: 
+MapSet               106.67 K
+A.RBSet               37.66 K - 2.83x slower +17.18 μs
+:gb_sets (safe)       27.99 K - 3.81x slower +26.36 μs
+
+##### With input n = 10000 #####
+Name                      ips        average  deviation         median         99th %
+MapSet                 419.61        2.38 ms     ±7.80%        2.31 ms        3.10 ms
+A.RBSet                123.07        8.13 ms     ±5.43%        7.97 ms        9.67 ms
+:gb_sets (safe)        102.47        9.76 ms     ±5.40%        9.65 ms       11.46 ms
+
+Comparison: 
+MapSet                 419.61
+A.RBSet                123.07 - 3.41x slower +5.74 ms
+:gb_sets (safe)        102.47 - 4.09x slower +7.38 ms

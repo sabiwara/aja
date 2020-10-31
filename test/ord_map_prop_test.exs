@@ -67,8 +67,9 @@ defmodule A.OrdMap.PropTest do
     new_map
   end
 
-  def apply_operation(%A.OrdMap{map: map} = ord_map, :delete_existing) when map_size(map) == 0,
-    do: ord_map
+  def apply_operation(%A.OrdMap{map: map} = ord_map, :delete_existing)
+      when map_size(map) == 0,
+      do: ord_map
 
   def apply_operation(%A.OrdMap{} = ord_map, :delete_existing) do
     {key, value} = ord_map |> Enum.random()
@@ -96,9 +97,10 @@ defmodule A.OrdMap.PropTest do
 
   def assert_properties(%A.OrdMap{} = ord_map) do
     as_list = Enum.to_list(ord_map)
+    assert ^as_list = A.OrdMap.to_list(ord_map)
 
     assert A.OrdMap.size(ord_map) == length(as_list)
-    assert {:ok, _} = A.RBTree.check_invariant(ord_map.tree)
+    assert {:ok, _} = A.RBTree.Map.check_invariant(ord_map.tree)
 
     assert A.OrdMap.first(ord_map) == List.first(as_list)
     assert A.OrdMap.last(ord_map) == List.last(as_list)

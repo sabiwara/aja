@@ -41,8 +41,8 @@ defmodule A.RBMapTest do
     map = A.RBMap.new([{"一", 1}, {"二", 2}])
     iterator = A.RBMap.iterator(map)
 
-    assert {{"一", 1}, iterator} = A.RBMap.next(iterator)
-    assert {{"二", 2}, iterator} = A.RBMap.next(iterator)
+    assert {"一", 1, iterator} = A.RBMap.next(iterator)
+    assert {"二", 2, iterator} = A.RBMap.next(iterator)
     assert nil == A.RBMap.next(iterator)
 
     map = A.RBMap.new([])

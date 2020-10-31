@@ -83,7 +83,7 @@ defmodule A.RBSet.PropTest do
     as_list = Enum.to_list(rb_set)
     assert A.RBSet.size(rb_set) == length(as_list)
     assert as_list == Enum.sort(as_list)
-    assert {:ok, _} = A.RBTree.check_invariant(rb_set.root)
+    assert {:ok, _} = A.RBTree.Set.check_invariant(rb_set.root)
 
     assert A.RBSet.equal?(A.RBSet.intersection(rb_set, rb_set), rb_set)
     assert A.RBSet.equal?(A.RBSet.union(rb_set, rb_set), rb_set)

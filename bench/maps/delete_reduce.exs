@@ -24,9 +24,9 @@ defmodule Bench.Maps.DeleteReduce do
         {"A.OrdMap",
          create_scenario(&A.OrdMap.new/1, fn map, key -> A.OrdMap.delete(map, key) end)},
         {"A.RBMap", create_scenario(&A.RBMap.new/1, fn map, key -> A.RBMap.delete(map, key) end)},
-        {"A.RBTree",
-         create_scenario(&A.RBTree.map_new/1, fn map, key ->
-           {ok, _, tree} = A.RBTree.map_pop(map, key)
+        {"A.RBTree.Map",
+         create_scenario(&A.RBTree.Map.new/1, fn map, key ->
+           {_, tree} = A.RBTree.Map.pop(map, key)
            tree
          end)},
         {":gb_trees",

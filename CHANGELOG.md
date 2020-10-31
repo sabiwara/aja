@@ -4,7 +4,16 @@
 
 ### Enhancements
 
-  * Minor peformance tweaks, inlining functions
+  * Rework all internals, improved peformance for `A.OrdMap`, `A.RBMap`, `A.RBSet`
+  * Add `default` parameter to `A.OrdMap.first/1`, `A.OrdMap.last/1`,
+   `A.RBMap.first/1`, `A.RBMap.last/1`, `A.RBSet.first/1`, `A.RBSet.last/1`
+
+### Breaking changes
+
+  * Changed signature of `A.OrdMap.foldl/3`, `A.OrdMap.foldr/3`,
+    `A.RBMap.foldl/3`, `A.RBMap.foldr/3`
+  * Internals of all data structures have been changed
+  * Split `A.RBTree` as `A.RBTree.Map` and `A.RBTree.Set`
 
 ## v0.2.0 (2020-10-25)
 

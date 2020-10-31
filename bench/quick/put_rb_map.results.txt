@@ -1,4 +1,3 @@
-Compiling 2 files (.ex)
 Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
@@ -19,9 +18,9 @@ Benchmarking :gb_trees with input n = 30...
 
 ##### With input n = 30 #####
 Name                ips        average  deviation         median         99th %
-:gb_trees        1.14 M        0.88 μs  ±3523.12%        0.73 μs        1.18 μs
-A.RBMap          0.89 M        1.12 μs  ±1530.09%        0.96 μs        1.73 μs
+:gb_trees        1.06 M        0.95 μs  ±3018.70%        0.74 μs        1.55 μs
+A.RBMap          0.82 M        1.21 μs  ±2070.07%        0.98 μs        2.01 μs
 
 Comparison: 
-:gb_trees        1.14 M
-A.RBMap          0.89 M - 1.28x slower +0.24 μs
+:gb_trees        1.06 M
+A.RBMap          0.82 M - 1.28x slower +0.27 μs

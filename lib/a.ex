@@ -119,7 +119,10 @@ defmodule A do
   defp to_match_map(key_value_pairs, context) do
     wildcard_pairs =
       for {key, value} <- key_value_pairs do
-        {key, {@wildcard, value}}
+        {key,
+         quote do
+           {unquote(@wildcard), unquote(@wildcard), unquote(value)}
+         end}
       end
 
     {:%{}, context, wildcard_pairs}

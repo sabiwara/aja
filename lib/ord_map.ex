@@ -53,7 +53,7 @@ defmodule A.OrdMap do
       iex> {:c, "Cat", updated} = A.OrdMap.pop_last(ord_map)
       iex> updated
       #A<ord(%{b: "Bat", a: "Ant"})>
-      iex> A.OrdMap.foldr(ord_map, [], fn {_key, value}, acc -> [value <> "man" | acc] end)
+      iex> A.OrdMap.foldr(ord_map, [], fn _key, value, acc -> [value <> "man" | acc] end)
       ["Batman", "Antman", "Catman"]
 
   ## Access behaviour
@@ -76,7 +76,7 @@ defmodule A.OrdMap do
   The `A.OrdMap` module can be used without any macro.
   The `A.ord/1` macro does however provide some syntactic sugar to make
   it more convenient to work with ordered maps, namely:
-  - construct new ordered maps without the clutter of a tuple list
+  - construct new ordered maps without the clutter of a entry list
   - pattern match on key-values like regular maps
   - update some existing keys
 
@@ -142,6 +142,17 @@ defmodule A.OrdMap do
   As discussed in the previous section, [`ord/1`](`A.ord/1`) makes it
   possible to pattern match on keys as well as checking the type.
 
+  ## Memory overhead
+
+  `A.OrdMap` takes roughly more memory 2.5~3x than a regular map depending on the type of data:
+
+      iex> map_size = 1..100 |> Map.new(fn i -> {i, <<i>>} end) |> :erts_debug.size()
+      658
+      iex> ord_map_size = 1..100 |> A.OrdMap.new(fn i -> {i, <<i>>} end) |> :erts_debug.size()
+      1668
+      iex> div(100 * ord_map_size, map_size)
+      253
+
   ## Difference with `A.RBMap`
 
   - `A.OrdMap` keeps track of key insertion order
@@ -154,6 +165,7 @@ defmodule A.OrdMap do
   # TODO: inline what is relevant
   @compile {:inline,
             new: 1,
+            new_loop: 2,
             fetch: 2,
             fetch!: 2,
             has_key?: 2,
@@ -162,23 +174,24 @@ defmodule A.OrdMap do
             delete: 2,
             replace: 3,
             replace!: 3,
-            insert_new: 3,
-            replace_existing: 4,
+            insert_new: 4,
+            do_put: 5,
             delete_existing: 3,
             equal?: 2,
             equal_loop: 2,
+            next_index: 1,
             replace_many!: 2}
 
   @type key :: term
   @type value :: term
   @typep index :: non_neg_integer
+  @typep entry(key, value) :: {index, key, value}
   @opaque t(key, value) :: %__MODULE__{
-            tree: A.RBTree.tree({index, key}),
-            map: %{optional(key) => {index, value}}
+            map: %{optional(key) => entry(key, value)},
+            tree: A.RBTree.Map.tree(index, entry(key, value))
           }
   @opaque t :: t(key, value)
-  @enforce_keys [:tree, :map]
-  defstruct [:tree, :map]
+  defstruct map: %{}, tree: A.RBTree.Map.empty()
 
   @doc """
   Returns all keys from `ord_map`.
@@ -213,7 +226,7 @@ defmodule A.OrdMap do
   def keys(ord_map)
 
   def keys(%__MODULE__{tree: tree}) do
-    A.RBTree.foldr(tree, [], fn {_index, key}, acc ->
+    A.RBTree.Map.foldr(tree, [], fn _i, {_index, key, _value}, acc ->
       [key | acc]
     end)
   end
@@ -231,9 +244,8 @@ defmodule A.OrdMap do
   @spec values(t(key, v)) :: [v] when v: value
   def values(ord_map)
 
-  def values(%__MODULE__{tree: tree, map: map}) do
-    A.RBTree.foldr(tree, [], fn {_index, key}, acc ->
-      %{^key => {_index, value}} = map
+  def values(%__MODULE__{tree: tree}) do
+    A.RBTree.Map.foldr(tree, [], fn _i, {_index, _key, value}, acc ->
       [value | acc]
     end)
   end
@@ -251,9 +263,8 @@ defmodule A.OrdMap do
   @spec to_list(t(k, v)) :: [{k, v}] when k: key, v: value
   def to_list(ord_map)
 
-  def to_list(%__MODULE__{tree: tree, map: map}) do
-    A.RBTree.foldr(tree, [], fn {_index, key}, acc ->
-      %{^key => {_index, value}} = map
+  def to_list(%__MODULE__{tree: tree}) do
+    A.RBTree.Map.foldr(tree, [], fn __i, {_index, key, value}, acc ->
       [{key, value} | acc]
     end)
   end
@@ -269,7 +280,7 @@ defmodule A.OrdMap do
   """
   @spec new :: t
   def new() do
-    %__MODULE__{tree: A.RBTree.empty(), map: %{}}
+    %__MODULE__{}
   end
 
   @doc """
@@ -290,23 +301,9 @@ defmodule A.OrdMap do
   def new(%__MODULE__{} = ord_map), do: ord_map
 
   def new(enumerable) do
-    list = Enum.to_list(enumerable)
-    new_loop(0, A.RBTree.empty(), %{}, list)
-  end
-
-  defp new_loop(_i, tree, map, []), do: %__MODULE__{tree: tree, map: map}
-
-  defp new_loop(i, tree, map, [{key, value} | rest]) do
-    case map do
-      %{^key => {index, _value}} ->
-        new_map = Map.replace!(map, key, {index, value})
-        new_loop(i + 1, tree, new_map, rest)
-
-      _ ->
-        new_map = Map.put_new(map, key, {i, value})
-        {_result, new_tree} = A.RBTree.map_insert(tree, i, key)
-        new_loop(i + 1, new_tree, new_map, rest)
-    end
+    acc = {0, %{}, A.RBTree.Map.empty()}
+    {_i, map, tree} = Enum.reduce(enumerable, acc, &new_loop/2)
+    %__MODULE__{map: map, tree: tree}
   end
 
   @doc """
@@ -348,7 +345,7 @@ defmodule A.OrdMap do
   end
 
   @doc ~S"""
-  Fetches the value for a specific `key` and returns it in a ok-tuple.
+  Fetches the value for a specific `key` and returns it in a ok-entry.
   If the key does not exist, returns :error.
 
   ## Examples
@@ -366,7 +363,7 @@ defmodule A.OrdMap do
 
   def fetch(%__MODULE__{map: map}, key) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => {_index, _key, value}} ->
         {:ok, value}
 
       _ ->
@@ -392,7 +389,7 @@ defmodule A.OrdMap do
   @spec fetch!(t(k, v), k) :: v when k: key, v: value
   def fetch!(%__MODULE__{map: map} = ord_map, key) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => {_index, _key, value}} ->
         value
 
       _ ->
@@ -414,13 +411,13 @@ defmodule A.OrdMap do
 
   """
   @spec put_new(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def put_new(%__MODULE__{map: map} = ord_map, key, value) do
+  def put_new(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
     case map do
       %{^key => _value} ->
         ord_map
 
       _ ->
-        put(ord_map, key, value)
+        insert_new(map, tree, key, value)
     end
   end
 
@@ -437,10 +434,10 @@ defmodule A.OrdMap do
 
   """
   @spec replace(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def replace(%__MODULE__{map: map} = ord_map, key, value) do
+  def replace(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
     case map do
-      %{^key => {index, _value}} ->
-        replace_existing(ord_map, index, key, value)
+      %{^key => {index, _key, _value}} ->
+        do_put(map, tree, index, key, value)
 
       _ ->
         ord_map
@@ -462,10 +459,10 @@ defmodule A.OrdMap do
 
   """
   @spec replace!(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def replace!(%__MODULE__{map: map} = ord_map, key, value) do
+  def replace!(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
     case map do
-      %{^key => {index, _value}} ->
-        replace_existing(ord_map, index, key, value)
+      %{^key => {index, _key, _value}} ->
+        do_put(map, tree, index, key, value)
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -491,11 +488,12 @@ defmodule A.OrdMap do
 
   """
   @spec put_new_lazy(t(k, v), k, (() -> v)) :: t(k, v) when k: key, v: value
-  def put_new_lazy(%__MODULE__{} = ord_map, key, fun) when is_function(fun, 0) do
+  def put_new_lazy(%__MODULE__{map: map, tree: tree} = ord_map, key, fun)
+      when is_function(fun, 0) do
     if has_key?(ord_map, key) do
       ord_map
     else
-      put(ord_map, key, fun.())
+      insert_new(map, tree, key, fun.())
     end
   end
 
@@ -518,16 +516,16 @@ defmodule A.OrdMap do
 
   def take(%__MODULE__{map: map}, keys) when is_list(keys) do
     keys
-    |> Enum.reduce([], fn key, acc ->
+    |> List.foldl([], fn key, acc ->
       case map do
-        %{^key => {_index, value}} ->
+        %{^key => {_index, _key, value}} ->
           [{key, value} | acc]
 
         _ ->
           acc
       end
     end)
-    |> Enum.reverse()
+    |> :lists.reverse()
     |> new()
   end
 
@@ -555,7 +553,7 @@ defmodule A.OrdMap do
 
   def get(%__MODULE__{map: map}, key, default) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => {_index, _key, value}} ->
         value
 
       _ ->
@@ -587,7 +585,7 @@ defmodule A.OrdMap do
 
   def get_lazy(%__MODULE__{map: map}, key, fun) when is_function(fun, 0) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => {_index, _key, value}} ->
         value
 
       _ ->
@@ -611,13 +609,15 @@ defmodule A.OrdMap do
 
   """
   @spec put(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def put(%__MODULE__{map: map} = ord_map, key, value) do
+  def put(ord_map, key, value)
+
+  def put(%__MODULE__{map: map, tree: tree}, key, value) do
     case map do
-      %{^key => {index, _value}} ->
-        replace_existing(ord_map, index, key, value)
+      %{^key => {index, _key, _value}} ->
+        do_put(map, tree, index, key, value)
 
       _ ->
-        insert_new(ord_map, key, value)
+        insert_new(map, tree, key, value)
     end
   end
 
@@ -636,10 +636,10 @@ defmodule A.OrdMap do
 
   """
   @spec delete(t(k, v), k) :: t(k, v) when k: key, v: value
-  def delete(%__MODULE__{map: map} = ord_map, key) do
+  def delete(%__MODULE__{map: map, tree: tree} = ord_map, key) do
     case :maps.take(key, map) do
-      {{index, _value}, new_map} ->
-        delete_existing(ord_map, new_map, index)
+      {{index, _key, _value}, new_map} ->
+        delete_existing(new_map, tree, index)
 
       :error ->
         ord_map
@@ -660,7 +660,7 @@ defmodule A.OrdMap do
   """
   @spec merge(t(k, v), t(k, v)) :: t(k, v) when k: key, v: value
   def merge(%__MODULE__{} = ord_map1, %__MODULE__{} = ord_map2) do
-    Enum.reduce(ord_map2, ord_map1, fn {key, value}, acc -> put(acc, key, value) end)
+    foldl(ord_map2, ord_map1, fn key, value, acc -> put(acc, key, value) end)
   end
 
   @doc """
@@ -676,13 +676,15 @@ defmodule A.OrdMap do
 
   """
   @spec update(t(k, v), k, v, (k -> v)) :: t(k, v) when k: key, v: value
-  def update(%__MODULE__{map: map} = ord_map, key, default, fun) when is_function(fun, 1) do
+  def update(ord_map, key, default, fun)
+
+  def update(%__MODULE__{map: map, tree: tree}, key, default, fun) when is_function(fun, 1) do
     case map do
-      %{^key => {index, value}} ->
-        replace_existing(ord_map, index, key, fun.(value))
+      %{^key => {index, _key, value}} ->
+        do_put(map, tree, index, key, fun.(value))
 
       _ ->
-        insert_new(ord_map, key, default)
+        insert_new(map, tree, key, default)
     end
   end
 
@@ -708,10 +710,10 @@ defmodule A.OrdMap do
   """
   @impl Access
   @spec pop(t(k, v), k, v) :: {v, t(k, v)} when k: key, v: value
-  def pop(%__MODULE__{map: map} = ord_map, key, default \\ nil) do
+  def pop(%__MODULE__{map: map, tree: tree} = ord_map, key, default \\ nil) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
-        {value, delete_existing(ord_map, new_map, index)}
+      {{index, _key, value}, new_map} ->
+        {value, delete_existing(new_map, tree, index)}
 
       :error ->
         {default, ord_map}
@@ -733,10 +735,10 @@ defmodule A.OrdMap do
       ** (KeyError) key :z not found in: #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
-  def pop!(%__MODULE__{map: map} = ord_map, key) do
+  def pop!(%__MODULE__{map: map, tree: tree} = ord_map, key) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
-        {value, delete_existing(ord_map, new_map, index)}
+      {{index, _key, value}, new_map} ->
+        {value, delete_existing(new_map, tree, index)}
 
       :error ->
         raise KeyError, key: key, term: ord_map
@@ -767,10 +769,10 @@ defmodule A.OrdMap do
 
   """
   @spec pop_lazy(t(k, v), k, (() -> v)) :: {v, t(k, v)} when k: key, v: value
-  def pop_lazy(%__MODULE__{map: map} = ord_map, key, fun) when is_function(fun, 0) do
+  def pop_lazy(%__MODULE__{map: map, tree: tree} = ord_map, key, fun) when is_function(fun, 0) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
-        {value, delete_existing(ord_map, new_map, index)}
+      {{index, _key, value}, new_map} ->
+        {value, delete_existing(new_map, tree, index)}
 
       :error ->
         {fun.(), ord_map}
@@ -811,10 +813,10 @@ defmodule A.OrdMap do
 
   """
   @spec update!(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def update!(%__MODULE__{map: map} = ord_map, key, fun) when is_function(fun, 1) do
+  def update!(%__MODULE__{map: map, tree: tree} = ord_map, key, fun) when is_function(fun, 1) do
     case map do
-      %{^key => {index, value}} ->
-        replace_existing(ord_map, index, key, fun.(value))
+      %{^key => {index, _key, value}} ->
+        do_put(map, tree, index, key, fun.(value))
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -939,7 +941,7 @@ defmodule A.OrdMap do
   @doc """
   Finds the fist `{key, value}` pair in `ord_map`.
 
-  Returns a `{key, value}` tuple if `ord_map` is non-empty, or `nil` else.
+  Returns a `{key, value}` entry if `ord_map` is non-empty, or `nil` else.
 
   ## Examples
 
@@ -947,26 +949,27 @@ defmodule A.OrdMap do
       {:b, "B"}
       iex> A.OrdMap.new([]) |> A.OrdMap.first()
       nil
+      iex> A.OrdMap.new([]) |> A.OrdMap.first(:error)
+      :error
 
   """
-  @spec first(t(k, v)) :: {k, v} | nil when k: key, v: value
-  def first(ord_map)
+  @spec first(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
+  def first(ord_map, default \\ nil)
 
-  def first(%A.OrdMap{map: map, tree: tree}) do
-    case A.RBTree.min(tree) do
-      {:ok, {_index, key}} ->
-        %{^key => {_index, value}} = map
+  def first(%A.OrdMap{tree: tree}, default) do
+    case A.RBTree.Map.min(tree) do
+      {_i, {_index, key, value}} ->
         {key, value}
 
-      :error ->
-        nil
+      nil ->
+        default
     end
   end
 
   @doc """
   Finds the last `{key, value}` pair in `ord_map`.
 
-  Returns a `{key, value}` tuple if `ord_map` is non-empty, or `nil` else.
+  Returns a `{key, value}` entry if `ord_map` is non-empty, or `nil` else.
   Can be accessed efficiently due to the underlying tree.
 
   ## Examples
@@ -975,26 +978,27 @@ defmodule A.OrdMap do
       {:c, "C"}
       iex> A.OrdMap.new([]) |> A.OrdMap.last()
       nil
+      iex> A.OrdMap.new([]) |> A.OrdMap.last(:error)
+      :error
 
   """
-  @spec last(t(k, v)) :: {:ok, {k, v}} | :error when k: key, v: value
-  def last(ord_map)
+  @spec last(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
+  def last(ord_map, default \\ nil)
 
-  def last(%A.OrdMap{map: map, tree: tree}) do
-    case A.RBTree.max(tree) do
-      {:ok, {_index, key}} ->
-        %{^key => {_index, value}} = map
+  def last(%A.OrdMap{tree: tree}, default) do
+    case A.RBTree.Map.max(tree) do
+      {_i, {_index, key, value}} ->
         {key, value}
 
-      :error ->
-        nil
+      nil ->
+        default
     end
   end
 
   @doc """
   Finds and pops the first `{key, value}` pair in `ord_map`.
 
-  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+  Returns a `{key, value, new_tree}` entry for non-empty maps, `nil` for empty maps
 
   ## Examples
 
@@ -1008,12 +1012,13 @@ defmodule A.OrdMap do
 
   """
   @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
+  def pop_first(ord_map)
 
-  def pop_first(%__MODULE__{} = ord_map) do
-    case A.RBTree.map_pop_min(ord_map.tree) do
-      {:ok, {_index, key}, new_tree} ->
-        {{_index, value}, new_map} = Map.pop!(ord_map.map, key)
-        new_ord_map = %{ord_map | tree: new_tree, map: new_map}
+  def pop_first(%__MODULE__{map: map, tree: tree}) do
+    case A.RBTree.Map.pop_min(tree) do
+      {_i, {_index, key, value}, new_tree} ->
+        {_index_value, new_map} = Map.pop!(map, key)
+        new_ord_map = %__MODULE__{map: new_map, tree: new_tree}
         {key, value, new_ord_map}
 
       :error ->
@@ -1024,7 +1029,7 @@ defmodule A.OrdMap do
   @doc """
   Finds and pops the last `{key, value}` pair in `ord_map`.
 
-  Returns a `{key, value, new_tree}` tuple for non-empty maps, `nil` for empty maps
+  Returns a `{key, value, new_tree}` entry for non-empty maps, `nil` for empty maps
 
   ## Examples
 
@@ -1038,11 +1043,13 @@ defmodule A.OrdMap do
 
   """
   @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-  def pop_last(%__MODULE__{} = ord_map) do
-    case A.RBTree.map_pop_max(ord_map.tree) do
-      {:ok, {_index, key}, new_tree} ->
-        {{_index, value}, new_map} = Map.pop!(ord_map.map, key)
-        new_ord_map = %{ord_map | tree: new_tree, map: new_map}
+  def pop_last(ord_map)
+
+  def pop_last(%__MODULE__{map: map, tree: tree}) do
+    case A.RBTree.Map.pop_max(tree) do
+      {_i, {_index, key, value}, new_tree} ->
+        {_index_value, new_map} = Map.pop!(map, key)
+        new_ord_map = %__MODULE__{map: new_map, tree: new_tree}
         {key, value, new_ord_map}
 
       :error ->
@@ -1056,18 +1063,17 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldl(ord_map, "", fn {_key, value}, acc -> value <> acc end)
+      iex> A.OrdMap.foldl(ord_map, "", fn _key, value, acc -> value <> acc end)
       "AntCatBat"
-      iex> A.OrdMap.foldl(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
+      iex> A.OrdMap.foldl(ord_map, [], fn key, value, acc -> [{key, value <> "man"} | acc] end)
       [a: "Antman", c: "Catman", b: "Batman"]
 
   """
   def foldl(ord_map, acc, fun)
 
-  def foldl(%__MODULE__{tree: tree, map: map}, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldl(tree, acc, fn {_index, key}, loop_acc ->
-      %{^key => {_index, value}} = map
-      fun.({key, value}, loop_acc)
+  def foldl(%__MODULE__{tree: tree}, acc, fun) when is_function(fun, 3) do
+    A.RBTree.Map.foldl(tree, acc, fn _i, {_index, key, value}, loop_acc ->
+      fun.(key, value, loop_acc)
     end)
   end
 
@@ -1080,67 +1086,92 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldr(ord_map, "", fn {_key, value}, acc -> value <> acc end)
+      iex> A.OrdMap.foldr(ord_map, "", fn _key, value, acc -> value <> acc end)
       "BatCatAnt"
-      iex> A.OrdMap.foldr(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
+      iex> A.OrdMap.foldr(ord_map, [], fn key, value, acc -> [{key, value <> "man"} | acc] end)
       [b: "Batman", c: "Catman", a: "Antman"]
 
   """
   def foldr(ord_map, acc, fun)
 
-  def foldr(%__MODULE__{tree: tree, map: map}, acc, fun) when is_function(fun, 2) do
-    A.RBTree.foldr(tree, acc, fn {_index, key}, loop_acc ->
-      %{^key => {_index, value}} = map
-      fun.({key, value}, loop_acc)
+  def foldr(%__MODULE__{tree: tree}, acc, fun) when is_function(fun, 3) do
+    A.RBTree.Map.foldr(tree, acc, fn _i, {_index, key, value}, loop_acc ->
+      fun.(key, value, loop_acc)
     end)
   end
 
   # Private functions
 
-  defp insert_new(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
-    # meant to be called ONLY when sure the key does NOT already exist
+  defp insert_new(map, tree, key, value) do
+    new_index = next_index(tree)
 
-    new_index =
-      case A.RBTree.max(tree) do
-        {:ok, {last_index, _}} -> last_index + 1
-        :error -> 0
-      end
-
-    {_, new_tree} = A.RBTree.map_insert(tree, new_index, key)
-
-    # insert crashes if index exists, which should never happen here!
-    %{
-      ord_map
-      | tree: new_tree,
-        map: Map.put(map, key, {new_index, value})
-    }
+    do_put(map, tree, new_index, key, value)
   end
 
-  defp replace_existing(%__MODULE__{map: map} = ord_map, index, key, value) do
-    %{ord_map | map: Map.put(map, key, {index, value})}
+  defp next_index(tree) do
+    case A.RBTree.Map.max(tree) do
+      {last_index, _} -> last_index + 1
+      nil -> 0
+    end
   end
 
-  defp delete_existing(%__MODULE__{tree: tree} = ord_map, new_map, index) do
-    {:ok, _, new_tree} = A.RBTree.map_pop(tree, index)
+  defp do_put(map, tree, index, key, value) do
+    entry = {index, key, value}
+    {_, new_tree} = A.RBTree.Map.insert(tree, index, entry)
+    new_map = Map.put(map, key, entry)
 
-    %{
-      ord_map
-      | tree: new_tree,
-        map: new_map
-    }
+    %__MODULE__{map: new_map, tree: new_tree}
+  end
+
+  defp delete_existing(new_map, tree, index) do
+    {_, new_tree} = A.RBTree.Map.pop(tree, index)
+
+    %__MODULE__{map: new_map, tree: new_tree}
+  end
+
+  defp new_loop({key, value}, _acc = {i, map, tree}) do
+    case map do
+      %{^key => {index, _key, _value}} ->
+        entry = {index, key, value}
+        new_map = Map.replace!(map, key, entry)
+        {_result, new_tree} = A.RBTree.Map.insert(tree, index, entry)
+        {i, new_map, new_tree}
+
+      _ ->
+        entry = {i, key, value}
+        new_map = Map.put_new(map, key, entry)
+        {_result, new_tree} = A.RBTree.Map.insert(tree, i, entry)
+        {i + 1, new_map, new_tree}
+    end
+  end
+
+  defp replace_many_loop(_i, map, tree, []) do
+    %__MODULE__{map: map, tree: tree}
+  end
+
+  defp replace_many_loop(i, map, tree, [{key, value} | rest]) do
+    case map do
+      %{^key => {index, _key, _value}} ->
+        entry = {index, key, value}
+        new_map = Map.replace!(map, key, entry)
+        {_result, new_tree} = A.RBTree.Map.insert(tree, index, entry)
+        replace_many_loop(i, new_map, new_tree, rest)
+
+      _ ->
+        {:error, key}
+    end
   end
 
   @doc false
-  def iterator(%__MODULE__{tree: tree, map: map}) do
-    {A.RBTree.iterator(tree), map}
+  def iterator(%__MODULE__{tree: tree}) do
+    A.RBTree.Map.iterator(tree)
   end
 
   @doc false
-  def next({iterator, map}) do
-    case A.RBTree.next(iterator) do
-      {{index, key}, new_iterator} ->
-        %{^key => {^index, value}} = map
-        {key, value, {new_iterator, map}}
+  def next(iterator) do
+    case A.RBTree.Map.next(iterator) do
+      {_i, {_index, key, value}, new_iterator} ->
+        {key, value, new_iterator}
 
       nil ->
         nil
@@ -1148,11 +1179,11 @@ defmodule A.OrdMap do
   end
 
   @doc false
-  def replace_many!(%__MODULE__{} = ordered, key_values) do
-    Enum.reduce(key_values, ordered, fn
-      {key, value}, acc ->
-        A.OrdMap.replace!(acc, key, value)
-    end)
+  def replace_many!(%__MODULE__{map: map, tree: tree} = ord_map, key_values) do
+    case replace_many_loop(next_index(tree), map, tree, key_values) do
+      {:error, key} -> raise KeyError, key: key, term: ord_map
+      new_ord_map -> new_ord_map
+    end
   end
 
   defimpl Enumerable do
