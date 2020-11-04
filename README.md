@@ -11,11 +11,8 @@ APIs might still change at any point.
 
 ## TL;DR
 
-The Elixir standard library is so rich, ergonomic and well-documented that it feels there is not much left to add.
-And yet... some occasional friction might still remain.
-
-Aja aims to improve productivity and remove some of this friction by providing mostly:
-- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. tree maps/sets) data structures written in pure elixir
+Aja aims to extend the already very complete Elixir standard library by adding:
+- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. trees) data structures
 - nice-to-have utility functions
 
 ### Data structures
@@ -30,7 +27,7 @@ Sometimes, a linked-list just won't cut it. In the
 
 Order maps (`A.OrdMap`s) are probably Aja's killer feature, since:
 - regular maps do not keep track of the insertion order
-- keywords do not have the right performance characteristics and only support atoms
+- keywords only support atoms and do not have the right performance characteristics
 
 ```elixir
 iex> Map.new([{"one", 1}, {"two", 2}, {"three", 3}]) |> Enum.to_list()
@@ -43,10 +40,9 @@ iex> Enum.to_list(ord_map)
 [{"one", 1}, {"two", 2}, {"three", 3}]
 ```
 
-Order maps behave pretty much like regular maps, and the `A.OrdMap` module
+Ordered maps behave pretty much like regular maps, and the `A.OrdMap` module
 offers the same API as `Map`.
-They come with a convenience macro `A.ord/1` to construct and pattern-match upon, which should
-make them a breeze to use without much added friction over plain maps:
+The convenience macro `A.ord/1` make them a breeze to instantiate or patter-match upon:
 
 ```elixir
 iex> A.OrdMap.new(%{"一" => 1, "二" => 2, "三" => 3})  # without macro: insertion order is lost!
@@ -59,8 +55,7 @@ iex> {one, three}
 {1, 3}
 ```
 
-Maps and sets based on Red-Black Trees (`A.RBMap` and `A.RBSet`) are useful when you want to
-keep a collection sorted.
+Red-Black Trees (`A.RBMap` and `A.RBSet`) are useful when you want to keep a map or set sorted:
 
 ```elixir
 iex> A.RBMap.new([b: "Bat", a: "Ant", c: "Cat", b: "Buffalo"])
@@ -117,13 +112,10 @@ iex> A.IO.iodata_empty?(["", []])
 true
 ```
 
-None of this is revolutionary, but having these helpers to hand might save you the implementation
+Nothing groundbreaking, but having these helpers to hand might save you the implementation
 and the testing, or bringing over a library just for this one thing.
 
-All those helpers should provide some rationale in their documentation as to why they might
-be useful and what pain point they are addressing.
-
-Browse the API documentation to see if you find something that helps you.
+Browse the API documentation for more details.
 
 ## Installation
 
@@ -154,11 +146,10 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 
 ### Goals
 
-- like the standard library, being **delightful** to use ✨️ (consistency, quality, documentation)
+- like the standard library, being **delightful** to use ✨️ (consistency with Elixir and itself, quality, documentation)
 - no external dependency to help you preserve a decent dependency tree and fast compile times
 - performance-conscious (right algorithm, proper benchmarking, fast compile times)
 - mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
-- **Don't Break The Pipe!**: APIs have been designed with pipe-ability in mind
 
 ### Non-goals
 
@@ -250,8 +241,8 @@ Aja doesn't really follow it, but there are conscious reasons for going that dir
 While it might be possible later down the road to split some of its components, there is no plan to do so
 at the moment.
 
-First, we don't think there is any real downside of shipping "too much": Aja has and aims to keep
-a lightweight footprint and fast compile times, as well as a modular structure.
+First, we don't think there is any real downside of shipping "too much": Aja is and aims to remain
+lightweight, with fast compile times as well as a modular structure.
 You can just use what you need without suffering from what you don't.
 
 This lodash-like approach has benefits too: it aims to ship with a lot of convenience while introducing only
