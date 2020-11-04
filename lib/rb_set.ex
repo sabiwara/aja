@@ -9,7 +9,7 @@ defmodule A.RBSet do
   Erlang's `:gb_sets` offer similar functionalities and performance.
   However `A.RBSet`:
   - is a better Elixir citizen: pipe-friendliness, `Enum` / `Inspect` / `Collectable` protocols
-  - is more convenient and safer to use: no unsafe functions like `:gb_sets.insert/2`, `:gb_sets.from_ordset/1`...
+  - is more convenient and safer to use: no unsafe functions like `:gb_sets.from_ordset/1`
   - keeps the tree balanced on deletion [unlike `:gb_sets`](`:gb_sets.balance/1`)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
@@ -116,28 +116,6 @@ defmodule A.RBSet do
       true
 
   Erlang's `:gb_sets` module works the same.
-
-  ## Comparison with `:gb_sets`
-
-  All operations on `A.RBSet` are safe to use and should not include any footgun / quirks.
-  Besides, every operation enforces the red-black invariant, so there is no need
-  to ever manually [balance](`:gb_sets.balance/1`).
-
-  Example of unsafe `:gb_sets` operations:
-
-     * `:gb_sets.from_ordset/1` needs sorted values without duplicate keys.
-
-      iex> tree = :gb_sets.from_ordset(["Dinosaur", "Bat", "Ant", "Cat"])
-      iex> :gb_sets.is_member("Bat", tree)
-      false
-
-    The creation won't fail, but it will return inconsistent results later down the line!
-
-     * `:gb_sets.insert/2` should not be used if the key already exists (use `:gb_sets.add_element/2`)
-
-      iex> tree = :gb_sets.from_ordset(["Ant", "Bat", "Cat"])
-      iex> :gb_sets.insert("Bat", tree)
-      ** (ErlangError) Erlang error: {:key_exists, "Bat"}
 
   ## Memory overhead
 
