@@ -1186,6 +1186,13 @@ defmodule A.OrdMap do
     end
   end
 
+  @doc false
+  def reduce(%__MODULE__{tree: tree}, acc, fun) do
+    A.RBTree.Map.reduce(tree, acc, fn {_i, {_index, key, value}}, acc ->
+      fun.({key, value}, acc)
+    end)
+  end
+
   defimpl Enumerable do
     def count(ord_map) do
       {:ok, A.OrdMap.size(ord_map)}
@@ -1202,25 +1209,7 @@ defmodule A.OrdMap do
 
     def slice(_ord_map), do: {:error, __MODULE__}
 
-    def reduce(ord_map, acc, fun) do
-      iterator = A.OrdMap.iterator(ord_map)
-      reduce_iterator(iterator, acc, fun)
-    end
-
-    defp reduce_iterator(_iterator, {:halt, acc}, _fun), do: {:halted, acc}
-
-    defp reduce_iterator(iterator, {:suspend, acc}, fun),
-      do: {:suspended, acc, &reduce_iterator(iterator, &1, fun)}
-
-    defp reduce_iterator(iterator, {:cont, acc}, fun) do
-      case A.OrdMap.next(iterator) do
-        {key, value, new_iterator} ->
-          reduce_iterator(new_iterator, fun.({key, value}, acc), fun)
-
-        nil ->
-          {:done, acc}
-      end
-    end
+    defdelegate reduce(ord_map, acc, fun), to: A.OrdMap
   end
 
   defimpl Collectable do
