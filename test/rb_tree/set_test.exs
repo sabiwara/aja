@@ -19,6 +19,24 @@ defmodule A.RBTree.SetTest do
     assert false == A.RBTree.Set.member?(tree, 0)
   end
 
+  test "delete/2" do
+    :rand.seed(:exs1024, {123, 123_534, 345_345})
+
+    sorted = Enum.to_list(1..10_000)
+
+    tree = sorted |> Enum.shuffle() |> A.RBTree.Set.new()
+
+    new_tree =
+      sorted
+      |> Enum.shuffle()
+      |> Enum.reduce(tree, fn element, acc ->
+        A.RBTree.Set.delete(acc, element)
+      end)
+
+    assert new_tree == A.RBTree.Set.empty()
+    assert [] = A.RBTree.Set.to_list(new_tree)
+  end
+
   test "member?/2 only returns true for existing elements" do
     key_value = Enum.to_list(1..10_000)
     tree = A.RBTree.Set.new(key_value)

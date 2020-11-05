@@ -26,6 +26,32 @@ defmodule A.OrdMapTest do
     assert ^expected = expected |> A.OrdMap.new() |> Enum.to_list()
   end
 
+  test "stream suspension" do
+    ord_map = A.OrdMap.new([{"一", 1}, {"二", 2}, {"三", 3}])
+
+    assert [{{"一", 1}, 0}, {{"二", 2}, 1}] =
+             ord_map
+             |> Stream.zip(Stream.interval(1))
+             |> Enum.take(2)
+  end
+
+  test "Enum.count/1" do
+    ord_map = A.OrdMap.new(b: 2, a: 1, c: 3)
+    assert 3 = Enum.count(ord_map)
+  end
+
+  test "in/2" do
+    ord_map = A.OrdMap.new(b: 2, a: 1, c: 3)
+
+    assert {:a, 1} in ord_map
+    assert {:b, 2} in ord_map
+    assert {:c, 3} in ord_map
+
+    refute {:a, 2} in ord_map
+    refute {:b, 1} in ord_map
+    refute :a in ord_map
+  end
+
   test "inspect" do
     assert "#A<ord(%{})>" = A.OrdMap.new() |> inspect()
     assert "#A<ord(%{a: 1, b: 2})>" = A.OrdMap.new(a: 1, b: 2) |> inspect()

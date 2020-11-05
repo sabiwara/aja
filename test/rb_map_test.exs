@@ -26,6 +26,34 @@ defmodule A.RBMapTest do
     assert ^expected = expected |> A.RBMap.new() |> Enum.to_list()
   end
 
+  test "stream suspension" do
+    rb_map = A.RBMap.new(%{1 => "一", 2 => "二", 3 => "三"})
+
+    assert [{{1, "一"}, 0}, {{2, "二"}, 1}] =
+             rb_map
+             |> Stream.zip(Stream.interval(1))
+             |> Enum.take(2)
+  end
+
+  test "Enum.count/1" do
+    rb_map = A.RBMap.new(%{1 => 1, 2 => 4, 3 => 9})
+    assert 3 = Enum.count(rb_map)
+  end
+
+  test "in/2" do
+    rb_map = A.RBMap.new(%{1 => 1, 2 => 4, 3 => 9})
+
+    assert {1, 1} in rb_map
+    assert {2, 4} in rb_map
+    assert {3, 9} in rb_map
+    assert {1.0, 1} in rb_map
+
+    refute {1, 1.0} in rb_map
+    refute {1, 2} in rb_map
+    refute {2, 2} in rb_map
+    refute 1 in rb_map
+  end
+
   test "inspect" do
     assert "#A.RBMap<%{}>" = A.RBMap.new() |> inspect()
     assert "#A.RBMap<%{a: 1, b: 2}>" = A.RBMap.new(b: 2, a: 1) |> inspect()
