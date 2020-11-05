@@ -25,33 +25,33 @@ Benchmarking A.RBSet with input n = 100000...
 
 ##### With input n = 10 #####
 Name               ips        average  deviation         median         99th %
-MapSet       1019.38 K        0.98 μs  ±2636.01%        0.79 μs        1.77 μs
-A.RBSet       468.48 K        2.13 μs   ±811.84%        1.83 μs        4.41 μs
-:gb_sets      391.72 K        2.55 μs   ±639.67%        2.31 μs        4.69 μs
+MapSet       1052.89 K        0.95 μs  ±2896.10%        0.78 μs        1.56 μs
+A.RBSet       476.57 K        2.10 μs  ±1147.28%        1.84 μs        3.24 μs
+:gb_sets      383.99 K        2.60 μs   ±611.05%        2.39 μs        4.11 μs
 
 Comparison: 
-MapSet       1019.38 K
-A.RBSet       468.48 K - 2.18x slower +1.15 μs
-:gb_sets      391.72 K - 2.60x slower +1.57 μs
+MapSet       1052.89 K
+A.RBSet       476.57 K - 2.21x slower +1.15 μs
+:gb_sets      383.99 K - 2.74x slower +1.65 μs
 
 ##### With input n = 1000 #####
 Name               ips        average  deviation         median         99th %
-MapSet          5.52 K      181.23 μs    ±26.01%      163.79 μs      364.44 μs
-A.RBSet         1.89 K      530.28 μs    ±10.38%      507.02 μs      758.88 μs
-:gb_sets        0.83 K     1206.39 μs     ±6.18%     1190.00 μs     1516.42 μs
+MapSet          5.68 K      176.07 μs    ±23.31%      161.66 μs      318.43 μs
+A.RBSet         1.92 K      521.57 μs    ±13.34%      497.93 μs      819.29 μs
+:gb_sets        0.86 K     1164.02 μs     ±8.16%     1137.77 μs     1570.45 μs
 
 Comparison: 
-MapSet          5.52 K
-A.RBSet         1.89 K - 2.93x slower +349.05 μs
-:gb_sets        0.83 K - 6.66x slower +1025.16 μs
+MapSet          5.68 K
+A.RBSet         1.92 K - 2.96x slower +345.50 μs
+:gb_sets        0.86 K - 6.61x slower +987.96 μs
 
 ##### With input n = 100000 #####
 Name               ips        average  deviation         median         99th %
-MapSet           20.15       49.64 ms     ±8.79%       48.83 ms       72.14 ms
-A.RBSet          11.24       89.00 ms     ±2.51%       88.45 ms       94.54 ms
-:gb_sets          4.49      222.51 ms     ±1.57%      222.34 ms      236.93 ms
+MapSet           21.27       47.02 ms     ±7.83%       46.77 ms       57.50 ms
+A.RBSet          11.69       85.53 ms     ±2.52%       85.25 ms       94.54 ms
+:gb_sets          4.55      219.75 ms     ±1.46%      219.91 ms      228.03 ms
 
 Comparison: 
-MapSet           20.15
-A.RBSet          11.24 - 1.79x slower +39.36 ms
-:gb_sets          4.49 - 4.48x slower +172.88 ms
+MapSet           21.27
+A.RBSet          11.69 - 1.82x slower +38.51 ms
+:gb_sets          4.55 - 4.67x slower +172.73 ms

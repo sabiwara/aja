@@ -28,39 +28,39 @@ Benchmarking :gb_trees with input n = 10000...
 
 ##### With input n = 10 #####
 Name                ips        average  deviation         median         99th %
-Map              2.86 M      349.98 ns  ±8494.77%         241 ns         585 ns
-:gb_trees        2.30 M      434.92 ns  ±7501.06%         308 ns         829 ns
-A.OrdMap         2.18 M      459.08 ns  ±6670.91%         304 ns         763 ns
-A.RBMap          1.60 M      626.10 ns  ±4906.86%         450 ns        1174 ns
+Map              2.79 M      358.98 ns  ±8716.85%         251 ns         604 ns
+:gb_trees        2.47 M      405.24 ns  ±7618.36%         294 ns         666 ns
+A.OrdMap         2.01 M      498.35 ns  ±6666.27%         337 ns        1018 ns
+A.RBMap          1.61 M      620.19 ns  ±5056.66%         457 ns         999 ns
 
 Comparison: 
-Map              2.86 M
-:gb_trees        2.30 M - 1.24x slower +84.94 ns
-A.OrdMap         2.18 M - 1.31x slower +109.10 ns
-A.RBMap          1.60 M - 1.79x slower +276.13 ns
+Map              2.79 M
+:gb_trees        2.47 M - 1.13x slower +46.25 ns
+A.OrdMap         2.01 M - 1.39x slower +139.37 ns
+A.RBMap          1.61 M - 1.73x slower +261.20 ns
 
 ##### With input n = 100 #####
 Name                ips        average  deviation         median         99th %
-Map              2.28 M      437.96 ns  ±7934.87%         295 ns         599 ns
-A.OrdMap         1.87 M      533.83 ns  ±6405.88%         394 ns         837 ns
-:gb_trees        1.72 M      580.68 ns  ±7111.19%         386 ns         880 ns
-A.RBMap          1.26 M      792.76 ns  ±3895.00%         600 ns        1535 ns
+Map              1.96 M      509.83 ns  ±8099.70%         333 ns         696 ns
+:gb_trees        1.94 M      516.63 ns  ±6131.91%         393 ns         811 ns
+A.OrdMap         1.89 M      528.69 ns  ±6394.65%         399 ns         889 ns
+A.RBMap          1.31 M      761.33 ns  ±3951.72%         588 ns        1086 ns
 
 Comparison: 
-Map              2.28 M
-A.OrdMap         1.87 M - 1.22x slower +95.87 ns
-:gb_trees        1.72 M - 1.33x slower +142.71 ns
-A.RBMap          1.26 M - 1.81x slower +354.79 ns
+Map              1.96 M
+:gb_trees        1.94 M - 1.01x slower +6.80 ns
+A.OrdMap         1.89 M - 1.04x slower +18.86 ns
+A.RBMap          1.31 M - 1.49x slower +251.50 ns
 
 ##### With input n = 10000 #####
 Name                ips        average  deviation         median         99th %
-Map              2.02 M      495.84 ns  ±6178.80%         343 ns         743 ns
-A.OrdMap         1.70 M      589.51 ns  ±6082.62%         414 ns         856 ns
-:gb_trees        1.13 M      882.39 ns  ±3261.01%         702 ns        1755 ns
-A.RBMap          1.09 M      920.90 ns  ±3195.32%         720 ns        1471 ns
+Map              1.96 M      510.73 ns  ±6168.57%         363 ns         725 ns
+A.OrdMap         1.66 M      603.86 ns  ±6560.92%         440 ns         829 ns
+:gb_trees        1.14 M      878.79 ns  ±3292.61%         703 ns        1376 ns
+A.RBMap          1.09 M      914.24 ns  ±3549.02%         710 ns        1751 ns
 
 Comparison: 
-Map              2.02 M
-A.OrdMap         1.70 M - 1.19x slower +93.67 ns
-:gb_trees        1.13 M - 1.78x slower +386.54 ns
-A.RBMap          1.09 M - 1.86x slower +425.05 ns
+Map              1.96 M
+A.OrdMap         1.66 M - 1.18x slower +93.13 ns
+:gb_trees        1.14 M - 1.72x slower +368.06 ns
+A.RBMap          1.09 M - 1.79x slower +403.51 ns

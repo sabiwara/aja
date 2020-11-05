@@ -18,9 +18,9 @@ Benchmarking :gb_trees with input n = 30...
 
 ##### With input n = 30 #####
 Name                ips        average  deviation         median         99th %
-:gb_trees        1.06 M        0.95 μs  ±3018.70%        0.74 μs        1.55 μs
-A.RBMap          0.82 M        1.21 μs  ±2070.07%        0.98 μs        2.01 μs
+:gb_trees        1.08 M        0.93 μs  ±3584.28%        0.74 μs        1.57 μs
+A.RBMap          0.85 M        1.17 μs  ±1971.64%        0.99 μs        1.92 μs
 
 Comparison: 
-:gb_trees        1.06 M
-A.RBMap          0.82 M - 1.28x slower +0.27 μs
+:gb_trees        1.08 M
+A.RBMap          0.85 M - 1.26x slower +0.25 μs

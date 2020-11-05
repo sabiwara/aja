@@ -6,6 +6,8 @@ defmodule A.RBTree.Set.CurseDeletion do
   # It involves temporary trees with one more color: double-black (both nodes and leafs).
   # Those should disappear once they have been rebalanced thoug to become regular red-black trees.
 
+  @compile {:inline, delete: 2, balance: 1, rotate: 1, make_black: 1, redden: 1}
+
   @typedoc """
   :R -> red
   :B -> black

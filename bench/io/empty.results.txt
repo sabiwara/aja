@@ -1,3 +1,4 @@
+Compiling 5 files (.ex)
 Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
@@ -24,36 +25,36 @@ Benchmarking A.IO.iodata_empty?/1 with input n = 100...
 
 ##### With input n = 0 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          31.74 M       31.50 ns  ±9080.72%          22 ns          93 ns
-IO.iodata_length() == 0       23.44 M       42.66 ns   ±410.39%          36 ns         113 ns
+A.IO.iodata_empty?/1          34.54 M       28.95 ns ±12568.06%          21 ns          81 ns
+IO.iodata_length() == 0       24.64 M       40.59 ns  ±9278.72%          32 ns          96 ns
 
 Comparison: 
-A.IO.iodata_empty?/1          31.74 M
-IO.iodata_length() == 0       23.44 M - 1.35x slower +11.16 ns
+A.IO.iodata_empty?/1          34.54 M
+IO.iodata_length() == 0       24.64 M - 1.40x slower +11.64 ns
 
 ##### With input n = 1 #####
 Name                              ips        average  deviation         median         99th %
-IO.iodata_length() == 0       21.56 M       46.37 ns   ±362.88%          40 ns         128 ns
-A.IO.iodata_empty?/1          17.61 M       56.78 ns  ±1383.20%          49 ns         155 ns
+IO.iodata_length() == 0       20.55 M       48.66 ns   ±271.66%          43 ns         118 ns
+A.IO.iodata_empty?/1          18.25 M       54.81 ns  ±9922.76%          45 ns         133 ns
 
 Comparison: 
-IO.iodata_length() == 0       21.56 M
-A.IO.iodata_empty?/1          17.61 M - 1.22x slower +10.41 ns
+IO.iodata_length() == 0       20.55 M
+A.IO.iodata_empty?/1          18.25 M - 1.13x slower +6.14 ns
 
 ##### With input n = 10 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          16.99 M       58.85 ns  ±6046.57%          49 ns         165 ns
-IO.iodata_length() == 0       13.15 M       76.04 ns  ±4385.43%          65 ns         156 ns
+A.IO.iodata_empty?/1          18.98 M       52.69 ns  ±2673.64%          45 ns         142 ns
+IO.iodata_length() == 0       13.33 M       75.01 ns ±15346.60%          60 ns         138 ns
 
 Comparison: 
-A.IO.iodata_empty?/1          16.99 M
-IO.iodata_length() == 0       13.15 M - 1.29x slower +17.19 ns
+A.IO.iodata_empty?/1          18.98 M
+IO.iodata_length() == 0       13.33 M - 1.42x slower +22.32 ns
 
 ##### With input n = 100 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          14.31 M       69.89 ns ±24026.82%          51 ns         153 ns
-IO.iodata_length() == 0        3.23 M      309.50 ns    ±80.31%         289 ns         501 ns
+A.IO.iodata_empty?/1          19.15 M       52.21 ns  ±6705.31%          43 ns         121 ns
+IO.iodata_length() == 0        3.12 M      320.65 ns  ±3912.64%         288 ns         465 ns
 
 Comparison: 
-A.IO.iodata_empty?/1          14.31 M
-IO.iodata_length() == 0        3.23 M - 4.43x slower +239.61 ns
+A.IO.iodata_empty?/1          19.15 M
+IO.iodata_length() == 0        3.12 M - 6.14x slower +268.43 ns
