@@ -1034,9 +1034,11 @@ defmodule A.RBMap do
       {:ok, A.RBMap.size(rb_map)}
     end
 
-    def member?(rb_map, {key, value}) do
-      case A.RBMap.fetch(rb_map, key) do
-        {:ok, ^value} -> {:ok, true}
+    def member?(rb_map, key_value) do
+      with {key, value} <- key_value,
+           {:ok, ^value} <- A.RBMap.fetch(rb_map, key) do
+        {:ok, true}
+      else
         _ -> {:ok, false}
       end
     end

@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Bug fixes
+
+  * `A.RBMap.Enumerable.member?/2` returns `false` instead of crashing for values
+    other than size-2 tuples
+
 ## v0.3.0 (2020-10-31)
 
 ### Enhancements
