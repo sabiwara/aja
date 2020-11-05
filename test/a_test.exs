@@ -16,6 +16,7 @@ defmodule ATest do
 
     assert A.OrdMap.new(a: A.OrdMap.new()) == ord(%{a: ord(%{})})
     assert A.OrdMap.new(tuples: [{}, {1}, {2, 3, 4}]) == ord(%{tuples: [{}, {1}, {2, 3, 4}]})
+
     # multiline
     assert A.OrdMap.new([
              {"a", %{lower: 97, upper: 65}},
@@ -55,5 +56,17 @@ defmodule ATest do
                    fn -> Code.eval_quoted(quote do: ord(%{a | b})) end
 
     assert "Incorrect use of `A.ord/1`:\n  ord(%{a | b})." <> _ = err.message
+
+    err =
+      assert_raise ArgumentError,
+                   fn ->
+                     Code.eval_quoted(
+                       quote do
+                         fn x when x in ord(%{}) -> x end
+                       end
+                     )
+                   end
+
+    assert "`A.ord/1` cannot be used in guards" = err.message
   end
 end

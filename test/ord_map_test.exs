@@ -81,4 +81,22 @@ defmodule A.OrdMapTest do
     expected = A.OrdMap.new(age: 44, name: "John")
     assert ^expected = ord_map
   end
+
+  test "get_and_update/3" do
+    ord_map = A.OrdMap.new(a: 1, b: 2)
+    message = "the given function must return a two-element tuple or :pop, got: 1"
+
+    assert_raise RuntimeError, message, fn ->
+      A.OrdMap.get_and_update(ord_map, :a, fn value -> value end)
+    end
+  end
+
+  test "get_and_update!/3" do
+    ord_map = A.OrdMap.new(a: 1, b: 2)
+    message = "the given function must return a two-element tuple or :pop, got: 2"
+
+    assert_raise RuntimeError, message, fn ->
+      A.OrdMap.get_and_update!(ord_map, :b, fn value -> value end)
+    end
+  end
 end
