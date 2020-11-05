@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.3.1 (2020-11-05)
+
 ### Bug fixes
 
   * `A.RBMap.Enumerable.member?/2` returns `false` instead of crashing for values
