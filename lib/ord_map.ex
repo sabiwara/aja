@@ -1241,33 +1241,9 @@ defmodule A.OrdMap do
   end
 
   defimpl Inspect do
-    import Inspect.Algebra
+    import A.Helpers.CustomMaps, only: [implement_inspect: 3]
 
-    def inspect(ord_map, opts) do
-      open = color("#A<ord(%{", :map, opts)
-      sep = color(",", :map, opts)
-      close = color("})>", :map, opts)
-
-      as_list = Enum.to_list(ord_map)
-
-      container_doc(open, as_list, close, opts, traverse_fun(as_list, opts),
-        separator: sep,
-        break: :strict
-      )
-    end
-
-    defp traverse_fun(list, opts) do
-      if Inspect.List.keyword?(list) do
-        &Inspect.List.keyword/2
-      else
-        sep = color(" => ", :map, opts)
-        &to_map(&1, &2, sep)
-      end
-    end
-
-    defp to_map({key, value}, opts, sep) do
-      concat(concat(to_doc(key, opts), sep), to_doc(value, opts))
-    end
+    implement_inspect(A.OrdMap, "#A<ord(", ")>")
   end
 
   if Code.ensure_loaded?(Jason.Encoder) do
