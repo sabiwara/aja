@@ -478,11 +478,6 @@ defmodule A.RBTree.Set do
   def black_height(r(left, _x, _right)), do: black_height(left)
   def black_height(:E), do: 0
 
-  def check_invariant!(tree) do
-    {:ok, _} = check_invariant(tree)
-    tree
-  end
-
   @doc """
   Checks the [red-black invariant](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree#Properties)
   is respected:

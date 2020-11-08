@@ -48,7 +48,7 @@ defmodule A.RBTree.MapTest do
     end
   end
 
-  test "iterate/1" do
+  test "iterator/1" do
     map = A.RBTree.Map.new([{3, "三"}, {1, "一"}, {2, "二"}])
     iterator = A.RBTree.Map.iterator(map)
 

@@ -47,7 +47,7 @@ defmodule A.RBTree.SetTest do
     end
   end
 
-  test "iterate/1" do
+  test "iterator/1" do
     map = A.RBTree.Set.new([3, 2, 1])
     iterator = A.RBTree.Set.iterator(map)
 
