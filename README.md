@@ -6,32 +6,21 @@
 
 Extension of the Elixir standard library focused on data stuctures and data manipulation.
 
-**WARNING: Aja is still a work in progress.**
-APIs might still change at any point.
-
-## TL;DR
-
-Aja aims to extend the already very complete Elixir standard library by adding:
-- non-existing (e.g. ordered maps) or currently hard-to-use (e.g. trees) data structures
-- nice-to-have utility functions
-
-### Data structures
-
-Friction can occur when the provided data structures do not satisfy the needs
-of a specific algorithm, be it for functionality or performance reasons.
-Sometimes, a linked-list just won't cut it. In the
-[words of Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf):
+## Data structures
 
 > "there is one aspect of functional programming that no amount of cleverness on the part of the
   compiler writer is likely to mitigate — the use of inferior or inappropriate data structures."
+> -- [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
 
-Order maps (`A.OrdMap`s) are probably Aja's killer feature, since:
+#### Ordered maps: `A.OrdMap`
+
+The standard library does not offer any similar functionality:
 - regular maps do not keep track of the insertion order
-- keywords only support atoms and do not have the right performance characteristics
+- keywords do but they only support atoms and do not have the right performance characteristics (plain lists)
 
 ```elixir
-iex> Map.new([{"one", 1}, {"two", 2}, {"three", 3}]) |> Enum.to_list()
-[{"one", 1}, {"three", 3}, {"two", 2}]
+iex> %{"one" => 1, "two" => 2, "three" => 3}
+%{"one" => 1, "three" => 3, "two" => 2}
 iex> ord_map = A.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
 #A<ord(%{"one" => 1, "two" => 2, "three" => 3})>
 iex> ord_map["two"]
@@ -45,40 +34,40 @@ offers the same API as `Map`.
 The convenience macro `A.ord/1` make them a breeze to instantiate or patter-match upon:
 
 ```elixir
-iex> A.OrdMap.new(%{"一" => 1, "二" => 2, "三" => 3})  # without macro: insertion order is lost!
-#A<ord(%{"一" => 1, "三" => 3, "二" => 2})>
 iex> import A
-iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})  # insertion order is preserved!
+iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})
 #A<ord(%{"一" => 1, "二" => 2, "三" => 3})>
 iex> ord(%{"三" => three, "一" => one}) = ord_map
 iex> {one, three}
 {1, 3}
 ```
 
-Red-Black Trees (`A.RBMap` and `A.RBSet`) are useful when you want to keep a map or set sorted:
+#### Red-Black Trees: `A.RBMap` and `A.RBSet`
+
+Trees are useful when map keys or set elements need to be kept sorted.
 
 ```elixir
 iex> A.RBMap.new([b: "Bat", a: "Ant", c: "Cat", b: "Buffalo"])
 #A.RBMap<%{a: "Ant", b: "Buffalo", c: "Cat"}>
-iex> A.RBSet.new([6, 6, 7, 7, 4, 1, 2, 3, 1, 5])
-#A.RBSet<[1, 2, 3, 4, 5, 6, 7]>
+iex> A.RBSet.new([5, 3, 4, 1, 2, 3, 1, 5])
+#A.RBSet<[1, 2, 3, 4, 5]>
 ```
 
 They offer similar functionalities as general balanced trees ([`:gb_trees`](https://erlang.org/doc/man/gb_trees.html)
 and [`:gb_sets`](https://erlang.org/doc/man/gb_sets.html)) included in the Erlang standard library.
-`A.RBMap` and `A.RBSet` should however be more convenient to use while offering similar performance.
+`A.RBMap` and `A.RBSet` should however be safer and more convenient to use while offering similar performance.
 
-All those data structures offer:
+All data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library
 - implementation of `Inspect`, `Enumerable` and `Collectable` protocols
 - (except for sets) implementation of the `Access` behaviour
-- (optional if `Jason` is installed) implemention the `Jason.Encoder` protocol
+- (optional if `Jason` is installed) implemention of the `Jason.Encoder` protocol
 
 
-### Utility functions
+## Utility functions
 
-**Don't Break The Pipe!**
+#### *Don't Break The Pipe!*
 
 ```elixir
 iex> %{foo: "bar"} |> A.Pair.wrap(:noreply)
@@ -87,7 +76,7 @@ iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
 55
 ```
 
-Exclusive ranges (`A.ExRange`)
+#### Exclusive ranges (`A.ExRange`)
 
 ```elixir
 iex> A.ExRange.new(0, 10) |> Enum.to_list()
@@ -97,7 +86,7 @@ iex> Enum.map(0 ~> 5, &"id_#{&1}")
 ["id_0", "id_1", "id_2", "id_3", "id_4"]
 ```
 
-Other helper examples:
+#### Various other convenience helpers
 
 ```elixir
 iex> A.String.slugify("> \"It Was Me, Dio!!!\"\n")
@@ -164,15 +153,22 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 
 ## FAQ
 
+### How stable is it?
+
+Aja is still pretty early stage. Some breaking changes are still to be expected.
+
+However, many of its APIs are based on the standard library and should therefore remain fairly stable.
+
+Besides, Aja is tested quite thoroughly both with unit tests and property-based testing (especially for
+data structures).
+This effort is far from perfect, but increases our confidence in the overall stability.
+
 ### How is the performance?
 
-Performance for maps is still far from native maps (roughly 4 times slower insertions) or ETS (mutable state).
-
-Aja data structures are implemented in plain erlang/elixir and cannot compete with native code yet.
+Performance for data structure cannot match native maps or ETS (mutable state) which are written in native code.
 
 However:
-- `A.RBMap` / `A.OrdMap` / `A.RBSet` offer performance similar to erlang's `:gb_trees` / `:gb_sets` modules
-  (depending on the operation, if data is ordered, ...)
+- it is similar to other non-native structures like `:gb_trees` / `:gb_sets`
 - the performance gap is consistent and doesn't degrade with the size (logarithmic time complexity)
 - with the [JIT compilation](https://github.com/erlang/otp/pull/2745) coming to the BEAM,
   we can expect the gap with native code to be reduced in the upcoming months.
@@ -257,7 +253,6 @@ one flat dependency. This can help staying out of two extreme paths:
 ### What are the next steps?
 
 Nothing is set in stone, but the next steps will probably be:
-- keep working towards production-readiness: testing, improve documentation
 - more benchmarks and performance optimizations
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
 - evaluate some other interesting data structures to add
