@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.3.2 (2020-11-14)
+
 ### Enhancements
 
 * Add `A.Enum.sort_uniq/1`, `A.Enum.sort_uniq/2`
