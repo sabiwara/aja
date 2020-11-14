@@ -76,7 +76,7 @@ iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
 55
 ```
 
-#### Exclusive ranges (`A.ExRange`)
+#### Exclusive ranges: `A.ExRange`
 
 ```elixir
 iex> A.ExRange.new(0, 10) |> Enum.to_list()
@@ -84,6 +84,14 @@ iex> A.ExRange.new(0, 10) |> Enum.to_list()
 iex> import A
 iex> Enum.map(0 ~> 5, &"id_#{&1}")
 ["id_0", "id_1", "id_2", "id_3", "id_4"]
+```
+
+#### Sigil i for [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
+
+```elixir
+iex> import A
+iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
+["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", "\n"]
 ```
 
 #### Various other convenience helpers

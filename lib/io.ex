@@ -7,7 +7,7 @@ defmodule A.IO do
   # TODO: Link about cowboy/mint, benchmarks with Jason
   # TODO bench then inline
 
-  @doc """
+  @doc ~S"""
   Checks if IO data is empty in "constant" time.
 
   Should only need to loop until it finds one character or binary to stop,
@@ -37,6 +37,7 @@ defmodule A.IO do
 
   """
   @compile {:inline, iodata_empty?: 1}
+  @spec iodata_empty?(iodata) :: boolean
   def iodata_empty?(iodata) when is_binary(iodata) or is_list(iodata) do
     iodata_empty?(iodata, [])
   end
@@ -56,4 +57,31 @@ defmodule A.IO do
 
   # the head is neither a binary nor a string: it must be an iolist. check the head now, the tail later
   defp iodata_empty?([head | tail], acc), do: iodata_empty?(head, [tail | acc])
+
+  @doc """
+  Converts the argument to IO data according to the `String.Chars` protocol.
+
+  Leaves lists untouched, calls `to_string/1` on everything else.
+
+  This is the function invoked in string interpolations within the [i sigil](`A.sigil_i/2`).
+
+  ## Examples
+
+      iex> A.IO.to_iodata(:foo)
+      "foo"
+      iex> A.IO.to_iodata(99)
+      "99"
+      iex> A.IO.to_iodata(["abc", 'def' | "ghi"])
+      ["abc", 'def' | "ghi"]
+
+  """
+  @compile {:inline, to_iodata: 1}
+  @spec to_iodata(String.Chars.t()) :: iodata
+  def to_iodata(data) when is_list(data) do
+    data
+  end
+
+  def to_iodata(data) do
+    to_string(data)
+  end
 end

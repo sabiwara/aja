@@ -69,4 +69,35 @@ defmodule ATest do
 
     assert "`A.ord/1` cannot be used in guards" = err.message
   end
+
+  test "sigil_i" do
+    "a" = ~i"a"
+    "ゴゴゴ" = ~i"ゴゴゴ"
+    ["int: ", "99", ".\n"] = ~i"int: #{99}.\n"
+    ["atom: ", "foo", ".\n"] = ~i"atom: #{:foo}.\n"
+    ["string: ", "bar", ".\n"] = ~i"string: #{"bar"}.\n"
+    ["charlist: ", 'baz', ".\n"] = ~i"charlist: #{'baz'}.\n"
+    ["iolist: ", [["abc"], 'def' | "ghi"], ".\n"] = ~i"iolist: #{[["abc"], 'def' | "ghi"]}.\n"
+
+    ["assignments: ", "3", ".\n"] =
+      ~i"assignments: #{
+        a = 1
+        b = 2
+        a + b
+      }.\n"
+
+    iodata = ~i"[#{for i <- 1..3, do: ~i({"name": "foo_#{i}"},)}]"
+
+    assert [
+             91,
+             [
+               ["{\"name\": \"foo_", "1", "\"},"],
+               ["{\"name\": \"foo_", "2", "\"},"],
+               ["{\"name\": \"foo_", "3", "\"},"]
+             ],
+             93
+           ] = iodata
+
+    assert ~s([{"name": "foo_1"},{"name": "foo_2"},{"name": "foo_3"},]) = to_string(iodata)
+  end
 end

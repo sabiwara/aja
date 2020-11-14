@@ -10,6 +10,58 @@ defmodule A do
   @wildcard quote do: _
 
   @doc ~S"""
+  A sigil to build [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and avoid string concatenation.
+
+  Use `import A` to use it, or `import A, only: [sigil_i: 2]`.
+
+  ## Examples
+
+      iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
+      ["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
+      iex> ~i"abc#{['def' | "ghi"]}"
+      ["abc", ['def' | "ghi"]]
+      iex> ~i"Giorno Giovanna"
+      "Giorno Giovanna"
+
+  String interpolation uses `A.IO.to_iodata/1` instead of `to_string/1`, which will preserve lists.
+
+  IO-data can be used as is, without any concatenation, by most I/O operations:
+  - anything from  the `IO` module (writing to a file/stdout...)
+  - anything using a socket
+  - Phoenix templates
+
+  To see the equivalent string, you can use `IO.iodata_to_binary/1`:
+
+      iex> IO.iodata_to_binary ~i"1 + 2 = #{1 + 2}\n"
+      "1 + 2 = 3\n"
+      iex> IO.iodata_to_binary ~i"abc#{['def' | "ghi"]}"
+      "abcdefghi"
+
+  """
+  defmacro sigil_i(term, modifiers)
+
+  defmacro sigil_i({:<<>>, _, [piece]}, []) when is_binary(piece) do
+    Macro.unescape_string(piece)
+  end
+
+  defmacro sigil_i({:<<>>, _line, pieces}, []) do
+    Enum.map(pieces, &sigil_i_piece/1)
+  end
+
+  defp sigil_i_piece({:"::", _, [{{:., _, _}, _, [expr]}, {:binary, _, _}]}) do
+    quote do
+      A.IO.to_iodata(unquote(expr))
+    end
+  end
+
+  defp sigil_i_piece(piece) when is_binary(piece) do
+    case Macro.unescape_string(piece) do
+      <<char>> -> char
+      binary -> binary
+    end
+  end
+
+  @doc ~S"""
   Convenience macro to work with `A.ExRange`s (exclusive ranges).
 
   Use `import A` to use it, or `import A, only: [~>: 2]`.

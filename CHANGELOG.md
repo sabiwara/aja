@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Enhancements
+
+* Add `A.sigil_i/2`
+* Add `A.IO.to_iodata/1`
+
 ## v0.3.2 (2020-11-14)
 
 ### Enhancements
