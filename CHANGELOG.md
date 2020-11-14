@@ -4,7 +4,8 @@
 
 ### Enhancements
 
-* Implement `A.List.prepend/2`
+* Add `A.Enum.sort_uniq/1`, `A.Enum.sort_uniq/2`
+* Add `A.List.prepend/2`
 
 ## v0.3.1 (2020-11-05)
 

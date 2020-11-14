@@ -1,0 +1,43 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: n = 100, n = 10000
+Estimated total run time: 42 s
+
+Benchmarking A.Enum.sort_uniq/1 with input n = 100...
+Benchmarking A.Enum.sort_uniq/1 with input n = 10000...
+Benchmarking Enum.sort/1 |> Enum.dedup/1 with input n = 100...
+Benchmarking Enum.sort/1 |> Enum.dedup/1 with input n = 10000...
+Benchmarking Enum.sort/1 |> Enum.uniq/1 with input n = 100...
+Benchmarking Enum.sort/1 |> Enum.uniq/1 with input n = 10000...
+
+##### With input n = 100 #####
+Name                                  ips        average  deviation         median         99th %
+A.Enum.sort_uniq/1               198.58 K        5.04 μs   ±267.87%        4.58 μs        8.08 μs
+Enum.sort/1 |> Enum.dedup/1      125.00 K        8.00 μs   ±134.19%        7.53 μs       13.55 μs
+Enum.sort/1 |> Enum.uniq/1       115.31 K        8.67 μs   ±138.91%        8.04 μs       23.89 μs
+
+Comparison: 
+A.Enum.sort_uniq/1               198.58 K
+Enum.sort/1 |> Enum.dedup/1      125.00 K - 1.59x slower +2.96 μs
+Enum.sort/1 |> Enum.uniq/1       115.31 K - 1.72x slower +3.64 μs
+
+##### With input n = 10000 #####
+Name                                  ips        average  deviation         median         99th %
+A.Enum.sort_uniq/1                 619.85        1.61 ms    ±12.48%        1.55 ms        2.23 ms
+Enum.sort/1 |> Enum.dedup/1        528.98        1.89 ms    ±10.54%        1.81 ms        2.46 ms
+Enum.sort/1 |> Enum.uniq/1         397.89        2.51 ms    ±12.20%        2.41 ms        3.47 ms
+
+Comparison: 
+A.Enum.sort_uniq/1                 619.85
+Enum.sort/1 |> Enum.dedup/1        528.98 - 1.17x slower +0.28 ms
+Enum.sort/1 |> Enum.uniq/1         397.89 - 1.56x slower +0.90 ms
