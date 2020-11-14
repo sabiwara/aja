@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.3.3 (2020-11-14)
+
 ### Enhancements
 
 * Add `A.sigil_i/2`
