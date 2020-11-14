@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+* Implement `A.List.prepend/2`
+
 ## v0.3.1 (2020-11-05)
 
 ### Bug fixes

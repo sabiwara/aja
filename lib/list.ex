@@ -4,7 +4,20 @@ defmodule A.List do
   that are not in the core `List` module.
   """
 
-  @compile {:inline, repeatedly: 2, do_repeatedly: 3}
+  @compile {:inline, prepend: 2, repeatedly: 2, do_repeatedly: 3}
+
+  @doc """
+  Prepends an element to a list, equivalent of `[elem | list]` that can be used in a pipe.
+
+  ## Examples
+
+      iex> [2, 3, 5, 8] |> A.List.prepend(1)
+      [1, 2, 3, 5, 8]
+
+  """
+  def prepend(list, elem) do
+    [elem | list]
+  end
 
   @doc """
   Populates a list of size `n` by calling `generator_fun` repeatedly.
