@@ -38,12 +38,11 @@ defmodule A.List do
   - It provides a less verbose way of writing one of the most common uses of `Stream.repeatedly/1`
   - It removes the temptation to write the following, which is more concise but is technically incorrect:
 
-      iex> incorrect = fn n -> for _i <- 1..n, do: :rand.uniform() end
-      iex> incorrect.(0) |> length()
-      2
-      # because:
-      iex> Enum.to_list(1..0)
-      [1, 0]
+        iex> incorrect = fn n -> for _i <- 1..n, do: :rand.uniform() end
+        iex> incorrect.(0) |> length()
+        2
+        iex> Enum.to_list(1..0)  # <- because of this
+        [1, 0]
 
   This is the same problem that `A.ExRange` is addressing.
   """
