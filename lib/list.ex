@@ -4,6 +4,8 @@ defmodule A.List do
   that are not in the core `List` module.
   """
 
+  @compile {:inline, repeatedly: 2, do_repeatedly: 3}
+
   @doc """
   Populates a list of size `n` by calling `generator_fun` repeatedly.
 
@@ -34,6 +36,13 @@ defmodule A.List do
   """
   def repeatedly(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
-    Stream.repeatedly(generator_fun) |> Enum.take(n)
+    do_repeatedly(generator_fun, n, [])
+  end
+
+  defp do_repeatedly(_generator_fun, 0, acc), do: :lists.reverse(acc)
+
+  defp do_repeatedly(generator_fun, n, acc) do
+    new_acc = [generator_fun.() | acc]
+    do_repeatedly(generator_fun, n - 1, new_acc)
   end
 end
