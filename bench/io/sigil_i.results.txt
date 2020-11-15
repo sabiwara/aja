@@ -1,0 +1,31 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking interpolation (simple)...
+Benchmarking ~i sigil (simple)...
+Benchmarking interpolation (nested)...
+Benchmarking ~i sigil (nested)...
+
+Name                             ips        average  deviation         median         99th %
+~i sigil (simple)             1.27 M        0.79 μs  ±3524.57%        0.63 μs        1.73 μs
+~i sigil (nested)             1.12 M        0.90 μs  ±3279.29%        0.72 μs        1.83 μs
+interpolation (simple)        0.20 M        4.92 μs  ±1043.20%        2.76 μs        9.55 μs
+interpolation (nested)       0.175 M        5.70 μs   ±814.07%        3.48 μs       11.10 μs
+
+Comparison: 
+~i sigil (simple)             1.27 M
+~i sigil (nested)             1.12 M - 1.14x slower +0.108 μs
+interpolation (simple)        0.20 M - 6.24x slower +4.13 μs
+interpolation (nested)       0.175 M - 7.23x slower +4.91 μs
