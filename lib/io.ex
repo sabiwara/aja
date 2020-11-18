@@ -61,9 +61,13 @@ defmodule A.IO do
   @doc """
   Converts the argument to IO data according to the `String.Chars` protocol.
 
-  Leaves lists untouched, calls `to_string/1` on everything else.
+  Leaves lists untouched without any validation, calls `to_string/1` on everything else.
 
   This is the function invoked in string interpolations within the [i sigil](`A.sigil_i/2`).
+
+  Works with both [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and
+  [Chardata](https://hexdocs.pm/elixir/IO.html?#module-chardata),
+  depending on the type of the `data` parameter.
 
   ## Examples
 
@@ -76,7 +80,7 @@ defmodule A.IO do
 
   """
   @compile {:inline, to_iodata: 1}
-  @spec to_iodata(String.Chars.t()) :: iodata
+  @spec to_iodata(String.Chars.t() | iodata | IO.chardata()) :: iodata | IO.chardata()
   def to_iodata(data) when is_list(data) do
     data
   end

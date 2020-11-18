@@ -14,6 +14,16 @@ defmodule A do
 
   Use `import A` to use it, or `import A, only: [sigil_i: 2]`.
 
+  This sigil provides a faster version of string interpolation which:
+  - will build a list with all chunks instead of concatenating them as a string
+  - uses `A.IO.to_iodata/1` on interpolated values instead of `to_string/1`, which:
+    * will keep lists untouched, without any validation or transformation
+    * will cast anything else using `to_string/1`
+
+  Works with both [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and
+  [Chardata](https://hexdocs.pm/elixir/IO.html?#module-chardata).
+  See their respective documentation for more information.
+
   ## Examples
 
       iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
@@ -23,18 +33,21 @@ defmodule A do
       iex> ~i"Giorno Giovanna"
       "Giorno Giovanna"
 
-  String interpolation uses `A.IO.to_iodata/1` instead of `to_string/1`, which will preserve lists.
+    IO data can often be used as is without ever generating the corresponding string.
+    If needed however, IO data can be cast as a string using `IO.iodata_to_binary/1`,
+    and chardata using `List.to_string/1`. In most cases, both should be the same:
 
-  IO-data can be used as is, without any concatenation, by most I/O operations:
-  - anything from  the `IO` module (writing to a file/stdout...)
-  - anything using a socket
-  - Phoenix templates
+      iex> IO.iodata_to_binary(~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n")
+      "atom: foo, charlist: abc, number: 14.35\n"
+      iex> List.to_string(~i"abc#{['def' | "ghi"]}")
+      "abcdefghi"
 
-  To see the equivalent string, you can use `IO.iodata_to_binary/1`:
+    Those are the exact same values returned by a regular string interpolation, without
+    the `~i` sigil:
 
-      iex> IO.iodata_to_binary ~i"1 + 2 = #{1 + 2}\n"
-      "1 + 2 = 3\n"
-      iex> IO.iodata_to_binary ~i"abc#{['def' | "ghi"]}"
+      iex> "atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
+      "atom: foo, charlist: abc, number: 14.35\n"
+      iex> "abc#{['def' | "ghi"]}"
       "abcdefghi"
 
   """
