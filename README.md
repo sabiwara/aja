@@ -67,13 +67,12 @@ All data structures offer:
 
 ## Utility functions
 
-#### *Don't Break The Pipe!*
+#### Sigil i for [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
 
 ```elixir
-iex> %{foo: "bar"} |> A.Pair.wrap(:noreply)
-{:noreply, %{foo: "bar"}}
-iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
-55
+iex> import A
+iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
+["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", "\n"]
 ```
 
 #### Exclusive ranges: `A.ExRange`
@@ -86,12 +85,13 @@ iex> Enum.map(0 ~> 5, &"id_#{&1}")
 ["id_0", "id_1", "id_2", "id_3", "id_4"]
 ```
 
-#### Sigil i for [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
+#### *Don't Break The Pipe!*
 
 ```elixir
-iex> import A
-iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
-["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", "\n"]
+iex> %{foo: "bar"} |> A.Pair.wrap(:noreply)
+{:noreply, %{foo: "bar"}}
+iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
+55
 ```
 
 #### Various other convenience helpers
