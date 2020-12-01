@@ -194,7 +194,7 @@ defmodule A.OrdMap do
   defstruct map: %{}, tree: A.RBTree.Map.empty()
 
   @doc """
-  Returns all keys from `ord_map`.
+  Returns the number of keys in `ord_map`.
 
   ## Examples
 
