@@ -1238,7 +1238,7 @@ defmodule A.OrdMap do
   if Code.ensure_loaded?(Jason.Encoder) do
     defimpl Jason.Encoder do
       def encode(map, opts) do
-        map |> Enum.to_list() |> Jason.Encode.keyword(opts)
+        map |> A.OrdMap.to_list() |> Jason.Encode.keyword(opts)
       end
     end
   end
