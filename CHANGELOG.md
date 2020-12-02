@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.0 (2020-12-02)
+
 ### Enhancements
 
 * Introduce persistent vectors: `A.Vector` 🚀️
