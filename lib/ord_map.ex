@@ -67,8 +67,7 @@ defmodule A.OrdMap do
       #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
       iex> put_in(ord_map[:d], "Dinosaur")
       #A<ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})>
-      iex> {"Cat", updated} = pop_in(ord_map[:c])
-      iex> updated
+      iex> {"Cat", updated} = pop_in(ord_map[:c]); updated
       #A<ord(%{a: "Ant", b: "Bat"})>
 
   ## Convenience [`ord/1`](`A.ord/1`) macro

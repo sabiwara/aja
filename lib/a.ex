@@ -134,7 +134,7 @@ defmodule A do
   """
   defmacro ord({:%{}, _context, [{:|, _context2, [ordered, key_values]}]} = call) do
     unless Enum.all?(key_values, fn key_value -> match?({_, _}, key_value) end) do
-      raise_argument_error(call)
+      raise_ord_argument_error(call)
     end
 
     quote do
@@ -162,10 +162,10 @@ defmodule A do
   end
 
   defmacro ord(call) do
-    raise_argument_error(call)
+    raise_ord_argument_error(call)
   end
 
-  defp raise_argument_error(call) do
+  defp raise_ord_argument_error(call) do
     raise ArgumentError, ~s"""
     Incorrect use of `A.ord/1`:
       ord(#{Macro.to_string(call)}).
@@ -191,5 +191,97 @@ defmodule A do
       end
 
     {:%{}, context, wildcard_pairs}
+  end
+
+  @doc """
+  Convenience macro to create or pattern match on `A.Vector`s.
+
+  It can only work with known-size vectors.
+
+  ## Examples
+
+      iex> import A
+      iex> vec([1, 2, 3])
+      #A<vec([1, 2, 3])>
+      iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6)
+      #A<vec([1, 2, 3, 4, 5, 6])>
+      iex> var
+      3
+      iex> vec([_, _, _]) = A.Vector.new(1..6)
+      ** (MatchError) no match of right hand side value: #A<vec([1, 2, 3, 4, 5, 6])>
+
+  It also supports ranges with **constant** values:
+
+      iex> vec(0..4) = A.Vector.new(0..4)
+      #A<vec([0, 1, 2, 3, 4])>
+      iex> vec(0~>8)
+      #A<vec([0, 1, 2, 3, 4, 5, 6, 7])>
+
+  Variable lists or dynamic ranges cannot be passed:
+
+      vec(my_list)  # invalid
+      vec(1..n)  # invalid
+
+  ## Explanation
+
+  The `vec/1` macro generates the AST at compile time instead of building the vector
+  at runtime. This can speedup the instanciation of vectors of known size.
+
+      iex> import A
+      iex> quote do vec([1, foo, _]) end |> Macro.expand(__ENV__) |> Macro.to_string()
+      "%A.Vector{internal: {3, {1, foo, _, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil}}}"
+
+  """
+  defmacro vec(list) when is_list(list) do
+    ast_from_list(list)
+  end
+
+  defmacro vec({:.., _, [first, last]}) when is_integer(first) and is_integer(last) do
+    first..last
+    |> Enum.to_list()
+    |> ast_from_list()
+  end
+
+  defmacro vec({:~>, _, [first, last]}) when is_integer(first) and is_integer(last) do
+    first
+    ~> last
+    |> Enum.to_list()
+    |> ast_from_list()
+  end
+
+  defp ast_from_list(list) do
+    internal_ast = A.Vector.Raw.from_list_ast(list)
+
+    quote do
+      %A.Vector{internal: unquote(internal_ast)}
+    end
+  end
+
+  defmacro vec({:_, _, _}) do
+    quote do
+      %A.Vector{internal: _}
+    end
+  end
+
+  defmacro vec(call) do
+    raise ArgumentError, ~s"""
+    Incorrect use of `A.vec/1`:
+      vec(#{Macro.to_string(call)}).
+
+    To create a new vector from a fixed-sized list:
+      vector = vec([:foo, 4, a + b])
+
+    To create a new vector from a constant range:
+      vector = vec(1..100)
+
+    ! Variables cannot be used as lists or inside the range declaration !
+      vec(my_list)  # invalid
+      vec(1..n)  # invalid
+
+    To pattern-match:
+      vec([1, 2, x, _]) = vector
+      vec([]) = empty_vector
+      vec(_) = vector
+    """
   end
 end

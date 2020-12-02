@@ -1,0 +1,31 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking :array.map/2...
+Benchmarking A.Vector.Raw.map/2...
+Benchmarking A.Vector.map/2...
+Benchmarking Enum.map/2...
+
+Name                         ips        average  deviation         median         99th %
+A.Vector.Raw.map/2      663.46 K        1.51 μs  ±1599.61%        1.35 μs        2.51 μs
+A.Vector.map/2          641.23 K        1.56 μs  ±1555.41%        1.40 μs        2.55 μs
+Enum.map/2              595.05 K        1.68 μs  ±1387.63%        1.52 μs        2.42 μs
+:array.map/2            265.91 K        3.76 μs   ±362.37%        3.52 μs        6.08 μs
+
+Comparison: 
+A.Vector.Raw.map/2      663.46 K
+A.Vector.map/2          641.23 K - 1.03x slower +0.0523 μs
+Enum.map/2              595.05 K - 1.11x slower +0.173 μs
+:array.map/2            265.91 K - 2.50x slower +2.25 μs

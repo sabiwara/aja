@@ -12,6 +12,42 @@ Extension of the Elixir standard library focused on data stuctures and data mani
   compiler writer is likely to mitigate — the use of inferior or inappropriate data structures."
 > -- [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
 
+#### Persistent vectors: `A.Vector`
+
+Clojure-like [persistent vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
+are an efficient alternative to lists, supporting many operations like appends and random access
+in effective constant time.
+
+```elixir
+iex> vector = A.Vector.new(1..10)
+#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])>
+iex> A.Vector.append(vector, :foo)
+#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])>
+iex> vector[3]
+4
+iex> A.Vector.replace_at(vector, -1, :bar)
+#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])>
+iex> 3 in vector
+true
+```
+
+`A.Vector` should be faster and easier to use than Erlang's
+[`:array`](http://erlang.org/doc/man/array.html) module.
+
+`A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,
+with efficiency in mind.
+
+The `A.vec/1` macro, while being totally optional, can make it easier to work with vectors
+and make pattern-matching possible:
+
+```elixir
+iex> import A
+iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5)
+#A<vec([1, 2, 1, 2, 3, 4])>
+iex> {a, c, e}
+{1, 3, 5}
+```
+
 #### Ordered maps: `A.OrdMap`
 
 The standard library does not offer any similar functionality:
@@ -175,7 +211,19 @@ This effort is far from perfect, but increases our confidence in the overall sta
 
 ### How is the performance?
 
-Performance for data structure cannot match native maps or ETS (mutable state) which are written in native code.
+#### Vectors
+
+Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and often they are even
+faster than equivalent list operations (map, folds, join, sum...).
+
+There is one exception where `A.Vector` is slightly slower than `:array`, which is random access on a single element
+for small collections. That is because vectors support negative indexing, and also that they have to pay the overhead
+of a struct.
+For bigger collections however, the higher branching factor for vectors (16 vs 10) should however close this gap as well.
+
+#### Maps / sets
+
+Performance for alternative maps/sets cannot match native maps or ETS (mutable state) which are written in native code.
 
 However:
 - it is similar to other non-native structures like `:gb_trees` / `:gb_sets`
@@ -263,11 +311,9 @@ one flat dependency. This can help staying out of two extreme paths:
 ### What are the next steps?
 
 Nothing is set in stone, but the next steps will probably be:
+- complete the API for `A.Vector` and improve its ergonomics
 - more benchmarks and performance optimizations
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
-- evaluate some other interesting data structures to add
-  ([clojure's vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
-  or [RRB Trees](https://hypirion.com/thesis.pdf))
 
 ## Copyright and License
 

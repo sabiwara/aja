@@ -70,6 +70,132 @@ defmodule ATest do
     assert "`A.ord/1` cannot be used in guards" = err.message
   end
 
+  test "vec/1 creation" do
+    assert A.Vector.new([]) ==
+             vec([])
+
+    assert A.Vector.new(1..5) ==
+             vec([1, 2, 3, 4, 5])
+
+    assert A.Vector.new(1..50) ==
+             vec([
+               1,
+               2,
+               3,
+               4,
+               5,
+               6,
+               7,
+               8,
+               9,
+               10,
+               11,
+               12,
+               13,
+               14,
+               15,
+               16,
+               17,
+               18,
+               19,
+               20,
+               21,
+               22,
+               23,
+               24,
+               25,
+               26,
+               27,
+               28,
+               29,
+               30,
+               31,
+               32,
+               33,
+               34,
+               35,
+               36,
+               37,
+               38,
+               39,
+               40,
+               41,
+               42,
+               43,
+               44,
+               45,
+               46,
+               47,
+               48,
+               49,
+               50
+             ])
+  end
+
+  test "vec/1 pattern matching" do
+    assert vec([]) = A.Vector.new([])
+
+    assert vec([1, 2, value, 4, 5]) = A.Vector.new(1..5)
+    assert 3 = value
+
+    assert vec([
+             first,
+             2,
+             3,
+             4,
+             5,
+             6,
+             7,
+             8,
+             9,
+             10,
+             11,
+             12,
+             13,
+             14,
+             15,
+             16,
+             17,
+             18,
+             19,
+             20,
+             21,
+             22,
+             23,
+             24,
+             middle,
+             26,
+             27,
+             28,
+             29,
+             30,
+             31,
+             32,
+             33,
+             34,
+             35,
+             36,
+             37,
+             38,
+             39,
+             40,
+             41,
+             42,
+             43,
+             44,
+             45,
+             46,
+             47,
+             48,
+             49,
+             last
+           ]) = A.Vector.new(1..50)
+
+    assert {1, 25, 50} = {first, middle, last}
+
+    assert vec(_) = A.Vector.new(1..100)
+  end
+
   test "sigil_i" do
     "a" = ~i"a"
     "ゴゴゴ" = ~i"ゴゴゴ"

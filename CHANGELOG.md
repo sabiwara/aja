@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Enhancements
+
+* Introduce persistent vectors: `A.Vector` 🚀️
+* Add `A.vec/1`
+
 ## v0.3.3 (2020-11-14)
 
 ### Enhancements
