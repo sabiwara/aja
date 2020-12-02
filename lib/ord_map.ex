@@ -1058,7 +1058,8 @@ defmodule A.OrdMap do
   end
 
   @doc """
-  Folds (reduces) the ordered map from the right with a function. Requires an accumulator.
+  Folds (reduces) the given `ord_map` from the left with the function `fun`.
+  Requires an accumulator `acc`.
 
   ## Examples
 
@@ -1078,7 +1079,8 @@ defmodule A.OrdMap do
   end
 
   @doc """
-  Folds (reduces) the ordered map from the right with a function. Requires an accumulator.
+  Folds (reduces) the given `ord_map` from the right with the function `fun`.
+  Requires an accumulator `acc`.
 
   Unlike linked lists, this is as efficient as `foldl/3`. This can typically save a call
   to `Enum.reverse/1` on the result when building a list.
