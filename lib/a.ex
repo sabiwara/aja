@@ -5,8 +5,6 @@ defmodule A do
   Use `import A` to import everything, or import only the macros you need.
   """
 
-  @compile {:inline, to_match_map: 2}
-
   @wildcard quote do: _
 
   @doc ~S"""

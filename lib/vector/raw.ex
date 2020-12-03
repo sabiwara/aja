@@ -33,7 +33,6 @@ defmodule A.Vector.Raw do
           | {size, tail_offset, shift, Trie.t(value), Tail.t(value)}
   @type t() :: t(value)
 
-  @compile {:inline, size: 1}
   @spec size(t()) :: non_neg_integer
   def size(large(size, _, _, _, _)), do: size
   def size(small(size, _)), do: size
@@ -88,7 +87,6 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @compile {:inline, append: 2}
   @spec append(t(val), val) :: t(val) when val: value
   def append(vector, value)
 
@@ -261,7 +259,6 @@ defmodule A.Vector.Raw do
     default
   end
 
-  @compile {:inline, replace_positive: 3}
   @spec replace_positive(t(val), non_neg_integer, val) :: {:ok, val} | :error when val: value
   def replace_positive(vector, index, value)
 
@@ -293,7 +290,6 @@ defmodule A.Vector.Raw do
     :error
   end
 
-  @compile {:inline, replace_any: 3}
   @spec replace_any(t(val), integer, val) :: {:ok, t(val)} | :error when val: value
   def replace_any(vector, index, value) when index >= 0 do
     replace_positive(vector, index, value)
@@ -306,7 +302,6 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @compile {:inline, update_positive: 3}
   @spec update_positive(t(val), non_neg_integer, (val -> val)) :: {:ok, val} | :error
         when val: value
   def update_positive(vector, index, fun)
@@ -339,7 +334,6 @@ defmodule A.Vector.Raw do
     :error
   end
 
-  @compile {:inline, update_any: 3}
   @spec update_any(t(val), integer, (val -> val)) :: {:ok, t(val)} | :error when val: value
   def update_any(vector, index, fun) when index >= 0 do
     update_positive(vector, index, fun)
@@ -398,7 +392,6 @@ defmodule A.Vector.Raw do
     raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
   end
 
-  @compile {:inline, pop_last: 1}
   @spec pop_last(t(val)) :: {val, t(val)} | :error when val: value
   def pop_last(large(unquote(branch_factor() + 1), _, _, trie, tail)) do
     new_vector = small(branch_factor(), trie)
@@ -473,7 +466,6 @@ defmodule A.Vector.Raw do
 
   # LOOPS
 
-  @compile {:inline, to_list: 1}
   @spec to_list(t(val)) :: [val] when val: value
   def to_list(large(size, tail_offset, shift, trie, tail)) do
     acc = Tail.partial_to_list(tail, size - tail_offset)
@@ -488,7 +480,6 @@ defmodule A.Vector.Raw do
     []
   end
 
-  @compile {:inline, to_reverse_list: 1}
   @spec to_reverse_list(t(val)) :: [val] when val: value
   def to_reverse_list(large(size, tail_offset, shift, trie, tail)) do
     acc = Trie.to_reverse_list(trie, shift, [])
@@ -504,7 +495,6 @@ defmodule A.Vector.Raw do
   end
 
   @spec foldl(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  @compile {:inline, foldl: 3}
   def foldl(vector, acc, fun)
 
   def foldl(large(size, tail_offset, level, trie, tail), acc, fun) do
@@ -522,7 +512,6 @@ defmodule A.Vector.Raw do
   def foldl(:empty, acc, _fun), do: acc
 
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  @compile {:inline, foldr: 3}
   def foldr(vector, acc, fun)
 
   def foldr(large(size, tail_offset, level, trie, tail), acc, fun) do
@@ -541,7 +530,6 @@ defmodule A.Vector.Raw do
   def foldr(:empty, acc, _fun), do: acc
 
   @spec sum(t(number)) :: number
-  @compile {:inline, sum: 1}
   def sum(vector)
 
   def sum(large(size, tail_offset, level, trie, tail)) do
@@ -557,7 +545,6 @@ defmodule A.Vector.Raw do
   def sum(:empty), do: 0
 
   @spec join_as_iodata(t(String.Chars.t()), String.t()) :: iodata
-  @compile {:inline, join_as_iodata: 2}
   def join_as_iodata(vector, joiner)
 
   def join_as_iodata(large(size, tail_offset, level, trie, tail), joiner) do

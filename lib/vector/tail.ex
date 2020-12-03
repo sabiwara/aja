@@ -11,7 +11,6 @@ defmodule A.Vector.Tail do
     {elem(tail, i), put_elem(tail, i, nil)}
   end
 
-  @compile {:inline, partial_map: 3}
   for i <- args_range() do
     # def partial_map({arg1, arg2, arg3, arg4}, fun, 2) do
     #   {fun.(arg1), fun.(arg2), arg3, arg4}
@@ -23,7 +22,6 @@ defmodule A.Vector.Tail do
     end
   end
 
-  @compile {:inline, partial_to_list: 2}
   for i <- args_range() do
     # def partial_to_list({arg1, arg2, _arg3, _arg4}, 2) do
     #   [arg1, arg2]
@@ -33,7 +31,6 @@ defmodule A.Vector.Tail do
     end
   end
 
-  @compile {:inline, partial_reverse: 2}
   for i <- args_range() do
     # def partial_reverse({arg1, arg2, _arg3, _arg4}, 2) do
     #   [arg2, arg1]

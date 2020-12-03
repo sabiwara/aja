@@ -12,7 +12,6 @@ defmodule A.Vector.Trie do
 
   # BUILD TRIE
 
-  @compile {:inline, group_leaves: 1}
   @spec group_leaves([val]) :: {non_neg_integer, non_neg_integer, [leaf(val)], Tail.t(val)}
         when val: value
   def group_leaves(list) do
@@ -31,7 +30,6 @@ defmodule A.Vector.Trie do
     end
   end
 
-  @compile {:inline, group_map_leaves: 2}
   @spec group_map_leaves([v1], (v1 -> v2)) ::
           {non_neg_integer, non_neg_integer, [leaf(v2)], Tail.t(v2)}
         when v1: value, v2: value
