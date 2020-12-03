@@ -6,6 +6,12 @@
 
 Extension of the Elixir standard library focused on data stuctures and data manipulation.
 
+- [Data structures](#data-structures)
+- [Utility functions](#utility-functions)
+- [Installation](#installation)
+- [About Aja](#about-aja)
+- [FAQ](#faq)
+
 ## Data structures
 
 > "there is one aspect of functional programming that no amount of cleverness on the part of the
@@ -43,7 +49,7 @@ and make pattern-matching possible:
 ```elixir
 iex> import A
 iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5)
-#A<vec([1, 2, 1, 2, 3, 4])>
+#A<vec([1, 2, 3, 4, 5])>
 iex> {a, c, e}
 {1, 3, 5}
 ```
@@ -178,6 +184,7 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
   javascript standard library, with a very consistent API
 - various work on efficient [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure) spearheaded by Okasaki
   (see [resources section](#resources) below)
+- Clojure's persistent vectors, by Rich Hickey and influenced by Phil Bagwell
 
 ### Goals
 
@@ -194,6 +201,8 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 ### Resources
 
 - Chris Okasaki's [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+- Jean Niklas L'orange's [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
+  and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB trees
 - [Deletion: The curse of the red-black tree](http://matt.might.net/papers/germane2014deletion.pdf)
   by German and Might.
 
@@ -213,8 +222,8 @@ This effort is far from perfect, but increases our confidence in the overall sta
 
 #### Vectors
 
-Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and often they are even
-faster than equivalent list operations (map, folds, join, sum...).
+Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
+slightly faster than equivalent list operations (map, folds, join, sum...).
 
 There is one exception where `A.Vector` is slightly slower than `:array`, which is random access on a single element
 for small collections. That is because vectors support negative indexing, and also that they have to pay the overhead
