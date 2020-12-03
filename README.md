@@ -189,7 +189,7 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 ### Goals
 
 - like the standard library, being **delightful** to use ✨️ (consistency with Elixir and itself, quality, documentation)
-- no external dependency to help you preserve a decent dependency tree and fast compile times
+- no external dependency to help you preserve a decent dependency tree
 - performance-conscious (right algorithm, proper benchmarking, fast compile times)
 - mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
 
@@ -305,7 +305,7 @@ While it might be possible later down the road to split some of its components, 
 at the moment.
 
 First, we don't think there is any real downside of shipping "too much": Aja is and aims to remain
-lightweight, with fast compile times as well as a modular structure.
+lightweight and keep a modular structure.
 You can just use what you need without suffering from what you don't.
 
 This lodash-like approach has benefits too: it aims to ship with a lot of convenience while introducing only
@@ -316,6 +316,8 @@ one flat dependency. This can help staying out of two extreme paths:
 - the ["Lisp Curse way"](http://winestockwebdesign.com/Essays/Lisp_Curse.html), where everybody keeps rewriting
   the same thing over and over because nobody wants the extra dependency. Being a hidden Lisp with similar
   super powers and expressiveness, Elixir might make it relatively easy and tempting to go down that path.
+
+Finally, data structures can work more efficiently together than if they were separated libraries.
 
 ### What are the next steps?
 
