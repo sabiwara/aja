@@ -107,20 +107,14 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_sum(array(arguments_with_wildcards(1)), 1) do
-    # sum with 0 to have an ArithmeticError for vectors of length 1
-    argument_at(0) + 0
-  end
-
-  # case i == 1 needs to check this is an int
-  for i <- args_range(), i > 1 do
-    # def partial_sum({arg1, arg2, arg3, _arg4}, 3) do
-    #   arg1 + arg2 + arg3
+  for i <- args_range() do
+    # def partial_sum({arg1, arg2, arg3, _arg4}, 3, acc) do
+    #   acc + arg1 + arg2 + arg3
     # end
-    def partial_sum(array(arguments_with_wildcards(unquote(i))), unquote(i)) do
+    def partial_sum(array(arguments_with_wildcards(unquote(i))), unquote(i), acc) do
       unquote(i)
       |> take_arguments()
-      |> reduce_arguments(&sum_reducer/2)
+      |> reduce_arguments(acc, &sum_reducer/2)
     end
   end
 

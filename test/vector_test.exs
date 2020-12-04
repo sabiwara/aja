@@ -98,6 +98,10 @@ defmodule A.VectorTest do
     assert 15 = A.Vector.new(1..5) |> A.Vector.sum()
     assert 1275 = A.Vector.new(1..50) |> A.Vector.sum()
     assert 125_250 = A.Vector.new(1..500) |> A.Vector.sum()
+
+    # floats are added in the same order as Enum.sum/1
+    floats = 1..50 |> Enum.map(&(&1 * 0.001))
+    assert Enum.sum(floats) === A.Vector.new(floats) |> A.Vector.sum()
   end
 
   test "join/2" do

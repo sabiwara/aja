@@ -533,13 +533,12 @@ defmodule A.Vector.Raw do
   def sum(vector)
 
   def sum(large(size, tail_offset, level, trie, tail)) do
-    acc = Tail.partial_sum(tail, size - tail_offset)
-
-    Trie.sum(trie, level, acc)
+    acc = Trie.sum(trie, level, 0)
+    Tail.partial_sum(tail, size - tail_offset, acc)
   end
 
   def sum(small(size, tail)) do
-    Tail.partial_sum(tail, size)
+    Tail.partial_sum(tail, size, 0)
   end
 
   def sum(:empty), do: 0

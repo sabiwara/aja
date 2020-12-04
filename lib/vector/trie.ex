@@ -566,15 +566,15 @@ defmodule A.Vector.Trie do
   def sum(trie, level, acc)
 
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
-  #   arg1 + arg2 + arg3 + arg4 + acc
+  #   acc + arg1 + arg2 + arg3 + arg4
   # end
   def sum(array(), _level = 0, acc) do
-    reduce_arguments(reverse_arguments(), acc, &sum_reducer/2)
+    reduce_arguments(arguments(), acc, &sum_reducer/2)
   end
 
   # def sum({arg1, arg2, nil, nil}, level, acc) do
   #   child_level = level - bits
-  #   sum(arg1, child_level, sum(arg2, child_level, acc))
+  #   sum(arg2, child_level, sum(arg1, child_level, acc))
   # end
   for i <- args_range() do
     def sum(array(arguments_with_nils(unquote(i))), level, acc) do
@@ -582,7 +582,6 @@ defmodule A.Vector.Trie do
 
       unquote(i)
       |> take_arguments()
-      |> reverse_arguments()
       |> reduce_arguments(acc, fn arg, acc ->
         quote do
           sum(unquote(arg), var!(child_level), unquote(acc))
