@@ -235,7 +235,7 @@ defmodule A.Vector.CodeGen do
 
   def sum_reducer(arg, acc) do
     quote do
-      unquote(arg) + unquote(acc)
+      unquote(acc) + unquote(arg)
     end
   end
 

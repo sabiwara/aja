@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Bug fixes
+
+* `A.Vector.sum/1` adds using the same order as `Enum.sum/1`,
+  avoiding slight inconsistencies for floats
+
 ## v0.4.0 (2020-12-02)
 
 ### Enhancements
