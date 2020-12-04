@@ -514,53 +514,34 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def foldl(trie, level, acc, fun)
-
-  def foldl(leaf, _level = 0, acc, fun) do
-    Node.foldl(leaf, acc, fun)
+  def foldl(trie, level, acc, fun) do
+    foldl_leaves(trie, level, acc, fun, &foldl_leaf/3)
   end
 
-  # def foldl({arg1, arg2, nil, nil}, level, acc, fun) do
-  #   child_level = level - bits
-  #   foldl(arg2, child_level, foldl(arg1, child_level, acc, fun), fun)
+  # defp foldl_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
+  #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  for i <- args_range() do
-    def foldl(array(arguments_with_nils(unquote(i))), level, acc, fun) do
-      child_level = decr_level(level)
-
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          foldl(unquote(arg), var!(child_level), unquote(acc), var!(fun))
-        end
-      end)
-    end
+  def foldl_leaf(array(arguments()), fun, acc) do
+    reduce_arguments(arguments(), acc, fn arg, acc ->
+      quote do
+        var!(fun).(unquote(arg), unquote(acc))
+      end
+    end)
   end
 
-  def foldr(trie, level, acc, fun)
-
-  def foldr(leaf, _level = 0, acc, fun) do
-    Node.foldr(leaf, acc, fun)
+  def foldr(trie, level, acc, fun) do
+    foldr_leaves(trie, level, acc, fun, &foldr_leaf/3)
   end
 
-  # def foldr({arg1, arg2, nil, nil}, level, acc, fun) do
-  #   child_level = level - bits
-  #   foldr(arg1, child_level, foldr(arg2, child_level, acc, fun), fun)
+  # defp foldr_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
+  #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  for i <- args_range() do
-    def foldr(array(arguments_with_nils(unquote(i))), level, acc, fun) do
-      child_level = decr_level(level)
-
-      unquote(i)
-      |> take_arguments()
-      |> reverse_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          foldr(unquote(arg), var!(child_level), unquote(acc), var!(fun))
-        end
-      end)
-    end
+  def foldr_leaf(array(arguments()), fun, acc) do
+    reduce_arguments(reverse_arguments(), acc, fn arg, acc ->
+      quote do
+        var!(fun).(unquote(arg), unquote(acc))
+      end
+    end)
   end
 
   def sum(trie, level, acc)
@@ -590,34 +571,17 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def join_as_iodata(trie, level, joiner, acc)
+  def join_as_iodata(trie, level, joiner, acc) do
+    foldr_leaves(trie, level, acc, joiner, &join_as_iodata_leaf/3)
+  end
 
-  # def join_as_iodata({arg1, arg2, arg3, arg4}, _level = 0, joiner, acc) do
+  # def join_as_iodata({arg1, arg2, arg3, arg4}, joiner, acc) do
   #   [to_string(arg1), joiner, to_string(arg2), ... joiner | acc]
   # end
-  def join_as_iodata(array(), _level = 0, joiner, acc) do
+  defp join_as_iodata_leaf(array(), joiner, acc) do
     reverse_arguments()
     |> map_arguments(apply_mapper(var(&to_string/1)))
     |> reduce_arguments(acc, intersperse_reducer(var(joiner)))
-  end
-
-  # def join_as_iodata({arg1, arg2, nil, nil}, level, joiner, acc) do
-  #   child_level = level - bits
-  #   join_as_iodata(arg1, child_level, joiner, join_as_iodata(arg2, child_level, joiner, acc))
-  # end
-  for i <- args_range() do
-    def join_as_iodata(array(arguments_with_nils(unquote(i))), level, joiner, acc) do
-      child_level = decr_level(level)
-
-      unquote(i)
-      |> take_arguments()
-      |> reverse_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          join_as_iodata(unquote(arg), var!(child_level), var!(joiner), unquote(acc))
-        end
-      end)
-    end
   end
 
   def map(trie, level, fun)
@@ -644,6 +608,55 @@ defmodule A.Vector.Trie do
       end)
       |> arguments_with_nils(unquote(i))
       |> array()
+    end
+  end
+
+  defp foldl_leaves(trie, level, acc, params, fun)
+
+  defp foldl_leaves(leaf, _level = 0, acc, params, fun) do
+    fun.(leaf, params, acc)
+  end
+
+  # def foldl_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
+  #   child_level = level - bits
+  #   foldl_leaves(arg2, child_level, foldl_leaves(arg1, child_level, acc, params, fun), params, fun)
+  # end
+  for i <- args_range() do
+    defp foldl_leaves(array(arguments_with_nils(unquote(i))), level, acc, params, fun) do
+      child_level = decr_level(level)
+
+      unquote(i)
+      |> take_arguments()
+      |> reduce_arguments(acc, fn arg, acc ->
+        quote do
+          foldl_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
+        end
+      end)
+    end
+  end
+
+  defp foldr_leaves(trie, level, acc, params, fun)
+
+  defp foldr_leaves(leaf, _level = 0, acc, params, fun) do
+    fun.(leaf, params, acc)
+  end
+
+  # def foldr_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
+  #   child_level = level - bits
+  #   foldr_leaves(arg1, child_level, foldr_leaves(arg2, child_level, acc, params, fun), params, fun)
+  # end
+  for i <- args_range() do
+    defp foldr_leaves(array(arguments_with_nils(unquote(i))), level, acc, params, fun) do
+      child_level = decr_level(level)
+
+      unquote(i)
+      |> take_arguments()
+      |> reverse_arguments()
+      |> reduce_arguments(acc, fn arg, acc ->
+        quote do
+          foldr_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
+        end
+      end)
     end
   end
 end

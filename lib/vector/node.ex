@@ -59,26 +59,4 @@ defmodule A.Vector.Node do
   def duplicate(value) do
     array(duplicate_argument(value))
   end
-
-  # def foldl({arg1, arg2, arg3, arg4}, acc, f) do
-  #   f(arg4, f(arg3, f(arg2, f(arg1, acc))))
-  # end
-  def foldl(array(arguments()), acc, fun) do
-    reduce_arguments(arguments(), acc, fn arg, acc ->
-      quote do
-        var!(fun).(unquote(arg), unquote(acc))
-      end
-    end)
-  end
-
-  # def foldr({arg1, arg2, arg3, arg4}, acc, f) do
-  #   f(arg1, f(arg2, f(arg3, f(arg4, acc))))
-  # end
-  def foldr(array(arguments()), acc, fun) do
-    reduce_arguments(reverse_arguments(), acc, fn arg, acc ->
-      quote do
-        var!(fun).(unquote(arg), unquote(acc))
-      end
-    end)
-  end
 end
