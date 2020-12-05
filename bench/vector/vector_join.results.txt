@@ -17,9 +17,9 @@ Benchmarking A.Vector.join/1...
 Benchmarking Enum.join/2 (list)...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.join/1         111.70 K        8.95 μs   ±122.45%        8.48 μs       19.02 μs
-Enum.join/2 (list)       96.75 K       10.34 μs    ±63.42%        9.87 μs       23.22 μs
+A.Vector.join/1         104.41 K        9.58 μs    ±79.66%        8.78 μs       27.72 μs
+Enum.join/2 (list)       91.14 K       10.97 μs    ±80.09%        9.98 μs       31.44 μs
 
 Comparison: 
-A.Vector.join/1         111.70 K
-Enum.join/2 (list)       96.75 K - 1.15x slower +1.38 μs
+A.Vector.join/1         104.41 K
+Enum.join/2 (list)       91.14 K - 1.15x slower +1.39 μs

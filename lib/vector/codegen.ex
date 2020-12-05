@@ -204,6 +204,16 @@ defmodule A.Vector.CodeGen do
     Enum.drop(expanded_args, expanded_n)
   end
 
+  defmacro append_argument(args, arg) do
+    expanded_args = Macro.expand(args, __CALLER__)
+    expanded_args ++ [arg]
+  end
+
+  defmacro intersperse_arguments(args, separator) do
+    expanded_args = Macro.expand(args, __CALLER__)
+    Enum.intersperse(expanded_args, separator)
+  end
+
   defmacro var(variable) do
     Macro.escape(variable)
   end
@@ -260,14 +270,6 @@ defmodule A.Vector.CodeGen do
   def and_reducer(arg, acc) do
     quote do
       unquote(arg) && unquote(acc)
-    end
-  end
-
-  def intersperse_reducer(element) do
-    fn arg, acc ->
-      quote do
-        [unquote(arg), unquote(element) | unquote(acc)]
-      end
     end
   end
 end

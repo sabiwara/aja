@@ -111,6 +111,45 @@ defmodule A.VectorTest do
     assert Enum.join(1..500, ",") == A.Vector.new(1..500) |> A.Vector.join(",")
   end
 
+  test "map_join/3" do
+    times_ten = &(&1 * 10)
+    assert "" == A.Vector.new() |> A.Vector.map_join(",", times_ten)
+    assert "10,20,30,40,50" == A.Vector.new(1..5) |> A.Vector.map_join(",", times_ten)
+
+    assert Enum.map_join(1..50, ",", times_ten) ==
+             A.Vector.new(1..50) |> A.Vector.map_join(",", times_ten)
+
+    assert Enum.map_join(1..500, ",", times_ten) ==
+             A.Vector.new(1..500) |> A.Vector.map_join(",", times_ten)
+  end
+
+  test "intersperse/2" do
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.intersperse(0)
+
+    assert A.Vector.new([1, 0, 2, 0, 3, 0, 4, 0, 5]) ==
+             A.Vector.new(1..5) |> A.Vector.intersperse(0)
+
+    assert Enum.intersperse(1..50, 0) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.intersperse(0)
+
+    assert Enum.intersperse(1..500, 0) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.intersperse(0)
+  end
+
+  test "map_intersperse/3" do
+    add_one = &(&1 + 1)
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.map_intersperse(0, add_one)
+
+    assert A.Vector.new([2, 0, 3, 0, 4, 0, 5, 0, 6]) ==
+             A.Vector.new(1..5) |> A.Vector.map_intersperse(0, add_one)
+
+    assert Enum.intersperse(2..51, 0) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.map_intersperse(0, add_one)
+
+    assert Enum.intersperse(2..501, 0) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.map_intersperse(0, add_one)
+  end
+
   test "min/1" do
     assert 1 = A.Vector.new(1..5) |> A.Vector.min()
     assert 1 = A.Vector.new(1..50) |> A.Vector.min()

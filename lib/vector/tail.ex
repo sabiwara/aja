@@ -118,29 +118,54 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_join_as_iodata(
+  def partial_intersperse(
         array(arguments_with_wildcards(1)),
         1,
-        _joiner
+        _separator
       ) do
-    [to_string(argument_at(0))]
+    [argument_at(0)]
   end
 
-  # case i = 1 needs to declare `_joiner`, not `joiner`
+  # case i = 1 needs to declare `_separator`, not `separator`
   for i <- args_range(), i > 1 do
-    # def partial_join_as_iodata({arg1, arg2, arg3, _arg4}, 3, joiner) do
-    #   [to_string(arg1), joiner, to_string(arg2), joiner, to_string(arg3)]
+    # def partial_intersperse({arg1, arg2, arg3, _arg4}, 3, separator) do
+    #   [arg1, separator, arg2, separator, arg3]
     # end
-    def partial_join_as_iodata(
+    def partial_intersperse(
           array(arguments_with_wildcards(unquote(i))),
           unquote(i),
-          joiner
+          separator
         ) do
       unquote(i)
       |> take_arguments()
-      |> reverse_arguments()
-      |> map_arguments(apply_mapper(var(&to_string/1)))
-      |> reduce_arguments(intersperse_reducer(var(joiner)))
+      |> intersperse_arguments(separator)
+    end
+  end
+
+  def partial_map_intersperse(
+        array(arguments_with_wildcards(1)),
+        1,
+        _separator,
+        mapper
+      ) do
+    [mapper.(argument_at(0))]
+  end
+
+  # case i = 1 needs to declare `_separator`, not `separator`
+  for i <- args_range(), i > 1 do
+    # def partial_map_intersperse({arg1, arg2, arg3, _arg4}, 3, separator, mapper) do
+    #   [mapper.(arg1), separator, mapper.(arg2), separator, mapper.(arg3)]
+    # end
+    def partial_map_intersperse(
+          array(arguments_with_wildcards(unquote(i))),
+          unquote(i),
+          separator,
+          mapper
+        ) do
+      unquote(i)
+      |> take_arguments()
+      |> map_arguments(apply_mapper(var(mapper)))
+      |> intersperse_arguments(separator)
     end
   end
 

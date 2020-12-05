@@ -571,17 +571,48 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def join_as_iodata(trie, level, joiner, acc) do
-    foldr_leaves(trie, level, acc, joiner, &join_as_iodata_leaf/3)
+  def intersperse(trie, level, separator, acc) do
+    foldr_leaves(trie, level, acc, separator, &intersperse_leaf/3)
   end
 
-  # def join_as_iodata({arg1, arg2, arg3, arg4}, joiner, acc) do
-  #   [to_string(arg1), joiner, to_string(arg2), ... joiner | acc]
+  # def intersperse_leaf({arg1, arg2, arg3, arg4}, separator, acc) do
+  #   [arg1, separator, arg2, ... separator | acc]
   # end
-  defp join_as_iodata_leaf(array(), joiner, acc) do
-    reverse_arguments()
+  defp intersperse_leaf(array(), separator, acc) do
+    arguments()
+    |> intersperse_arguments(separator)
+    |> append_argument(separator)
+    |> list_with_rest(acc)
+  end
+
+  def map_intersperse(trie, level, separator, mapper, acc) do
+    foldr_leaves(trie, level, acc, {separator, mapper}, &map_intersperse_leaf/3)
+  end
+
+  # def map_intersperse_leaf({arg1, arg2, arg3, arg4}, {separator, mapper}, acc) do
+  #   [mapper.(arg1), separator, mapper.(arg2), ... separator | acc]
+  # end
+  defp map_intersperse_leaf(array(), {separator, mapper}, acc) do
+    arguments()
+    |> map_arguments(apply_mapper(var(mapper)))
+    |> intersperse_arguments(separator)
+    |> append_argument(separator)
+    |> list_with_rest(acc)
+  end
+
+  def join(trie, level, joiner, acc) do
+    foldr_leaves(trie, level, acc, joiner, &join_leaf/3)
+  end
+
+  # def join({arg1, arg2, arg3, arg4}, joiner, acc) do
+  #   [mapper.(arg1), joiner, mapper.(arg2), ... joiner | acc]
+  # end
+  defp join_leaf(array(), joiner, acc) do
+    arguments()
     |> map_arguments(apply_mapper(var(&to_string/1)))
-    |> reduce_arguments(acc, intersperse_reducer(var(joiner)))
+    |> intersperse_arguments(joiner)
+    |> append_argument(joiner)
+    |> list_with_rest(acc)
   end
 
   def map(trie, level, fun)

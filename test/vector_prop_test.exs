@@ -208,6 +208,12 @@ defmodule A.Vector.PropTest do
       assert capture_error(Enum.sum(list)) === capture_error(A.Vector.sum(vector))
 
       assert capture_error(Enum.join(list, ",")) === capture_error(A.Vector.join(vector, ","))
+      assert Enum.map_join(list, ",", &inspect/1) === A.Vector.map_join(vector, ",", &inspect/1)
+
+      assert Enum.intersperse(list, nil) |> A.Vector.new() === A.Vector.intersperse(vector, nil)
+
+      assert Enum.map_intersperse(list, nil, &inspect/1) |> A.Vector.new() ===
+               A.Vector.map_intersperse(vector, nil, &inspect/1)
     end
   end
 

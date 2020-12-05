@@ -1133,7 +1133,7 @@ defmodule A.Vector do
   end
 
   @doc """
-  Intersperses `element` between each element of the `vector`.
+  Intersperses `separator` between each element of the `vector`.
 
   ## Examples
 
@@ -1142,16 +1142,43 @@ defmodule A.Vector do
 
   """
   @spec intersperse(
-          t(val1),
-          val2
-        ) :: t(val1 | val2)
-        when val1: value, val2: value
-  def intersperse(%__MODULE__{internal: internal}, element) do
-    # TODO optimize
+          t(val),
+          separator
+        ) :: t(val | separator)
+        when val: value, separator: value
+  def intersperse(%__MODULE__{internal: internal}, separator) do
     new_internal =
       internal
-      |> Raw.to_list()
-      |> Enum.intersperse(element)
+      |> Raw.intersperse(separator)
+      |> Raw.from_list()
+
+    %__MODULE__{
+      internal: new_internal
+    }
+  end
+
+  @doc """
+  Maps and intersperses the `vector` in one pass.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..6) |> A.Vector.map_intersperse(nil, &(&1 * 10))
+      #A<vec([10, nil, 20, nil, 30, nil, 40, nil, 50, nil, 60])>
+
+  """
+  @spec map_intersperse(
+          t(val),
+          separator,
+          (val -> mapped_val)
+        ) :: t(mapped_val | separator)
+        when val: value, separator: value, mapped_val: value
+  def map_intersperse(%__MODULE__{internal: internal}, separator, mapper)
+      when is_function(mapper, 1) do
+    new_internal =
+      internal
+      |> Raw.map_intersperse(separator, mapper)
       |> Raw.from_list()
 
     %__MODULE__{
@@ -1242,6 +1269,35 @@ defmodule A.Vector do
   @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
   def join(%__MODULE__{internal: internal}, joiner \\ "") when is_binary(joiner) do
     Raw.join_as_iodata(internal, joiner) |> IO.iodata_to_binary()
+  end
+
+  @doc """
+  Maps and joins the given `vector` into a string using `joiner` as a separator.
+
+  If `joiner` is not passed at all, it defaults to an empty string.
+
+  `mapper` should only return values that are convertible to a string, otherwise an error is raised.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..6) |> A.Vector.map_join(fn x -> x * 10 end)
+      "102030405060"
+      iex> A.Vector.new(1..6) |> A.Vector.map_join(" + ", fn x -> x * 10 end)
+      "10 + 20 + 30 + 40 + 50 + 60"
+      iex> A.Vector.new() |> A.Vector.map_join(" + ", fn x -> x * 10 end)
+      ""
+
+  """
+  @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
+        when val: value
+  def map_join(%__MODULE__{internal: internal}, joiner \\ "", mapper)
+      when is_binary(joiner) and is_function(mapper, 1) do
+    Raw.map_intersperse(internal, joiner, fn element ->
+      mapper.(element) |> to_string()
+    end)
+    |> IO.iodata_to_binary()
   end
 
   @doc """

@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Enhancements
+
+* Add `A.Vector.map_join/3` and `A.Vector.map_intersperse/3`
+* Implement `A.Vector.intersperse/2` more efficiently
+
 ### Bug fixes
 
 * `A.Vector.sum/1` adds using the same order as `Enum.sum/1`,
