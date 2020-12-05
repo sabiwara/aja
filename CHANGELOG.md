@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.1 (2020-12-05)
+
 ### Enhancements
 
 * Add `A.Vector.map_join/3` and `A.Vector.map_intersperse/3`
