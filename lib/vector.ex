@@ -6,8 +6,10 @@ defmodule A.Vector do
   are an efficient alternative to lists.
   Many operations for `A.Vector` run in effective constant time (length, random access, appends...),
   unlike linked lists for which most operations run in linear time.
-  Functions that need to go through the whole collection like `map/2` or `foldl/3` are as fast as their
-  list equivalents, or even slightly faster.
+  Functions that need to go through the whole collection like `map/2` or `foldl/3` are as often fast as
+  their list equivalents, or sometimes even slightly faster.
+
+  Vectors also use less memory than lists for "big" collections (see the [Memory usage section](#module-memory-usage)).
 
   Make sure to read the [Efficiency guide section](#module-efficiency-guide) to get the best performance
   out of vectors.
@@ -79,6 +81,32 @@ defmodule A.Vector do
   As discussed in the previous section, [`vec/1`](`A.vec/1`) makes it
   possible to pattern match on size and elements as well as checking the type.
 
+  ## Memory usage
+
+  Vectors have a small overhead over lists for smaller collections, but are using
+  far less memory for bigger collections:
+
+      iex> memory_for = fn n -> [Enum.to_list(1..n), A.Vector.new(1..n)] |> Enum.map(&:erts_debug.size/1) end
+      iex> memory_for.(1)
+      [2, 28]
+      iex> memory_for.(10)
+      [20, 28]
+      iex> memory_for.(100)
+      [200, 150]
+      iex> memory_for.(10_000)
+      [20000, 11370]
+
+  If you need to work with vectors containing mostly the same value,
+  `A.Vector.duplicate/2` should be highly efficient both in time and
+  memory, since it minimizes the number of actual copies and reuses the
+  same nested structures under the hood:
+
+      iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.size()
+      133
+      iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
+      1170
+
+
   ## Efficiency guide
 
   If you are using vectors and not lists, chances are that you care about
@@ -143,7 +171,7 @@ defmodule A.Vector do
 
       A.Vector.append_many(vector, enumerable)
 
-  ### `Enum`
+  ### Prefer `A.Vector` to `Enum` for vectors
 
   Many functions provided in this module are very efficient and should be
   used over `Enum` functions whenever possible, even if `A.Vector` implements
@@ -198,20 +226,11 @@ defmodule A.Vector do
   ### Additional notes
 
   * If you need to work with vectors containing mostly the same value,
-  `A.Vector.duplicate/2` should be highly efficient both in time and
-  memory, since it minimizes the number of actual copies and reuses the
-  same nested structures under the hood.
-
-        iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.size()
-        133
-        iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
-        1170
-        iex> List.duplicate(0, 1_000) |> :erts_debug.size()  # for comparison
-        2000
+    use `A.Vector.duplicate/2` (more details in the [Memory usage section](#module-memory-usage)).
 
   * If you work with functions returning vectors of known size, you can use
-  the `A.vec/1` macro to defer the generation of the AST for the internal
-  structure to compile time instead of runtime.
+    the `A.vec/1` macro to defer the generation of the AST for the internal
+    structure to compile time instead of runtime.
 
         A.Vector.new([a, 1, 2, 3, 4])  # structure created at runtime
         vec([a, 1, 2, 3, 4])  # structure AST defined at compile time
@@ -314,7 +333,7 @@ defmodule A.Vector do
   `n` is an integer greater than or equal to `0`.
   If `n` is `0`, an empty list is returned.
 
-  Runs in linear time, but is very fast and memory efficient (see [Efficiency guide section](#module-efficiency-guide)).
+  Runs in linear time, but is very fast and memory efficient (see [Memory usage](#module-memory-usage)).
 
   ## Examples
 

@@ -322,6 +322,7 @@ Finally, data structures can work more efficiently together than if they were se
 ### What are the next steps?
 
 Nothing is set in stone, but the next steps will probably be:
+- provide efficient slicing for `A.Vector`
 - complete the API for `A.Vector` and improve its ergonomics
 - more benchmarks and performance optimizations
 - evaluate Kahrs algorithm as an alternative for red-black tree deletion
