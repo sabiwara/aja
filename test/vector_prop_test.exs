@@ -207,6 +207,9 @@ defmodule A.Vector.PropTest do
 
       assert capture_error(Enum.sum(list)) === capture_error(A.Vector.sum(vector))
 
+      assert capture_error(Enum.reduce(list, 1, &(&2 * &1))) ===
+               capture_error(A.Vector.product(vector))
+
       assert capture_error(Enum.join(list, ",")) === capture_error(A.Vector.join(vector, ","))
       assert Enum.map_join(list, ",", &inspect/1) === A.Vector.map_join(vector, ",", &inspect/1)
 

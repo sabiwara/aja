@@ -249,6 +249,12 @@ defmodule A.Vector.CodeGen do
     end
   end
 
+  def product_reducer(arg, acc) do
+    quote do
+      unquote(acc) * unquote(arg)
+    end
+  end
+
   def strict_or_reducer(arg, acc) do
     quote do
       unquote(arg) or unquote(acc)

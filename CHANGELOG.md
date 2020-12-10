@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+* Implement `A.Vector.product/1`
+
 ## v0.4.1 (2020-12-05)
 
 ### Enhancements

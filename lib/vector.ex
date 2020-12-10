@@ -1248,6 +1248,26 @@ defmodule A.Vector do
   end
 
   @doc """
+  Returns the product of all elements in the `vector`.
+
+  Raises `ArithmeticError` if `vector` contains a non-numeric value.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..5) |> A.Vector.product()
+      120
+      iex> A.Vector.new() |> A.Vector.product()
+      1
+
+  """
+  @spec product(t(num)) :: num when num: number
+  def product(%__MODULE__{internal: internal}) do
+    Raw.product(internal)
+  end
+
+  @doc """
   Joins the given `vector` into a string using `joiner` as a separator.
 
   If `joiner` is not passed at all, it defaults to an empty string.

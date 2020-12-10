@@ -543,6 +543,20 @@ defmodule A.Vector.Raw do
 
   def sum(:empty), do: 0
 
+  @spec product(t(number)) :: number
+  def product(vector)
+
+  def product(large(size, tail_offset, level, trie, tail)) do
+    acc = Trie.product(trie, level, 1)
+    Tail.partial_product(tail, size - tail_offset, acc)
+  end
+
+  def product(small(size, tail)) do
+    Tail.partial_product(tail, size, 1)
+  end
+
+  def product(:empty), do: 1
+
   @spec intersperse(t(val), sep) :: [val | sep] when val: value, sep: value
   def intersperse(vector, separator)
 

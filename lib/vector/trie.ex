@@ -571,6 +571,33 @@ defmodule A.Vector.Trie do
     end
   end
 
+  def product(trie, level, acc)
+
+  # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
+  #   acc * arg1 * arg2 * arg3 * arg4
+  # end
+  def product(array(), _level = 0, acc) do
+    reduce_arguments(arguments(), acc, &product_reducer/2)
+  end
+
+  # def product({arg1, arg2, nil, nil}, level, acc) do
+  #   child_level = level - bits
+  #   product(arg2, child_level, product(arg1, child_level, acc))
+  # end
+  for i <- args_range() do
+    def product(array(arguments_with_nils(unquote(i))), level, acc) do
+      child_level = decr_level(level)
+
+      unquote(i)
+      |> take_arguments()
+      |> reduce_arguments(acc, fn arg, acc ->
+        quote do
+          product(unquote(arg), var!(child_level), unquote(acc))
+        end
+      end)
+    end
+  end
+
   def intersperse(trie, level, separator, acc) do
     foldr_leaves(trie, level, acc, separator, &intersperse_leaf/3)
   end

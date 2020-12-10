@@ -118,6 +118,17 @@ defmodule A.Vector.Tail do
     end
   end
 
+  for i <- args_range() do
+    # def partial_product({arg1, arg2, arg3, _arg4}, 3, acc) do
+    #   acc * arg1 * arg2 * arg3
+    # end
+    def partial_product(array(arguments_with_wildcards(unquote(i))), unquote(i), acc) do
+      unquote(i)
+      |> take_arguments()
+      |> reduce_arguments(acc, &product_reducer/2)
+    end
+  end
+
   def partial_intersperse(
         array(arguments_with_wildcards(1)),
         1,

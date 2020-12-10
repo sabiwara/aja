@@ -104,6 +104,13 @@ defmodule A.VectorTest do
     assert Enum.sum(floats) === A.Vector.new(floats) |> A.Vector.sum()
   end
 
+  test "product/1" do
+    assert 1 = A.Vector.new() |> A.Vector.product()
+    assert 120 = A.Vector.new(1..5) |> A.Vector.product()
+    assert Enum.reduce(1..50, &(&2 * &1)) == A.Vector.new(1..50) |> A.Vector.product()
+    assert Enum.reduce(1..500, &(&2 * &1)) == A.Vector.new(1..500) |> A.Vector.product()
+  end
+
   test "join/2" do
     assert "" == A.Vector.new() |> A.Vector.join(",")
     assert "1,2,3,4,5" == A.Vector.new(1..5) |> A.Vector.join(",")
