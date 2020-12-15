@@ -114,7 +114,7 @@ All data structures offer:
 ```elixir
 iex> import A
 iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
-["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", "\n"]
+["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
 ```
 
 #### Exclusive ranges: `A.ExRange`
