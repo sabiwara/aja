@@ -1135,6 +1135,8 @@ defmodule A.Vector do
   @doc """
   Intersperses `separator` between each element of the `vector`.
 
+  Runs in linear time.
+
   ## Examples
 
       iex> A.Vector.new(1..6) |> A.Vector.intersperse(nil)
