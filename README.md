@@ -179,7 +179,7 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 - the amazingly polished [Elixir standard library](https://hexdocs.pm/elixir): self-consistent,
   well-documented and just **delightful** ✨️
 - the also amazing [Python standard library](https://docs.python.org/3/library/),
-  notably its [collection](https://docs.python.org/3/library/collections.html) module
+  notably its [collections](https://docs.python.org/3/library/collections.html) module
 - the amazing [lodash](https://lodash.com/docs) which complements nicely the (historically rather small)
   javascript standard library, with a very consistent API
 - various work on efficient [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure) spearheaded by Okasaki
