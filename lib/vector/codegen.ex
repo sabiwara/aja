@@ -257,25 +257,25 @@ defmodule A.Vector.CodeGen do
 
   def strict_or_reducer(arg, acc) do
     quote do
-      unquote(arg) or unquote(acc)
+      unquote(acc) or unquote(arg)
     end
   end
 
   def or_reducer(arg, acc) do
     quote do
-      unquote(arg) || unquote(acc)
+      unquote(acc) || unquote(arg)
     end
   end
 
   def strict_and_reducer(arg, acc) do
     quote do
-      unquote(arg) and unquote(acc)
+      unquote(acc) and unquote(arg)
     end
   end
 
   def and_reducer(arg, acc) do
     quote do
-      unquote(arg) && unquote(acc)
+      unquote(acc) && unquote(arg)
     end
   end
 end

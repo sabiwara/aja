@@ -108,6 +108,80 @@ defmodule A.VectorTest do
     assert A.Vector.new(500..1) == A.Vector.new(1..500) |> A.Vector.reverse()
   end
 
+  test "all?/1" do
+    assert true == A.Vector.new() |> A.Vector.all?()
+
+    assert true == A.Vector.new([1, true, "string", :atom, %{}, []]) |> A.Vector.all?()
+    assert true == A.Vector.new(1..50) |> A.Vector.all?()
+    assert true == A.Vector.new(1..500) |> A.Vector.all?()
+
+    assert false == A.Vector.duplicate(true, 5) |> A.Vector.append(false) |> A.Vector.all?()
+    assert false == A.Vector.new(1..50) |> A.Vector.append(nil) |> A.Vector.all?()
+    assert false == A.Vector.new(1..500) |> A.Vector.append(nil) |> A.Vector.all?()
+  end
+
+  test "all?/2" do
+    {gt_zero?, pop_args} = spy_callback(&(&1 > 0))
+
+    assert true == A.Vector.new() |> A.Vector.all?(gt_zero?)
+    assert [] == pop_args.()
+
+    assert true == A.Vector.new(5..1) |> A.Vector.all?(gt_zero?)
+    assert [5, 4, 3, 2, 1] == pop_args.()
+
+    assert true == A.Vector.new(50..1) |> A.Vector.all?(gt_zero?)
+    assert Enum.to_list(50..1) == pop_args.()
+
+    assert true == A.Vector.new(500..1) |> A.Vector.all?(gt_zero?)
+    assert Enum.to_list(500..1) == pop_args.()
+
+    assert false == A.Vector.new(5..0) |> A.Vector.all?(gt_zero?)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert false == A.Vector.new(50..0) |> A.Vector.all?(gt_zero?)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert false == A.Vector.new(500..0) |> A.Vector.all?(gt_zero?)
+    assert Enum.to_list(500..0) == pop_args.()
+  end
+
+  test "any?/1" do
+    assert false == A.Vector.new() |> A.Vector.any?()
+
+    assert false == A.Vector.duplicate(false, 5) |> A.Vector.any?()
+    assert false == A.Vector.duplicate(nil, 50) |> A.Vector.any?()
+    assert false == A.Vector.duplicate(false, 500) |> A.Vector.any?()
+
+    assert true == A.Vector.duplicate(false, 5) |> A.Vector.append(true) |> A.Vector.any?()
+    assert true == A.Vector.duplicate(nil, 50) |> A.Vector.append(55) |> A.Vector.any?()
+    assert true == A.Vector.duplicate(false, 500) |> A.Vector.append(%{}) |> A.Vector.any?()
+  end
+
+  test "any?/2" do
+    {zero?, pop_args} = spy_callback(&(&1 == 0))
+
+    assert false == A.Vector.new() |> A.Vector.any?(zero?)
+    assert [] == pop_args.()
+
+    assert false == A.Vector.new(5..1) |> A.Vector.any?(zero?)
+    assert [5, 4, 3, 2, 1] == pop_args.()
+
+    assert false == A.Vector.new(50..1) |> A.Vector.any?(zero?)
+    assert Enum.to_list(50..1) == pop_args.()
+
+    assert false == A.Vector.new(500..1) |> A.Vector.any?(zero?)
+    assert Enum.to_list(500..1) == pop_args.()
+
+    assert true == A.Vector.new(5..0) |> A.Vector.any?(zero?)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert true == A.Vector.new(50..0) |> A.Vector.any?(zero?)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert true == A.Vector.new(500..0) |> A.Vector.any?(zero?)
+    assert Enum.to_list(500..0) == pop_args.()
+  end
+
   test "sum/1" do
     assert 0 = A.Vector.new() |> A.Vector.sum()
     assert 15 = A.Vector.new(1..5) |> A.Vector.sum()

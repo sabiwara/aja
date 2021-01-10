@@ -8,8 +8,9 @@
 
 ### Bug fixes
 
-* Invoke callbacks in the right order: `A.Vector.map/2`,
-  `A.Vector.map_intersperse/3`, `A.Vector.map_join/3`
+* Invoke callbacks in the right order for: `A.Vector.map/2`,
+  `A.Vector.map_intersperse/3`, `A.Vector.map_join/3`,
+  `A.Vector.any?/2`, `A.Vector.all?/2`
 
 ## v0.4.1 (2020-12-05)
 
