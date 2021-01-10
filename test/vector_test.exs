@@ -298,6 +298,14 @@ defmodule A.VectorTest do
     assert expected == result
   end
 
+  test "slice/2" do
+    assert A.Vector.new([]) == A.Vector.new() |> A.Vector.slice(1..5)
+    assert A.Vector.new([2, 3, 4, 5, 6]) == A.Vector.new(1..10) |> A.Vector.slice(1..5)
+    assert A.Vector.new([2, 3, 4, 5, 6]) == A.Vector.new(1..100) |> A.Vector.slice(1..5)
+    assert A.Vector.new([18, 19]) == A.Vector.new(1..20) |> A.Vector.slice(-3, 2)
+    assert A.Vector.new(2..99) == A.Vector.new(1..100) |> A.Vector.slice(1..98)
+  end
+
   test "Enum.to_list/1" do
     # TODO add some property testing coverage
     assert [] == A.Vector.new() |> Enum.to_list()
@@ -325,9 +333,10 @@ defmodule A.VectorTest do
   end
 
   test "Enum.slice/2" do
-    # TODO add some property testing coverage
-    assert [] = A.Vector.new() |> Enum.slice(1..5)
-    assert [2, 3, 4, 5, 6] = A.Vector.new(1..100) |> Enum.slice(1..5)
-    assert [18, 19] = A.Vector.new(1..20) |> Enum.slice(-3, 2)
+    assert [] == A.Vector.new() |> Enum.slice(1..5)
+    assert [2, 3, 4, 5, 6] == A.Vector.new(1..10) |> Enum.slice(1..5)
+    assert [2, 3, 4, 5, 6] == A.Vector.new(1..100) |> Enum.slice(1..5)
+    assert [18, 19] == A.Vector.new(1..20) |> Enum.slice(-3, 2)
+    assert Enum.to_list(2..99) == A.Vector.new(1..100) |> Enum.slice(1..98)
   end
 end

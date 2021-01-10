@@ -215,4 +215,18 @@ defmodule A.Vector.Tail do
       {new_tail, unquote(i), []}
     end
   end
+
+  def slice(tail, start, last) do
+    do_slice(tail, start, last, [])
+  end
+
+  @compile {:inline, do_slice: 4}
+  defp do_slice(tail, i, i, acc) do
+    [elem(tail, i) | acc]
+  end
+
+  defp do_slice(tail, start, i, acc) do
+    new_acc = [elem(tail, i) | acc]
+    do_slice(tail, start, i - 1, new_acc)
+  end
 end

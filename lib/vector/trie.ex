@@ -702,4 +702,78 @@ defmodule A.Vector.Trie do
       end)
     end
   end
+
+  @compile {:inline, slice: 6}
+  def slice(trie, start, last, level, acc, nodes \\ [])
+
+  def slice(leaf, start, last, _level = 0, acc, nodes) do
+    last_index = radix_rem(last)
+    remaining = last - start
+
+    case remaining - last_index do
+      new_remaining when new_remaining > 0 ->
+        new_acc = partial_slice_leaf(leaf, 0, last_index, acc)
+        slice_next(new_remaining, new_acc, nodes)
+
+      neg_first_index ->
+        partial_slice_leaf(leaf, -neg_first_index, last_index, acc)
+    end
+  end
+
+  def slice(trie, start, last, level, acc, nodes) do
+    current_index = radix_search(last, level)
+
+    new_nodes =
+      case current_index do
+        0 -> nodes
+        _ -> [{trie, level, current_index - 1} | nodes]
+      end
+
+    child = elem(trie, current_index)
+    slice(child, start, last, decr_level(level), acc, new_nodes)
+  end
+
+  @compile {:inline, do_slice: 4}
+  defp do_slice(leaf, remaining, acc, nodes) do
+    case remaining - branch_factor() do
+      new_remaining when new_remaining > 0 ->
+        new_acc = Node.prepend_all(leaf, acc)
+        slice_next(new_remaining, new_acc, nodes)
+
+      neg_first_index ->
+        partial_slice_leaf(leaf, -neg_first_index, branch_factor() - 1, acc)
+    end
+  end
+
+  @compile {:inline, slice_next: 3}
+  defp slice_next(remaining, acc, [node | nodes]) do
+    {new_leaf, new_nodes} = unpack_slice_nodes(node, nodes)
+    do_slice(new_leaf, remaining, acc, new_nodes)
+  end
+
+  @compile {:inline, partial_slice_leaf: 4}
+  defp partial_slice_leaf(leaf, index, index, acc) do
+    [elem(leaf, index) | acc]
+  end
+
+  defp partial_slice_leaf(leaf, until, index, acc) do
+    partial_slice_leaf(leaf, until, index - 1, [elem(leaf, index) | acc])
+  end
+
+  @compile {:inline, unpack_slice_nodes: 2}
+  defp unpack_slice_nodes({trie, level, index}, nodes) do
+    case level do
+      0 ->
+        {trie, nodes}
+
+      _ ->
+        child = elem(trie, index)
+        new_node = {child, decr_level(level), unquote(branch_factor() - 1)}
+
+        case index do
+          0 -> unpack_slice_nodes(new_node, nodes)
+          _ -> unpack_slice_nodes(new_node, [{trie, level, index - 1} | nodes])
+        end
+    end
+  end
 end

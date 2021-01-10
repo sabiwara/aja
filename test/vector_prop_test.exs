@@ -162,7 +162,7 @@ defmodule A.Vector.PropTest do
 
   @tag :property
   property "A.Vector functions should return the same as mirrored Enum functions" do
-    check all(list <- list_of(value()), i1 <- integer(), i2 <- positive_integer()) do
+    check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
       vector = A.Vector.new(list)
 
       assert_properties(vector)
@@ -174,8 +174,16 @@ defmodule A.Vector.PropTest do
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1) === vector[i1]
-      assert Enum.slice(list, i1, i2) === Enum.slice(vector, i1, i2)
-      assert Enum.slice(list, i1..i2) === Enum.slice(vector, i1..i2)
+
+      # amount must be >=0
+      amount = abs(i2)
+      slice_1 = Enum.slice(list, i1, amount)
+      assert slice_1 === Enum.slice(vector, i1, amount)
+      assert A.Vector.new(slice_1) === A.Vector.slice(vector, i1, amount)
+
+      slice_2 = Enum.slice(list, i1..i2)
+      assert slice_2 === Enum.slice(vector, i1..i2)
+      assert A.Vector.new(slice_2) === A.Vector.slice(vector, i1..i2)
 
       assert list === A.Vector.to_list(vector)
       assert Enum.reverse(list) === A.Vector.reverse(vector) |> A.Vector.to_list()

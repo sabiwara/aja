@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Enhancements
+
+* Add `A.Vector.slice/2` and `A.Vector.slice/3`
+* `A.Vector` efficiently implements `Enumerable.slice/1`
+
 ## v0.4.2 (2021-01-10)
 
 ### Enhancements

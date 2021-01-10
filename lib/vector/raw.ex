@@ -724,4 +724,29 @@ defmodule A.Vector.Raw do
     # TODO optimize
     filter(vector, &(!fun.(&1)))
   end
+
+  @compile {:inline, slice: 3}
+  @spec slice(t(val), non_neg_integer(), non_neg_integer()) :: [val] when val: value
+  def slice(vector, start, last)
+
+  def slice(large(_size, tail_offset, level, trie, tail), start, last) do
+    acc =
+      if last < tail_offset do
+        []
+      else
+        Tail.slice(tail, max(0, start - tail_offset), last - tail_offset)
+      end
+
+    if start < tail_offset do
+      Trie.slice(trie, start, min(last, tail_offset - 1), level, acc)
+    else
+      acc
+    end
+  end
+
+  def slice(small(_size, tail), start, last) do
+    Tail.slice(tail, start, last)
+  end
+
+  def slice(:empty, _start, _length), do: []
 end

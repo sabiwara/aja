@@ -53,6 +53,13 @@ defmodule A.Vector.Node do
     arguments()
   end
 
+  # def prepend_all({arg1, arg2, arg3, arg4}, acc) do
+  #   [arg1, arg2, arg3, arg4 | acc]
+  # end
+  def prepend_all(array(), acc) do
+    list_with_rest(acc)
+  end
+
   # def duplicate(value) do
   #   {value, value, value, value}
   # end

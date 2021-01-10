@@ -159,8 +159,8 @@ defmodule A.Vector do
 
   ### Successive appends
 
-  If you need to append all elements of an enumerable, it is more efficient to use
-  `A.Vector.append_many/2` than successive calls to `A.Vector.append/2`.
+  If you just need to append all elements of an enumerable, it is more efficient to use
+  `A.Vector.append_many/2` than successive calls to `A.Vector.append/2`:
 
   **DON'T**
 
@@ -175,7 +175,7 @@ defmodule A.Vector do
 
   Many functions provided in this module are very efficient and should be
   used over `Enum` functions whenever possible, even if `A.Vector` implements
-  the `Enumerable` and `Collectable` protocols for convienience.
+  the `Enumerable` and `Collectable` protocols for convienience:
 
   **DON'T**
 
@@ -194,7 +194,7 @@ defmodule A.Vector do
       A.Vector.append_many(vector, enumerable)
 
   `for` comprehensions are actually using `Enumerable` as well, so
-  the same advice holds.
+  the same advice holds:
 
   **DON'T**
 
@@ -207,6 +207,33 @@ defmodule A.Vector do
       for value <- A.Vector.to_list(vector) do
         do_stuff()
       end
+
+  ### Exceptions: `Enum` optimized functions
+
+  `Enum.member?/2` is implemented in an efficient way, so `in/2` is optimal:
+
+  **DO**
+
+      33 in vector
+
+  `Enum.slice/2` and `Enum.slice/3` are optimized and their use is encouraged,
+  other "slicing" functions like `Enum.take/2` or `Enum.drop/2` however are inefficient:
+
+  **DON'T**
+
+      Enum.take(vector, 10)
+      Enum.drop(vector, 25)
+
+  **DO**
+
+      Enum.slice(vector, 0, 10)
+      Enum.slice(vector, 0..10)
+      Enum.slice(vector, 25..-1)
+
+  `A.Vector.slice/2` and `A.Vector.slice/3` have an overhead over `Enum` but are
+  useful if you need to return a new vector.
+
+  ### `A.Vector` and `Enum` APIs
 
   Not all `Enum` functions have been mirrored in `A.Vector`, but
   you can try either to:
@@ -1475,6 +1502,58 @@ defmodule A.Vector do
     |> new()
   end
 
+  @doc """
+  Returns a subset of the given `vector` by `index_range`.
+
+  Works the same as `Enum.slice/2`, see its documentation for more details.
+
+  Runs in linear time regarding the size of the returned subset.
+
+  ## Examples
+
+      iex> A.Vector.new(0..100) |> A.Vector.slice(80..90)
+      #A<vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])>
+      iex> A.Vector.new(0..100) |> A.Vector.slice(-40..-30)
+      #A<vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])>
+      iex> A.Vector.new([:only_one]) |> A.Vector.slice(0..1000)
+      #A<vec([:only_one])>
+
+  """
+  @spec slice(t(val), Range.t()) :: t(val) when val: value
+  def slice(%__MODULE__{} = vector, %Range{} = index_range) do
+    # TODO optimize the take/2 case
+    vector
+    |> Enum.slice(index_range)
+    |> new()
+  end
+
+  @doc """
+  Returns a subset of the given `vector`, from `start_index` (zero-based)
+  with `amount number` of elements if available.
+
+  Works the same as `Enum.slice/3`, see its documentation for more details.
+
+  Runs in linear time regarding the size of the returned subset.
+
+  ## Examples
+
+      iex> A.Vector.new(0..100) |> A.Vector.slice(80, 10)
+      #A<vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89])>
+      iex> A.Vector.new(0..100) |> A.Vector.slice(-40, 10)
+      #A<vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70])>
+      iex> A.Vector.new([:only_one]) |> A.Vector.slice(0, 1000)
+      #A<vec([:only_one])>
+
+  """
+  @spec slice(t(val), integer, integer) :: t(val) when val: value
+  def slice(%__MODULE__{} = vector, start_index, amount)
+      when is_integer(start_index) and is_integer(amount) and amount >= 0 do
+    # TODO optimize the take/2 case
+    vector
+    |> Enum.slice(start_index, amount)
+    |> new()
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 
@@ -1496,15 +1575,7 @@ defmodule A.Vector do
     def slice(%A.Vector{internal: internal}) do
       size = A.Vector.Raw.size(internal)
 
-      {:ok, size, fn start, length -> slicing_fun(start, start + length, internal, []) end}
-    end
-
-    @compile {:inline, slicing_fun: 4}
-    defp slicing_fun(start, start, _vector, acc), do: acc
-
-    defp slicing_fun(start, i, vector, acc) do
-      new_acc = [A.Vector.Raw.fetch_positive!(vector, i - 1) | acc]
-      slicing_fun(start, i - 1, vector, new_acc)
+      {:ok, size, fn start, length -> A.Vector.Raw.slice(internal, start, start + length - 1) end}
     end
 
     def reduce(%A.Vector{internal: internal}, acc, fun) do
