@@ -612,21 +612,6 @@ defmodule A.Vector.Trie do
     |> list_with_rest(acc)
   end
 
-  def map_intersperse(trie, level, separator, mapper, acc) do
-    foldr_leaves(trie, level, acc, {separator, mapper}, &map_intersperse_leaf/3)
-  end
-
-  # def map_intersperse_leaf({arg1, arg2, arg3, arg4}, {separator, mapper}, acc) do
-  #   [mapper.(arg1), separator, mapper.(arg2), ... separator | acc]
-  # end
-  defp map_intersperse_leaf(array(), {separator, mapper}, acc) do
-    arguments()
-    |> map_arguments(apply_mapper(var(mapper)))
-    |> intersperse_arguments(separator)
-    |> append_argument(separator)
-    |> list_with_rest(acc)
-  end
-
   def join(trie, level, joiner, acc) do
     foldr_leaves(trie, level, acc, joiner, &join_leaf/3)
   end

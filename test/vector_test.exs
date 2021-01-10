@@ -128,21 +128,28 @@ defmodule A.VectorTest do
 
   test "join/2" do
     assert "" == A.Vector.new() |> A.Vector.join(",")
+    assert "1" == A.Vector.new([1]) |> A.Vector.join(",")
     assert "1,2,3,4,5" == A.Vector.new(1..5) |> A.Vector.join(",")
     assert Enum.join(1..50, ",") == A.Vector.new(1..50) |> A.Vector.join(",")
     assert Enum.join(1..500, ",") == A.Vector.new(1..500) |> A.Vector.join(",")
+
+    assert Enum.join(1..50) == A.Vector.new(1..50) |> A.Vector.join()
   end
 
   test "map_join/3" do
-    times_ten = &(&1 * 10)
-    assert "" == A.Vector.new() |> A.Vector.map_join(",", times_ten)
-    assert "10,20,30,40,50" == A.Vector.new(1..5) |> A.Vector.map_join(",", times_ten)
+    {add_one, pop_args} = spy_callback(&(&1 + 1))
 
-    assert Enum.map_join(1..50, ",", times_ten) ==
-             A.Vector.new(1..50) |> A.Vector.map_join(",", times_ten)
+    assert "" == A.Vector.new() |> A.Vector.map_join(",", add_one)
+    assert [] == pop_args.()
 
-    assert Enum.map_join(1..500, ",", times_ten) ==
-             A.Vector.new(1..500) |> A.Vector.map_join(",", times_ten)
+    assert "2,3,4,5,6" == A.Vector.new(1..5) |> A.Vector.map_join(",", add_one)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert Enum.join(2..51, ",") == A.Vector.new(1..50) |> A.Vector.map_join(",", add_one)
+    assert Enum.to_list(1..50) == pop_args.()
+
+    assert Enum.join(2..501, ",") == A.Vector.new(1..500) |> A.Vector.map_join(",", add_one)
+    assert Enum.to_list(1..500) == pop_args.()
   end
 
   test "intersperse/2" do
@@ -159,17 +166,25 @@ defmodule A.VectorTest do
   end
 
   test "map_intersperse/3" do
-    add_one = &(&1 + 1)
+    {add_one, pop_args} = spy_callback(&(&1 + 1))
+
     assert A.Vector.new() == A.Vector.new() |> A.Vector.map_intersperse(0, add_one)
+    assert [] == pop_args.()
 
     assert A.Vector.new([2, 0, 3, 0, 4, 0, 5, 0, 6]) ==
              A.Vector.new(1..5) |> A.Vector.map_intersperse(0, add_one)
 
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
     assert Enum.intersperse(2..51, 0) |> A.Vector.new() ==
              A.Vector.new(1..50) |> A.Vector.map_intersperse(0, add_one)
 
+    assert Enum.to_list(1..50) == pop_args.()
+
     assert Enum.intersperse(2..501, 0) |> A.Vector.new() ==
              A.Vector.new(1..500) |> A.Vector.map_intersperse(0, add_one)
+
+    assert Enum.to_list(1..500) == pop_args.()
   end
 
   test "min/1" do
@@ -191,7 +206,7 @@ defmodule A.VectorTest do
     assert [] == pop_args.()
 
     assert A.Vector.new(2..6) == A.Vector.new(1..5) |> A.Vector.map(add_one)
-    assert Enum.to_list(1..5) == pop_args.()
+    assert [1, 2, 3, 4, 5] == pop_args.()
 
     assert A.Vector.new(2..51) == A.Vector.new(1..50) |> A.Vector.map(add_one)
     assert Enum.to_list(1..50) == pop_args.()

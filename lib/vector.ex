@@ -1180,7 +1180,8 @@ defmodule A.Vector do
       when is_function(mapper, 1) do
     new_internal =
       internal
-      |> Raw.map_intersperse(separator, mapper)
+      |> Raw.map(mapper)
+      |> Raw.intersperse(separator)
       |> Raw.from_list()
 
     %__MODULE__{
@@ -1316,9 +1317,9 @@ defmodule A.Vector do
         when val: value
   def map_join(%__MODULE__{internal: internal}, joiner \\ "", mapper)
       when is_binary(joiner) and is_function(mapper, 1) do
-    Raw.map_intersperse(internal, joiner, fn element ->
-      mapper.(element) |> to_string()
-    end)
+    internal
+    |> Raw.map(mapper)
+    |> Raw.join_as_iodata(joiner)
     |> IO.iodata_to_binary()
   end
 

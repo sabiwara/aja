@@ -572,33 +572,17 @@ defmodule A.Vector.Raw do
 
   def intersperse(:empty, _separator), do: []
 
-  @spec map_intersperse(t(val), sep, (val -> mapped_val)) :: [mapped_val | sep]
-        when val: value, sep: value, mapped_val: value
-  def map_intersperse(vector, separator, mapper)
-
-  def map_intersperse(large(size, tail_offset, level, trie, tail), separator, mapper) do
-    acc = Tail.partial_map_intersperse(tail, size - tail_offset, separator, mapper)
-
-    Trie.map_intersperse(trie, level, separator, mapper, acc)
-  end
-
-  def map_intersperse(small(size, tail), separator, mapper) do
-    Tail.partial_map_intersperse(tail, size, separator, mapper)
-  end
-
-  def map_intersperse(:empty, _separator, _mapper), do: []
-
   @spec join_as_iodata(t(val), String.t()) :: iodata when val: String.Chars.t()
   def join_as_iodata(vector, joiner)
 
   def join_as_iodata(large(size, tail_offset, level, trie, tail), joiner) do
-    acc = Tail.partial_map_intersperse(tail, size - tail_offset, joiner, &to_string/1)
+    acc = Tail.partial_join_as_iodata(tail, size - tail_offset, joiner)
 
     Trie.join(trie, level, joiner, acc)
   end
 
   def join_as_iodata(small(size, tail), joiner) do
-    Tail.partial_map_intersperse(tail, size, joiner, &to_string/1)
+    Tail.partial_join_as_iodata(tail, size, joiner)
   end
 
   def join_as_iodata(:empty, _separator), do: []

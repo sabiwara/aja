@@ -153,29 +153,27 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_map_intersperse(
+  def partial_join_as_iodata(
         array(arguments_with_wildcards(1)),
         1,
-        _separator,
-        mapper
+        _separator
       ) do
-    [mapper.(argument_at(0))]
+    [to_string(argument_at(0))]
   end
 
   # case i = 1 needs to declare `_separator`, not `separator`
   for i <- args_range(), i > 1 do
-    # def partial_map_intersperse({arg1, arg2, arg3, _arg4}, 3, separator, mapper) do
-    #   [mapper.(arg1), separator, mapper.(arg2), separator, mapper.(arg3)]
+    # def partial_join_as_iodata({arg1, arg2, arg3, _arg4}, 3, separator) do
+    #   [to_string(arg1), separator, to_string(arg2), separator, to_string(arg3)]
     # end
-    def partial_map_intersperse(
+    def partial_join_as_iodata(
           array(arguments_with_wildcards(unquote(i))),
           unquote(i),
-          separator,
-          mapper
+          separator
         ) do
       unquote(i)
       |> take_arguments()
-      |> map_arguments(apply_mapper(var(mapper)))
+      |> map_arguments(apply_mapper(var(&to_string/1)))
       |> intersperse_arguments(separator)
     end
   end
