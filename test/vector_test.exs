@@ -3,6 +3,21 @@ defmodule A.VectorTest do
 
   doctest A.Vector
 
+  defp spy_callback(fun) do
+    {:ok, agent} = Agent.start_link(fn -> [] end)
+
+    callback = fn arg ->
+      Agent.update(agent, fn state -> [arg | state] end)
+      fun.(arg)
+    end
+
+    pop_args = fn ->
+      Agent.get_and_update(agent, fn state -> {Enum.reverse(state), []} end)
+    end
+
+    {callback, pop_args}
+  end
+
   test "at/2" do
     range = 0..500
     vector = A.Vector.new(range)
@@ -170,11 +185,19 @@ defmodule A.VectorTest do
   end
 
   test "map/2" do
-    range = 1..5000
-    result = range |> A.Vector.new() |> A.Vector.map(&(&1 + 1))
-    expected = range |> Enum.map(&(&1 + 1)) |> A.Vector.new()
+    {add_one, pop_args} = spy_callback(&(&1 + 1))
 
-    assert expected == result
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.map(add_one)
+    assert [] == pop_args.()
+
+    assert A.Vector.new(2..6) == A.Vector.new(1..5) |> A.Vector.map(add_one)
+    assert Enum.to_list(1..5) == pop_args.()
+
+    assert A.Vector.new(2..51) == A.Vector.new(1..50) |> A.Vector.map(add_one)
+    assert Enum.to_list(1..50) == pop_args.()
+
+    assert A.Vector.new(2..501) == A.Vector.new(1..500) |> A.Vector.map(add_one)
+    assert Enum.to_list(1..500) == pop_args.()
   end
 
   test "filter/2" do

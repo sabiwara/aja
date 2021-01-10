@@ -6,6 +6,10 @@
 
 * Implement `A.Vector.product/1`
 
+### Bug fixes
+
+* Invoke callbacks in the right order: `A.Vector.map/2`
+
 ## v0.4.1 (2020-12-05)
 
 ### Enhancements

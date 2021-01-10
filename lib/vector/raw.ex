@@ -708,8 +708,8 @@ defmodule A.Vector.Raw do
   def map(vector, fun)
 
   def map(large(size, tail_offset, level, trie, tail), fun) do
-    new_tail = Tail.partial_map(tail, fun, size - tail_offset)
     new_trie = Trie.map(trie, level, fun)
+    new_tail = Tail.partial_map(tail, fun, size - tail_offset)
 
     large(size, tail_offset, level, new_trie, new_tail)
   end
