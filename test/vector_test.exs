@@ -289,6 +289,22 @@ defmodule A.VectorTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
+  test "each/2" do
+    {add_one, pop_args} = spy_callback(fn _ -> nil end)
+
+    assert :ok = A.Vector.new() |> A.Vector.each(add_one)
+    assert [] == pop_args.()
+
+    assert :ok = A.Vector.new(1..5) |> A.Vector.each(add_one)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert :ok = A.Vector.new(1..50) |> A.Vector.each(add_one)
+    assert Enum.to_list(1..50) == pop_args.()
+
+    assert :ok = A.Vector.new(1..500) |> A.Vector.each(add_one)
+    assert Enum.to_list(1..500) == pop_args.()
+  end
+
   test "filter/2" do
     range = 1..5000
     multiple_of_2? = &(rem(&1, 2) == 0)

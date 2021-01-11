@@ -529,6 +529,23 @@ defmodule A.Vector.Raw do
 
   def foldr(:empty, acc, _fun), do: acc
 
+  @spec each(t(val), (val -> term)) :: :ok when val: value
+  def each(vector, fun)
+
+  def each(large(size, tail_offset, level, trie, tail), fun) do
+    Trie.each(trie, level, fun)
+
+    Tail.partial_to_list(tail, size - tail_offset)
+    |> Enum.each(fun)
+  end
+
+  def each(small(size, tail), fun) do
+    Tail.partial_to_list(tail, size)
+    |> Enum.each(fun)
+  end
+
+  def each(:empty, _fun), do: :ok
+
   @spec sum(t(number)) :: number
   def sum(vector)
 

@@ -153,6 +153,18 @@ defmodule A.Vector.CodeGen do
     end
   end
 
+  defmacro each_arguments(args \\ @arguments_ast, fun_ast) do
+    expanded_args = Macro.expand(args, __CALLER__)
+    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(1)
+
+    block =
+      for arg <- expanded_args do
+        fun.(arg)
+      end ++ [:ok]
+
+    {:__block__, [], block}
+  end
+
   defmacro reduce_arguments(args, fun_ast) do
     expanded_args = Macro.expand(args, __CALLER__)
     fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(2)

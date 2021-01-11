@@ -1258,6 +1258,27 @@ defmodule A.Vector do
   end
 
   @doc """
+  Invokes the given `fun` for each element in the `vector`.
+
+  Returns `:ok`.
+
+  Runs in linear time.
+
+  ## Examples
+
+      A.Vector.new(1..3) |> A.Vector.each(&IO.inspect/1)
+      1
+      2
+      3
+      :ok
+
+  """
+  @spec each(t(val), (val -> term)) :: :ok when val: value
+  def each(%__MODULE__{internal: internal}, fun) when is_function(fun, 1) do
+    Raw.each(internal, fun)
+  end
+
+  @doc """
   Returns the sum of all elements in the `vector`.
 
   Raises `ArithmeticError` if `vector` contains a non-numeric value.

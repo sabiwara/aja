@@ -544,6 +544,20 @@ defmodule A.Vector.Trie do
     end)
   end
 
+  def each(trie, level, fun) do
+    foldl_leaves(trie, level, nil, fun, &each_leaf/3)
+  end
+
+  # defp each_leaf({arg1, arg2, arg3, arg4}, fun, _acc) do
+  #   fun.(arg1)
+  #   fun.(arg2)
+  #   fun.(arg3)
+  #   fun.(arg4)
+  # end
+  def each_leaf(array(arguments()), fun, _acc) do
+    each_arguments(apply_mapper(var(fun)))
+  end
+
   def sum(trie, level, acc)
 
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
