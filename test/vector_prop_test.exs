@@ -185,6 +185,9 @@ defmodule A.Vector.PropTest do
       assert slice_2 === Enum.slice(vector, i1..i2)
       assert A.Vector.new(slice_2) === A.Vector.slice(vector, i1..i2)
 
+      assert Enum.take(list, i1) |> A.Vector.new() == A.Vector.take(vector, i1)
+      assert Enum.drop(list, i1) |> A.Vector.new() == A.Vector.drop(vector, i1)
+
       assert list === A.Vector.to_list(vector)
       assert Enum.reverse(list) === A.Vector.reverse(vector) |> A.Vector.to_list()
       assert list === A.Vector.foldr(vector, [], &[&1 | &2])

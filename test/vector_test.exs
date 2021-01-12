@@ -322,8 +322,46 @@ defmodule A.VectorTest do
     assert A.Vector.new(2..99) == A.Vector.new(1..100) |> A.Vector.slice(1..98)
   end
 
+  test "take/2" do
+    assert A.Vector.new([]) == A.Vector.new() |> A.Vector.take(100)
+    assert A.Vector.new([]) == A.Vector.new(1..100) |> A.Vector.take(0)
+
+    assert A.Vector.new([1, 2, 3]) == A.Vector.new(1..5) |> A.Vector.take(3)
+    assert A.Vector.new([1, 2, 3]) == A.Vector.new(1..50) |> A.Vector.take(3)
+    assert A.Vector.new(1..25) == A.Vector.new(1..50) |> A.Vector.take(25)
+    assert A.Vector.new(1..49) == A.Vector.new(1..50) |> A.Vector.take(49)
+
+    assert A.Vector.new(1..5) == A.Vector.new(1..5) |> A.Vector.take(1000)
+    assert A.Vector.new(1..50) == A.Vector.new(1..50) |> A.Vector.take(1000)
+
+    assert A.Vector.new([3, 4, 5]) == A.Vector.new(1..5) |> A.Vector.take(-3)
+    assert A.Vector.new(21..50) == A.Vector.new(1..50) |> A.Vector.take(-30)
+  end
+
+  test "drop/2" do
+    assert A.Vector.new([]) == A.Vector.new() |> A.Vector.drop(100)
+    assert A.Vector.new([]) == A.Vector.new(1..100) |> A.Vector.drop(100)
+
+    assert A.Vector.new(1..10) == A.Vector.new(1..10) |> A.Vector.drop(0)
+
+    assert A.Vector.new([5]) == A.Vector.new(1..5) |> A.Vector.drop(4)
+    assert A.Vector.new([2, 3, 4, 5]) == A.Vector.new(1..5) |> A.Vector.drop(1)
+
+    assert A.Vector.new([50]) == A.Vector.new(1..50) |> A.Vector.drop(49)
+    assert A.Vector.new(2..50) == A.Vector.new(1..50) |> A.Vector.drop(1)
+
+    assert A.Vector.new([1, 2, 3, 4]) == A.Vector.new(1..5) |> A.Vector.drop(-1)
+    assert A.Vector.new([1]) == A.Vector.new(1..5) |> A.Vector.drop(-4)
+    assert A.Vector.new([]) == A.Vector.new(1..5) |> A.Vector.drop(-5)
+    assert A.Vector.new([]) == A.Vector.new(1..5) |> A.Vector.drop(-100_000)
+
+    assert A.Vector.new(1..49) == A.Vector.new(1..50) |> A.Vector.drop(-1)
+    assert A.Vector.new([1, 2, 3, 4, 5]) == A.Vector.new(1..50) |> A.Vector.drop(-45)
+    assert A.Vector.new([]) == A.Vector.new(1..50) |> A.Vector.drop(-50)
+    assert A.Vector.new([]) == A.Vector.new(1..50) |> A.Vector.drop(-100_000)
+  end
+
   test "Enum.to_list/1" do
-    # TODO add some property testing coverage
     assert [] == A.Vector.new() |> Enum.to_list()
     assert [1, 2, 3, 4, 5] == A.Vector.new(1..5) |> Enum.to_list()
     assert Enum.to_list(1..50) == A.Vector.new(1..50) |> Enum.to_list()

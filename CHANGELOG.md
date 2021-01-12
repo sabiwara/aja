@@ -5,7 +5,7 @@
 ### Enhancements
 
 * Add `A.Vector.each/2`
-* Add `A.Vector.slice/2` and `A.Vector.slice/3`
+* Add `A.Vector.slice/2`, `A.Vector.slice/3`, `A.Vector.take/2` and `A.Vector.drop/2`
 * `A.Vector` efficiently implements `Enumerable.slice/1`
 
 ## v0.4.2 (2021-01-10)

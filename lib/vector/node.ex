@@ -66,4 +66,15 @@ defmodule A.Vector.Node do
   def duplicate(value) do
     array(duplicate_argument(value))
   end
+
+  def take(node, amount)
+
+  for i <- args_range() do
+    # def take({arg1, arg2, _arg3, _arg4}, _amount = 2) do
+    #   {arg1, arg2, nil, nil}
+    # end
+    def take(array(arguments_with_wildcards(unquote(i))), _amount = unquote(i)) do
+      array(arguments_with_nils(unquote(i)))
+    end
+  end
 end

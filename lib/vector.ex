@@ -230,8 +230,17 @@ defmodule A.Vector do
       Enum.slice(vector, 0..10)
       Enum.slice(vector, 25..-1)
 
-  `A.Vector.slice/2` and `A.Vector.slice/3` have an overhead over `Enum` but are
-  useful if you need to return a new vector.
+  ### Slicing optimization
+
+  Slicing any subset on the left on the vector using methods from `A.Vector` is
+  extremely efficient as the vector internals can be reused:
+
+  **DO**
+
+      A.Vector.take(vector, 10)  # take a positive amount
+      A.Vector.drop(vector, -20)  # drop a negative amount
+      A.Vector.slice(vector, 0, 10)  # slicing from 0
+      A.Vector.slice(vector, 0..-5)  # slicing from 0
 
   ### `A.Vector` and `Enum` APIs
 
@@ -277,6 +286,8 @@ defmodule A.Vector do
 
   @type t :: t(value)
 
+  @empty_raw Raw.empty()
+
   @doc """
   Returns the number of elements in `vector`.
 
@@ -307,7 +318,7 @@ defmodule A.Vector do
   @compile {:inline, new: 0}
   @spec new :: t()
   def new() do
-    %__MODULE__{internal: unquote(Raw.from_list([]))}
+    %__MODULE__{internal: @empty_raw}
   end
 
   @doc """
@@ -1031,9 +1042,7 @@ defmodule A.Vector do
       |> Enum.sort()
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1063,9 +1072,7 @@ defmodule A.Vector do
       |> Enum.sort(fun)
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1099,9 +1106,7 @@ defmodule A.Vector do
       |> Enum.sort_by(mapper, sorter)
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1126,9 +1131,7 @@ defmodule A.Vector do
       |> Enum.uniq()
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1154,9 +1157,7 @@ defmodule A.Vector do
       |> Enum.uniq_by(fun)
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1181,9 +1182,7 @@ defmodule A.Vector do
       |> Raw.intersperse(separator)
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1211,9 +1210,7 @@ defmodule A.Vector do
       |> Raw.intersperse(separator)
       |> Raw.from_list()
 
-    %__MODULE__{
-      internal: new_internal
-    }
+    %__MODULE__{internal: new_internal}
   end
 
   @doc """
@@ -1541,11 +1538,22 @@ defmodule A.Vector do
 
   """
   @spec slice(t(val), Range.t()) :: t(val) when val: value
-  def slice(%__MODULE__{} = vector, %Range{} = index_range) do
-    # TODO optimize the take/2 case
-    vector
-    |> Enum.slice(index_range)
-    |> new()
+  def slice(%__MODULE__{} = vector, first..last = index_range) do
+    case first do
+      0 ->
+        amount = last + 1
+
+        if last < 0 do
+          drop(vector, amount)
+        else
+          take(vector, amount)
+        end
+
+      _ ->
+        vector
+        |> Enum.slice(index_range)
+        |> new()
+    end
   end
 
   @doc """
@@ -1567,12 +1575,113 @@ defmodule A.Vector do
 
   """
   @spec slice(t(val), integer, integer) :: t(val) when val: value
-  def slice(%__MODULE__{} = vector, start_index, amount)
+  def slice(%__MODULE__{internal: internal} = vector, start_index, amount)
       when is_integer(start_index) and is_integer(amount) and amount >= 0 do
-    # TODO optimize the take/2 case
-    vector
-    |> Enum.slice(start_index, amount)
-    |> new()
+    if start_index == 0 or start_index == -Raw.size(internal) do
+      new_internal = Raw.take(internal, amount)
+      %__MODULE__{internal: new_internal}
+    else
+      vector
+      |> Enum.slice(start_index, amount)
+      |> new()
+    end
+  end
+
+  @doc """
+  Takes an `amount` of elements from the beginning or the end of the `vector`.
+
+  If a positive `amount` is given, it takes the amount elements from the beginning of the `vector`.
+
+  If a negative `amount` is given, the amount of elements will be taken from the end.
+
+  If amount is 0, it returns the empty vector.
+
+  Time complexity is:
+  - effective constant time when `amount` is positive, as the vector structure can be shared
+  - linear when `amount` is negative, as the vector needs to be reconstructed.
+
+  ## Examples
+
+      iex> A.Vector.new(0..100) |> A.Vector.take(10)
+      #A<vec([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])>
+      iex> A.Vector.new([:only_one]) |> A.Vector.take(1000)
+      #A<vec([:only_one])>
+      iex> A.Vector.new(0..10) |> A.Vector.take(-5)
+      #A<vec([6, 7, 8, 9, 10])>
+
+  """
+  @spec take(t(val), integer) :: t(val) when val: value
+  def take(%__MODULE__{internal: internal}, amount) when is_integer(amount) do
+    new_internal = do_take(internal, amount)
+    %__MODULE__{internal: new_internal}
+  end
+
+  defp do_take(internal, amount) when amount < 0 do
+    size = Raw.size(internal)
+
+    case size + amount do
+      start when start > 0 ->
+        internal
+        |> Raw.slice(start, size - 1)
+        |> Raw.from_list()
+
+      _ ->
+        internal
+    end
+  end
+
+  defp do_take(internal, amount) do
+    Raw.take(internal, amount)
+  end
+
+  @doc """
+  Drops the amount of elements from the `vector`.
+
+  If a negative `amount` is given, the amount of last values will be dropped.
+
+  Time complexity is:
+  - linear when `amount` is positive, as the vector needs to be reconstructed.
+  - effective constant time when `amount` is negative, as the vector structure can be shared
+
+  ## Examples
+
+      iex> A.Vector.new(0..15) |> A.Vector.drop(10)
+      #A<vec([10, 11, 12, 13, 14, 15])>
+      iex> A.Vector.new(0..5) |> A.Vector.drop(0)
+      #A<vec([0, 1, 2, 3, 4, 5])>
+      iex> A.Vector.new(0..10) |> A.Vector.drop(-5)
+      #A<vec([0, 1, 2, 3, 4, 5])>
+
+  """
+  @spec drop(t(val), integer) :: t(val) when val: value
+  def drop(%__MODULE__{internal: internal}, amount) when is_integer(amount) do
+    new_internal = do_drop(internal, amount)
+    %__MODULE__{internal: new_internal}
+  end
+
+  defp do_drop(internal, _amount = 0) do
+    internal
+  end
+
+  defp do_drop(internal, amount) when amount < 0 do
+    size = Raw.size(internal)
+
+    case size + amount do
+      keep when keep > 0 -> Raw.take(internal, size + amount)
+      _ -> @empty_raw
+    end
+  end
+
+  defp do_drop(internal, amount) do
+    size = Raw.size(internal)
+
+    if amount >= size do
+      @empty_raw
+    else
+      internal
+      |> Raw.slice(amount, size - 1)
+      |> Raw.from_list()
+    end
   end
 
   defimpl Inspect do

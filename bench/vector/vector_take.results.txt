@@ -1,0 +1,31 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking A.Vector.slice/3...
+Benchmarking A.Vector.slice/3 0-optimization...
+Benchmarking A.Vector.take/2...
+Benchmarking Enum.take/2 (list)...
+
+Name                                      ips        average  deviation         median         99th %
+A.Vector.slice/3 0-optimization        2.69 M      371.32 ns  ±7215.23%         294 ns         600 ns
+A.Vector.take/2                        2.65 M      377.42 ns  ±7058.18%         304 ns         533 ns
+Enum.take/2 (list)                     1.28 M      781.56 ns  ±3431.74%         665 ns        1017 ns
+A.Vector.slice/3                       0.78 M     1275.50 ns  ±1761.57%        1097 ns        1916 ns
+
+Comparison: 
+A.Vector.slice/3 0-optimization        2.69 M
+A.Vector.take/2                        2.65 M - 1.02x slower +6.10 ns
+Enum.take/2 (list)                     1.28 M - 2.10x slower +410.24 ns
+A.Vector.slice/3                       0.78 M - 3.44x slower +904.18 ns

@@ -23,6 +23,9 @@ defmodule A.Vector.Raw do
     end
   end
 
+  @spec empty :: t()
+  def empty, do: :empty
+
   @type value :: term
   @type size :: non_neg_integer
   @type tail_offset :: non_neg_integer
@@ -743,7 +746,7 @@ defmodule A.Vector.Raw do
   end
 
   @compile {:inline, slice: 3}
-  @spec slice(t(val), non_neg_integer(), non_neg_integer()) :: [val] when val: value
+  @spec slice(t(val), non_neg_integer, non_neg_integer) :: [val] when val: value
   def slice(vector, start, last)
 
   def slice(large(_size, tail_offset, level, trie, tail), start, last) do
@@ -765,5 +768,55 @@ defmodule A.Vector.Raw do
     Tail.slice(tail, start, last)
   end
 
-  def slice(:empty, _start, _length), do: []
+  def slice(:empty, _start, _last), do: []
+
+  @compile {:inline, take: 2}
+  @spec take(t(val), non_neg_integer) :: t(val) when val: value
+  def take(vector, amount)
+
+  def take(large(size, tail_offset, level, trie, tail) = vector, amount) do
+    case amount do
+      0 ->
+        :empty
+
+      too_big when too_big >= size ->
+        vector
+
+      new_size ->
+        case new_size - tail_offset do
+          tail_size when tail_size > 0 ->
+            new_tail = Node.take(tail, tail_size)
+            large(new_size, tail_offset, level, trie, new_tail)
+
+          _ ->
+            case Trie.take(trie, level, new_size) do
+              {:small, new_tail} ->
+                small(new_size, new_tail)
+
+              {:large, new_trie, new_level, new_tail} ->
+                large(new_size, get_tail_offset(new_size), new_level, new_trie, new_tail)
+            end
+        end
+    end
+  end
+
+  def take(small(size, tail) = vector, amount) do
+    case amount do
+      0 ->
+        :empty
+
+      too_big when too_big >= size ->
+        vector
+
+      new_size ->
+        new_tail = Node.take(tail, new_size)
+        small(new_size, new_tail)
+    end
+  end
+
+  def take(:empty, _amount), do: :empty
+
+  defp get_tail_offset(size) do
+    size - radix_rem(size - 1) - 1
+  end
 end
