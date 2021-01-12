@@ -167,10 +167,12 @@ defmodule A.Vector.PropTest do
 
       assert_properties(vector)
 
-      assert Enum.count(list) === A.Vector.size(vector)
-      assert Enum.count(list) === Enum.count(vector)
-      assert capture_error(Enum.min(list)) === capture_error(A.Vector.min(vector))
-      assert capture_error(Enum.max(list)) === capture_error(A.Vector.max(vector))
+      list_length = length(list)
+      assert list_length === A.Vector.size(vector)
+      assert list_length === Enum.count(vector)
+
+      assert capture_error(Enum.min(list)) == capture_error(A.Vector.min(vector))
+      assert capture_error(Enum.max(list)) == capture_error(A.Vector.max(vector))
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1) === vector[i1]
