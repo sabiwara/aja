@@ -792,7 +792,7 @@ defmodule A.Vector.Trie do
   end
 
   def take(trie, level, amount) do
-    case do_take(trie, level, amount - 1) do
+    case do_take(trie, level, amount - 1, false) do
       {0, tail} ->
         {:small, tail}
 
@@ -802,21 +802,22 @@ defmodule A.Vector.Trie do
     end
   end
 
-  defp do_take(leaf, _level = 0, last_index) do
+  defp do_take(leaf, _level = 0, last_index, _same_level?) do
     {0, Node.take(leaf, radix_rem(last_index) + 1)}
   end
 
-  defp do_take(trie, level, last_index) do
+  defp do_take(trie, level, last_index, same_level?) do
     child_level = decr_level(level)
     radix = radix_search(last_index, level)
     child = elem(trie, radix)
-    {_level, new_child} = do_take(child, child_level, last_index)
 
-    case radix do
-      0 ->
-        {child_level, new_child}
+    case {radix, same_level?} do
+      {0, false} ->
+        do_take(child, child_level, last_index, false)
 
       _ ->
+        {_, new_child} = do_take(child, child_level, last_index, true)
+
         new_trie =
           trie
           |> put_elem(radix, new_child)

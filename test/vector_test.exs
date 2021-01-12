@@ -336,6 +336,11 @@ defmodule A.VectorTest do
 
     assert A.Vector.new([3, 4, 5]) == A.Vector.new(1..5) |> A.Vector.take(-3)
     assert A.Vector.new(21..50) == A.Vector.new(1..50) |> A.Vector.take(-30)
+
+    assert A.Vector.new([1]) == A.Vector.new(1..273) |> A.Vector.take(1)
+    assert A.Vector.new(1..20) == A.Vector.new(1..500) |> A.Vector.take(20)
+    assert A.Vector.new(1..20) == A.Vector.new(1..5000) |> A.Vector.take(20)
+    assert A.Vector.new(1..20) == A.Vector.new(1..50_000) |> A.Vector.take(20)
   end
 
   test "drop/2" do
@@ -359,6 +364,12 @@ defmodule A.VectorTest do
     assert A.Vector.new([1, 2, 3, 4, 5]) == A.Vector.new(1..50) |> A.Vector.drop(-45)
     assert A.Vector.new([]) == A.Vector.new(1..50) |> A.Vector.drop(-50)
     assert A.Vector.new([]) == A.Vector.new(1..50) |> A.Vector.drop(-100_000)
+
+    assert A.Vector.new(1..20) == A.Vector.new(1..500) |> A.Vector.drop(-480)
+    assert A.Vector.new(1..20) == A.Vector.new(1..5000) |> A.Vector.drop(-4980)
+    assert A.Vector.new(1..20) == A.Vector.new(1..50_000) |> A.Vector.drop(-49_980)
+
+    assert A.Vector.new(1..9744) == A.Vector.new(1..9745) |> A.Vector.drop(-1)
   end
 
   test "Enum.to_list/1" do
