@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.3 (2021-01-12)
+
 This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
