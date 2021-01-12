@@ -190,8 +190,11 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 
 - like the standard library, being **delightful** to use ✨️ (consistency with Elixir and itself, quality, documentation)
 - no external dependency to help you preserve a decent dependency tree
-- performance-conscious (right algorithm, proper benchmarking, fast compile times)
+- performance-conscious (right algorithm, proper benchmarking, fast compile times*)
 - mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
+
+(\* while fast compile time is a target, `A.Vector`, which is optimized for fast runtime at the expense of compile time,
+slows it down)
 
 ### Non-goals
 
