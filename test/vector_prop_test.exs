@@ -188,6 +188,10 @@ defmodule A.Vector.PropTest do
       assert Enum.take(list, i1) |> A.Vector.new() == A.Vector.take(vector, i1)
       assert Enum.drop(list, i1) |> A.Vector.new() == A.Vector.drop(vector, i1)
 
+      deleted_list = List.delete_at(list, i1)
+      assert A.Vector.new(deleted_list) == A.Vector.delete_at(vector, i1)
+      assert {vector[i1], A.Vector.new(deleted_list)} == A.Vector.pop_at(vector, i1)
+
       assert list === A.Vector.to_list(vector)
       assert Enum.reverse(list) === A.Vector.reverse(vector) |> A.Vector.to_list()
       assert list === A.Vector.foldr(vector, [], &[&1 | &2])

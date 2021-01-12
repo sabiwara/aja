@@ -114,7 +114,7 @@ defmodule A.Vector do
   way. Most functions from this module are highly efficient, those that are not
   will indicate it in their documentation.
 
-  But remember the golden rule: in case of doubt, always benchmark.
+  But remember the golden rule: **in case of doubt, always benchmark**.
 
   ### Avoid prepending
 
@@ -136,9 +136,12 @@ defmodule A.Vector do
   not support efficient deletion, with the exception of the last element that
   can be popped very efficiently (`A.Vector.pop_last/1`, `A.Vector.delete_last/1`).
 
-  Deletion functionality is still provided through functions like `A.Vector.pop_at/3`
+  Deleting close to the end of the vector is still fairly fast, but deleting near
+  the beginning needs to reconstruct most of the vector.
+
+  Deletion functionality is provided through functions like `A.Vector.pop_at/3`
   and `A.Vector.delete_at/2` for the sake of completion, but please note that they
-  are highly inefficient and their usage is strongly discouraged.
+  are inefficient and their usage is discouraged.
 
   If you need to be able to pop arbitrary indexes, chances are you should consider
   an alternative data structure.
@@ -155,6 +158,7 @@ defmodule A.Vector do
 
       A.Vector.pop_last(vector)
       A.Vector.delete_last(vector)
+      A.Vector.delete_at(vector, -3)  # close to the end
       A.Vector.replace_at(vector, 3, nil)
 
   ### Successive appends

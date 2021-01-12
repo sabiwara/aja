@@ -2,11 +2,14 @@
 
 ## Dev
 
+This release is mostly focused on vector slicing and performance ⚡️
+
 ### Enhancements
 
 * Add `A.Vector.each/2`
 * Add `A.Vector.slice/2`, `A.Vector.slice/3`, `A.Vector.take/2` and `A.Vector.drop/2`
 * `A.Vector` efficiently implements `Enumerable.slice/1`
+* Reimplement `A.Vector.delete_at/2`, `A.Vector.pop_at/2` efficiently
 
 ## v0.4.2 (2021-01-10)
 

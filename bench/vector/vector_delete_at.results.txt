@@ -1,0 +1,34 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 35 s
+
+Benchmarking A.Vector.delete_at/2 (-1)...
+Benchmarking A.Vector.delete_at/2 (-10)...
+Benchmarking A.Vector.delete_at/2 (10)...
+Benchmarking List.delete_at/2 (-10)...
+Benchmarking List.delete_at/2 (10)...
+
+Name                                 ips        average  deviation         median         99th %
+List.delete_at/2 (10)          6273.35 K       0.159 μs ±17530.66%      0.0860 μs        0.35 μs
+A.Vector.delete_at/2 (-1)      4002.86 K        0.25 μs ±13081.66%       0.119 μs        0.42 μs
+A.Vector.delete_at/2 (-10)      866.75 K        1.15 μs  ±2643.70%        0.93 μs        2.16 μs
+List.delete_at/2 (-10)          124.33 K        8.04 μs    ±75.18%        7.25 μs       24.94 μs
+A.Vector.delete_at/2 (10)       101.82 K        9.82 μs   ±118.63%        8.78 μs       27.33 μs
+
+Comparison: 
+List.delete_at/2 (10)          6273.35 K
+A.Vector.delete_at/2 (-1)      4002.86 K - 1.57x slower +0.0904 μs
+A.Vector.delete_at/2 (-10)      866.75 K - 7.24x slower +0.99 μs
+List.delete_at/2 (-10)          124.33 K - 50.46x slower +7.88 μs
+A.Vector.delete_at/2 (10)       101.82 K - 61.61x slower +9.66 μs

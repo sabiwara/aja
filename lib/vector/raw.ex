@@ -372,7 +372,7 @@ defmodule A.Vector.Raw do
             {returned, new_vector}
 
           :pop ->
-            {value, delete_positive(vector, index)}
+            {value, delete_positive(vector, index, size(vector))}
 
           other ->
             get_and_update_error(other)
@@ -434,37 +434,45 @@ defmodule A.Vector.Raw do
 
     cond do
       index >= size or index < -size -> :error
-      index >= 0 -> pop_exisiting(vector, index)
-      index -> pop_exisiting(vector, size + index)
+      index >= 0 -> pop_exisiting(vector, index, size)
+      index -> pop_exisiting(vector, size + index, size)
     end
   end
 
-  defp pop_exisiting(vector, index) do
-    {value, list} =
-      vector
-      |> to_list()
-      |> List.pop_at(index)
+  defp pop_exisiting(vector, index, size) do
+    case index + 1 do
+      ^size ->
+        pop_last(vector)
 
-    {value, from_list(list)}
+      _ ->
+        left = take(vector, index)
+        [popped | right] = slice(vector, index, size - 1)
+        new_vector = append_many(left, right)
+        {popped, new_vector}
+    end
   end
 
-  # Note: deletion is not efficient
-  # Could still be implemented a bit nicer to reuse leaves when possible
   def delete_any(vector, index) do
     size = size(vector)
 
     cond do
       index >= size or index < -size -> :error
-      index >= 0 -> {:ok, delete_positive(vector, index)}
-      index -> {:ok, delete_positive(vector, size + index)}
+      index >= 0 -> {:ok, delete_positive(vector, index, size)}
+      index -> {:ok, delete_positive(vector, size + index, size)}
     end
   end
 
-  defp delete_positive(vector, index) do
-    vector
-    |> to_list()
-    |> List.delete_at(index)
-    |> from_list()
+  defp delete_positive(vector, index, size) do
+    case index + 1 do
+      ^size ->
+        {_last, popped} = pop_last(vector)
+        popped
+
+      amount ->
+        left = take(vector, index)
+        right = slice(vector, amount, size - 1)
+        append_many(left, right)
+    end
   end
 
   # LOOPS
