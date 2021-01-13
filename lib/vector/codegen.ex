@@ -226,6 +226,18 @@ defmodule A.Vector.CodeGen do
     Enum.intersperse(expanded_args, separator)
   end
 
+  defmacro with_index_arguments(args \\ @arguments_ast, offset) do
+    expanded_args = Macro.expand(args, __CALLER__)
+
+    expanded_args
+    |> Enum.with_index()
+    |> Enum.map(fn {arg, i} ->
+      quote do
+        {unquote(arg), unquote(offset) + unquote(i)}
+      end
+    end)
+  end
+
   defmacro var(variable) do
     Macro.escape(variable)
   end

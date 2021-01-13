@@ -314,6 +314,27 @@ defmodule A.VectorTest do
     assert expected == result
   end
 
+  test "with_index/2" do
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.with_index()
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.with_index(77)
+
+    assert A.Vector.new(a: 0, b: 1) == A.Vector.new([:a, :b]) |> A.Vector.with_index()
+    assert A.Vector.new(a: 77, b: 78) == A.Vector.new([:a, :b]) |> A.Vector.with_index(77)
+    assert A.Vector.new(a: -77, b: -76) == A.Vector.new([:a, :b]) |> A.Vector.with_index(-77)
+
+    assert Enum.with_index(1..50) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.with_index()
+
+    assert Enum.with_index(1..50, 77) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.with_index(77)
+
+    assert Enum.with_index(1..500) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.with_index()
+
+    assert Enum.with_index(1..500, 77) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.with_index(77)
+  end
+
   test "slice/2" do
     assert A.Vector.new([]) == A.Vector.new() |> A.Vector.slice(1..5)
     assert A.Vector.new([2, 3, 4, 5, 6]) == A.Vector.new(1..10) |> A.Vector.slice(1..5)

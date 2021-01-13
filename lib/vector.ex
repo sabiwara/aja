@@ -1688,6 +1688,29 @@ defmodule A.Vector do
     end
   end
 
+  @doc """
+  Returns the `vector` with each element wrapped in a tuple alongside its index.
+
+  If an `offset` is given, we will index from the given `offset` instead of from zero.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(["foo", "bar", "baz"]) |> A.Vector.with_index()
+      #A<vec([{"foo", 0}, {"bar", 1}, {"baz", 2}])>
+      iex> A.Vector.new() |> A.Vector.with_index()
+      #A<vec([])>
+      iex> A.Vector.new(["foo", "bar", "baz"]) |> A.Vector.with_index(100)
+      #A<vec([{"foo", 100}, {"bar", 101}, {"baz", 102}])>
+
+  """
+  @spec with_index(t(val), index) :: t({val, index}) when val: value
+  def with_index(%__MODULE__{internal: internal}, offset \\ 0) when is_integer(offset) do
+    new_internal = Raw.with_index(internal, offset)
+    %__MODULE__{internal: new_internal}
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 

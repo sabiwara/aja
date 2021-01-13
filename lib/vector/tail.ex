@@ -229,4 +229,15 @@ defmodule A.Vector.Tail do
     new_acc = [elem(tail, i) | acc]
     do_slice(tail, start, i - 1, new_acc)
   end
+
+  def partial_with_index(tail, tail_size, offset)
+
+  for i <- args_range() do
+    # def partial_with_index({arg1, arg2, _arg3, _arg4}, 2, offset) do
+    #   {{arg1, offset + 0}, {arg2, offset + 1}, nil, nil}
+    # end
+    def partial_with_index(array(arguments_with_wildcards(unquote(i))), unquote(i), offset) do
+      array(arguments_with_nils(with_index_arguments(offset), unquote(i)))
+    end
+  end
 end

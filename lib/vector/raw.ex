@@ -827,4 +827,21 @@ defmodule A.Vector.Raw do
   defp get_tail_offset(size) do
     size - radix_rem(size - 1) - 1
   end
+
+  @spec with_index(t(val), integer) :: t({val, integer}) when val: value
+  def with_index(vector, offset)
+
+  def with_index(large(size, tail_offset, level, trie, tail), offset) do
+    new_trie = Trie.with_index(trie, level, offset)
+    new_tail = Tail.partial_with_index(tail, size - tail_offset, offset + tail_offset)
+
+    large(size, tail_offset, level, new_trie, new_tail)
+  end
+
+  def with_index(small(size, tail), offset) do
+    new_tail = Tail.partial_with_index(tail, size, offset)
+    small(size, new_tail)
+  end
+
+  def with_index(:empty, _fun), do: :empty
 end

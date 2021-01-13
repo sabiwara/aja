@@ -826,4 +826,46 @@ defmodule A.Vector.Trie do
         {level, new_trie}
     end
   end
+
+  def with_index(trie, level, fun)
+
+  # def with_index({arg1, arg2, arg3, arg4}, _level = 0, offset) do
+  #   {{arg1, offset + 0, {arg2, offset + 1}, {arg3, offset + 2}, {arg4, offset + 3}}
+  # end
+  def with_index(array(), _level = 0, offset) do
+    array(with_index_arguments(offset))
+  end
+
+  # def with_index({arg1, arg2, nil, nil}, level, offset) do
+  #   child_level = level - bits
+  #   {
+  #     with_index(arg1, child_level, offset + (0 <<< level)),
+  #     with_index(arg2, child_level, offset + (1 <<< level)),
+  #     nil,
+  #     nil
+  #  }
+  # end
+  for i <- args_range() do
+    def with_index(array(arguments_with_nils(unquote(i))), level, offset) do
+      child_level = decr_level(level)
+
+      unquote(i)
+      |> take_arguments()
+      |> reduce_arguments_with_index([], fn arg, index, acc ->
+        ast =
+          quote do
+            with_index(
+              unquote(arg),
+              var!(child_level),
+              var!(offset) + (unquote(index) <<< var!(level))
+            )
+          end
+
+        [ast | acc]
+      end)
+      |> reverse_arguments()
+      |> partial_arguments_with_nils()
+      |> array()
+    end
+  end
 end
