@@ -281,7 +281,7 @@ defmodule A.Vector do
 
   @behaviour Access
 
-  @type index :: non_neg_integer
+  @type index :: integer
   @type value :: term
 
   @opaque t(value) :: %__MODULE__{internal: Raw.t(value)}
@@ -1578,7 +1578,7 @@ defmodule A.Vector do
       #A<vec([:only_one])>
 
   """
-  @spec slice(t(val), integer, integer) :: t(val) when val: value
+  @spec slice(t(val), index, non_neg_integer) :: t(val) when val: value
   def slice(%__MODULE__{internal: internal} = vector, start_index, amount)
       when is_integer(start_index) and is_integer(amount) and amount >= 0 do
     if start_index == 0 or start_index == -Raw.size(internal) do
