@@ -1,7 +1,8 @@
 defmodule A.Vector.Raw do
   @moduledoc false
 
-  import A.Vector.CodeGen
+  alias A.Vector.CodeGen, as: C
+  require C
 
   alias A.Vector.{Node, Tail, Trie}
 
@@ -94,19 +95,21 @@ defmodule A.Vector.Raw do
   def append(vector, value)
 
   def append(large(size, tail_offset, level, trie, tail), value) do
-    if radix_rem(size) == 0 do
-      {new_trie, new_level} = Trie.append_leaf(trie, level, tail_offset, tail)
-      new_tail = array(value_with_nils(value))
-      large(size + 1, tail_offset + branch_factor(), new_level, new_trie, new_tail)
-    else
-      new_tail = put_elem(tail, size - tail_offset, value)
-      large(size + 1, tail_offset, level, trie, new_tail)
+    case C.radix_rem(size) do
+      0 ->
+        {new_trie, new_level} = Trie.append_leaf(trie, level, tail_offset, tail)
+        new_tail = unquote(C.value_with_nils(C.var(value)) |> C.array())
+        large(size + 1, tail_offset + C.branch_factor(), new_level, new_trie, new_tail)
+
+      _ ->
+        new_tail = put_elem(tail, size - tail_offset, value)
+        large(size + 1, tail_offset, level, trie, new_tail)
     end
   end
 
   def append(small(size, tail), value) do
-    if size == branch_factor() do
-      large(size + 1, size, 0, tail, array(value_with_nils(value)))
+    if size == C.branch_factor() do
+      large(size + 1, size, 0, tail, unquote(C.value_with_nils(C.var(value)) |> C.array()))
     else
       new_tail = put_elem(tail, size, value)
       small(size + 1, new_tail)
@@ -114,7 +117,7 @@ defmodule A.Vector.Raw do
   end
 
   def append(:empty, value) do
-    small(1, array(value_with_nils(value)))
+    small(1, unquote(C.value_with_nils(C.var(value)) |> C.array()))
   end
 
   def append_many(large(size, tail_offset, level, trie, tail), list) do
@@ -129,7 +132,7 @@ defmodule A.Vector.Raw do
           Trie.append_leaves(trie, level, tail_offset, [first_leaf | leaves])
 
         new_size = size + added_size + added_tail
-        new_offset = tail_offset + added_offset + branch_factor()
+        new_offset = tail_offset + added_offset + C.branch_factor()
         large(new_size, new_offset, new_level, new_trie, new_tail)
     end
   end
@@ -146,7 +149,7 @@ defmodule A.Vector.Raw do
 
         large(
           size + added_size + added_tail,
-          tail_offset + branch_factor(),
+          tail_offset + C.branch_factor(),
           shift,
           trie,
           new_tail
@@ -396,8 +399,8 @@ defmodule A.Vector.Raw do
   end
 
   @spec pop_last(t(val)) :: {val, t(val)} | :error when val: value
-  def pop_last(large(unquote(branch_factor() + 1), _, _, trie, tail)) do
-    new_vector = small(branch_factor(), trie)
+  def pop_last(large(unquote(C.branch_factor() + 1), _, _, trie, tail)) do
+    new_vector = small(C.branch_factor(), trie)
     {elem(tail, 0), new_vector}
   end
 
@@ -405,7 +408,10 @@ defmodule A.Vector.Raw do
     case size - tail_offset - 1 do
       0 ->
         {new_tail, new_trie, new_level} = Trie.pop_leaf(trie, level)
-        new_vector = large(size - 1, tail_offset - branch_factor(), new_level, new_trie, new_tail)
+
+        new_vector =
+          large(size - 1, tail_offset - C.branch_factor(), new_level, new_trie, new_tail)
+
         {elem(tail, 0), new_vector}
 
       tail_index ->
@@ -825,7 +831,7 @@ defmodule A.Vector.Raw do
   def take(:empty, _amount), do: :empty
 
   defp get_tail_offset(size) do
-    size - radix_rem(size - 1) - 1
+    size - C.radix_rem(size - 1) - 1
   end
 
   @spec with_index(t(val), integer) :: t({val, integer}) when val: value

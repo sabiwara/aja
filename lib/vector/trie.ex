@@ -1,7 +1,9 @@
 defmodule A.Vector.Trie do
   @moduledoc false
 
-  import A.Vector.CodeGen
+  alias A.Vector.CodeGen, as: C
+  require C
+
   import Bitwise
 
   alias A.Vector.{Node, Tail}
@@ -19,13 +21,17 @@ defmodule A.Vector.Trie do
   end
 
   @compile {:inline, do_group_leaves: 3}
-  defp do_group_leaves(list_with_rest(rest), acc, count) when rest != [] do
-    do_group_leaves(rest, [array() | acc], count + branch_factor())
+  defp do_group_leaves(unquote(C.list_with_rest(C.var(rest))), acc, count) when rest != [] do
+    do_group_leaves(
+      rest,
+      [unquote(C.array()) | acc],
+      count + C.branch_factor()
+    )
   end
 
-  for i <- args_range() do
-    defp do_group_leaves(take_arguments(unquote(i)), acc, count) do
-      last = array_with_nils(unquote(i))
+  for i <- C.range() do
+    defp do_group_leaves(unquote(C.arguments(i)), acc, count) do
+      last = unquote(C.array_with_nils(i))
       {count + unquote(i), count, :lists.reverse(acc), last}
     end
   end
@@ -38,22 +44,26 @@ defmodule A.Vector.Trie do
   end
 
   @compile {:inline, do_group_map_leaves: 4}
-  defp do_group_map_leaves(list_with_rest(rest), fun, acc, count) when rest != [] do
+  defp do_group_map_leaves(unquote(C.list_with_rest(C.var(rest))), fun, acc, count)
+       when rest != [] do
     new_leaf =
-      arguments()
-      |> map_arguments(apply_mapper(var(fun)))
-      |> array()
+      unquote(
+        C.arguments()
+        |> Enum.map(C.apply_mapper(C.var(fun)))
+        |> C.array()
+      )
 
-    do_group_map_leaves(rest, fun, [new_leaf | acc], count + branch_factor())
+    do_group_map_leaves(rest, fun, [new_leaf | acc], count + C.branch_factor())
   end
 
-  for i <- args_range() do
-    defp do_group_map_leaves(take_arguments(unquote(i)), fun, acc, count) do
+  for i <- C.range() do
+    defp do_group_map_leaves(unquote(C.arguments(i)), fun, acc, count) do
       last =
-        arguments()
-        |> map_arguments(apply_mapper(var(fun)))
-        |> arguments_with_nils(unquote(i))
-        |> array()
+        unquote(
+          C.arguments_with_nils(i)
+          |> Enum.map(C.apply_sparse_mapper(C.var(fun)))
+          |> C.array()
+        )
 
       {count + unquote(i), count, :lists.reverse(acc), last}
     end
@@ -63,27 +73,27 @@ defmodule A.Vector.Trie do
     do_group_leaves_ast(list, [], 0)
   end
 
-  defp do_group_leaves_ast(list_with_rest(rest), acc, count) when rest != [] do
-    do_group_leaves_ast(rest, [array_ast() | acc], count + branch_factor())
+  defp do_group_leaves_ast(unquote(C.list_with_rest(C.var(rest))), acc, count) when rest != [] do
+    do_group_leaves_ast(rest, [unquote(C.array_ast()) | acc], count + C.branch_factor())
   end
 
-  for i <- args_range() do
-    defp do_group_leaves_ast(take_arguments(unquote(i)), acc, count) do
-      last = array_ast(arguments_with_nils(unquote(i)))
+  for i <- C.range() do
+    defp do_group_leaves_ast(unquote(C.arguments(i)), acc, count) do
+      last = unquote(C.arguments_with_nils(i) |> C.array_ast())
       {count + unquote(i), count, :lists.reverse(acc), last}
     end
   end
 
   def duplicate_leaves(_value, _n = 0), do: :empty
 
-  def duplicate_leaves(value, n) when n <= branch_factor() do
+  def duplicate_leaves(value, n) when n <= C.branch_factor() do
     {:small, Tail.partial_duplicate(value, n)}
   end
 
   def duplicate_leaves(value, n) do
     leaf = Node.duplicate(value)
-    leaf_count = radix_div(n - 1)
-    tail_size = radix_rem(n - 1) + 1
+    leaf_count = C.radix_div(n - 1)
+    tail_size = C.radix_rem(n - 1) + 1
 
     leaves = List.duplicate(leaf, leaf_count)
     tail = Tail.partial_duplicate(value, tail_size)
@@ -95,14 +105,14 @@ defmodule A.Vector.Trie do
 
   def from_leaves([]), do: nil
   def from_leaves([leaf]), do: {0, leaf}
-  def from_leaves(leaves), do: do_from_nodes(leaves, bits())
+  def from_leaves(leaves), do: do_from_nodes(leaves, C.bits())
 
   @compile {:inline, do_from_nodes: 2}
   defp do_from_nodes(nodes, level)
 
-  defp do_from_nodes(list_with_rest(rest), level) when rest != [] do
-    nodes = [array() | group_nodes(rest)]
-    do_from_nodes(nodes, incr_level(level))
+  defp do_from_nodes(unquote(C.list_with_rest(C.var(rest))), level) when rest != [] do
+    nodes = [unquote(C.array()) | group_nodes(rest)]
+    do_from_nodes(nodes, C.incr_level(level))
   end
 
   defp do_from_nodes(nodes, level) do
@@ -111,8 +121,8 @@ defmodule A.Vector.Trie do
 
   defp group_nodes(nodes)
 
-  defp group_nodes(list_with_rest(rest)) when rest != [] do
-    [array() | group_nodes(rest)]
+  defp group_nodes(unquote(C.list_with_rest(C.var(rest)))) when rest != [] do
+    [unquote(C.array()) | group_nodes(rest)]
   end
 
   defp group_nodes(nodes) do
@@ -124,13 +134,13 @@ defmodule A.Vector.Trie do
 
   def from_ast_leaves([]), do: nil
   def from_ast_leaves([leaf]), do: {0, leaf}
-  def from_ast_leaves(leaves), do: do_from_ast_nodes(leaves, bits())
+  def from_ast_leaves(leaves), do: do_from_ast_nodes(leaves, C.bits())
 
   defp do_from_ast_nodes(nodes, level)
 
-  defp do_from_ast_nodes(list_with_rest(rest), level) when rest != [] do
-    nodes = [array_ast() | group_ast_nodes(rest)]
-    do_from_ast_nodes(nodes, incr_level(level))
+  defp do_from_ast_nodes(unquote(C.list_with_rest(C.var(rest))), level) when rest != [] do
+    nodes = [unquote(C.array_ast()) | group_ast_nodes(rest)]
+    do_from_ast_nodes(nodes, C.incr_level(level))
   end
 
   defp do_from_ast_nodes(nodes, level) do
@@ -139,8 +149,8 @@ defmodule A.Vector.Trie do
 
   defp group_ast_nodes(nodes)
 
-  defp group_ast_nodes(list_with_rest(rest)) when rest != [] do
-    [array_ast() | group_ast_nodes(rest)]
+  defp group_ast_nodes(unquote(C.list_with_rest(C.var(rest)))) when rest != [] do
+    [unquote(C.array_ast()) | group_ast_nodes(rest)]
   end
 
   defp group_ast_nodes(nodes) do
@@ -151,14 +161,21 @@ defmodule A.Vector.Trie do
   def append_leaf(trie, level, index, leaf)
 
   def append_leaf(trie, _level = 0, _index, leaf) do
-    {array(partial_arguments_with_nils([trie, leaf])), bits()}
+    {
+      unquote(C.var([trie, leaf]) |> C.fill_with(nil) |> C.array()),
+      C.bits()
+    }
   end
 
   def append_leaf(trie, level, index, leaf) do
     case index >>> level do
-      branch_factor() ->
+      C.branch_factor() ->
         new_branch = build_single_branch(leaf, level)
-        {array(partial_arguments_with_nils([trie, new_branch])), incr_level(level)}
+
+        {
+          unquote(C.var([trie, new_branch]) |> C.fill_with(nil) |> C.array()),
+          C.incr_level(level)
+        }
 
       _ ->
         new_trie = append_leaf_to_existing(trie, level, index, leaf)
@@ -170,15 +187,15 @@ defmodule A.Vector.Trie do
     build_single_branch(leaf, level)
   end
 
-  defp append_leaf_to_existing(trie, _level = bits(), index, leaf) do
-    put_elem(trie, radix_search(index, bits()), leaf)
+  defp append_leaf_to_existing(trie, _level = C.bits(), index, leaf) do
+    put_elem(trie, C.radix_search(index, C.bits()), leaf)
   end
 
   defp append_leaf_to_existing(trie, level, index, leaf) do
-    current_index = radix_search(index, level)
+    current_index = C.radix_search(index, level)
     child = elem(trie, current_index)
 
-    new_child = append_leaf_to_existing(child, decr_level(level), index, leaf)
+    new_child = append_leaf_to_existing(child, C.decr_level(level), index, leaf)
 
     put_elem(trie, current_index, new_child)
   end
@@ -188,8 +205,8 @@ defmodule A.Vector.Trie do
   end
 
   defp build_single_branch(leaf, level) do
-    child = build_single_branch(leaf, decr_level(level))
-    array(value_with_nils(child))
+    child = build_single_branch(leaf, C.decr_level(level))
+    unquote(C.var(child) |> C.value_with_nils() |> C.array())
   end
 
   @compile {:inline, append_leaves: 4}
@@ -199,7 +216,7 @@ defmodule A.Vector.Trie do
 
   def append_leaves(trie, level, index, [leaf | rest]) do
     {new_trie, new_level} = append_leaf(trie, level, index, leaf)
-    append_leaves(new_trie, new_level, index + branch_factor(), rest)
+    append_leaves(new_trie, new_level, index + C.branch_factor(), rest)
   end
 
   # ACCESS
@@ -213,34 +230,34 @@ defmodule A.Vector.Trie do
 
   def first(trie, level) do
     child = elem(trie, 0)
-    first(child, decr_level(level))
+    first(child, C.decr_level(level))
   end
 
   @compile {:inline, lookup: 3}
   def lookup(trie, index, level)
 
   def lookup(leaf, index, _level = 0) do
-    elem(leaf, radix_rem(index))
+    elem(leaf, C.radix_rem(index))
   end
 
   def lookup(trie, index, level) do
-    current_index = radix_search(index, level)
+    current_index = C.radix_search(index, level)
     child = elem(trie, current_index)
-    lookup(child, index, decr_level(level))
+    lookup(child, index, C.decr_level(level))
   end
 
   def replace(trie, index, level, value)
 
   def replace(leaf, index, _level = 0, value) do
-    current_index = radix_rem(index)
+    current_index = C.radix_rem(index)
     put_elem(leaf, current_index, value)
   end
 
   def replace(trie, index, level, value) do
-    current_index = radix_search(index, level)
+    current_index = C.radix_search(index, level)
     child = elem(trie, current_index)
 
-    new_child = replace(child, index, decr_level(level), value)
+    new_child = replace(child, index, C.decr_level(level), value)
 
     put_elem(trie, current_index, new_child)
   end
@@ -248,15 +265,15 @@ defmodule A.Vector.Trie do
   def update(trie, index, level, fun)
 
   def update(leaf, index, _level = 0, fun) do
-    current_index = radix_rem(index)
+    current_index = C.radix_rem(index)
     Node.update_at(leaf, current_index, fun)
   end
 
   def update(trie, index, level, fun) do
-    current_index = radix_search(index, level)
+    current_index = C.radix_search(index, level)
     child = elem(trie, current_index)
 
-    new_child = update(child, index, decr_level(level), fun)
+    new_child = update(child, index, C.decr_level(level), fun)
 
     put_elem(trie, current_index, new_child)
   end
@@ -267,45 +284,45 @@ defmodule A.Vector.Trie do
     {popped, new} = do_nested_pop_leaf(trie, level)
 
     case elem(new, 1) do
-      nil -> {popped, elem(new, 0), decr_level(level)}
+      nil -> {popped, elem(new, 0), C.decr_level(level)}
       _ -> {popped, new, level}
     end
   end
 
-  defp do_nested_pop_leaf(leaves, _level = bits()) do
+  defp do_nested_pop_leaf(leaves, _level = C.bits()) do
     do_pop_leaf(leaves)
   end
 
-  defp do_nested_pop_leaf(array(arguments_with_nil_then_wildcards(1)), level) do
-    {popped, argument_at(0)} = do_nested_pop_leaf(argument_at(0), decr_level(level))
+  defp do_nested_pop_leaf(unquote(C.array_with_nil_then_wildcards(1)), level) do
+    {popped, trie} = do_nested_pop_leaf(unquote(C.argument_at(0)), C.decr_level(level))
 
-    case argument_at(0) do
+    case trie do
       nil ->
         {popped, nil}
 
       _ ->
-        new_trie = array_with_nils(1)
+        new_trie = unquote(C.var(trie) |> C.value_with_nils() |> C.array())
         {popped, new_trie}
     end
   end
 
-  for i <- args_range(), i > 1 do
-    defp do_nested_pop_leaf(array_with_nil_then_wildcards(unquote(i)), level) do
-      {popped, argument_at(unquote(i - 1))} =
-        do_nested_pop_leaf(argument_at(unquote(i - 1)), decr_level(level))
+  for i <- C.range(), i > 1 do
+    defp do_nested_pop_leaf(unquote(C.array_with_nil_then_wildcards(i)), level) do
+      {popped, unquote(C.argument_at(i - 1))} =
+        do_nested_pop_leaf(unquote(C.argument_at(i - 1)), C.decr_level(level))
 
-      new_trie = array_with_nils(unquote(i))
+      new_trie = unquote(C.array_with_nils(i))
       {popped, new_trie}
     end
   end
 
-  defp do_pop_leaf(array_with_nil_then_wildcards(1)) do
-    {argument_at(0), nil}
+  defp do_pop_leaf(unquote(C.array_with_nil_then_wildcards(1))) do
+    {unquote(C.argument_at(0)), nil}
   end
 
-  for i <- args_range(), i > 1 do
-    defp do_pop_leaf(array_with_nil_then_wildcards(unquote(i))) do
-      {argument_at(unquote(i - 1)), array_with_nils(unquote(i - 1))}
+  for i <- C.range(), i > 1 do
+    defp do_pop_leaf(unquote(C.array_with_nil_then_wildcards(i))) do
+      {unquote(C.argument_at(i - 1)), unquote(C.array_with_nils(i - 1))}
     end
   end
 
@@ -316,26 +333,26 @@ defmodule A.Vector.Trie do
   # def to_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   [arg1, arg2, arg3, arg4 | acc]
   # end
-  def to_list(array(), _level = 0, acc) do
-    list_with_rest(acc)
+  def to_list(unquote(C.array()), _level = 0, acc) do
+    unquote(C.list_with_rest(C.var(acc)))
   end
 
   # def to_list({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   to_list(arg1, child_level, to_list(arg2, child_level, acc))
   # end
-  for i <- args_range() do
-    def to_list(array_with_nil_then_wildcards(unquote(i)), level, acc) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def to_list(unquote(C.array_with_nil_then_wildcards(i)), level, acc) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reverse_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          to_list(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
+      unquote(
+        C.reversed_arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            to_list(unquote(arg), var!(child_level), unquote(acc))
+          end
+        end)
+      )
     end
   end
 
@@ -344,25 +361,26 @@ defmodule A.Vector.Trie do
   # def to_reverse_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   [arg4, arg3, arg2, arg1 | acc]
   # end
-  def to_reverse_list(array(), _level = 0, acc) do
-    list_with_rest(reverse_arguments(), acc)
+  def to_reverse_list(unquote(C.array()), _level = 0, acc) do
+    unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
   end
 
   # def to_reverse_list({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   to_reverse_list(arg2, child_level, to_reverse_list(arg1, child_level, acc))
   # end
-  for i <- args_range() do
-    def to_reverse_list(array_with_nil_then_wildcards(unquote(i)), level, acc) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def to_reverse_list(unquote(C.array_with_nil_then_wildcards(i)), level, acc) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          to_reverse_list(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
+      unquote(
+        C.arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            to_reverse_list(unquote(arg), var!(child_level), unquote(acc))
+          end
+        end)
+      )
     end
   end
 
@@ -371,28 +389,31 @@ defmodule A.Vector.Trie do
   # def member?({arg1, arg2, arg3, arg4}, _level = 0, value) do
   #   (arg1 === value) or (arg2 === value) or (arg3 === value) or (arg4 === value)
   # end
-  def member?(array(), _level = 0, value) do
-    arguments()
-    |> map_arguments(strict_equal_mapper(var(value)))
-    |> reduce_arguments(&strict_or_reducer/2)
+  def member?(unquote(C.array()), _level = 0, value) do
+    unquote(
+      C.arguments()
+      |> Enum.map(C.strict_equal_mapper(C.var(value)))
+      |> Enum.reduce(&C.strict_or_reducer/2)
+    )
   end
 
   # def member?({arg1, arg2, nil, _}, level, value) do
   #   child_level = level - bits
   #   member?(arg1, child_level, value) or member?(arg1, child_level, value)
   # end
-  for i <- args_range() do
-    def member?(array_with_nil_then_wildcards(unquote(i)), level, value) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def member?(unquote(C.array_with_nil_then_wildcards(i)), level, value) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> map_arguments(fn arg ->
-        quote do
-          member?(unquote(arg), var!(child_level), var!(value))
-        end
-      end)
-      |> reduce_arguments(&strict_or_reducer/2)
+      unquote(
+        C.arguments(i)
+        |> Enum.map(fn arg ->
+          quote do
+            member?(unquote(arg), var!(child_level), var!(value))
+          end
+        end)
+        |> Enum.reduce(&C.strict_or_reducer/2)
+      )
     end
   end
 
@@ -401,27 +422,27 @@ defmodule A.Vector.Trie do
   # def any?({arg1, arg2, arg3, arg4}, _level = 0) do
   #   arg1 || arg2 || arg3 || arg4
   # end
-  def any?(array(), _level = 0) do
-    arguments()
-    |> reduce_arguments(&or_reducer/2)
+  def any?(unquote(C.array()), _level = 0) do
+    unquote(C.arguments() |> Enum.reduce(&C.or_reducer/2))
   end
 
   # def any?({arg1, arg2, nil, _}, level) do
   #   child_level = level - bits
   #   any?(arg1, child_level) || any?(arg1, child_level)
   # end
-  for i <- args_range() do
-    def any?(array_with_nil_then_wildcards(unquote(i)), level) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def any?(unquote(C.array_with_nil_then_wildcards(i)), level) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> map_arguments(fn arg ->
-        quote do
-          any?(unquote(arg), var!(child_level))
-        end
-      end)
-      |> reduce_arguments(&or_reducer/2)
+      unquote(
+        C.arguments(i)
+        |> Enum.map(fn arg ->
+          quote do
+            any?(unquote(arg), var!(child_level))
+          end
+        end)
+        |> Enum.reduce(&C.or_reducer/2)
+      )
     end
   end
 
@@ -430,28 +451,31 @@ defmodule A.Vector.Trie do
   # def any?({arg1, arg2, arg3, arg4}, _level = 0, fun) do
   #   fun.(arg1) || fun.(arg2) || fun.(arg3) || fun.(arg4)
   # end
-  def any?(array(), _level = 0, fun) do
-    arguments()
-    |> map_arguments(apply_mapper(var(fun)))
-    |> reduce_arguments(&or_reducer/2)
+  def any?(unquote(C.array()), _level = 0, fun) do
+    unquote(
+      C.arguments()
+      |> Enum.map(C.apply_mapper(C.var(fun)))
+      |> Enum.reduce(&C.or_reducer/2)
+    )
   end
 
   # def any?({arg1, arg2, nil, _}, level, fun) do
   #   child_level = level - bits
   #   any?(arg1, child_level, fun) || any?(arg1, child_level, fun)
   # end
-  for i <- args_range() do
-    def any?(array_with_nil_then_wildcards(unquote(i)), level, fun) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def any?(unquote(C.array_with_nil_then_wildcards(i)), level, fun) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> map_arguments(fn arg ->
-        quote do
-          any?(unquote(arg), var!(child_level), var!(fun))
-        end
-      end)
-      |> reduce_arguments(&or_reducer/2)
+      unquote(
+        C.arguments(i)
+        |> Enum.map(fn arg ->
+          quote do
+            any?(unquote(arg), var!(child_level), var!(fun))
+          end
+        end)
+        |> Enum.reduce(&C.or_reducer/2)
+      )
     end
   end
 
@@ -460,27 +484,27 @@ defmodule A.Vector.Trie do
   # def all?({arg1, arg2, arg3, arg4}, _level = 0) do
   #   arg1 && arg2 && arg3 && arg4
   # end
-  def all?(array(), _level = 0) do
-    arguments()
-    |> reduce_arguments(&and_reducer/2)
+  def all?(unquote(C.array()), _level = 0) do
+    unquote(C.arguments() |> Enum.reduce(&C.and_reducer/2))
   end
 
   # def all?({arg1, arg2, nil, _}, level) do
   #   child_level = level - bits
   #   all?(arg1, child_level) && all?(arg1, child_level)
   # end
-  for i <- args_range() do
-    def all?(array_with_nil_then_wildcards(unquote(i)), level) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def all?(unquote(C.array_with_nil_then_wildcards(i)), level) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> map_arguments(fn arg ->
-        quote do
-          all?(unquote(arg), var!(child_level))
-        end
-      end)
-      |> reduce_arguments(&and_reducer/2)
+      unquote(
+        C.arguments(i)
+        |> Enum.map(fn arg ->
+          quote do
+            all?(unquote(arg), var!(child_level))
+          end
+        end)
+        |> Enum.reduce(&C.and_reducer/2)
+      )
     end
   end
 
@@ -489,28 +513,31 @@ defmodule A.Vector.Trie do
   # def all?({arg1, arg2, arg3, arg4}, _level = 0, fun) do
   #   fun.(arg1) && fun.(arg2) && fun.(arg3) && fun.(arg4)
   # end
-  def all?(array(), _level = 0, fun) do
-    arguments()
-    |> map_arguments(apply_mapper(var(fun)))
-    |> reduce_arguments(&and_reducer/2)
+  def all?(unquote(C.array()), _level = 0, fun) do
+    unquote(
+      C.arguments()
+      |> Enum.map(C.apply_mapper(C.var(fun)))
+      |> Enum.reduce(&C.and_reducer/2)
+    )
   end
 
   # def all?({arg1, arg2, nil, _}, level, fun) do
   #   child_level = level - bits
   #   all?(arg1, child_level, fun) && all?(arg1, child_level, fun)
   # end
-  for i <- args_range() do
-    def all?(array_with_nil_then_wildcards(unquote(i)), level, fun) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def all?(unquote(C.array_with_nil_then_wildcards(i)), level, fun) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> map_arguments(fn arg ->
-        quote do
-          all?(unquote(arg), var!(child_level), var!(fun))
-        end
-      end)
-      |> reduce_arguments(&and_reducer/2)
+      unquote(
+        C.arguments(i)
+        |> Enum.map(fn arg ->
+          quote do
+            all?(unquote(arg), var!(child_level), var!(fun))
+          end
+        end)
+        |> Enum.reduce(&C.and_reducer/2)
+      )
     end
   end
 
@@ -521,12 +548,15 @@ defmodule A.Vector.Trie do
   # defp foldl_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  def foldl_leaf(array(arguments()), fun, acc) do
-    reduce_arguments(arguments(), acc, fn arg, acc ->
-      quote do
-        var!(fun).(unquote(arg), unquote(acc))
-      end
-    end)
+  def foldl_leaf(unquote(C.array()), fun, acc) do
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          var!(fun).(unquote(arg), unquote(acc))
+        end
+      end)
+    )
   end
 
   def foldr(trie, level, acc, fun) do
@@ -536,12 +566,15 @@ defmodule A.Vector.Trie do
   # defp foldr_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  def foldr_leaf(array(arguments()), fun, acc) do
-    reduce_arguments(reverse_arguments(), acc, fn arg, acc ->
-      quote do
-        var!(fun).(unquote(arg), unquote(acc))
-      end
-    end)
+  def foldr_leaf(unquote(C.array()), fun, acc) do
+    unquote(
+      C.reversed_arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          var!(fun).(unquote(arg), unquote(acc))
+        end
+      end)
+    )
   end
 
   def each(trie, level, fun) do
@@ -553,9 +586,16 @@ defmodule A.Vector.Trie do
   #   fun.(arg2)
   #   fun.(arg3)
   #   fun.(arg4)
+  #   :ok
   # end
-  def each_leaf(array(arguments()), fun, _acc) do
-    each_arguments(apply_mapper(var(fun)))
+  def each_leaf(unquote(C.array()), fun, _acc) do
+    unquote(
+      C.arguments()
+      |> Enum.map(C.apply_mapper(C.var(fun)))
+      |> C.block()
+    )
+
+    :ok
   end
 
   def sum(trie, level, acc)
@@ -563,25 +603,26 @@ defmodule A.Vector.Trie do
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc + arg1 + arg2 + arg3 + arg4
   # end
-  def sum(array(), _level = 0, acc) do
-    reduce_arguments(arguments(), acc, &sum_reducer/2)
+  def sum(unquote(C.array()), _level = 0, acc) do
+    unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.sum_reducer/2))
   end
 
   # def sum({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   sum(arg2, child_level, sum(arg1, child_level, acc))
   # end
-  for i <- args_range() do
-    def sum(array_with_nil_then_wildcards(unquote(i)), level, acc) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def sum(unquote(C.array_with_nil_then_wildcards(i)), level, acc) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          sum(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
+      unquote(
+        C.arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            sum(unquote(arg), var!(child_level), unquote(acc))
+          end
+        end)
+      )
     end
   end
 
@@ -590,25 +631,26 @@ defmodule A.Vector.Trie do
   # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc * arg1 * arg2 * arg3 * arg4
   # end
-  def product(array(), _level = 0, acc) do
-    reduce_arguments(arguments(), acc, &product_reducer/2)
+  def product(unquote(C.array()), _level = 0, acc) do
+    unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.product_reducer/2))
   end
 
   # def product({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   product(arg2, child_level, product(arg1, child_level, acc))
   # end
-  for i <- args_range() do
-    def product(array_with_nil_then_wildcards(unquote(i)), level, acc) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def product(unquote(C.array_with_nil_then_wildcards(i)), level, acc) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          product(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
+      unquote(
+        C.arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            product(unquote(arg), var!(child_level), unquote(acc))
+          end
+        end)
+      )
     end
   end
 
@@ -619,11 +661,13 @@ defmodule A.Vector.Trie do
   # def intersperse_leaf({arg1, arg2, arg3, arg4}, separator, acc) do
   #   [arg1, separator, arg2, ... separator | acc]
   # end
-  defp intersperse_leaf(array(), separator, acc) do
-    arguments()
-    |> intersperse_arguments(separator)
-    |> append_argument(separator)
-    |> list_with_rest(acc)
+  defp intersperse_leaf(unquote(C.array()), separator, acc) do
+    unquote(
+      C.arguments()
+      |> Enum.intersperse(C.var(separator))
+      |> Enum.concat([C.var(separator)])
+      |> C.list_with_rest(C.var(acc))
+    )
   end
 
   def join(trie, level, joiner, acc) do
@@ -633,12 +677,13 @@ defmodule A.Vector.Trie do
   # def join({arg1, arg2, arg3, arg4}, joiner, acc) do
   #   [mapper.(arg1), joiner, mapper.(arg2), ... joiner | acc]
   # end
-  defp join_leaf(array(), joiner, acc) do
-    arguments()
-    |> map_arguments(apply_mapper(var(&to_string/1)))
-    |> intersperse_arguments(joiner)
-    |> append_argument(joiner)
-    |> list_with_rest(acc)
+  defp join_leaf(unquote(C.array()), joiner, acc) do
+    unquote(
+      C.arguments()
+      |> Enum.map_intersperse(C.var(joiner), C.apply_mapper(C.var(&to_string/1)))
+      |> Enum.concat([C.var(joiner)])
+      |> C.list_with_rest(C.var(acc))
+    )
   end
 
   def map(trie, level, fun)
@@ -646,25 +691,31 @@ defmodule A.Vector.Trie do
   # def map({arg1, arg2, arg3, arg4}, _level = 0, f) do
   #   {f.(arg1), f.(arg2), f.(arg3), f.(arg4)}
   # end
-  def map(array(), _level = 0, fun) do
-    array(map_arguments(apply_mapper(var(fun))))
+  def map(unquote(C.array()), _level = 0, fun) do
+    unquote(
+      C.arguments()
+      |> Enum.map(C.apply_mapper(C.var(fun)))
+      |> C.array()
+    )
   end
 
   # def map({arg1, arg2, nil, _}, level, f) do
   #   child_level = level - bits
   #   {map(arg1, child_level, f), map(arg2, child_level, f), nil, nil}
   # end
-  for i <- args_range() do
-    def map(array_with_nil_then_wildcards(unquote(i)), level, fun) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def map(unquote(C.array_with_nil_then_wildcards(i)), level, fun) do
+      child_level = C.decr_level(level)
 
-      map_arguments(fn arg ->
-        quote do
-          map(unquote(arg), var!(child_level), var!(fun))
-        end
-      end)
-      |> arguments_with_nils(unquote(i))
-      |> array()
+      unquote(
+        C.arguments_with_nils(i)
+        |> C.sparse_map(fn arg ->
+          quote do
+            map(unquote(arg), var!(child_level), var!(fun))
+          end
+        end)
+        |> C.array()
+      )
     end
   end
 
@@ -678,23 +729,24 @@ defmodule A.Vector.Trie do
   #   child_level = level - bits
   #   foldl_leaves(arg2, child_level, foldl_leaves(arg1, child_level, acc, params, fun), params, fun)
   # end
-  for i <- args_range() do
+  for i <- C.range() do
     defp foldl_leaves(
-           array_with_nil_then_wildcards(unquote(i)),
+           unquote(C.array_with_nil_then_wildcards(i)),
            level,
            acc,
            params,
            fun
          ) do
-      child_level = decr_level(level)
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          foldl_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
-        end
-      end)
+      unquote(
+        C.arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            foldl_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
+          end
+        end)
+      )
     end
   end
 
@@ -708,24 +760,24 @@ defmodule A.Vector.Trie do
   #   child_level = level - bits
   #   foldr_leaves(arg1, child_level, foldr_leaves(arg2, child_level, acc, params, fun), params, fun)
   # end
-  for i <- args_range() do
+  for i <- C.range() do
     defp foldr_leaves(
-           array_with_nil_then_wildcards(unquote(i)),
+           unquote(C.array_with_nil_then_wildcards(i)),
            level,
            acc,
            params,
            fun
          ) do
-      child_level = decr_level(level)
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reverse_arguments()
-      |> reduce_arguments(acc, fn arg, acc ->
-        quote do
-          foldr_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
-        end
-      end)
+      unquote(
+        C.reversed_arguments(i)
+        |> Enum.reduce(C.var(acc), fn arg, acc ->
+          quote do
+            foldr_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
+          end
+        end)
+      )
     end
   end
 
@@ -733,7 +785,7 @@ defmodule A.Vector.Trie do
   def slice(trie, start, last, level, acc, nodes \\ [])
 
   def slice(leaf, start, last, _level = 0, acc, nodes) do
-    last_index = radix_rem(last)
+    last_index = C.radix_rem(last)
     remaining = last - start
 
     case remaining - last_index do
@@ -747,7 +799,7 @@ defmodule A.Vector.Trie do
   end
 
   def slice(trie, start, last, level, acc, nodes) do
-    current_index = radix_search(last, level)
+    current_index = C.radix_search(last, level)
 
     new_nodes =
       case current_index do
@@ -756,18 +808,18 @@ defmodule A.Vector.Trie do
       end
 
     child = elem(trie, current_index)
-    slice(child, start, last, decr_level(level), acc, new_nodes)
+    slice(child, start, last, C.decr_level(level), acc, new_nodes)
   end
 
   @compile {:inline, do_slice: 4}
   defp do_slice(leaf, remaining, acc, nodes) do
-    case remaining - branch_factor() do
+    case remaining - C.branch_factor() do
       new_remaining when new_remaining > 0 ->
         new_acc = Node.prepend_all(leaf, acc)
         slice_next(new_remaining, new_acc, nodes)
 
       neg_first_index ->
-        partial_slice_leaf(leaf, -neg_first_index, branch_factor() - 1, acc)
+        partial_slice_leaf(leaf, -neg_first_index, C.branch_factor() - 1, acc)
     end
   end
 
@@ -794,7 +846,7 @@ defmodule A.Vector.Trie do
 
       _ ->
         child = elem(trie, index)
-        new_node = {child, decr_level(level), unquote(branch_factor() - 1)}
+        new_node = {child, C.decr_level(level), unquote(C.branch_factor() - 1)}
 
         case index do
           0 -> unpack_slice_nodes(new_node, nodes)
@@ -815,12 +867,12 @@ defmodule A.Vector.Trie do
   end
 
   defp do_take(leaf, _level = 0, last_index, _same_level?) do
-    {0, Node.take(leaf, radix_rem(last_index) + 1)}
+    {0, Node.take(leaf, C.radix_rem(last_index) + 1)}
   end
 
   defp do_take(trie, level, last_index, same_level?) do
-    child_level = decr_level(level)
-    radix = radix_search(last_index, level)
+    child_level = C.decr_level(level)
+    radix = C.radix_search(last_index, level)
     child = elem(trie, radix)
 
     case {radix, same_level?} do
@@ -844,27 +896,36 @@ defmodule A.Vector.Trie do
   # def with_index({arg1, arg2, arg3, arg4}, _level = 0, offset) do
   #   {{arg1, offset + 0, {arg2, offset + 1}, {arg3, offset + 2}, {arg4, offset + 3}}
   # end
-  def with_index(array(), _level = 0, offset) do
-    array(with_index_arguments(offset))
+  def with_index(unquote(C.array()), _level = 0, offset) do
+    unquote(
+      C.arguments()
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} ->
+        quote do
+          {unquote(arg), var!(offset) + unquote(index)}
+        end
+      end)
+      |> C.array()
+    )
   end
 
-  # def with_index({arg1, arg2, nil, nil}, level, offset) do
+  # def with_index({arg1, arg2, nil, _}, level, offset) do
   #   child_level = level - bits
   #   {
   #     with_index(arg1, child_level, offset + (0 <<< level)),
   #     with_index(arg2, child_level, offset + (1 <<< level)),
   #     nil,
-  #     _
+  #     nil
   #  }
   # end
-  for i <- args_range() do
-    def with_index(array_with_nil_then_wildcards(unquote(i)), level, offset) do
-      child_level = decr_level(level)
+  for i <- C.range() do
+    def with_index(unquote(C.array_with_nil_then_wildcards(i)), level, offset) do
+      child_level = C.decr_level(level)
 
-      unquote(i)
-      |> take_arguments()
-      |> reduce_arguments_with_index([], fn arg, index, acc ->
-        ast =
+      unquote(
+        C.arguments(i)
+        |> Enum.with_index()
+        |> Enum.map(fn {arg, index} ->
           quote do
             with_index(
               unquote(arg),
@@ -872,12 +933,10 @@ defmodule A.Vector.Trie do
               var!(offset) + (unquote(index) <<< var!(level))
             )
           end
-
-        [ast | acc]
-      end)
-      |> reverse_arguments()
-      |> partial_arguments_with_nils()
-      |> array()
+        end)
+        |> C.fill_with(nil)
+        |> C.array()
+      )
     end
   end
 end

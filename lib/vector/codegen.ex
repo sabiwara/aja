@@ -13,15 +13,10 @@ defmodule A.Vector.CodeGen do
 
   @bits 4
   @branch_factor :math.pow(2, @bits) |> round()
+  @range 1..@branch_factor
 
   @arguments_ast Macro.generate_arguments(@branch_factor, nil)
   @wildcard quote do: _
-
-  defp expand_validate_args(args, caller) do
-    expanded_args = Macro.expand(args, caller)
-    unquote(@branch_factor) = length(expanded_args)
-    expanded_args
-  end
 
   defmacro bits do
     @bits
@@ -61,12 +56,6 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defmacro args_range do
-    quote do
-      1..unquote(@branch_factor)
-    end
-  end
-
   defmacro radix_search(index, level) do
     quote do
       unquote(index)
@@ -75,228 +64,83 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defmacro array() do
+  def range do
+    @range
+  end
+
+  def block(lines) when is_list(lines) do
+    {:__block__, [], lines}
+  end
+
+  def array() do
     do_array(@arguments_ast)
   end
 
-  defmacro array(args) do
+  def array(args) do
     args
-    |> expand_validate_args(__CALLER__)
+    |> validate_args_length()
     |> do_array()
   end
 
-  defmacro array_ast() do
+  def array_ast() do
     {:{}, [], [:{}, [], @arguments_ast]}
   end
 
-  defmacro array_ast(args) do
-    expanded_args = expand_validate_args(args, __CALLER__)
+  def array_ast(args) do
+    validate_args_length(args)
 
-    {:{}, [], [:{}, [], expanded_args]}
+    {:{}, [], [:{}, [], args]}
   end
 
-  defmacro arguments do
+  def arguments do
     @arguments_ast
   end
 
-  defmacro argument_at(n) do
-    expanded_n = Macro.expand(n, __CALLER__)
-    Enum.at(@arguments_ast, expanded_n)
+  for i <- @range do
+    def arguments(unquote(i)) do
+      unquote(
+        @arguments_ast
+        |> Enum.take(i)
+        |> Macro.escape()
+      )
+    end
   end
 
-  defmacro reverse_arguments(args \\ @arguments_ast) do
-    # note: not only reversing full arguments, no validation
-    # do not use expand_validate_args
-    expanded_args = Macro.expand(args, __CALLER__)
-    Enum.reverse(expanded_args)
+  for i <- @range do
+    def argument_at(unquote(i - 1)) do
+      unquote(
+        @arguments_ast
+        |> Enum.at(i - 1)
+        |> Macro.escape()
+      )
+    end
   end
 
-  defmacro duplicate_argument(arg) do
+  def reversed_arguments() do
+    unquote(
+      @arguments_ast
+      |> Enum.reverse()
+      |> Macro.escape()
+    )
+  end
+
+  for i <- @range do
+    def reversed_arguments(unquote(i)) do
+      unquote(
+        @arguments_ast
+        |> Enum.take(i)
+        |> Enum.reverse()
+        |> Macro.escape()
+      )
+    end
+  end
+
+  def duplicate_argument(arg) do
     List.duplicate(arg, @branch_factor)
   end
 
-  defmacro arguments_with_wildcards(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_wildcards()
-  end
-
-  defmacro arguments_with_wildcards(args, n) do
-    expanded_args = expand_validate_args(args, __CALLER__)
-    expanded_n = Macro.expand(n, __CALLER__)
-    arguments_with_filler(expanded_args, expanded_n, @wildcard)
-  end
-
-  defmacro array_with_wildcards(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_wildcards()
-    |> do_array()
-  end
-
-  defmacro arguments_with_nils(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_nil()
-  end
-
-  defmacro array_with_nils(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_nil()
-    |> do_array()
-  end
-
-  defmacro arguments_with_nils(args, n) do
-    expanded_args = expand_validate_args(args, __CALLER__)
-    expanded_n = Macro.expand(n, __CALLER__)
-    arguments_with_filler(expanded_args, expanded_n, nil)
-  end
-
-  defmacro partial_arguments_with_nils(args) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    arguments_with_filler(expanded_args, length(expanded_args), nil)
-  end
-
-  defmacro value_with_nils(value) do
-    arguments_with_filler([value], 1, nil)
-  end
-
-  defmacro list_with_rest(args \\ @arguments_ast, rest_variable) do
-    # note: is used with args len != branch factor
-    # do not use expand_validate_args
-    expanded_args = Macro.expand(args, __CALLER__)
-
-    case length(expanded_args) do
-      0 ->
-        rest_variable
-
-      len ->
-        List.update_at(expanded_args, len - 1, fn last_arg ->
-          quote do
-            unquote(last_arg) | unquote(rest_variable)
-          end
-        end)
-    end
-  end
-
-  defmacro map_arguments(args \\ @arguments_ast, fun_ast) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(1)
-
-    for arg <- expanded_args do
-      fun.(arg)
-    end
-  end
-
-  defmacro each_arguments(args \\ @arguments_ast, fun_ast) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(1)
-
-    block =
-      for arg <- expanded_args do
-        fun.(arg)
-      end ++ [:ok]
-
-    {:__block__, [], block}
-  end
-
-  defmacro reduce_arguments(args, fun_ast) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(2)
-
-    Enum.reduce(expanded_args, fun)
-  end
-
-  defmacro reduce_arguments(args, acc, fun_ast) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(2)
-
-    Enum.reduce(expanded_args, acc, fun)
-  end
-
-  defmacro reduce_arguments_with_index(args, acc, fun_ast) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    fun = Code.eval_quoted(fun_ast, [], __CALLER__) |> get_eval_fun(3)
-
-    expanded_args
-    |> Enum.with_index()
-    |> Enum.reduce(acc, fn {arg, index}, acc ->
-      fun.(arg, index, acc)
-    end)
-  end
-
-  defp get_eval_fun({fun, _}, arity) when is_function(fun, arity) do
-    fun
-  end
-
-  defmacro take_arguments(args \\ @arguments_ast, n) do
-    expanded_args = expand_validate_args(args, __CALLER__)
-    expanded_n = Macro.expand(n, __CALLER__)
-
-    Enum.take(expanded_args, expanded_n)
-  end
-
-  defmacro take_drop_arguments(args1, args2, n) do
-    expanded_args1 = expand_validate_args(args1, __CALLER__)
-    expanded_args2 = expand_validate_args(args2, __CALLER__)
-    expanded_n = Macro.expand(n, __CALLER__)
-
-    Enum.take(expanded_args1, expanded_n) ++ Enum.drop(expanded_args2, expanded_n)
-  end
-
-  defmacro drop_arguments(args \\ @arguments_ast, n) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    expanded_n = Macro.expand(n, __CALLER__)
-
-    Enum.drop(expanded_args, expanded_n)
-  end
-
-  defmacro append_argument(args, arg) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    expanded_args ++ [arg]
-  end
-
-  defmacro intersperse_arguments(args, separator) do
-    expanded_args = Macro.expand(args, __CALLER__)
-    Enum.intersperse(expanded_args, separator)
-  end
-
-  defmacro with_index_arguments(args \\ @arguments_ast, offset) do
-    expanded_args = Macro.expand(args, __CALLER__)
-
-    expanded_args
-    |> Enum.with_index()
-    |> Enum.map(fn {arg, i} ->
-      quote do
-        {unquote(arg), unquote(offset) + unquote(i)}
-      end
-    end)
-  end
-
-  defmacro arguments_with_nil_then_wildcards(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_nil_then_wildcards()
-  end
-
-  defmacro array_with_nil_then_wildcards(n) do
-    n
-    |> Macro.expand(__CALLER__)
-    |> do_arguments_with_nil_then_wildcards()
-    |> do_array()
-  end
-
-  defmacro var(variable) do
-    Macro.escape(variable)
-  end
-
-  defp do_array(args) do
-    {:{}, [], args}
-  end
-
-  for i <- 1..@branch_factor do
-    defp do_arguments_with_nil(unquote(i)) do
+  for i <- @range do
+    def arguments_with_nils(unquote(i)) do
       unquote(
         @arguments_ast
         |> Enum.take(i)
@@ -306,8 +150,8 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  for i <- 1..@branch_factor do
-    defp do_arguments_with_wildcards(unquote(i)) do
+  for i <- @range do
+    def arguments_with_wildcards(unquote(i)) do
       unquote(
         @arguments_ast
         |> Enum.take(i)
@@ -318,7 +162,7 @@ defmodule A.Vector.CodeGen do
   end
 
   for i <- 1..(@branch_factor - 1) do
-    defp do_arguments_with_nil_then_wildcards(unquote(i)) do
+    def arguments_with_nil_then_wildcards(unquote(i)) do
       unquote(
         @arguments_ast
         |> Enum.take(i)
@@ -329,13 +173,80 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defp do_arguments_with_nil_then_wildcards(@branch_factor) do
+  def arguments_with_nil_then_wildcards(@branch_factor) do
     @arguments_ast
   end
 
-  defp arguments_with_filler(args, n, filler) when n >= 0 and n <= @branch_factor do
-    fillers = List.duplicate(filler, @branch_factor - n)
-    Enum.take(args, n) ++ fillers
+  def array_with_wildcards(n) do
+    n
+    |> arguments_with_wildcards()
+    |> do_array()
+  end
+
+  def array_with_nils(n) do
+    n
+    |> arguments_with_nils()
+    |> do_array()
+  end
+
+  def array_with_nil_then_wildcards(n) do
+    n
+    |> arguments_with_nil_then_wildcards()
+    |> do_array()
+  end
+
+  def value_with_nils(value) do
+    [value] |> fill_with(nil)
+  end
+
+  def fill_with(args, value) do
+    missing = @branch_factor - length(args)
+    args ++ List.duplicate(value, missing)
+  end
+
+  def map_until(args \\ @arguments_ast, n, fun) when is_integer(n) and is_function(fun, 1) do
+    args
+    |> Enum.with_index()
+    |> Enum.map(fn
+      {arg, i} when i < n -> fun.(arg)
+      {arg, _} -> arg
+    end)
+  end
+
+  def list_with_rest(args \\ @arguments_ast, rest_variable) do
+    case length(args) do
+      0 ->
+        rest_variable
+
+      len ->
+        List.update_at(args, len - 1, fn last_arg ->
+          quote do
+            unquote(last_arg) | unquote(rest_variable)
+          end
+        end)
+    end
+  end
+
+  defmacro var(variable) do
+    Macro.escape(variable)
+  end
+
+  defp validate_args_length(args) do
+    # raise on unexpected args
+    unquote(@branch_factor) = length(args)
+
+    args
+  end
+
+  def do_array(args) do
+    {:{}, [], args}
+  end
+
+  def sparse_map(args, fun) do
+    Enum.map(args, fn
+      nil -> nil
+      arg -> fun.(arg)
+    end)
   end
 
   # MAPPERS
@@ -345,6 +256,18 @@ defmodule A.Vector.CodeGen do
       quote do
         unquote(fun).(unquote(arg))
       end
+    end
+  end
+
+  def apply_sparse_mapper(fun) do
+    fn
+      nil ->
+        nil
+
+      arg ->
+        quote do
+          unquote(fun).(unquote(arg))
+        end
     end
   end
 
