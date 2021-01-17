@@ -17,9 +17,9 @@ Benchmarking A.Vector.with_index/1...
 Benchmarking Enum.with_index/1...
 
 Name                            ips        average  deviation         median         99th %
-A.Vector.with_index/1      638.02 K        1.57 μs  ±1914.11%        1.08 μs        3.99 μs
-Enum.with_index/1          592.61 K        1.69 μs  ±1445.19%        1.30 μs        3.81 μs
+A.Vector.with_index/1      913.72 K        1.09 μs  ±1914.43%        0.89 μs        1.96 μs
+Enum.with_index/1          739.23 K        1.35 μs  ±1555.15%        1.17 μs        2.76 μs
 
 Comparison: 
-A.Vector.with_index/1      638.02 K
-Enum.with_index/1          592.61 K - 1.08x slower +0.120 μs
+A.Vector.with_index/1      913.72 K
+Enum.with_index/1          739.23 K - 1.24x slower +0.26 μs

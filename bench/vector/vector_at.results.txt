@@ -19,13 +19,13 @@ Benchmarking A.Vector.at/2...
 Benchmarking List.at/2...
 
 Name                           ips        average  deviation         median         99th %
-A.Vector.Raw.fetch/2       23.07 M       43.34 ns  ±6291.84%          36 ns         186 ns
-:array.get/2               20.51 M       48.76 ns   ±340.57%          45 ns          81 ns
-A.Vector.at/2              12.62 M       79.26 ns ±17245.88%          59 ns         165 ns
-List.at/2                   3.64 M      274.36 ns  ±7037.97%         248 ns         516 ns
+A.Vector.Raw.fetch/2       23.76 M       42.08 ns  ±3522.11%          36 ns         106 ns
+:array.get/2               20.45 M       48.90 ns   ±397.89%          45 ns          74 ns
+A.Vector.at/2              12.90 M       77.52 ns ±17520.42%          58 ns         125 ns
+List.at/2                   3.64 M      274.55 ns  ±6932.52%         251 ns         513 ns
 
 Comparison: 
-A.Vector.Raw.fetch/2       23.07 M
-:array.get/2               20.51 M - 1.13x slower +5.42 ns
-A.Vector.at/2              12.62 M - 1.83x slower +35.92 ns
-List.at/2                   3.64 M - 6.33x slower +231.02 ns
+A.Vector.Raw.fetch/2       23.76 M
+:array.get/2               20.45 M - 1.16x slower +6.82 ns
+A.Vector.at/2              12.90 M - 1.84x slower +35.43 ns
+List.at/2                   3.64 M - 6.52x slower +232.47 ns

@@ -25,7 +25,7 @@ defmodule A.Vector.Trie do
 
   for i <- args_range() do
     defp do_group_leaves(take_arguments(unquote(i)), acc, count) do
-      last = array(arguments_with_nils(unquote(i)))
+      last = array_with_nils(unquote(i))
       {count + unquote(i), count, :lists.reverse(acc), last}
     end
   end
@@ -276,7 +276,7 @@ defmodule A.Vector.Trie do
     do_pop_leaf(leaves)
   end
 
-  defp do_nested_pop_leaf(array(arguments_with_nils(1)), level) do
+  defp do_nested_pop_leaf(array(arguments_with_nil_then_wildcards(1)), level) do
     {popped, argument_at(0)} = do_nested_pop_leaf(argument_at(0), decr_level(level))
 
     case argument_at(0) do
@@ -284,28 +284,28 @@ defmodule A.Vector.Trie do
         {popped, nil}
 
       _ ->
-        new_trie = array(arguments_with_nils(1))
+        new_trie = array_with_nils(1)
         {popped, new_trie}
     end
   end
 
   for i <- args_range(), i > 1 do
-    defp do_nested_pop_leaf(array(arguments_with_nils(unquote(i))), level) do
+    defp do_nested_pop_leaf(array_with_nil_then_wildcards(unquote(i)), level) do
       {popped, argument_at(unquote(i - 1))} =
         do_nested_pop_leaf(argument_at(unquote(i - 1)), decr_level(level))
 
-      new_trie = array(arguments_with_nils(unquote(i)))
+      new_trie = array_with_nils(unquote(i))
       {popped, new_trie}
     end
   end
 
-  defp do_pop_leaf(array(arguments_with_nils(1))) do
+  defp do_pop_leaf(array_with_nil_then_wildcards(1)) do
     {argument_at(0), nil}
   end
 
   for i <- args_range(), i > 1 do
-    defp do_pop_leaf(array(arguments_with_nils(unquote(i)))) do
-      {argument_at(unquote(i - 1)), array(arguments_with_nils(unquote(i - 1)))}
+    defp do_pop_leaf(array_with_nil_then_wildcards(unquote(i))) do
+      {argument_at(unquote(i - 1)), array_with_nils(unquote(i - 1))}
     end
   end
 
@@ -320,12 +320,12 @@ defmodule A.Vector.Trie do
     list_with_rest(acc)
   end
 
-  # def to_list({arg1, arg2, nil, nil}, level, acc) do
+  # def to_list({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   to_list(arg1, child_level, to_list(arg2, child_level, acc))
   # end
   for i <- args_range() do
-    def to_list(array(arguments_with_nils(unquote(i))), level, acc) do
+    def to_list(array_with_nil_then_wildcards(unquote(i)), level, acc) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -348,12 +348,12 @@ defmodule A.Vector.Trie do
     list_with_rest(reverse_arguments(), acc)
   end
 
-  # def to_reverse_list({arg1, arg2, nil, nil}, level, acc) do
+  # def to_reverse_list({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   to_reverse_list(arg2, child_level, to_reverse_list(arg1, child_level, acc))
   # end
   for i <- args_range() do
-    def to_reverse_list(array(arguments_with_nils(unquote(i))), level, acc) do
+    def to_reverse_list(array_with_nil_then_wildcards(unquote(i)), level, acc) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -377,12 +377,12 @@ defmodule A.Vector.Trie do
     |> reduce_arguments(&strict_or_reducer/2)
   end
 
-  # def member?({arg1, arg2, nil, nil}, level, value) do
+  # def member?({arg1, arg2, nil, _}, level, value) do
   #   child_level = level - bits
   #   member?(arg1, child_level, value) or member?(arg1, child_level, value)
   # end
   for i <- args_range() do
-    def member?(array(arguments_with_nils(unquote(i))), level, value) do
+    def member?(array_with_nil_then_wildcards(unquote(i)), level, value) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -406,12 +406,12 @@ defmodule A.Vector.Trie do
     |> reduce_arguments(&or_reducer/2)
   end
 
-  # def any?({arg1, arg2, nil, nil}, level) do
+  # def any?({arg1, arg2, nil, _}, level) do
   #   child_level = level - bits
   #   any?(arg1, child_level) || any?(arg1, child_level)
   # end
   for i <- args_range() do
-    def any?(array(arguments_with_nils(unquote(i))), level) do
+    def any?(array_with_nil_then_wildcards(unquote(i)), level) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -436,12 +436,12 @@ defmodule A.Vector.Trie do
     |> reduce_arguments(&or_reducer/2)
   end
 
-  # def any?({arg1, arg2, nil, nil}, level, fun) do
+  # def any?({arg1, arg2, nil, _}, level, fun) do
   #   child_level = level - bits
   #   any?(arg1, child_level, fun) || any?(arg1, child_level, fun)
   # end
   for i <- args_range() do
-    def any?(array(arguments_with_nils(unquote(i))), level, fun) do
+    def any?(array_with_nil_then_wildcards(unquote(i)), level, fun) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -465,12 +465,12 @@ defmodule A.Vector.Trie do
     |> reduce_arguments(&and_reducer/2)
   end
 
-  # def all?({arg1, arg2, nil, nil}, level) do
+  # def all?({arg1, arg2, nil, _}, level) do
   #   child_level = level - bits
   #   all?(arg1, child_level) && all?(arg1, child_level)
   # end
   for i <- args_range() do
-    def all?(array(arguments_with_nils(unquote(i))), level) do
+    def all?(array_with_nil_then_wildcards(unquote(i)), level) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -495,12 +495,12 @@ defmodule A.Vector.Trie do
     |> reduce_arguments(&and_reducer/2)
   end
 
-  # def all?({arg1, arg2, nil, nil}, level, fun) do
+  # def all?({arg1, arg2, nil, _}, level, fun) do
   #   child_level = level - bits
   #   all?(arg1, child_level, fun) && all?(arg1, child_level, fun)
   # end
   for i <- args_range() do
-    def all?(array(arguments_with_nils(unquote(i))), level, fun) do
+    def all?(array_with_nil_then_wildcards(unquote(i)), level, fun) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -567,12 +567,12 @@ defmodule A.Vector.Trie do
     reduce_arguments(arguments(), acc, &sum_reducer/2)
   end
 
-  # def sum({arg1, arg2, nil, nil}, level, acc) do
+  # def sum({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   sum(arg2, child_level, sum(arg1, child_level, acc))
   # end
   for i <- args_range() do
-    def sum(array(arguments_with_nils(unquote(i))), level, acc) do
+    def sum(array_with_nil_then_wildcards(unquote(i)), level, acc) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -594,12 +594,12 @@ defmodule A.Vector.Trie do
     reduce_arguments(arguments(), acc, &product_reducer/2)
   end
 
-  # def product({arg1, arg2, nil, nil}, level, acc) do
+  # def product({arg1, arg2, nil, _}, level, acc) do
   #   child_level = level - bits
   #   product(arg2, child_level, product(arg1, child_level, acc))
   # end
   for i <- args_range() do
-    def product(array(arguments_with_nils(unquote(i))), level, acc) do
+    def product(array_with_nil_then_wildcards(unquote(i)), level, acc) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -650,12 +650,12 @@ defmodule A.Vector.Trie do
     array(map_arguments(apply_mapper(var(fun))))
   end
 
-  # def map({arg1, arg2, nil, nil}, level, f) do
+  # def map({arg1, arg2, nil, _}, level, f) do
   #   child_level = level - bits
   #   {map(arg1, child_level, f), map(arg2, child_level, f), nil, nil}
   # end
   for i <- args_range() do
-    def map(array(arguments_with_nils(unquote(i))), level, fun) do
+    def map(array_with_nil_then_wildcards(unquote(i)), level, fun) do
       child_level = decr_level(level)
 
       map_arguments(fn arg ->
@@ -674,12 +674,18 @@ defmodule A.Vector.Trie do
     fun.(leaf, params, acc)
   end
 
-  # def foldl_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
+  # def foldl_leaves({arg1, arg2, nil, _}, level, acc, params, fun) do
   #   child_level = level - bits
   #   foldl_leaves(arg2, child_level, foldl_leaves(arg1, child_level, acc, params, fun), params, fun)
   # end
   for i <- args_range() do
-    defp foldl_leaves(array(arguments_with_nils(unquote(i))), level, acc, params, fun) do
+    defp foldl_leaves(
+           array_with_nil_then_wildcards(unquote(i)),
+           level,
+           acc,
+           params,
+           fun
+         ) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -698,12 +704,18 @@ defmodule A.Vector.Trie do
     fun.(leaf, params, acc)
   end
 
-  # def foldr_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
+  # def foldr_leaves({arg1, arg2, nil, _}, level, acc, params, fun) do
   #   child_level = level - bits
   #   foldr_leaves(arg1, child_level, foldr_leaves(arg2, child_level, acc, params, fun), params, fun)
   # end
   for i <- args_range() do
-    defp foldr_leaves(array(arguments_with_nils(unquote(i))), level, acc, params, fun) do
+    defp foldr_leaves(
+           array_with_nil_then_wildcards(unquote(i)),
+           level,
+           acc,
+           params,
+           fun
+         ) do
       child_level = decr_level(level)
 
       unquote(i)
@@ -842,11 +854,11 @@ defmodule A.Vector.Trie do
   #     with_index(arg1, child_level, offset + (0 <<< level)),
   #     with_index(arg2, child_level, offset + (1 <<< level)),
   #     nil,
-  #     nil
+  #     _
   #  }
   # end
   for i <- args_range() do
-    def with_index(array(arguments_with_nils(unquote(i))), level, offset) do
+    def with_index(array_with_nil_then_wildcards(unquote(i)), level, offset) do
       child_level = decr_level(level)
 
       unquote(i)

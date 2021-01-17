@@ -17,9 +17,9 @@ Benchmarking :array.set/3...
 Benchmarking A.Vector.replace_at/3...
 
 Name                            ips        average  deviation         median         99th %
-:array.set/3                 7.28 M      137.30 ns ±20161.48%          83 ns         411 ns
-A.Vector.replace_at/3        4.66 M      214.47 ns ±13693.73%         120 ns         390 ns
+:array.set/3                 7.78 M      128.49 ns ±19575.51%          84 ns         203 ns
+A.Vector.replace_at/3        4.39 M      227.81 ns ±14407.19%         123 ns         422 ns
 
 Comparison: 
-:array.set/3                 7.28 M
-A.Vector.replace_at/3        4.66 M - 1.56x slower +77.17 ns
+:array.set/3                 7.78 M
+A.Vector.replace_at/3        4.39 M - 1.77x slower +99.32 ns

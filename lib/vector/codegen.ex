@@ -75,13 +75,23 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defmacro array(args \\ @arguments_ast) do
-    expanded_args = expand_validate_args(args, __CALLER__)
-    {:{}, [], expanded_args}
+  defmacro array() do
+    do_array(@arguments_ast)
   end
 
-  defmacro array_ast(args \\ @arguments_ast) do
+  defmacro array(args) do
+    args
+    |> expand_validate_args(__CALLER__)
+    |> do_array()
+  end
+
+  defmacro array_ast() do
+    {:{}, [], [:{}, [], @arguments_ast]}
+  end
+
+  defmacro array_ast(args) do
     expanded_args = expand_validate_args(args, __CALLER__)
+
     {:{}, [], [:{}, [], expanded_args]}
   end
 
@@ -105,13 +115,39 @@ defmodule A.Vector.CodeGen do
     List.duplicate(arg, @branch_factor)
   end
 
-  defmacro arguments_with_wildcards(args \\ @arguments_ast, n) do
+  defmacro arguments_with_wildcards(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_wildcards()
+  end
+
+  defmacro arguments_with_wildcards(args, n) do
     expanded_args = expand_validate_args(args, __CALLER__)
     expanded_n = Macro.expand(n, __CALLER__)
     arguments_with_filler(expanded_args, expanded_n, @wildcard)
   end
 
-  defmacro arguments_with_nils(args \\ @arguments_ast, n) do
+  defmacro array_with_wildcards(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_wildcards()
+    |> do_array()
+  end
+
+  defmacro arguments_with_nils(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_nil()
+  end
+
+  defmacro array_with_nils(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_nil()
+    |> do_array()
+  end
+
+  defmacro arguments_with_nils(args, n) do
     expanded_args = expand_validate_args(args, __CALLER__)
     expanded_n = Macro.expand(n, __CALLER__)
     arguments_with_filler(expanded_args, expanded_n, nil)
@@ -238,8 +274,63 @@ defmodule A.Vector.CodeGen do
     end)
   end
 
+  defmacro arguments_with_nil_then_wildcards(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_nil_then_wildcards()
+  end
+
+  defmacro array_with_nil_then_wildcards(n) do
+    n
+    |> Macro.expand(__CALLER__)
+    |> do_arguments_with_nil_then_wildcards()
+    |> do_array()
+  end
+
   defmacro var(variable) do
     Macro.escape(variable)
+  end
+
+  defp do_array(args) do
+    {:{}, [], args}
+  end
+
+  for i <- 1..@branch_factor do
+    defp do_arguments_with_nil(unquote(i)) do
+      unquote(
+        @arguments_ast
+        |> Enum.take(i)
+        |> Kernel.++(List.duplicate(nil, @branch_factor - i))
+        |> Macro.escape()
+      )
+    end
+  end
+
+  for i <- 1..@branch_factor do
+    defp do_arguments_with_wildcards(unquote(i)) do
+      unquote(
+        @arguments_ast
+        |> Enum.take(i)
+        |> Kernel.++(List.duplicate(@wildcard, @branch_factor - i))
+        |> Macro.escape()
+      )
+    end
+  end
+
+  for i <- 1..(@branch_factor - 1) do
+    defp do_arguments_with_nil_then_wildcards(unquote(i)) do
+      unquote(
+        @arguments_ast
+        |> Enum.take(i)
+        |> Kernel.++([nil])
+        |> Kernel.++(List.duplicate(@wildcard, @branch_factor - 1 - i))
+        |> Macro.escape()
+      )
+    end
+  end
+
+  defp do_arguments_with_nil_then_wildcards(@branch_factor) do
+    @arguments_ast
   end
 
   defp arguments_with_filler(args, n, filler) when n >= 0 and n <= @branch_factor do

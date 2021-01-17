@@ -19,13 +19,13 @@ Benchmarking Enum.slice/3 (list)...
 Benchmarking Enum.slice/3 (vector)...
 
 Name                                ips        average  deviation         median         99th %
-A.Vector.Raw.slice/3             1.65 M      606.80 ns  ±4066.22%         495 ns         935 ns
-Enum.slice/3 (vector)            1.29 M      775.31 ns  ±3587.00%         630 ns        1067 ns
-Enum.slice/3 (list)              1.21 M      826.67 ns  ±3296.67%         707 ns        1115 ns
-A.Vector.slice/3 (vector)        0.80 M     1256.24 ns  ±1955.66%        1088 ns        1943 ns
+A.Vector.Raw.slice/3             1.63 M      615.13 ns  ±4107.63%         498 ns         834 ns
+Enum.slice/3 (vector)            1.25 M      796.90 ns  ±3594.86%         639 ns        1293 ns
+Enum.slice/3 (list)              1.21 M      827.64 ns  ±3344.69%         705 ns        1110 ns
+A.Vector.slice/3 (vector)        0.76 M     1320.96 ns  ±1273.60%        1146 ns        2306 ns
 
 Comparison: 
-A.Vector.Raw.slice/3             1.65 M
-Enum.slice/3 (vector)            1.29 M - 1.28x slower +168.51 ns
-Enum.slice/3 (list)              1.21 M - 1.36x slower +219.87 ns
-A.Vector.slice/3 (vector)        0.80 M - 2.07x slower +649.43 ns
+A.Vector.Raw.slice/3             1.63 M
+Enum.slice/3 (vector)            1.25 M - 1.30x slower +181.76 ns
+Enum.slice/3 (list)              1.21 M - 1.35x slower +212.50 ns
+A.Vector.slice/3 (vector)        0.76 M - 2.15x slower +705.83 ns

@@ -24,7 +24,7 @@ defmodule A.Vector.Node do
   # end
   for i <- args_range() do
     def from_incomplete_list(take_arguments(unquote(i))) do
-      array(arguments_with_nils(unquote(i)))
+      array_with_nils(unquote(i))
     end
   end
 
@@ -74,7 +74,7 @@ defmodule A.Vector.Node do
     #   {arg1, arg2, nil, nil}
     # end
     def take(array(arguments_with_wildcards(unquote(i))), _amount = unquote(i)) do
-      array(arguments_with_nils(unquote(i)))
+      array_with_nils(unquote(i))
     end
   end
 end

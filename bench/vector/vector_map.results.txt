@@ -19,13 +19,13 @@ Benchmarking A.Vector.map/2...
 Benchmarking Enum.map/2...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.Raw.map/2      663.46 K        1.51 μs  ±1599.61%        1.35 μs        2.51 μs
-A.Vector.map/2          641.23 K        1.56 μs  ±1555.41%        1.40 μs        2.55 μs
-Enum.map/2              595.05 K        1.68 μs  ±1387.63%        1.52 μs        2.42 μs
-:array.map/2            265.91 K        3.76 μs   ±362.37%        3.52 μs        6.08 μs
+A.Vector.Raw.map/2      654.96 K        1.53 μs  ±1543.68%        1.33 μs        2.37 μs
+A.Vector.map/2          626.04 K        1.60 μs  ±1476.43%        1.38 μs        2.86 μs
+Enum.map/2              600.44 K        1.67 μs  ±1098.19%        1.51 μs        3.03 μs
+:array.map/2            246.68 K        4.05 μs   ±380.47%        3.49 μs        8.32 μs
 
 Comparison: 
-A.Vector.Raw.map/2      663.46 K
-A.Vector.map/2          641.23 K - 1.03x slower +0.0523 μs
-Enum.map/2              595.05 K - 1.11x slower +0.173 μs
-:array.map/2            265.91 K - 2.50x slower +2.25 μs
+A.Vector.Raw.map/2      654.96 K
+A.Vector.map/2          626.04 K - 1.05x slower +0.0705 μs
+Enum.map/2              600.44 K - 1.09x slower +0.139 μs
+:array.map/2            246.68 K - 2.66x slower +2.53 μs
