@@ -278,6 +278,7 @@ defmodule A.Vector do
   """
 
   alias A.Vector.{EmptyError, IndexError, Raw}
+  require Raw
 
   @behaviour Access
 

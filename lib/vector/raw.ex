@@ -6,6 +6,8 @@ defmodule A.Vector.Raw do
 
   alias A.Vector.{Node, Tail, Trie}
 
+  @empty {0}
+
   defmacrop small(size, tail) do
     quote do
       {unquote(size), unquote(tail)}
@@ -18,6 +20,10 @@ defmodule A.Vector.Raw do
     end
   end
 
+  defmacrop empty_pattern() do
+    quote do: {_}
+  end
+
   defmacrop tuple_ast(list) when is_list(list) do
     quote do
       {:{}, [], unquote(list)}
@@ -25,22 +31,23 @@ defmodule A.Vector.Raw do
   end
 
   @spec empty :: t()
-  def empty, do: :empty
+  def empty, do: @empty
 
   @type value :: term
   @type size :: non_neg_integer
   @type tail_offset :: non_neg_integer
   @type shift :: non_neg_integer
   @type t(value) ::
-          :empty
+          {0}
           | {size, Tail.t(value)}
           | {size, tail_offset, shift, Trie.t(value), Tail.t(value)}
   @type t() :: t(value)
 
-  @spec size(t()) :: non_neg_integer
-  def size(large(size, _, _, _, _)), do: size
-  def size(small(size, _)), do: size
-  def size(:empty), do: 0
+  defmacro size(vector) do
+    quote do
+      :erlang.element(1, unquote(vector))
+    end
+  end
 
   @spec new(Enumerable.t()) :: t()
   def new(enumerable) do
@@ -57,7 +64,7 @@ defmodule A.Vector.Raw do
   end
 
   @spec from_list([val]) :: t(val) when val: value
-  def from_list([]), do: :empty
+  def from_list([]), do: @empty
 
   def from_list(list) when is_list(list) do
     {size, tail_offset, leaves, tail} = Trie.group_leaves(list)
@@ -69,7 +76,7 @@ defmodule A.Vector.Raw do
   end
 
   @spec from_mapped_list([v1], (v1 -> v2)) :: t(v2) when v1: value, v2: value
-  def from_mapped_list([], _fun), do: :empty
+  def from_mapped_list([], _fun), do: @empty
 
   def from_mapped_list(list, fun) when is_list(list) do
     {size, tail_offset, leaves, tail} = Trie.group_map_leaves(list, fun)
@@ -80,7 +87,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def from_list_ast([]), do: :empty
+  def from_list_ast([]), do: unquote(Macro.escape(@empty) |> Macro.escape())
 
   def from_list_ast(list) do
     {size, tail_offset, leaves, tail} = Trie.group_leaves_ast(list)
@@ -116,7 +123,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def append(:empty, value) do
+  def append(empty_pattern(), value) do
     small(1, unquote(C.value_with_nils(C.var(value)) |> C.array()))
   end
 
@@ -157,7 +164,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def append_many(:empty, list) do
+  def append_many(empty_pattern(), list) do
     from_list(list)
   end
 
@@ -168,12 +175,12 @@ defmodule A.Vector.Raw do
   end
 
   @spec duplicate(val, non_neg_integer) :: t(val) when val: value
-  def duplicate(_, 0), do: :empty
+  def duplicate(_, 0), do: @empty
 
   def duplicate(value, n) do
     case Trie.duplicate_leaves(value, n) do
       :empty ->
-        :empty
+        @empty
 
       {:small, tail} ->
         small(n, tail)
@@ -202,7 +209,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def fetch_positive(:empty, _index) do
+  def fetch_positive(empty_pattern(), _index) do
     :error
   end
 
@@ -245,7 +252,7 @@ defmodule A.Vector.Raw do
     elem(tail, 0)
   end
 
-  def first(:empty, default) do
+  def first(empty_pattern(), default) do
     default
   end
 
@@ -261,7 +268,7 @@ defmodule A.Vector.Raw do
     elem(tail, size - 1)
   end
 
-  def last(:empty, default) do
+  def last(empty_pattern(), default) do
     default
   end
 
@@ -292,7 +299,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def replace_positive(:empty, _index, _value) do
+  def replace_positive(empty_pattern(), _index, _value) do
     :error
   end
 
@@ -336,7 +343,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def update_positive(:empty, _index, _fun) do
+  def update_positive(empty_pattern(), _index, _fun) do
     :error
   end
 
@@ -422,7 +429,7 @@ defmodule A.Vector.Raw do
   end
 
   def pop_last(small(1, tail)) do
-    {elem(tail, 0), :empty}
+    {elem(tail, 0), @empty}
   end
 
   def pop_last(small(size, tail)) do
@@ -431,7 +438,7 @@ defmodule A.Vector.Raw do
     {elem(tail, new_size), new_vector}
   end
 
-  def pop_last(:empty), do: :error
+  def pop_last(empty_pattern()), do: :error
 
   # Note: deletion is not efficient
   # Could still be implemented a bit nicer to reuse leaves when possible
@@ -493,7 +500,7 @@ defmodule A.Vector.Raw do
     Tail.partial_to_list(tail, size)
   end
 
-  def to_list(:empty) do
+  def to_list(empty_pattern()) do
     []
   end
 
@@ -507,7 +514,7 @@ defmodule A.Vector.Raw do
     Tail.partial_reverse(tail, size)
   end
 
-  def to_reverse_list(:empty) do
+  def to_reverse_list(empty_pattern()) do
     []
   end
 
@@ -526,7 +533,7 @@ defmodule A.Vector.Raw do
     |> List.foldl(acc, fun)
   end
 
-  def foldl(:empty, acc, _fun), do: acc
+  def foldl(empty_pattern(), acc, _fun), do: acc
 
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   def foldr(vector, acc, fun)
@@ -544,7 +551,7 @@ defmodule A.Vector.Raw do
     |> List.foldr(acc, fun)
   end
 
-  def foldr(:empty, acc, _fun), do: acc
+  def foldr(empty_pattern(), acc, _fun), do: acc
 
   @spec each(t(val), (val -> term)) :: :ok when val: value
   def each(vector, fun)
@@ -561,7 +568,7 @@ defmodule A.Vector.Raw do
     |> Enum.each(fun)
   end
 
-  def each(:empty, _fun), do: :ok
+  def each(empty_pattern(), _fun), do: :ok
 
   @spec sum(t(number)) :: number
   def sum(vector)
@@ -575,7 +582,7 @@ defmodule A.Vector.Raw do
     Tail.partial_sum(tail, size, 0)
   end
 
-  def sum(:empty), do: 0
+  def sum(empty_pattern()), do: 0
 
   @spec product(t(number)) :: number
   def product(vector)
@@ -589,7 +596,7 @@ defmodule A.Vector.Raw do
     Tail.partial_product(tail, size, 1)
   end
 
-  def product(:empty), do: 1
+  def product(empty_pattern()), do: 1
 
   @spec intersperse(t(val), sep) :: [val | sep] when val: value, sep: value
   def intersperse(vector, separator)
@@ -604,7 +611,7 @@ defmodule A.Vector.Raw do
     Tail.partial_intersperse(tail, size, separator)
   end
 
-  def intersperse(:empty, _separator), do: []
+  def intersperse(empty_pattern(), _separator), do: []
 
   @spec join_as_iodata(t(val), String.t()) :: iodata when val: String.Chars.t()
   def join_as_iodata(vector, joiner)
@@ -619,9 +626,9 @@ defmodule A.Vector.Raw do
     Tail.partial_join_as_iodata(tail, size, joiner)
   end
 
-  def join_as_iodata(:empty, _separator), do: []
+  def join_as_iodata(empty_pattern(), _separator), do: []
 
-  def max(:empty) do
+  def max(empty_pattern()) do
     raise A.Vector.EmptyError
   end
 
@@ -636,7 +643,7 @@ defmodule A.Vector.Raw do
     end)
   end
 
-  def min(:empty) do
+  def min(empty_pattern()) do
     raise A.Vector.EmptyError
   end
 
@@ -659,7 +666,7 @@ defmodule A.Vector.Raw do
     Tail.partial_member?(tail, size, value)
   end
 
-  def member?(:empty, _value), do: false
+  def member?(empty_pattern(), _value), do: false
 
   @spec any?(t()) :: boolean()
 
@@ -672,7 +679,7 @@ defmodule A.Vector.Raw do
     Tail.partial_any?(tail, size) |> as_boolean()
   end
 
-  def any?(:empty), do: false
+  def any?(empty_pattern()), do: false
 
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
@@ -685,7 +692,7 @@ defmodule A.Vector.Raw do
     Tail.partial_any?(tail, size, fun) |> as_boolean()
   end
 
-  def any?(:empty, _fun), do: false
+  def any?(empty_pattern(), _fun), do: false
 
   @spec all?(t()) :: boolean()
 
@@ -698,7 +705,7 @@ defmodule A.Vector.Raw do
     Tail.partial_all?(tail, size) |> as_boolean()
   end
 
-  def all?(:empty), do: true
+  def all?(empty_pattern()), do: true
 
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
@@ -711,7 +718,7 @@ defmodule A.Vector.Raw do
     Tail.partial_all?(tail, size, fun) |> as_boolean()
   end
 
-  def all?(:empty, _fun), do: true
+  def all?(empty_pattern(), _fun), do: true
 
   defp as_boolean(value) do
     if value do
@@ -737,7 +744,7 @@ defmodule A.Vector.Raw do
     small(size, new_tail)
   end
 
-  def map(:empty, _fun), do: :empty
+  def map(empty_pattern(), _fun), do: @empty
 
   @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
   def filter(vector, fun) do
@@ -782,7 +789,7 @@ defmodule A.Vector.Raw do
     Tail.slice(tail, start, last)
   end
 
-  def slice(:empty, _start, _last), do: []
+  def slice(empty_pattern(), _start, _last), do: []
 
   @compile {:inline, take: 2}
   @spec take(t(val), non_neg_integer) :: t(val) when val: value
@@ -791,7 +798,7 @@ defmodule A.Vector.Raw do
   def take(large(size, tail_offset, level, trie, tail) = vector, amount) do
     case amount do
       0 ->
-        :empty
+        @empty
 
       too_big when too_big >= size ->
         vector
@@ -817,7 +824,7 @@ defmodule A.Vector.Raw do
   def take(small(size, tail) = vector, amount) do
     case amount do
       0 ->
-        :empty
+        @empty
 
       too_big when too_big >= size ->
         vector
@@ -828,7 +835,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def take(:empty, _amount), do: :empty
+  def take(empty_pattern(), _amount), do: @empty
 
   defp get_tail_offset(size) do
     size - C.radix_rem(size - 1) - 1
@@ -849,5 +856,5 @@ defmodule A.Vector.Raw do
     small(size, new_tail)
   end
 
-  def with_index(:empty, _fun), do: :empty
+  def with_index(empty_pattern(), _fun), do: @empty
 end
