@@ -1711,6 +1711,43 @@ defmodule A.Vector do
     %__MODULE__{internal: new_internal}
   end
 
+  @doc """
+  Returns a random element of a `vector`.
+
+  Raises `Vector.EmptyError` if `vector` is empty.
+
+  Like `Enum.random/1`, this function uses Erlang's [`:rand` module](http://www.erlang.org/doc/man/rand.html)
+  to calculate the random value.
+  Check its documentation for setting a different random algorithm or a different seed.
+
+  Runs in effective constant time, and is therefore more efficient than `Enum.random/1` on lists.
+
+  ## Examples
+
+      # Although not necessary, let's seed the random algorithm
+      iex>:rand.seed(:exrop, {101, 102, 103})
+      iex> A.Vector.new([1, 2, 3]) |> A.Vector.random()
+      3
+      iex> A.Vector.new([1, 2, 3]) |> A.Vector.random()
+      2
+      iex> A.Vector.new(1..1_000) |> A.Vector.random()
+      846
+      iex> A.Vector.new([]) |> A.Vector.random()
+      ** (A.Vector.EmptyError) empty vector error
+
+  """
+  @spec random(t(val)) :: t(val) when val: value
+  def random(%__MODULE__{internal: internal}) do
+    case Raw.size(internal) do
+      0 ->
+        raise EmptyError
+
+      size ->
+        index = :rand.uniform(size) - 1
+        Raw.fetch_positive!(internal, index)
+    end
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 

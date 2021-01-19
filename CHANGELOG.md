@@ -5,6 +5,7 @@
 ### Enhancements
 
 * Add `A.Vector.with_index/2`
+* Add `A.Vector.random/1`
 
 ## v0.4.3 (2021-01-12)
 

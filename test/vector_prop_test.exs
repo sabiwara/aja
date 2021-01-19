@@ -237,6 +237,11 @@ defmodule A.Vector.PropTest do
 
       assert Enum.map_intersperse(list, nil, &inspect/1) |> A.Vector.new() ===
                A.Vector.map_intersperse(vector, nil, &inspect/1)
+
+      if list_length != 0 do
+        rand = A.Vector.random(vector)
+        assert rand in vector
+      end
     end
   end
 
