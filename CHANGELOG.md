@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* Add `A.vec_size/1` macro
 * Add `A.Vector.with_index/2`
 * Add `A.Vector.random/1`
 

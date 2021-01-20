@@ -247,14 +247,6 @@ defmodule A do
     |> ast_from_list()
   end
 
-  defp ast_from_list(list) do
-    internal_ast = A.Vector.Raw.from_list_ast(list)
-
-    quote do
-      %A.Vector{internal: unquote(internal_ast)}
-    end
-  end
-
   defmacro vec({:_, _, _}) do
     quote do
       %A.Vector{internal: _}
@@ -281,5 +273,57 @@ defmodule A do
       vec([]) = empty_vector
       vec(_) = vector
     """
+  end
+
+  defp ast_from_list(list) do
+    internal_ast = A.Vector.Raw.from_list_ast(list)
+
+    quote do
+      %A.Vector{internal: unquote(internal_ast)}
+    end
+  end
+
+  @doc """
+  Returns the size of a `vector`.
+
+  It is implemented as a macro so that it can be used in guards.
+
+  When used outside of a guard, it will just be replaced by a call to `A.Vector.size/1`.
+
+  When used in guards, it will fail if called on something else than an `A.Vector`.
+  It is recommended to verify the type first.
+
+  Runs in constant time.
+
+  ## Examples
+
+      iex> import A
+      iex> match?(v when vec_size(v) > 20, A.Vector.new(1..10))
+      false
+      iex> match?(v when vec_size(v) < 5, A.Vector.new([1, 2, 3]))
+      true
+      iex> vec_size(A.Vector.new([1, 2, 3]))
+      3
+
+  """
+
+  defmacro vec_size(vector) do
+    case __CALLER__.context do
+      nil ->
+        quote do
+          A.Vector.size(unquote(vector))
+        end
+
+      :match ->
+        raise ArgumentError, "`A.vec_size/1` cannot be used in match"
+
+      :guard ->
+        quote do
+          :erlang.element(
+            1,
+            :erlang.map_get(:internal, unquote(vector))
+          )
+        end
+    end
   end
 end

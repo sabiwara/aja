@@ -196,6 +196,28 @@ defmodule ATest do
     assert vec(_) = A.Vector.new(1..100)
   end
 
+  test "vec_size/1 in guards" do
+    lt? = &match?(v when vec_size(v) < 10, &1)
+    gt? = &match?(v when vec_size(v) > 10, &1)
+
+    assert lt?.(A.Vector.new(1..9))
+    refute lt?.(A.Vector.new(1..10))
+    refute lt?.([])
+    refute lt?.(%{})
+
+    assert gt?.(A.Vector.new(1..11))
+    refute gt?.(A.Vector.new(1..10))
+    refute gt?.([])
+    refute gt?.(%{})
+  end
+
+  test "vec_size/1 outside guards" do
+    assert 20 = A.Vector.new(1..20) |> vec_size()
+    assert 1000 = A.Vector.new(1..1000) |> vec_size()
+
+    assert_raise FunctionClauseError, fn -> 8 = %{internal: {8}} |> vec_size() end
+  end
+
   test "sigil_i" do
     "a" = ~i"a"
     "ゴゴゴ" = ~i"ゴゴゴ"

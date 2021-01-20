@@ -52,13 +52,14 @@ defmodule A.Vector do
       iex> {9, updated} = pop_in(vector[8]); updated
       #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 10])>
 
-  ## Convenience [`vec/1`](`A.vec/1`) macro
+  ## Convenience [`vec/1`](`A.vec/1`) and [`vec_size/1`](`A.vec_size/1`) macros
 
   The `A.Vector` module can be used without any macro.
+
   The `A.vec/1` macro does however provide some syntactic sugar to make
   it more convenient to work with vectors of known size, namely:
-  - construct new vectors of known size faster, by generating the AST at compile time
   - pattern match on elements for vectors of known size
+  - construct new vectors of known size faster, by generating the AST at compile time
 
   Examples:
 
@@ -67,6 +68,12 @@ defmodule A.Vector do
       #A<vec([1, 2, 3])>
       iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
       3
+
+  The `A.vec_size/1` macro can be used in guards:
+
+      iex> import A
+      iex> match?(v when vec_size(v) > 99, A.Vector.new(1..100))
+      true
 
   ## Pattern-matching and opaque type
 
@@ -306,6 +313,7 @@ defmodule A.Vector do
       0
 
   """
+  @compile {:inline, size: 1}
   @spec size(t()) :: non_neg_integer
   def size(%__MODULE__{internal: internal}) do
     Raw.size(internal)

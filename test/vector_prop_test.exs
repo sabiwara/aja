@@ -2,7 +2,7 @@ defmodule A.Vector.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  import A, only: [vec: 1]
+  import A, only: [vec: 1, vec_size: 1]
 
   # Property-based testing:
 
@@ -170,6 +170,9 @@ defmodule A.Vector.PropTest do
       list_length = length(list)
       assert list_length === A.Vector.size(vector)
       assert list_length === Enum.count(vector)
+      assert match?(v when vec_size(v) == list_length, vector)
+      assert match?(v when vec_size(v) >= list_length, vector)
+      refute match?(v when vec_size(v) < list_length, vector)
 
       assert capture_error(Enum.min(list)) == capture_error(A.Vector.min(vector))
       assert capture_error(Enum.max(list)) == capture_error(A.Vector.max(vector))

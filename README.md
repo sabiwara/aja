@@ -43,7 +43,7 @@ true
 `A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,
 with efficiency in mind.
 
-The `A.vec/1` macro, while being totally optional, can make it easier to work with vectors
+The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make it easier to work with vectors
 and make pattern-matching possible:
 
 ```elixir
@@ -52,6 +52,8 @@ iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5)
 #A<vec([1, 2, 3, 4, 5])>
 iex> {a, c, e}
 {1, 3, 5}
+iex> match?(v when vec_size(v) > 9, vec(1..10))
+true
 ```
 
 #### Ordered maps: `A.OrdMap`
