@@ -56,6 +56,13 @@ iex> match?(v when vec_size(v) > 9, vec(1..10))
 true
 ```
 
+The `A.+++/2` operator can make appending to a vector more explicit:
+
+```elixir
+iex> vec([1, 2, 3]) +++ vec([4, 5])
+#A<vec([1, 2, 3, 4, 5])>
+```
+
 #### Ordered maps: `A.OrdMap`
 
 The standard library does not offer any similar functionality:

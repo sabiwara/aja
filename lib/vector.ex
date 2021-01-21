@@ -76,6 +76,14 @@ defmodule A.Vector do
       iex> match?(v when vec_size(v) > 99, A.Vector.new(1..100))
       true
 
+  ## Convenience [`+++/2`](`A.+++/2`) operator
+
+  The `A.+++/2` operator can make appending to a vector more compact by aliasing `A.Vector.append_many/2`:
+
+      iex> import A
+      iex> vec([1, 2, 3]) +++ vec([4, 5])
+      #A<vec([1, 2, 3, 4, 5])>
+
   ## Pattern-matching and opaque type
 
   An `A.Vector` is represented internally using the `%A.Vector{}` struct. This struct
@@ -177,7 +185,7 @@ defmodule A.Vector do
   ### Successive appends
 
   If you just need to append all elements of an enumerable, it is more efficient to use
-  `A.Vector.concat/2` than successive calls to `A.Vector.append/2`:
+  `A.Vector.concat/2` or its alias `A.+++/2` than successive calls to `A.Vector.append/2`:
 
   **DON'T**
 
@@ -187,6 +195,7 @@ defmodule A.Vector do
   **DO**
 
       A.Vector.concat(vector, enumerable)
+      vector +++ enumerable
 
   ### Prefer `A.Vector` to `Enum` for vectors
 

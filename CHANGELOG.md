@@ -22,6 +22,7 @@
 * Add `A.Vector.with_index/2`
 * Add `A.Vector.random/1`, `A.Vector.take_random/2` and `A.Vector.shuffle/1`
 * Drastically improve efficiency of `A.Vector.duplicate/2` ⚡️⚡️⚡️
+* Add `A.+++/2` convenience operator
 
 ### Breaking changes
 

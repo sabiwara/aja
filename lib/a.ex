@@ -306,7 +306,6 @@ defmodule A do
       3
 
   """
-
   defmacro vec_size(vector) do
     case __CALLER__.context do
       nil ->
@@ -326,4 +325,22 @@ defmodule A do
         end
     end
   end
+
+  @doc """
+  Convenience operator to concatenate an enumerable `right` to a vector `left`.
+
+  `left` has to be an `A.Vector`, `right` can be any `Enumerable`.
+
+  It is just an alias for `A.Vector.append_many/2`.
+
+  ## Examples
+
+      iex> import A
+      iex> vec(5..1) +++ vec([:boom, nil])
+      #A<vec([5, 4, 3, 2, 1, :boom, nil])>
+      iex> vec(5..1) +++ 0..3
+      #A<vec([5, 4, 3, 2, 1, 0, 1, 2, 3])>
+
+  """
+  defdelegate left +++ right, to: A.Vector, as: :append_many
 end
