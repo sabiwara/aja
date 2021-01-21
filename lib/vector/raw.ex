@@ -857,4 +857,30 @@ defmodule A.Vector.Raw do
   end
 
   def with_index(empty_pattern(), _fun), do: @empty
+
+  @compile {:inline, random: 1}
+  def random(empty_pattern()) do
+    raise A.Vector.EmptyError
+  end
+
+  def random(vector) do
+    index = :rand.uniform(size(vector)) - 1
+    fetch_positive!(vector, index)
+  end
+
+  def take_random(empty_pattern(), _amount), do: @empty
+  def take_random(_vector, 0), do: @empty
+
+  def take_random(vector, 1) do
+    picked = random(vector)
+    small(1, unquote(C.var(picked) |> C.value_with_nils() |> C.array()))
+  end
+
+  def take_random(vector, amount) when amount >= size(vector) do
+    vector |> to_list() |> Enum.shuffle() |> from_list()
+  end
+
+  def take_random(vector, amount) do
+    vector |> to_list() |> Enum.take_random(amount) |> from_list()
+  end
 end

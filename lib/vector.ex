@@ -1747,14 +1747,64 @@ defmodule A.Vector do
   """
   @spec random(t(val)) :: t(val) when val: value
   def random(%__MODULE__{internal: internal}) do
-    case Raw.size(internal) do
-      0 ->
-        raise EmptyError
+    Raw.random(internal)
+  end
 
-      size ->
-        index = :rand.uniform(size) - 1
-        Raw.fetch_positive!(internal, index)
-    end
+  @doc """
+  Takes `amount` random elements from `vector`.
+
+  Note that, unless `amount` is `0` or `1`, this function will
+  traverse the whole `vector` to get the random sub-vector.
+
+  If `amount` is more than the `vector` size, this is equivalent to shuffling the `vector`:
+  the returned vector cannot be bigger than the original one.
+
+  See `Enum.random/1` for notes on implementation and random seed.
+
+  Runs in linerar time (except for `amount <= 1`, which is effective constant time).
+
+  ## Examples
+
+      # Although not necessary, let's seed the random algorithm
+      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> A.Vector.new(1..10) |> A.Vector.take_random(2)
+      #A<vec([7, 2])>
+      iex> A.Vector.new([:foo, :bar, :baz]) |> A.Vector.take_random(100)
+      #A<vec([:bar, :baz, :foo])>
+
+  """
+  @spec take_random(t(val), non_neg_integer) :: t(val) when val: value
+  def take_random(%__MODULE__{internal: internal}, amount)
+      when is_integer(amount) and amount >= 0 do
+    new_internal = Raw.take_random(internal, amount)
+    %__MODULE__{internal: new_internal}
+  end
+
+  @doc """
+  Returns a new vector with the elements of `vector` shuffled.
+
+  See `Enum.shuffle/1` for notes on implementation and random seed.
+
+  ## Examples
+
+      # Although not necessary, let's seed the random algorithm
+      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
+      #A<vec([3, 1, 2])>
+      iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
+      #A<vec([1, 3, 2])>
+
+  """
+  @spec shuffle(t(val)) :: t(val) when val: value
+  def shuffle(%__MODULE__{internal: internal}) do
+    # Note: benchmarks suggest that this is already fast without further optimization
+    new_internal =
+      internal
+      |> Raw.to_list()
+      |> Enum.shuffle()
+      |> Raw.from_list()
+
+    %__MODULE__{internal: new_internal}
   end
 
   defimpl Inspect do

@@ -241,9 +241,21 @@ defmodule A.Vector.PropTest do
       assert Enum.map_intersperse(list, nil, &inspect/1) |> A.Vector.new() ===
                A.Vector.map_intersperse(vector, nil, &inspect/1)
 
+      shuffled = A.Vector.shuffle(vector)
+      assert ^list_length = A.Vector.size(shuffled)
+
+      assert min(list_length, amount) == A.Vector.take_random(vector, amount) |> A.Vector.size()
+
+      assert A.Vector.new() == A.Vector.take_random(vector, 0)
+
       if list_length != 0 do
         rand = A.Vector.random(vector)
         assert rand in vector
+        assert rand in shuffled
+
+        assert vec([rand]) = A.Vector.take_random(vector, 1)
+        assert rand in vector
+        assert rand in shuffled
       end
     end
   end
