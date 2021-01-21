@@ -215,7 +215,7 @@ defmodule ATest do
     assert 20 = A.Vector.new(1..20) |> vec_size()
     assert 1000 = A.Vector.new(1..1000) |> vec_size()
 
-    assert_raise FunctionClauseError, fn -> 8 = %{internal: {8}} |> vec_size() end
+    assert_raise FunctionClauseError, fn -> 8 = %{__vector__: {8}} |> vec_size() end
   end
 
   test "sigil_i" do

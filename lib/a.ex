@@ -227,7 +227,7 @@ defmodule A do
 
       iex> import A
       iex> quote do vec([1, foo, _]) end |> Macro.expand(__ENV__) |> Macro.to_string()
-      "%A.Vector{internal: {3, {1, foo, _, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil}}}"
+      "%A.Vector{__vector__: {3, {1, foo, _, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil}}}"
 
   """
   defmacro vec(list) when is_list(list) do
@@ -249,7 +249,7 @@ defmodule A do
 
   defmacro vec({:_, _, _}) do
     quote do
-      %A.Vector{internal: _}
+      %A.Vector{__vector__: _}
     end
   end
 
@@ -279,7 +279,7 @@ defmodule A do
     internal_ast = A.Vector.Raw.from_list_ast(list)
 
     quote do
-      %A.Vector{internal: unquote(internal_ast)}
+      %A.Vector{__vector__: unquote(internal_ast)}
     end
   end
 
@@ -321,7 +321,7 @@ defmodule A do
         quote do
           :erlang.element(
             1,
-            :erlang.map_get(:internal, unquote(vector))
+            :erlang.map_get(:__vector__, unquote(vector))
           )
         end
     end

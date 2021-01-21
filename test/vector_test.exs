@@ -81,8 +81,6 @@ defmodule A.VectorTest do
     vector =
       Enum.reduce(range, A.Vector.new(), fn value, vec ->
         new_vec = A.Vector.append(vec, value)
-        assert {^value, updated} = A.Vector.pop_last!(new_vec)
-        assert vec.internal == updated.internal
         assert {^value, ^vec} = A.Vector.pop_last!(new_vec)
         new_vec
       end)
