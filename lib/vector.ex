@@ -1745,7 +1745,7 @@ defmodule A.Vector do
       ** (A.Vector.EmptyError) empty vector error
 
   """
-  @spec random(t(val)) :: t(val) when val: value
+  @spec random(t(val)) :: val when val: value
   def random(%__MODULE__{internal: internal}) do
     Raw.random(internal)
   end
