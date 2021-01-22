@@ -131,11 +131,6 @@ defmodule A.RBSet do
       iex> div(100 * rb_set_size, map_set_size)
       118
 
-  ## Underlying Red-Black Tree implementation
-
-  The underlying red-black tree implementation is available in `A.RBTree.Set`.
-  The algorithm detail is described in [its documentation](`A.RBTree.Set`).
-
   """
 
   # TODO: inline what is relevant

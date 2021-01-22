@@ -132,12 +132,6 @@ defmodule A.RBMap do
       iex> div(100 * rb_map_size, map_size)
       138
 
-  ## Underlying Red-Black Tree implementation
-
-  The underlying red-black tree implementation is available in `A.RBTree.Map` and is used
-  in other modules such as `A.OrdMap` as well.
-  The algorithm detail is described in [its documentation](`A.RBTree.Map`).
-
   """
 
   @behaviour Access
@@ -1010,9 +1004,11 @@ defmodule A.RBMap do
 
   # TODO document or doc false?
 
+  @doc false
   @spec iterator(t(k, v)) :: iterator(k, v) when k: key, v: value
   def iterator(%__MODULE__{root: root}), do: A.RBTree.Map.iterator(root)
 
+  @doc false
   @spec next(iterator(k, v)) :: {k, v, iterator(k, v)} | nil
         when k: key, v: value
   defdelegate next(iterator), to: A.RBTree.Map

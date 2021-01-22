@@ -12,6 +12,7 @@
 ### Breaking changes
 
   * Changed internal representation of `A.Vector` (only breaking if persisted)
+  * Stop documenting and exposing internal trees (A.RBTree)
 
 ## v0.4.3 (2021-01-12)
 
@@ -89,7 +90,7 @@ This release is mostly focused on vector slicing and performance ⚡️
   * Changed signature of `A.OrdMap.foldl/3`, `A.OrdMap.foldr/3`,
     `A.RBMap.foldl/3`, `A.RBMap.foldr/3`
   * Internals of all data structures have been changed
-  * Split `A.RBTree` as `A.RBTree.Map` and `A.RBTree.Set`
+  * Split `A.RBTree` as A.RBTree.Map and A.RBTree.Set
 
 ## v0.2.0 (2020-10-25)
 

@@ -1,49 +1,5 @@
 defmodule A.RBTree.Set do
-  @moduledoc ~S"""
-  A low-level implementation of a Red-Black Tree Set, used under the hood in `A.RBSet`.
-
-  Implementation following Chris Okasaki's "Purely Functional Data Structures",
-  with the delete method as described in
-  [Deletion: The curse of the red-black tree](http://matt.might.net/papers/germane2014deletion.pdf)
-  from German and Might.
-
-  It should have equivalent performance as `:gb_sets` from the Erlang standard library (see benchmarks).
-
-  ## Disclaimer
-
-  This module is the low-level implementation behind other data structures, it is NOT meant to be used directly.
-
-  If you want something ready to use, you should check `A.RBSet`.
-
-  ## Examples
-
-      iex> A.RBTree.Set.new([])
-      :E
-      iex> set = A.RBTree.Set.new([2.0, 3, 2, 1, 3, 3])
-      {:B, {:R, :E, 1, :E}, 2, {:R, :E, 3, :E}}
-      iex> A.RBTree.Set.member?(set, 3)
-      true
-      iex> {:new, _new_set} = A.RBTree.Set.insert(set, 2.5)
-      {:new, {:B, {:B, {:R, :E, 1, :E}, 2, :E}, 2.5, {:B, :E, 3, :E}}}
-      iex> A.RBTree.Set.delete(set, 2)
-      {:B, {:R, :E, 1, :E}, 3, :E}
-      iex> A.RBTree.Set.delete(set, 4)
-      :error
-      iex> A.RBTree.Set.new([9, 8, 8, 7, 4, 1, 1, 2, 3, 3, 3, 9, 5, 6]) |> A.RBTree.Set.to_list()
-      [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-  ## Note about numbers
-
-  Unlike regular maps, `A.RBTree.Set`s only uses ordering for key comparisons,
-  meaning integers and floats are indistiguinshable as keys.
-
-      iex> MapSet.new([1, 2, 3]) |> MapSet.member?(2.0)
-      false
-      iex> A.RBTree.Set.new([1, 2, 3]) |> A.RBTree.Set.member?(2.0)
-      true
-
-  Erlang's `:gb_sets` module works the same.
-  """
+  @moduledoc false
 
   # TODO: inline what is relevant
   # WARNING: be careful with non-tail recursive functions looping on the full tree!
