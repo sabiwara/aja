@@ -115,8 +115,8 @@ defmodule A.Vector do
 
   Even a 1B x 1B matrix of the same element costs virtually nothing!
 
-      iex> big_n = 1_000_000_000
-      iex> 0 |> A.Vector.duplicate(big_n) |> A.Vector.duplicate(big_n) |> :erts_debug.size()
+      big_n = 1_000_000_000
+      0 |> A.Vector.duplicate(big_n) |> A.Vector.duplicate(big_n) |> :erts_debug.size()
       538
 
 
