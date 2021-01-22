@@ -37,7 +37,7 @@ iex> 3 in vector
 true
 ```
 
-`A.Vector` should be faster and easier to use than Erlang's
+`A.Vector` is blazing fast and easier to use from Elixir than Erlang's
 [`:array`](http://erlang.org/doc/man/array.html) module.
 
 `A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,

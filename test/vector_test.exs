@@ -90,7 +90,8 @@ defmodule A.VectorTest do
   end
 
   test "duplicate/2" do
-    for i <- Enum.concat(0..50, [500, 5_000, 50_000]) do
+    for i <-
+          Enum.concat(0..255, [256, 257, 274, 500, 512, 513, 4353, 5_000, 8193, 50_000, 500_000]) do
       vector = A.Vector.duplicate(nil, i)
       list = List.duplicate(nil, i)
 

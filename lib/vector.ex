@@ -18,6 +18,7 @@ defmodule A.Vector do
   However `A.Vector`:
   - is a better Elixir citizen: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
   - should have higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
+  - mirrors the `Enum` module API, with highly optimized versions for vectors (`join/1`, `sum/1`, `random/1`...)
   - supports negative indexing (e.g. `-1` corresponds to the last element)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
@@ -103,15 +104,20 @@ defmodule A.Vector do
       iex> memory_for.(10_000)
       [20000, 11370]
 
-  If you need to work with vectors containing mostly the same value,
-  `A.Vector.duplicate/2` should be highly efficient both in time and
-  memory, since it minimizes the number of actual copies and reuses the
-  same nested structures under the hood:
+  If you need to work with vectors containing mostly the same value, `A.Vector.duplicate/2`
+  is highly efficient both in time and memory (logarithmic).
+  It minimizes the number of actual copies and reuses the same nested structures under the hood:
 
-      iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.size()
-      133
-      iex> A.Vector.duplicate(0, 1_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
-      1170
+      iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.size()
+      116
+      iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
+      11370
+
+  Even a 1B x 1B matrix of the same element costs virtually nothing!
+
+      iex> big_n = 1_000_000_000
+      iex> 0 |> A.Vector.duplicate(big_n) |> A.Vector.duplicate(big_n) |> :erts_debug.size()
+      538
 
 
   ## Efficiency guide
@@ -384,7 +390,8 @@ defmodule A.Vector do
   `n` is an integer greater than or equal to `0`.
   If `n` is `0`, an empty list is returned.
 
-  Runs in linear time, but is very fast and memory efficient (see [Memory usage](#module-memory-usage)).
+  Runs in logarithmic time regarding `n`. It is very fast and memory efficient
+  (see [Memory usage](#module-memory-usage)).
 
   ## Examples
 
@@ -396,7 +403,6 @@ defmodule A.Vector do
   """
   @spec duplicate(val, non_neg_integer) :: t(val) when val: value
   def duplicate(value, n) when is_integer(n) and n >= 0 do
-    # TODO can still improve!
     %__MODULE__{
       __vector__: Raw.duplicate(value, n)
     }
@@ -1138,7 +1144,7 @@ defmodule A.Vector do
   """
   @spec uniq(t(val)) :: t(val) when val: value
   def uniq(%__MODULE__{__vector__: internal}) do
-    # TODO optimize
+    # TODO optimize (take until found a dupe, and concat the rest)
     new_internal =
       internal
       |> Raw.to_list()

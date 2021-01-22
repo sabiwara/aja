@@ -84,20 +84,58 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def duplicate_leaves(_value, _n = 0), do: :empty
+  def duplicate(value, n) do
+    div = C.radix_div(n)
+    {level, acc} = do_duplicate(value, div, 0, [])
 
-  def duplicate_leaves(value, n) when n <= C.branch_factor() do
-    {:small, Tail.partial_duplicate(value, n)}
+    case 1 <<< level do
+      ^n ->
+        [{1, trie}] = acc
+        {C.decr_level(level), trie}
+
+      _ ->
+        [{count, node} | rest] = acc
+        base_trie = Tail.partial_duplicate(node, count)
+
+        trie = duplicate_rest(base_trie, rest, count)
+
+        {level, trie}
+    end
   end
 
-  def duplicate_leaves(value, n) do
-    leaf = Node.duplicate(value)
-    leaf_count = C.radix_div(n - 1)
-    tail_size = C.radix_rem(n - 1) + 1
+  defp do_duplicate(_node, _n = 0, level, acc) do
+    {level, acc}
+  end
 
-    leaves = List.duplicate(leaf, leaf_count)
-    tail = Tail.partial_duplicate(value, tail_size)
-    {:large, leaves, tail, tail_size}
+  defp do_duplicate(node, n, level, acc) do
+    new_node = Node.duplicate(node)
+    rem = C.radix_rem(n)
+
+    div = C.radix_div(n)
+
+    new_acc =
+      case {rem, acc} do
+        {0, []} -> []
+        _ -> [{rem, new_node} | acc]
+      end
+
+    do_duplicate(new_node, div, C.incr_level(level), new_acc)
+  end
+
+  defp duplicate_rest(trie, _rest = [], _count) do
+    trie
+  end
+
+  defp duplicate_rest(node, [{child_count, child_node} | rest], count) do
+    child_base =
+      case child_count do
+        0 -> Node.duplicate(nil) |> Tail.partial_duplicate(1)
+        _ -> Tail.partial_duplicate(child_node, child_count)
+      end
+
+    child = duplicate_rest(child_base, rest, child_count)
+
+    put_elem(node, count, child)
   end
 
   @spec from_leaves([leaf(val)]) :: nil | {non_neg_integer, t(val)} when val: value

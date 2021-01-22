@@ -177,18 +177,19 @@ defmodule A.Vector.Raw do
   @spec duplicate(val, non_neg_integer) :: t(val) when val: value
   def duplicate(_, 0), do: @empty
 
+  def duplicate(value, n) when n <= C.branch_factor() do
+    tail = Tail.partial_duplicate(value, n)
+    small(n, tail)
+  end
+
   def duplicate(value, n) do
-    case Trie.duplicate_leaves(value, n) do
-      :empty ->
-        @empty
+    tail_size = C.radix_rem(n - 1) + 1
+    tail = Tail.partial_duplicate(value, tail_size)
 
-      {:small, tail} ->
-        small(n, tail)
+    tail_offset = n - tail_size
+    {level, trie} = Trie.duplicate(value, tail_offset)
 
-      {:large, leaves, tail, tail_size} ->
-        {shift, trie} = Trie.from_leaves(leaves)
-        large(n, n - tail_size, shift, trie, tail)
-    end
+    large(n, tail_offset, level, trie, tail)
   end
 
   @compile {:inline, fetch_positive: 2}
