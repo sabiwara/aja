@@ -161,22 +161,6 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  for i <- 1..(@branch_factor - 1) do
-    def arguments_with_nil_then_wildcards(unquote(i)) do
-      unquote(
-        @arguments_ast
-        |> Enum.take(i)
-        |> Kernel.++([nil])
-        |> Kernel.++(List.duplicate(@wildcard, @branch_factor - 1 - i))
-        |> Macro.escape()
-      )
-    end
-  end
-
-  def arguments_with_nil_then_wildcards(@branch_factor) do
-    @arguments_ast
-  end
-
   def array_with_wildcards(n) do
     n
     |> arguments_with_wildcards()
@@ -186,12 +170,6 @@ defmodule A.Vector.CodeGen do
   def array_with_nils(n) do
     n
     |> arguments_with_nils()
-    |> do_array()
-  end
-
-  def array_with_nil_then_wildcards(n) do
-    n
-    |> arguments_with_nil_then_wildcards()
     |> do_array()
   end
 
