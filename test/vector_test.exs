@@ -63,16 +63,16 @@ defmodule A.VectorTest do
     assert expected == vector
   end
 
-  test "append_many/2" do
-    assert A.Vector.new() == A.Vector.new() |> A.Vector.append_many([])
+  test "concat/2" do
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.concat([])
 
-    assert A.Vector.new(1..5) == A.Vector.new(1..5) |> A.Vector.append_many([])
-    assert A.Vector.new(6..10) == A.Vector.new() |> A.Vector.append_many(6..10)
+    assert A.Vector.new(1..5) == A.Vector.new(1..5) |> A.Vector.concat([])
+    assert A.Vector.new(6..10) == A.Vector.new() |> A.Vector.concat(6..10)
 
-    assert A.Vector.new(1..10) == A.Vector.new(1..5) |> A.Vector.append_many(6..10)
-    assert A.Vector.new(1..20) == A.Vector.new(1..10) |> A.Vector.append_many(11..20)
-    assert A.Vector.new(1..100) == A.Vector.new(1..50) |> A.Vector.append_many(51..100)
-    assert A.Vector.new(1..1000) == A.Vector.new(1..500) |> A.Vector.append_many(501..1000)
+    assert A.Vector.new(1..10) == A.Vector.new(1..5) |> A.Vector.concat(6..10)
+    assert A.Vector.new(1..20) == A.Vector.new(1..10) |> A.Vector.concat(11..20)
+    assert A.Vector.new(1..100) == A.Vector.new(1..50) |> A.Vector.concat(51..100)
+    assert A.Vector.new(1..1000) == A.Vector.new(1..500) |> A.Vector.concat(501..1000)
   end
 
   test "pop_last!/1" do

@@ -13,6 +13,7 @@
 
   * Changed internal representation of `A.Vector` (only breaking if persisted)
   * Stop documenting and exposing internal trees (A.RBTree)
+  * Rename and deprecate `A.Vector.append_many/2` to `A.Vector.concat/2`
 
 ## v0.4.3 (2021-01-12)
 

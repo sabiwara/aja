@@ -39,7 +39,7 @@ defmodule A.Vector.PropTest do
   def operation do
     one_of([
       {:append, value()},
-      {:append_many, list_of(value())},
+      {:concat, list_of(value())},
       :delete_last
     ])
   end
@@ -47,7 +47,7 @@ defmodule A.Vector.PropTest do
   def apply_operation(%A.Vector{} = vector, {:append, value}) do
     new_vector = A.Vector.append(vector, value)
 
-    assert ^new_vector = A.Vector.append_many(vector, [value])
+    assert ^new_vector = A.Vector.concat(vector, [value])
 
     assert value === A.Vector.last(new_vector)
     assert value in new_vector
@@ -57,8 +57,8 @@ defmodule A.Vector.PropTest do
     new_vector
   end
 
-  def apply_operation(%A.Vector{} = vector, {:append_many, values}) do
-    new_vector = A.Vector.append_many(vector, values)
+  def apply_operation(%A.Vector{} = vector, {:concat, values}) do
+    new_vector = A.Vector.concat(vector, values)
 
     assert ^new_vector = Enum.into(values, vector)
 
@@ -103,7 +103,7 @@ defmodule A.Vector.PropTest do
     assert A.Vector.last(vector) === List.last(as_list)
 
     assert vector === A.Vector.new(vector)
-    assert vector === A.Vector.append_many(vector, [])
+    assert vector === A.Vector.concat(vector, [])
   end
 
   @tag :property
@@ -135,8 +135,8 @@ defmodule A.Vector.PropTest do
       vy = A.Vector.new(y)
       vz = A.Vector.new(z)
 
-      assert vz === A.Vector.append_many(vx, y)
-      assert vz === A.Vector.append_many(vx, vy)
+      assert vz === A.Vector.concat(vx, y)
+      assert vz === A.Vector.concat(vx, vy)
       assert vz === Enum.into(y, vx)
       assert vz === Enum.into(vy, vx)
 

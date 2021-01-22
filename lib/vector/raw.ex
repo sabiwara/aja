@@ -127,7 +127,7 @@ defmodule A.Vector.Raw do
     small(1, unquote(C.value_with_nils(C.var(value)) |> C.array()))
   end
 
-  def append_many(large(size, tail_offset, level, trie, tail), list) do
+  def concat(large(size, tail_offset, level, trie, tail), list) do
     case Tail.complete_tail(tail, size - tail_offset, list) do
       {new_tail, added, []} ->
         large(size + added, tail_offset, level, trie, new_tail)
@@ -144,7 +144,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def append_many(small(size, tail), list) do
+  def concat(small(size, tail), list) do
     case Tail.complete_tail(tail, size, list) do
       {new_tail, added, []} ->
         small(size + added, new_tail)
@@ -164,7 +164,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def append_many(empty_pattern(), list) do
+  def concat(empty_pattern(), list) do
     from_list(list)
   end
 
@@ -461,7 +461,7 @@ defmodule A.Vector.Raw do
       _ ->
         left = take(vector, index)
         [popped | right] = slice(vector, index, size - 1)
-        new_vector = append_many(left, right)
+        new_vector = concat(left, right)
         {popped, new_vector}
     end
   end
@@ -485,7 +485,7 @@ defmodule A.Vector.Raw do
       amount ->
         left = take(vector, index)
         right = slice(vector, amount, size - 1)
-        append_many(left, right)
+        concat(left, right)
     end
   end
 

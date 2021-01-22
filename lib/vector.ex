@@ -177,7 +177,7 @@ defmodule A.Vector do
   ### Successive appends
 
   If you just need to append all elements of an enumerable, it is more efficient to use
-  `A.Vector.append_many/2` than successive calls to `A.Vector.append/2`:
+  `A.Vector.concat/2` than successive calls to `A.Vector.append/2`:
 
   **DON'T**
 
@@ -186,7 +186,7 @@ defmodule A.Vector do
 
   **DO**
 
-      A.Vector.append_many(vector, enumerable)
+      A.Vector.concat(vector, enumerable)
 
   ### Prefer `A.Vector` to `Enum` for vectors
 
@@ -208,7 +208,7 @@ defmodule A.Vector do
       A.Vector.to_list(vector)
       A.Vector.foldl(vector, [], fun)
       A.Vector.new(enumerable)
-      A.Vector.append_many(vector, enumerable)
+      A.Vector.concat(vector, enumerable)
 
   `for` comprehensions are actually using `Enumerable` as well, so
   the same advice holds:
@@ -454,20 +454,23 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..5) |> A.Vector.append_many(10..15)
+      iex> A.Vector.new(1..5) |> A.Vector.concat(10..15)
       #A<vec([1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])>
-      iex> A.Vector.new() |> A.Vector.append_many(10..15)
+      iex> A.Vector.new() |> A.Vector.concat(10..15)
       #A<vec([10, 11, 12, 13, 14, 15])>
 
   """
-  @spec append_many(t(val), Enumerable.t()) :: t(val) when val: value
-  def append_many(%__MODULE__{__vector__: internal}, enumerable) do
+  @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
+  def concat(%__MODULE__{__vector__: internal}, enumerable) do
     list = A.FastEnum.to_list(enumerable)
 
     %__MODULE__{
-      __vector__: Raw.append_many(internal, list)
+      __vector__: Raw.concat(internal, list)
     }
   end
+
+  @deprecated "Use A.Vector.concat/2 instead"
+  defdelegate append_many(vector, enumerable), to: __MODULE__, as: :concat
 
   @doc """
   (Inefficient) Prepends `value` at the beginning of the `vector`.
@@ -1856,7 +1859,7 @@ defmodule A.Vector do
     defp collector_fun({acc, internal}, {:cont, value}), do: {[value | acc], internal}
 
     defp collector_fun({acc, internal}, :done) do
-      new_internal = Raw.append_many(internal, :lists.reverse(acc))
+      new_internal = Raw.concat(internal, :lists.reverse(acc))
       %A.Vector{__vector__: new_internal}
     end
 

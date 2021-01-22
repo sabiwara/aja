@@ -6,7 +6,7 @@ array = :array.from_list(list)
 added = Enum.to_list((n + 1)..(n + m))
 
 Benchee.run(%{
-  "A.Vector.append_many/2" => fn -> A.Vector.append_many(vector, added) end,
+  "A.Vector.concat/2" => fn -> A.Vector.concat(vector, added) end,
   "A.Vector.append/2 in reduce" => fn ->
     Enum.reduce(added, vector, fn val, acc -> A.Vector.append(acc, val) end)
   end,
