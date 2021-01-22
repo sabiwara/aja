@@ -326,21 +326,30 @@ defmodule A do
     end
   end
 
-  @doc """
-  Convenience operator to concatenate an enumerable `right` to a vector `left`.
+  plus_enabled? = Version.compare(System.version(), "1.11.0") != :lt
 
-  `left` has to be an `A.Vector`, `right` can be any `Enumerable`.
+  if plus_enabled? do
+    @doc """
+    Convenience operator to concatenate an enumerable `right` to a vector `left`.
 
-  It is just an alias for `A.Vector.append_many/2`.
+    `left` has to be an `A.Vector`, `right` can be any `Enumerable`.
 
-  ## Examples
+    It is just an alias for `A.Vector.concat/2`.
 
-      iex> import A
-      iex> vec(5..1) +++ vec([:boom, nil])
-      #A<vec([5, 4, 3, 2, 1, :boom, nil])>
-      iex> vec(5..1) +++ 0..3
-      #A<vec([5, 4, 3, 2, 1, 0, 1, 2, 3])>
+    Only available on Elixir versions >= 1.11.
 
-  """
-  defdelegate left +++ right, to: A.Vector, as: :append_many
+    ## Examples
+
+        iex> import A
+        iex> vec(5..1) +++ vec([:boom, nil])
+        #A<vec([5, 4, 3, 2, 1, :boom, nil])>
+        iex> vec(5..1) +++ 0..3
+        #A<vec([5, 4, 3, 2, 1, 0, 1, 2, 3])>
+
+    """
+    # TODO remove hack to support 1.10
+    defdelegate unquote(if(plus_enabled?, do: String.to_atom("+++"), else: :++))(left, right),
+      to: A.Vector,
+      as: :concat
+  end
 end

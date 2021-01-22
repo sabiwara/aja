@@ -1,5 +1,16 @@
 defmodule A.Vector do
-  @moduledoc """
+  # TODO remove doc hack when stop supporting 1.10
+  @plusplusplus_doc ~S"""
+  ## Convenience [`+++/2`](`A.+++/2`) operator
+
+  The `A.+++/2` operator can make appending to a vector more compact by aliasing `A.Vector.concat/2`:
+
+      iex> import A
+      iex> vec([1, 2, 3]) +++ vec([4, 5])
+      #A<vec([1, 2, 3, 4, 5])>
+  """
+
+  @moduledoc ~s"""
   A Clojure-like persistent vector with efficient appends and random access.
 
   [Persistent vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
@@ -76,13 +87,12 @@ defmodule A.Vector do
       iex> match?(v when vec_size(v) > 99, A.Vector.new(1..100))
       true
 
-  ## Convenience [`+++/2`](`A.+++/2`) operator
+  #{
+    if Version.compare(System.version(), "1.11.0") != :lt do
+      @plusplusplus_doc
+    end
+  }
 
-  The `A.+++/2` operator can make appending to a vector more compact by aliasing `A.Vector.append_many/2`:
-
-      iex> import A
-      iex> vec([1, 2, 3]) +++ vec([4, 5])
-      #A<vec([1, 2, 3, 4, 5])>
 
   ## Pattern-matching and opaque type
 
@@ -195,7 +205,11 @@ defmodule A.Vector do
   **DO**
 
       A.Vector.concat(vector, enumerable)
-      vector +++ enumerable
+      #{
+    if Version.compare(System.version(), "1.11.0") != :lt do
+      "vector +++ enumerable"
+    end
+  }
 
   ### Prefer `A.Vector` to `Enum` for vectors
 
