@@ -353,7 +353,7 @@ defmodule A.Vector.Raw do
             {returned, new_vector}
 
           :pop ->
-            {value, delete_positive(vector, index, size(vector))}
+            {value, delete_positive!(vector, index, size(vector))}
 
           other ->
             get_and_update_error(other)
@@ -411,19 +411,7 @@ defmodule A.Vector.Raw do
 
   def pop_last(empty_pattern()), do: :error
 
-  # Note: deletion is not efficient
-  # Could still be implemented a bit nicer to reuse leaves when possible
-  def pop_any(vector, index) do
-    size = size(vector)
-
-    cond do
-      index >= size or index < -size -> :error
-      index >= 0 -> pop_exisiting(vector, index, size)
-      index -> pop_exisiting(vector, size + index, size)
-    end
-  end
-
-  defp pop_exisiting(vector, index, size) do
+  def pop_positive!(vector, index, size) do
     case index + 1 do
       ^size ->
         pop_last(vector)
@@ -436,17 +424,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def delete_any(vector, index) do
-    size = size(vector)
-
-    cond do
-      index >= size or index < -size -> :error
-      index >= 0 -> {:ok, delete_positive(vector, index, size)}
-      index -> {:ok, delete_positive(vector, size + index, size)}
-    end
-  end
-
-  defp delete_positive(vector, index, size) do
+  def delete_positive!(vector, index, size) do
     case index + 1 do
       ^size ->
         {_last, popped} = pop_last(vector)

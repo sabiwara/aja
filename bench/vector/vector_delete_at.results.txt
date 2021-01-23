@@ -20,15 +20,15 @@ Benchmarking List.delete_at/2 (-10)...
 Benchmarking List.delete_at/2 (10)...
 
 Name                                 ips        average  deviation         median         99th %
-List.delete_at/2 (10)          6211.52 K       0.161 μs ±14480.70%      0.0990 μs        0.34 μs
-A.Vector.delete_at/2 (-1)      4250.22 K        0.24 μs ±14880.29%       0.127 μs        0.31 μs
-A.Vector.delete_at/2 (-10)      980.68 K        1.02 μs  ±2529.05%        0.88 μs        1.71 μs
-List.delete_at/2 (-10)          137.31 K        7.28 μs   ±139.22%           7 μs       14.60 μs
-A.Vector.delete_at/2 (10)       112.45 K        8.89 μs   ±107.46%        8.40 μs       15.67 μs
+A.Vector.delete_at/2 (-1)      5692.43 K       0.176 μs ±17661.48%       0.107 μs        0.38 μs
+List.delete_at/2 (10)          5454.91 K       0.183 μs ±13062.75%       0.111 μs        0.37 μs
+A.Vector.delete_at/2 (-10)      895.36 K        1.12 μs  ±2320.61%        0.94 μs        2.23 μs
+List.delete_at/2 (-10)          117.52 K        8.51 μs    ±72.13%        7.66 μs       24.65 μs
+A.Vector.delete_at/2 (10)       107.41 K        9.31 μs    ±95.92%        8.56 μs       21.60 μs
 
 Comparison: 
-List.delete_at/2 (10)          6211.52 K
-A.Vector.delete_at/2 (-1)      4250.22 K - 1.46x slower +0.0743 μs
-A.Vector.delete_at/2 (-10)      980.68 K - 6.33x slower +0.86 μs
-List.delete_at/2 (-10)          137.31 K - 45.24x slower +7.12 μs
-A.Vector.delete_at/2 (10)       112.45 K - 55.24x slower +8.73 μs
+A.Vector.delete_at/2 (-1)      5692.43 K
+List.delete_at/2 (10)          5454.91 K - 1.04x slower +0.00765 μs
+A.Vector.delete_at/2 (-10)      895.36 K - 6.36x slower +0.94 μs
+List.delete_at/2 (-10)          117.52 K - 48.44x slower +8.33 μs
+A.Vector.delete_at/2 (10)       107.41 K - 53.00x slower +9.13 μs

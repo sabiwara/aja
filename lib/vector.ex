@@ -890,9 +890,15 @@ defmodule A.Vector do
   def pop_at(vector, index, default \\ nil)
 
   def pop_at(%__MODULE__{__vector__: internal} = vector, index, default) when is_integer(index) do
-    case Raw.pop_any(internal, index) do
-      {value, new_internal} -> {value, %__MODULE__{__vector__: new_internal}}
-      :error -> {default, vector}
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        {default, vector}
+
+      actual_index ->
+        {value, new_internal} = Raw.pop_positive!(internal, actual_index, size)
+        {value, %__MODULE__{__vector__: new_internal}}
     end
   end
 
@@ -918,9 +924,15 @@ defmodule A.Vector do
   def pop_at!(vector, index)
 
   def pop_at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
-    case Raw.pop_any(internal, index) do
-      {value, new_internal} -> {value, %__MODULE__{__vector__: new_internal}}
-      :error -> raise IndexError, index: index, size: Raw.size(internal)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        raise IndexError, index: index, size: size
+
+      actual_index ->
+        {value, new_internal} = Raw.pop_positive!(internal, actual_index, size)
+        {value, %__MODULE__{__vector__: new_internal}}
     end
   end
 
@@ -949,9 +961,15 @@ defmodule A.Vector do
   """
   @spec delete_at(t(val), index) :: t(val) when val: value
   def delete_at(%__MODULE__{__vector__: internal} = vector, index) when is_integer(index) do
-    case Raw.delete_any(internal, index) do
-      {:ok, new_internal} -> %__MODULE__{__vector__: new_internal}
-      :error -> vector
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        vector
+
+      actual_index ->
+        new_internal = Raw.delete_positive!(internal, actual_index, size)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 
@@ -977,9 +995,15 @@ defmodule A.Vector do
   def delete_at!(vector, index)
 
   def delete_at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
-    case Raw.delete_any(internal, index) do
-      {:ok, new_internal} -> %__MODULE__{__vector__: new_internal}
-      :error -> raise IndexError, index: index, size: Raw.size(internal)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        raise IndexError, index: index, size: size
+
+      actual_index ->
+        new_internal = Raw.delete_positive!(internal, actual_index, size)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 

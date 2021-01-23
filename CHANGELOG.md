@@ -5,7 +5,7 @@
 ### Enhancements
 
 * Improve efficiency of vector access functions: `A.Vector.at/2`,
-  `A.Vector.fetch/2`, `A.Vector.replace_at/3`...  ⚡️
+  `A.Vector.fetch/2`, `A.Vector.replace_at/3`,  `A.Vector.delete_at/2`...  ⚡️
 
 ## v0.4.4 (2021-01-23)
 
