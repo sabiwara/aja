@@ -193,9 +193,16 @@ defmodule A.Vector.PropTest do
       assert Enum.take(list, i1) |> A.Vector.new() === A.Vector.take(vector, i1)
       assert Enum.drop(list, i1) |> A.Vector.new() === A.Vector.drop(vector, i1)
 
+      replaced_list = List.replace_at(list, i1, :replaced)
+      assert A.Vector.new(replaced_list) == A.Vector.replace_at(vector, i1, :replaced)
+      assert A.Vector.new(replaced_list) == A.Vector.update_at(vector, i1, fn _ -> :replaced end)
+      assert A.Vector.new(replaced_list) == put_in(vector[i1], :replaced)
+      assert A.Vector.new(replaced_list) == update_in(vector[i1], fn _ -> :replaced end)
+
       deleted_list = List.delete_at(list, i1)
       assert A.Vector.new(deleted_list) == A.Vector.delete_at(vector, i1)
       assert {vector[i1], A.Vector.new(deleted_list)} == A.Vector.pop_at(vector, i1)
+      assert {vector[i1], A.Vector.new(deleted_list)} == pop_in(vector[i1])
 
       assert list === A.Vector.to_list(vector)
       assert Enum.reverse(list) === A.Vector.reverse(vector) |> A.Vector.to_list()

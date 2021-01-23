@@ -49,6 +49,27 @@ defmodule A.Vector.Raw do
     end
   end
 
+  defmacro actual_index(raw_index, size) do
+    # implemented using a macro because benches showed a significant improvement
+    quote do
+      size = unquote(size)
+
+      case unquote(raw_index) do
+        index when index >= size ->
+          nil
+
+        index when index >= 0 ->
+          index
+
+        index ->
+          case size + index do
+            negative when negative < 0 -> nil
+            positive -> positive
+          end
+      end
+    end
+  end
+
   @spec new(Enumerable.t()) :: t()
   def new(enumerable) do
     enumerable
@@ -273,91 +294,40 @@ defmodule A.Vector.Raw do
     default
   end
 
-  @spec replace_positive(t(val), non_neg_integer, val) :: {:ok, val} | :error when val: value
-  def replace_positive(vector, index, value)
+  @spec replace_positive!(t(val), non_neg_integer, val) :: val when val: value
+  def replace_positive!(vector, index, value)
 
-  def replace_positive(large(size, tail_offset, level, trie, tail), index, value) do
-    cond do
-      index < tail_offset ->
-        new_trie = Trie.replace(trie, index, level, value)
-        {:ok, large(size, tail_offset, level, new_trie, tail)}
-
-      index >= size ->
-        :error
-
-      true ->
-        new_tail = put_elem(tail, index - tail_offset, value)
-        {:ok, large(size, tail_offset, level, trie, new_tail)}
-    end
-  end
-
-  def replace_positive(small(size, tail), index, value) do
-    if index >= size do
-      :error
+  def replace_positive!(large(size, tail_offset, level, trie, tail), index, value) do
+    if index < tail_offset do
+      new_trie = Trie.replace(trie, index, level, value)
+      large(size, tail_offset, level, new_trie, tail)
     else
-      new_tail = put_elem(tail, index, value)
-      {:ok, small(size, new_tail)}
+      new_tail = put_elem(tail, index - tail_offset, value)
+      large(size, tail_offset, level, trie, new_tail)
     end
   end
 
-  def replace_positive(empty_pattern(), _index, _value) do
-    :error
+  def replace_positive!(small(size, tail), index, value) do
+    new_tail = put_elem(tail, index, value)
+    small(size, new_tail)
   end
 
-  @spec replace_any(t(val), integer, val) :: {:ok, t(val)} | :error when val: value
-  def replace_any(vector, index, value) when index >= 0 do
-    replace_positive(vector, index, value)
-  end
+  @spec update_positive!(t(val), non_neg_integer, (val -> val)) :: val when val: value
+  def update_positive!(vector, index, fun)
 
-  def replace_any(vector, index, value) do
-    case size(vector) + index do
-      negative when negative < 0 -> :error
-      positive -> replace_positive(vector, positive, value)
-    end
-  end
-
-  @spec update_positive(t(val), non_neg_integer, (val -> val)) :: {:ok, val} | :error
-        when val: value
-  def update_positive(vector, index, fun)
-
-  def update_positive(large(size, tail_offset, level, trie, tail), index, fun) do
-    cond do
-      index < tail_offset ->
-        new_trie = Trie.update(trie, index, level, fun)
-        {:ok, large(size, tail_offset, level, new_trie, tail)}
-
-      index >= size ->
-        :error
-
-      true ->
-        new_tail = Node.update_at(tail, index - tail_offset, fun)
-        {:ok, large(size, tail_offset, level, trie, new_tail)}
-    end
-  end
-
-  def update_positive(small(size, tail), index, fun) do
-    if index >= size do
-      :error
+  def update_positive!(large(size, tail_offset, level, trie, tail), index, fun) do
+    if index < tail_offset do
+      new_trie = Trie.update(trie, index, level, fun)
+      large(size, tail_offset, level, new_trie, tail)
     else
-      new_tail = Node.update_at(tail, index, fun)
-      {:ok, small(size, new_tail)}
+      new_tail = Node.update_at(tail, index - tail_offset, fun)
+      large(size, tail_offset, level, trie, new_tail)
     end
   end
 
-  def update_positive(empty_pattern(), _index, _fun) do
-    :error
-  end
-
-  @spec update_any(t(val), integer, (val -> val)) :: {:ok, t(val)} | :error when val: value
-  def update_any(vector, index, fun) when index >= 0 do
-    update_positive(vector, index, fun)
-  end
-
-  def update_any(vector, index, fun) do
-    case size(vector) + index do
-      negative when negative < 0 -> :error
-      positive -> update_positive(vector, positive, fun)
-    end
+  def update_positive!(small(size, tail), index, fun) do
+    new_tail = Node.update_at(tail, index, fun)
+    small(size, new_tail)
   end
 
   def get_and_update_any(vector, index, fun) when index >= 0 do
@@ -379,7 +349,7 @@ defmodule A.Vector.Raw do
       {:ok, value} ->
         case fun.(value) do
           {returned, new_value} ->
-            {:ok, new_vector} = replace_positive(vector, index, new_value)
+            new_vector = replace_positive!(vector, index, new_value)
             {returned, new_vector}
 
           :pop ->

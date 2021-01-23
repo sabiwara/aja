@@ -556,7 +556,16 @@ defmodule A.Vector do
   def fetch(vector, index)
 
   def fetch(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
-    Raw.fetch_any(internal, index)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        :error
+
+      actual_index ->
+        found = Raw.fetch_positive!(internal, actual_index)
+        {:ok, found}
+    end
   end
 
   @doc """
@@ -575,13 +584,23 @@ defmodule A.Vector do
       nil
 
   """
-  @spec at(t(val), index, default) :: val | default when val: value, default: term
-  def at(vector, index, default \\ nil)
+  @spec at(t(val), index) :: val | nil when val: value
+  def at(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+    size = Raw.size(internal)
 
+    case Raw.actual_index(index, size) do
+      nil -> nil
+      actual_index -> Raw.fetch_positive!(internal, actual_index)
+    end
+  end
+
+  @spec at(t(val), index, default) :: val | default when val: value, default: term
   def at(%__MODULE__{__vector__: internal}, index, default) when is_integer(index) do
-    case Raw.fetch_any(internal, index) do
-      {:ok, value} -> value
-      :error -> default
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil -> default
+      actual_index -> Raw.fetch_positive!(internal, actual_index)
     end
   end
 
@@ -603,13 +622,13 @@ defmodule A.Vector do
       ** (A.Vector.IndexError) out of bound index: 1000 not in -1000..999
 
   """
-  @spec at(t(val), index) :: val when val: value
-  def at!(vector, index)
-
+  @spec at!(t(val), index) :: val when val: value
   def at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
-    case Raw.fetch_any(internal, index) do
-      {:ok, value} -> value
-      :error -> raise IndexError, index: index, size: Raw.size(internal)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil -> raise IndexError, index: index, size: size
+      actual_index -> Raw.fetch_positive!(internal, actual_index)
     end
   end
 
@@ -634,9 +653,15 @@ defmodule A.Vector do
   @spec replace_at(t(val), index, val) :: t(val) when val: value
   def replace_at(%__MODULE__{__vector__: internal} = vector, index, value)
       when is_integer(index) do
-    case Raw.replace_any(internal, index, value) do
-      {:ok, updated} -> %__MODULE__{__vector__: updated}
-      :error -> vector
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        vector
+
+      actual_index ->
+        new_internal = Raw.replace_positive!(internal, actual_index, value)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 
@@ -661,9 +686,15 @@ defmodule A.Vector do
   @spec replace_at!(t(val), index, val) :: t(val) when val: value
   def replace_at!(%__MODULE__{__vector__: internal}, index, value)
       when is_integer(index) do
-    case Raw.replace_any(internal, index, value) do
-      {:ok, updated} -> %__MODULE__{__vector__: updated}
-      :error -> raise IndexError, index: index, size: Raw.size(internal)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        raise IndexError, index: index, size: size
+
+      actual_index ->
+        new_internal = Raw.replace_positive!(internal, actual_index, value)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 
@@ -688,9 +719,15 @@ defmodule A.Vector do
   @spec update_at(t(val), index, (val -> val)) :: t(val) when val: value
   def update_at(%__MODULE__{__vector__: internal} = vector, index, fun)
       when is_integer(index) and is_function(fun) do
-    case Raw.update_any(internal, index, fun) do
-      {:ok, updated} -> %__MODULE__{__vector__: updated}
-      :error -> vector
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        vector
+
+      actual_index ->
+        new_internal = Raw.update_positive!(internal, actual_index, fun)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 
@@ -715,9 +752,15 @@ defmodule A.Vector do
   @spec update_at!(t(val), index, (val -> val)) :: t(val) when val: value
   def update_at!(%__MODULE__{__vector__: internal}, index, fun)
       when is_integer(index) and is_function(fun) do
-    case Raw.update_any(internal, index, fun) do
-      {:ok, updated} -> %__MODULE__{__vector__: updated}
-      :error -> raise IndexError, index: index, size: Raw.size(internal)
+    size = Raw.size(internal)
+
+    case Raw.actual_index(index, size) do
+      nil ->
+        raise IndexError, index: index, size: size
+
+      actual_index ->
+        new_internal = Raw.update_positive!(internal, actual_index, fun)
+        %__MODULE__{__vector__: new_internal}
     end
   end
 

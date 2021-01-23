@@ -11,21 +11,18 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 21 s
 
 Benchmarking :array.get/2...
-Benchmarking A.Vector.Raw.fetch/2...
 Benchmarking A.Vector.at/2...
 Benchmarking List.at/2...
 
-Name                           ips        average  deviation         median         99th %
-A.Vector.Raw.fetch/2       23.76 M       42.08 ns  ±3522.11%          36 ns         106 ns
-:array.get/2               20.45 M       48.90 ns   ±397.89%          45 ns          74 ns
-A.Vector.at/2              12.90 M       77.52 ns ±17520.42%          58 ns         125 ns
-List.at/2                   3.64 M      274.55 ns  ±6932.52%         251 ns         513 ns
+Name                    ips        average  deviation         median         99th %
+:array.get/2        20.38 M       49.07 ns   ±441.37%          42 ns         161 ns
+A.Vector.at/2       18.71 M       53.46 ns   ±422.20%          45 ns         217 ns
+List.at/2            3.37 M      296.88 ns  ±7138.46%         260 ns         576 ns
 
 Comparison: 
-A.Vector.Raw.fetch/2       23.76 M
-:array.get/2               20.45 M - 1.16x slower +6.82 ns
-A.Vector.at/2              12.90 M - 1.84x slower +35.43 ns
-List.at/2                   3.64 M - 6.52x slower +232.47 ns
+:array.get/2        20.38 M
+A.Vector.at/2       18.71 M - 1.09x slower +4.39 ns
+List.at/2            3.37 M - 6.05x slower +247.81 ns

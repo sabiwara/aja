@@ -230,10 +230,8 @@ This effort is far from perfect, but increases our confidence in the overall sta
 Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
 slightly faster than equivalent list operations (map, folds, join, sum...).
 
-There is one exception where `A.Vector` is slightly slower than `:array`, which is random access on a single element
-for small collections. That is because vectors support negative indexing, and also that they have to pay the overhead
-of a struct.
-For bigger collections however, the higher branching factor for vectors (16 vs 10) should however close this gap as well.
+There is one exception where `A.Vector` can be slightly slower than `:array`: random access for small collections.
+For bigger collections however, the higher branching factor for vectors (16 vs 10) should close this gap.
 
 #### Maps / sets
 

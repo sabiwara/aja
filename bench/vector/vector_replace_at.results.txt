@@ -11,15 +11,18 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 14 s
+Estimated total run time: 21 s
 
 Benchmarking :array.set/3...
 Benchmarking A.Vector.replace_at/3...
+Benchmarking List.replace_at/3...
 
 Name                            ips        average  deviation         median         99th %
-:array.set/3                 7.78 M      128.49 ns ±19575.51%          84 ns         203 ns
-A.Vector.replace_at/3        4.39 M      227.81 ns ±14407.19%         123 ns         422 ns
+:array.set/3                 6.13 M      163.09 ns ±17815.03%          82 ns         284 ns
+A.Vector.replace_at/3        4.66 M      214.41 ns ±11218.91%         124 ns         389 ns
+List.replace_at/3            1.65 M      606.45 ns  ±4336.58%         485 ns         851 ns
 
 Comparison: 
-:array.set/3                 7.78 M
-A.Vector.replace_at/3        4.39 M - 1.77x slower +99.32 ns
+:array.set/3                 6.13 M
+A.Vector.replace_at/3        4.66 M - 1.31x slower +51.33 ns
+List.replace_at/3            1.65 M - 3.72x slower +443.37 ns

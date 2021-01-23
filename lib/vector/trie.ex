@@ -292,28 +292,29 @@ defmodule A.Vector.Trie do
   end
 
   def replace(trie, index, level, value) do
-    current_index = C.radix_search(index, level)
-    child = elem(trie, current_index)
+    erl_index = C.radix_search(index, level) + 1
+    child = :erlang.element(erl_index, trie)
 
     new_child = replace(child, index, C.decr_level(level), value)
 
-    put_elem(trie, current_index, new_child)
+    :erlang.setelement(erl_index, trie, new_child)
   end
 
   def update(trie, index, level, fun)
 
   def update(leaf, index, _level = 0, fun) do
-    current_index = C.radix_rem(index)
-    Node.update_at(leaf, current_index, fun)
+    erl_index = C.radix_rem(index) + 1
+    value = :erlang.element(erl_index, leaf)
+    :erlang.setelement(erl_index, leaf, fun.(value))
   end
 
   def update(trie, index, level, fun) do
-    current_index = C.radix_search(index, level)
-    child = elem(trie, current_index)
+    erl_index = C.radix_search(index, level) + 1
+    child = :erlang.element(erl_index, trie)
 
     new_child = update(child, index, C.decr_level(level), fun)
 
-    put_elem(trie, current_index, new_child)
+    :erlang.setelement(erl_index, trie, new_child)
   end
 
   # POP LEAF
