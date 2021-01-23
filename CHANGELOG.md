@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.4 (2021-01-23)
+
 ### Enhancements
 
 * Add `A.vec_size/1` macro
