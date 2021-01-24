@@ -696,18 +696,22 @@ defmodule A.Vector.Raw do
   def map(empty_pattern(), _fun), do: @empty
 
   @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-  def filter(vector, fun) do
-    # TODO optimize
-    vector
-    |> foldr([], fn el, acc ->
-      if fun.(el) do
-        [el | acc]
-      else
-        acc
-      end
-    end)
+
+  def filter(vector, fun)
+
+  def filter(large(size, tail_offset, level, trie, tail), fun) do
+    acc = Trie.filter(trie, level, fun)
+
+    Tail.partial_filter(tail, fun, size - tail_offset, acc)
     |> from_list()
   end
+
+  def filter(small(size, tail), fun) do
+    Tail.partial_filter(tail, fun, size, [])
+    |> from_list()
+  end
+
+  def filter(empty_pattern(), _fun), do: @empty
 
   @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
   def reject(vector, fun) do

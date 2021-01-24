@@ -289,28 +289,40 @@ defmodule A.VectorTest do
   end
 
   test "each/2" do
-    {add_one, pop_args} = spy_callback(fn _ -> nil end)
+    {spy, pop_args} = spy_callback(fn _ -> nil end)
 
-    assert :ok = A.Vector.new() |> A.Vector.each(add_one)
+    assert :ok = A.Vector.new() |> A.Vector.each(spy)
     assert [] == pop_args.()
 
-    assert :ok = A.Vector.new(1..5) |> A.Vector.each(add_one)
+    assert :ok = A.Vector.new(1..5) |> A.Vector.each(spy)
     assert [1, 2, 3, 4, 5] == pop_args.()
 
-    assert :ok = A.Vector.new(1..50) |> A.Vector.each(add_one)
+    assert :ok = A.Vector.new(1..50) |> A.Vector.each(spy)
     assert Enum.to_list(1..50) == pop_args.()
 
-    assert :ok = A.Vector.new(1..500) |> A.Vector.each(add_one)
+    assert :ok = A.Vector.new(1..500) |> A.Vector.each(spy)
     assert Enum.to_list(1..500) == pop_args.()
   end
 
   test "filter/2" do
-    range = 1..5000
-    multiple_of_2? = &(rem(&1, 2) == 0)
-    result = range |> A.Vector.new() |> A.Vector.filter(multiple_of_2?)
-    expected = range |> Enum.filter(multiple_of_2?) |> A.Vector.new()
+    odd? = &(rem(&1, 2) == 0)
+    {spy, pop_args} = spy_callback(odd?)
 
-    assert expected == result
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.filter(spy)
+    assert [] == pop_args.()
+
+    assert A.Vector.new([2, 4]) == A.Vector.new(1..5) |> A.Vector.filter(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert Enum.filter(1..50, odd?) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.filter(spy)
+
+    assert Enum.to_list(1..50) == pop_args.()
+
+    assert Enum.filter(1..500, odd?) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.filter(spy)
+
+    assert Enum.to_list(1..500) == pop_args.()
   end
 
   test "with_index/2" do

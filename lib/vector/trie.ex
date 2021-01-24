@@ -608,6 +608,33 @@ defmodule A.Vector.Trie do
     )
   end
 
+  def filter(trie, level, fun) do
+    foldl_leaves(trie, level, [], fun, &filter_leaf/3)
+  end
+
+  # defp filter_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
+  #   acc = if(fun.(arg1), do: [arg1 | acc], else: acc)
+  #   acc = if(fun.(arg2), do: [arg2 | acc], else: acc)
+  #   acc = if(fun.(arg3), do: [arg3 | acc], else: acc)
+  #   if(fun.(arg4), do: [arg4 | acc], else: acc)
+  # end
+  def filter_leaf(unquote(C.array()), fun, acc) do
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          acc = unquote(acc)
+
+          if var!(fun).(unquote(arg)) do
+            [unquote(arg) | acc]
+          else
+            acc
+          end
+        end
+      end)
+    )
+  end
+
   def each(trie, level, fun) do
     foldl_leaves(trie, level, nil, fun, &each_leaf/3)
   end

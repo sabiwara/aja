@@ -24,6 +24,27 @@ defmodule A.Vector.Tail do
     end
   end
 
+  def partial_filter(tail, fun, i, acc) do
+    do_partial_filter(tail, fun, acc, 1, i + 1)
+    |> :lists.reverse()
+  end
+
+  @compile {:inline, do_partial_filter: 5}
+  def do_partial_filter(_tail, _fun, acc, stop, stop), do: acc
+
+  def do_partial_filter(tail, fun, acc, erl_index, stop) do
+    value = :erlang.element(erl_index, tail)
+
+    new_acc =
+      if fun.(value) do
+        [value | acc]
+      else
+        acc
+      end
+
+    do_partial_filter(tail, fun, new_acc, erl_index + 1, stop)
+  end
+
   for i <- C.range() do
     # def partial_to_list({arg1, arg2, _arg3, _arg4}, 2) do
     #   [arg1, arg2]

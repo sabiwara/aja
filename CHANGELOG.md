@@ -7,6 +7,11 @@
 * Improve efficiency of vector access functions: `A.Vector.at/2`,
   `A.Vector.fetch/2`, `A.Vector.replace_at/3`,  `A.Vector.delete_at/2`...  ⚡️
 
+### Bug fixes
+
+* Invoke callbacks in the right order for: `A.Vector.filter/2`,
+  `A.Vector.reject/2` and improve performance
+
 ## v0.4.4 (2021-01-23)
 
 ### Enhancements
