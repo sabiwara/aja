@@ -29,11 +29,9 @@ defmodule A.Vector.Trie do
     )
   end
 
-  for i <- C.range() do
-    defp do_group_leaves(unquote(C.arguments(i)), acc, count) do
-      last = unquote(C.array_with_nils(i))
-      {count + unquote(i), count, :lists.reverse(acc), last}
-    end
+  defp do_group_leaves(rest, acc, count) do
+    last = Node.from_incomplete_list(rest)
+    {count + length(rest), count, :lists.reverse(acc), last}
   end
 
   @spec group_map_leaves([v1], (v1 -> v2)) ::
@@ -56,17 +54,13 @@ defmodule A.Vector.Trie do
     do_group_map_leaves(rest, fun, [new_leaf | acc], count + C.branch_factor())
   end
 
-  for i <- C.range() do
-    defp do_group_map_leaves(unquote(C.arguments(i)), fun, acc, count) do
-      last =
-        unquote(
-          C.arguments_with_nils(i)
-          |> Enum.map(C.apply_sparse_mapper(C.var(fun)))
-          |> C.array()
-        )
+  defp do_group_map_leaves(rest, fun, acc, count) do
+    last =
+      rest
+      |> Enum.map(fun)
+      |> Node.from_incomplete_list()
 
-      {count + unquote(i), count, :lists.reverse(acc), last}
-    end
+    {count + length(rest), count, :lists.reverse(acc), last}
   end
 
   def group_leaves_ast(list) do
@@ -77,11 +71,9 @@ defmodule A.Vector.Trie do
     do_group_leaves_ast(rest, [unquote(C.array_ast()) | acc], count + C.branch_factor())
   end
 
-  for i <- C.range() do
-    defp do_group_leaves_ast(unquote(C.arguments(i)), acc, count) do
-      last = unquote(C.arguments_with_nils(i) |> C.array_ast())
-      {count + unquote(i), count, :lists.reverse(acc), last}
-    end
+  defp do_group_leaves_ast(rest, acc, count) do
+    last = Node.ast_from_incomplete_list(rest)
+    {count + length(rest), count, :lists.reverse(acc), last}
   end
 
   def duplicate(value, n) do

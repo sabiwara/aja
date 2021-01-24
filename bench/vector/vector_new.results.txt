@@ -18,11 +18,11 @@ Benchmarking A.Vector.Raw.new/1...
 Benchmarking A.Vector.new/1...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.Raw.new/1        1.63 M      614.95 ns  ±4369.17%         490 ns         809 ns
-A.Vector.new/1            1.57 M      635.05 ns  ±4374.43%         522 ns         836 ns
-:array.from_list/1        0.70 M     1438.08 ns  ±1371.64%        1253 ns        2312 ns
+A.Vector.Raw.new/1        1.61 M      619.94 ns  ±4279.71%         484 ns         820 ns
+A.Vector.new/1            1.57 M      637.66 ns  ±4151.28%         522 ns         890 ns
+:array.from_list/1        0.69 M     1451.07 ns  ±1330.37%        1257 ns        2429 ns
 
 Comparison: 
-A.Vector.Raw.new/1        1.63 M
-A.Vector.new/1            1.57 M - 1.03x slower +20.11 ns
-:array.from_list/1        0.70 M - 2.34x slower +823.13 ns
+A.Vector.Raw.new/1        1.61 M
+A.Vector.new/1            1.57 M - 1.03x slower +17.72 ns
+:array.from_list/1        0.69 M - 2.34x slower +831.13 ns
