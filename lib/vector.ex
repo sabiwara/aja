@@ -1034,7 +1034,7 @@ defmodule A.Vector do
         when v: value, returned: term
   def get_and_update(%__MODULE__{__vector__: internal}, index, fun)
       when is_integer(index) and is_function(fun, 1) do
-    {returned, new_internal} = Raw.get_and_update_any(internal, index, fun)
+    {returned, new_internal} = Raw.get_and_update(internal, index, fun)
     {returned, %__MODULE__{__vector__: new_internal}}
   end
 

@@ -213,41 +213,6 @@ defmodule A.Vector.Raw do
     large(n, tail_offset, level, trie, tail)
   end
 
-  @compile {:inline, fetch_positive: 2}
-  @spec fetch_positive(t(val), non_neg_integer) :: {:ok, val} | :error when val: value
-  def fetch_positive(large(size, tail_offset, shift, trie, tail), index) do
-    cond do
-      index < tail_offset -> {:ok, Trie.lookup(trie, index, shift)}
-      index >= size -> :error
-      true -> {:ok, elem(tail, index - tail_offset)}
-    end
-  end
-
-  def fetch_positive(small(size, tail), index) do
-    if index >= size do
-      :error
-    else
-      {:ok, elem(tail, index)}
-    end
-  end
-
-  def fetch_positive(empty_pattern(), _index) do
-    :error
-  end
-
-  @compile {:inline, fetch_any: 2}
-  @spec fetch_any(t(val), integer) :: {:ok, val} | :error when val: value
-  def fetch_any(vector, index) when index >= 0 do
-    fetch_positive(vector, index)
-  end
-
-  def fetch_any(vector, index) do
-    case size(vector) + index do
-      negative when negative < 0 -> :error
-      positive -> fetch_positive(vector, positive)
-    end
-  end
-
   @compile {:inline, fetch_positive!: 2}
   @spec fetch_positive!(t(val), non_neg_integer) :: val when val: value
   def fetch_positive!(large(_size, tail_offset, shift, trie, tail), index) do
@@ -267,7 +232,7 @@ defmodule A.Vector.Raw do
   def first(vector, default)
 
   def first(large(_size, _tail_offset, shift, trie, _tail), _default) do
-    Trie.first(trie, shift)
+    Trie.lookup(trie, 0, shift)
   end
 
   def first(small(_size, tail), _default) do
@@ -330,23 +295,14 @@ defmodule A.Vector.Raw do
     small(size, new_tail)
   end
 
-  def get_and_update_any(vector, index, fun) when index >= 0 do
-    get_and_update_positive(vector, index, fun)
-  end
-
-  def get_and_update_any(vector, index, fun) do
-    case size(vector) + index do
-      negative when negative < 0 ->
+  def get_and_update(vector, raw_index, fun) do
+    case actual_index(raw_index, size(vector)) do
+      nil ->
         get_and_update_missing_index(vector, fun)
 
-      positive ->
-        get_and_update_positive(vector, positive, fun)
-    end
-  end
+      index ->
+        value = fetch_positive!(vector, index)
 
-  defp get_and_update_positive(vector, index, fun) do
-    case fetch_positive(vector, index) do
-      {:ok, value} ->
         case fun.(value) do
           {returned, new_value} ->
             new_vector = replace_positive!(vector, index, new_value)
@@ -358,9 +314,6 @@ defmodule A.Vector.Raw do
           other ->
             get_and_update_error(other)
         end
-
-      :error ->
-        get_and_update_missing_index(vector, fun)
     end
   end
 

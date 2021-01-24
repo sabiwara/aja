@@ -251,18 +251,6 @@ defmodule A.Vector.Trie do
 
   # ACCESS
 
-  @compile {:inline, first: 2}
-  def first(trie, level)
-
-  def first(leaf, _level = 0) do
-    elem(leaf, 0)
-  end
-
-  def first(trie, level) do
-    child = elem(trie, 0)
-    first(child, C.decr_level(level))
-  end
-
   @compile {:inline, lookup: 3}
   def lookup(trie, index, level)
 
