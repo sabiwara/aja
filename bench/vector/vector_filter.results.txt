@@ -17,9 +17,9 @@ Benchmarking A.Vector.filter/2...
 Benchmarking Enum.filter/2...
 
 Name                        ips        average  deviation         median         99th %
-Enum.filter/2          323.97 K        3.09 μs   ±498.67%        2.93 μs        3.51 μs
-A.Vector.filter/2      281.57 K        3.55 μs   ±364.79%        3.35 μs        5.97 μs
+Enum.filter/2          320.36 K        3.12 μs   ±484.57%        2.95 μs        4.68 μs
+A.Vector.filter/2      279.54 K        3.58 μs   ±365.29%        3.39 μs        5.17 μs
 
 Comparison: 
-Enum.filter/2          323.97 K
-A.Vector.filter/2      281.57 K - 1.15x slower +0.46 μs
+Enum.filter/2          320.36 K
+A.Vector.filter/2      279.54 K - 1.15x slower +0.46 μs

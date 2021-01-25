@@ -18,11 +18,11 @@ Benchmarking A.Vector.foldl3...
 Benchmarking List.foldl3/2...
 
 Name                      ips        average  deviation         median         99th %
-A.Vector.foldl3        7.75 K      129.04 μs     ±7.16%      128.43 μs      170.20 μs
-List.foldl3/2          7.45 K      134.18 μs    ±10.31%      131.03 μs      204.06 μs
-:array.foldl/3         3.57 K      279.73 μs    ±12.06%      275.46 μs      450.61 μs
+A.Vector.foldl3        8.02 K      124.70 μs     ±7.23%      123.09 μs      164.00 μs
+List.foldl3/2          7.54 K      132.58 μs     ±7.24%      130.96 μs      176.71 μs
+:array.foldl/3         3.56 K      280.57 μs     ±8.89%      276.02 μs      388.33 μs
 
 Comparison: 
-A.Vector.foldl3        7.75 K
-List.foldl3/2          7.45 K - 1.04x slower +5.14 μs
-:array.foldl/3         3.57 K - 2.17x slower +150.69 μs
+A.Vector.foldl3        8.02 K
+List.foldl3/2          7.54 K - 1.06x slower +7.88 μs
+:array.foldl/3         3.56 K - 2.25x slower +155.87 μs

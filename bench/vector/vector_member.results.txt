@@ -18,11 +18,11 @@ Benchmarking Enum.member?/2 (list)...
 Benchmarking Enum.member?/2 (vector)...
 
 Name                              ips        average  deviation         median         99th %
-Enum.member?/2 (list)        586.83 K        1.70 μs    ±33.54%        1.53 μs        2.17 μs
-A.Vector.Raw.member?/2       275.86 K        3.62 μs   ±430.14%        3.49 μs        3.88 μs
-Enum.member?/2 (vector)      271.71 K        3.68 μs   ±412.00%        3.56 μs        3.95 μs
+Enum.member?/2 (list)        583.46 K        1.71 μs    ±36.36%        1.56 μs        2.19 μs
+A.Vector.Raw.member?/2       306.20 K        3.27 μs   ±534.93%        3.16 μs        3.50 μs
+Enum.member?/2 (vector)      301.04 K        3.32 μs   ±532.75%        3.21 μs        3.54 μs
 
 Comparison: 
-Enum.member?/2 (list)        586.83 K
-A.Vector.Raw.member?/2       275.86 K - 2.13x slower +1.92 μs
-Enum.member?/2 (vector)      271.71 K - 2.16x slower +1.98 μs
+Enum.member?/2 (list)        583.46 K
+A.Vector.Raw.member?/2       306.20 K - 1.91x slower +1.55 μs
+Enum.member?/2 (vector)      301.04 K - 1.94x slower +1.61 μs

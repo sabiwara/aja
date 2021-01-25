@@ -96,24 +96,12 @@ defmodule A.Vector.CodeGen do
     @arguments_ast
   end
 
-  for i <- @range do
-    def arguments(unquote(i)) do
-      unquote(
-        @arguments_ast
-        |> Enum.take(i)
-        |> Macro.escape()
-      )
-    end
+  def arguments(i) when i in 1..@branch_factor do
+    Enum.take(@arguments_ast, i)
   end
 
-  for i <- @range do
-    def argument_at(unquote(i - 1)) do
-      unquote(
-        @arguments_ast
-        |> Enum.at(i - 1)
-        |> Macro.escape()
-      )
-    end
+  def argument_at(i) when i in 0..(@branch_factor - 1) do
+    Enum.at(@arguments_ast, i)
   end
 
   def reversed_arguments() do
@@ -124,41 +112,24 @@ defmodule A.Vector.CodeGen do
     )
   end
 
-  for i <- @range do
-    def reversed_arguments(unquote(i)) do
-      unquote(
-        @arguments_ast
-        |> Enum.take(i)
-        |> Enum.reverse()
-        |> Macro.escape()
-      )
-    end
+  def reversed_arguments(i) when i in 1..@branch_factor do
+    @arguments_ast
+    |> Enum.take(i)
+    |> Enum.reverse()
   end
 
   def duplicate_argument(arg) do
     List.duplicate(arg, @branch_factor)
   end
 
-  for i <- @range do
-    def arguments_with_nils(unquote(i)) do
-      unquote(
-        @arguments_ast
-        |> Enum.take(i)
-        |> Kernel.++(List.duplicate(nil, @branch_factor - i))
-        |> Macro.escape()
-      )
-    end
+  def arguments_with_nils(i) when i in 1..@branch_factor do
+    nils = List.duplicate(nil, @branch_factor - i)
+    Enum.take(@arguments_ast, i) ++ nils
   end
 
-  for i <- @range do
-    def arguments_with_wildcards(unquote(i)) do
-      unquote(
-        @arguments_ast
-        |> Enum.take(i)
-        |> Kernel.++(List.duplicate(@wildcard, @branch_factor - i))
-        |> Macro.escape()
-      )
-    end
+  def arguments_with_wildcards(i) when i in 1..@branch_factor do
+    nils = List.duplicate(@wildcard, @branch_factor - i)
+    Enum.take(@arguments_ast, i) ++ nils
   end
 
   def array_with_wildcards(n) do
@@ -203,6 +174,52 @@ defmodule A.Vector.CodeGen do
           end
         end)
     end
+  end
+
+  def any_cond_tail(fun, size) do
+    @arguments_ast
+    |> Enum.with_index(1)
+    |> Enum.flat_map(fn {arg, i} ->
+      quote do
+        unquote(fun.(arg)) ->
+          true
+
+        unquote(size) === unquote(i) ->
+          false
+
+        unquote(
+          unless i == branch_factor() do
+            quote do: unquote(size) === unquote(i)
+          else
+            true
+          end
+        ) ->
+          false
+      end
+    end)
+  end
+
+  def any_cond_trie(fun) do
+    clauses =
+      @arguments_ast
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {arg, i} ->
+        if i > 0 do
+          quote do
+            unquote(arg) === nil -> false
+          end
+        else
+          []
+        end ++
+          quote do
+            unquote(fun.(arg)) -> true
+          end
+      end)
+
+    clauses ++
+      quote do
+        true -> false
+      end
   end
 
   defmacro var(variable) do

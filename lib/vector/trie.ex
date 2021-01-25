@@ -356,7 +356,7 @@ defmodule A.Vector.Trie do
     unquote(C.list_with_rest(C.var(acc)))
   end
 
-  # def to_list({arg1, arg2, nil, _}, level, acc) do
+  # def to_list({arg1, arg2, nil, nil}, level, acc) do
   #   child_level = level - bits
   #   to_list(arg1, child_level, to_list(arg2, child_level, acc))
   # end
@@ -377,6 +377,8 @@ defmodule A.Vector.Trie do
 
   def to_reverse_list(trie, level, acc)
 
+  def to_reverse_list(_trie = nil, _level, acc), do: acc
+
   # def to_reverse_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   [arg4, arg3, arg2, arg1 | acc]
   # end
@@ -384,54 +386,81 @@ defmodule A.Vector.Trie do
     unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
   end
 
-  # def to_reverse_list({arg1, arg2, nil, _}, level, acc) do
+  # def to_reverse_list({arg1, arg2, arg3, arg4}, level, acc) do
   #   child_level = level - bits
-  #   to_reverse_list(arg2, child_level, to_reverse_list(arg1, child_level, acc))
+  #   to_reverse_list(arg4, child_level,
+  #     to_reverse_list(arg3, child_level,
+  #       to_reverse_list(arg2, child_level,
+  #         to_reverse_list(arg1, child_level, acc)
+  #       )
+  #     )
+  #   )
   # end
-  for i <- C.range() do
-    def to_reverse_list(unquote(C.array_with_nils(i)), level, acc) do
-      child_level = C.decr_level(level)
+  def to_reverse_list(unquote(C.array()), level, acc) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), fn arg, acc ->
-          quote do
-            to_reverse_list(unquote(arg), var!(child_level), unquote(acc))
-          end
-        end)
-      )
-    end
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          to_reverse_list(unquote(arg), var!(child_level), unquote(acc))
+        end
+      end)
+    )
   end
 
   def member?(trie, level, value)
 
   # def member?({arg1, arg2, arg3, arg4}, _level = 0, value) do
-  #   (arg1 === value) or (arg2 === value) or (arg3 === value) or (arg4 === value)
+  #   case value do
+  #     ^arg1 -> true
+  #     ^arg2 -> true
+  #     ^arg3 -> true
+  #     ^arg4 -> true
+  #     _ -> false
+  #   end
   # end
   def member?(unquote(C.array()), _level = 0, value) do
-    unquote(
-      C.arguments()
-      |> Enum.map(C.strict_equal_mapper(C.var(value)))
-      |> Enum.reduce(&C.strict_or_reducer/2)
-    )
+    case value do
+      unquote(
+        Enum.flat_map(
+          C.arguments(),
+          fn arg ->
+            quote do
+              ^unquote(arg) -> true
+            end
+          end
+        ) ++
+          quote do
+            _ -> false
+          end
+      )
+    end
   end
 
-  # def member?({arg1, arg2, nil, _}, level, value) do
+  # def member?({arg1, arg2, arg3, arg4}, level, value) do
   #   child_level = level - bits
-  #   member?(arg1, child_level, value) or member?(arg1, child_level, value)
+  #   cond do
+  #     member?(arg1, child_level, value) -> true
+  #     arg2 === null -> false
+  #     member?(arg2, child_level, value) -> true
+  #     arg3 === null -> false
+  #     member?(arg3, child_level, value) -> true
+  #     arg4 === null -> false
+  #     member?(arg4, child_level, value) -> true
+  #     true -> false
+  #   end
   # end
-  for i <- C.range() do
-    def member?(unquote(C.array_with_nils(i)), level, value) do
-      child_level = C.decr_level(level)
+  def member?(unquote(C.array()), level, value) do
+    child_level = C.decr_level(level)
 
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(fn arg ->
+        C.any_cond_trie(fn arg ->
           quote do
             member?(unquote(arg), var!(child_level), var!(value))
           end
         end)
-        |> Enum.reduce(&C.strict_or_reducer/2)
       )
     end
   end
@@ -445,22 +474,29 @@ defmodule A.Vector.Trie do
     unquote(C.arguments() |> Enum.reduce(&C.or_reducer/2))
   end
 
-  # def any?({arg1, arg2, nil, _}, level) do
+  # def any?({arg1, arg2, arg3, arg4}, level) do
   #   child_level = level - bits
-  #   any?(arg1, child_level) || any?(arg1, child_level)
+  #   cond do
+  #     any?(arg1, child_level) -> true
+  #     arg2 === null -> false
+  #     any?(arg2, child_level) -> true
+  #     arg3 === null -> false
+  #     any?(arg3, child_level) -> true
+  #     arg4 === null -> false
+  #     any?(arg4, child_level) -> true
+  #     true -> false
+  #   end
   # end
-  for i <- C.range() do
-    def any?(unquote(C.array_with_nils(i)), level) do
-      child_level = C.decr_level(level)
+  def any?(unquote(C.array()), level) do
+    child_level = C.decr_level(level)
 
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(fn arg ->
+        C.any_cond_trie(fn arg ->
           quote do
             any?(unquote(arg), var!(child_level))
           end
         end)
-        |> Enum.reduce(&C.or_reducer/2)
       )
     end
   end
@@ -478,22 +514,29 @@ defmodule A.Vector.Trie do
     )
   end
 
-  # def any?({arg1, arg2, nil, _}, level, fun) do
+  # def any?({arg1, arg2, arg3, arg4}, level, fun) do
   #   child_level = level - bits
-  #   any?(arg1, child_level, fun) || any?(arg1, child_level, fun)
+  #   cond do
+  #     any?(arg1, child_level, fun) -> true
+  #     arg2 === null -> false
+  #     any?(arg2, child_level, fun) -> true
+  #     arg3 === null -> false
+  #     any?(arg3, child_level, fun) -> true
+  #     arg4 === null -> false
+  #     any?(arg4, child_level, fun) -> true
+  #     true -> false
+  #   end
   # end
-  for i <- C.range() do
-    def any?(unquote(C.array_with_nils(i)), level, fun) do
-      child_level = C.decr_level(level)
+  def any?(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
 
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(fn arg ->
+        C.any_cond_trie(fn arg ->
           quote do
             any?(unquote(arg), var!(child_level), var!(fun))
           end
         end)
-        |> Enum.reduce(&C.or_reducer/2)
       )
     end
   end
@@ -507,22 +550,29 @@ defmodule A.Vector.Trie do
     unquote(C.arguments() |> Enum.reduce(&C.and_reducer/2))
   end
 
-  # def all?({arg1, arg2, nil, _}, level) do
+  # def all?({arg1, arg2, arg3, arg4}, level) do
   #   child_level = level - bits
-  #   all?(arg1, child_level) && all?(arg1, child_level)
+  #   !cond do
+  #     !all?(arg1, child_level) -> true
+  #     arg2 === null -> false
+  #     !all?(arg2, child_level) -> true
+  #     arg3 === null -> false
+  #     !all?(arg3, child_level) -> true
+  #     arg4 === null -> false
+  #     !all?(arg4, child_level) -> true
+  #     true -> false
+  #   end
   # end
-  for i <- C.range() do
-    def all?(unquote(C.array_with_nils(i)), level) do
-      child_level = C.decr_level(level)
+  def all?(unquote(C.array()), level) do
+    child_level = C.decr_level(level)
 
+    !cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(fn arg ->
+        C.any_cond_trie(fn arg ->
           quote do
-            all?(unquote(arg), var!(child_level))
+            !all?(unquote(arg), var!(child_level))
           end
         end)
-        |> Enum.reduce(&C.and_reducer/2)
       )
     end
   end
@@ -540,39 +590,73 @@ defmodule A.Vector.Trie do
     )
   end
 
-  # def all?({arg1, arg2, nil, _}, level, fun) do
+  # def all?({arg1, arg2, arg3, arg4}, level, fun) do
   #   child_level = level - bits
-  #   all?(arg1, child_level, fun) && all?(arg1, child_level, fun)
+  #   !cond do
+  #     !all?(arg1, child_level, fun) -> true
+  #     arg2 === null -> false
+  #     !all?(arg2, child_level, fun) -> true
+  #     arg3 === null -> false
+  #     !all?(arg3, child_level, fun) -> true
+  #     arg4 === null -> false
+  #     !all?(arg4, child_level, fun) -> true
+  #     true -> false
+  #   end
   # end
-  for i <- C.range() do
-    def all?(unquote(C.array_with_nils(i)), level, fun) do
-      child_level = C.decr_level(level)
+  def all?(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
 
+    !cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(fn arg ->
+        C.any_cond_trie(fn arg ->
           quote do
-            all?(unquote(arg), var!(child_level), var!(fun))
+            !all?(unquote(arg), var!(child_level), var!(fun))
           end
         end)
-        |> Enum.reduce(&C.and_reducer/2)
       )
     end
   end
 
-  def foldl(trie, level, acc, fun) do
-    foldl_leaves(trie, level, acc, fun, &foldl_leaf/3)
-  end
+  def foldl(trie, level, acc, fun)
+  def foldl(_trie = nil, _level, acc, _fun), do: acc
 
-  # defp foldl_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
+  # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  def foldl_leaf(unquote(C.array()), fun, acc) do
+  def foldl(unquote(C.array()), _level = 0, acc, fun) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
         quote do
           var!(fun).(unquote(arg), unquote(acc))
+        end
+      end)
+    )
+  end
+
+  # def foldl({arg1, arg2, arg3, arg4}, level, acc, fun) do
+  #   child_level = level - bits
+  #   foldl(arg4, child_level,
+  #     foldl(arg3, child_level,
+  #       foldl(arg2, child_level,
+  #         foldl(arg1, child_level, acc, fun),
+  #         fun),
+  #       fun),
+  #     fun)
+  # end
+  def foldl(
+        unquote(C.array()),
+        level,
+        acc,
+        fun
+      ) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          foldl(unquote(arg), var!(child_level), unquote(acc), var!(fun))
         end
       end)
     )
@@ -596,17 +680,16 @@ defmodule A.Vector.Trie do
     )
   end
 
-  def filter(trie, level, fun) do
-    foldl_leaves(trie, level, [], fun, &filter_leaf/3)
-  end
+  def filter(trie, level, fun, acc)
+  def filter(_trie = nil, _level, _fun, acc), do: acc
 
-  # defp filter_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
+  # def filter({arg1, arg2, arg3, arg4}, _level = 0, fun, acc) do
   #   acc = if(fun.(arg1), do: [arg1 | acc], else: acc)
   #   acc = if(fun.(arg2), do: [arg2 | acc], else: acc)
   #   acc = if(fun.(arg3), do: [arg3 | acc], else: acc)
   #   if(fun.(arg4), do: [arg4 | acc], else: acc)
   # end
-  def filter_leaf(unquote(C.array()), fun, acc) do
+  def filter(unquote(C.array()), _level = 0, fun, acc) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
@@ -623,18 +706,39 @@ defmodule A.Vector.Trie do
     )
   end
 
-  def each(trie, level, fun) do
-    foldl_leaves(trie, level, nil, fun, &each_leaf/3)
+  # def filter({arg1, arg2, arg3, arg4}, level, fun, acc) do
+  #   child_level = level - bits
+  #   filter(arg4, child_level, fun,
+  #     filter(arg3, child_level, fun,
+  #       filter(arg2, child_level, fun,
+  #         filter(arg1, child_level, fun, acc)
+  #       )
+  #     )
+  #   )
+  # end
+  def filter(unquote(C.array()), level, fun, acc) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          filter(unquote(arg), var!(child_level), var!(fun), unquote(acc))
+        end
+      end)
+    )
   end
 
-  # defp each_leaf({arg1, arg2, arg3, arg4}, fun, _acc) do
+  def each(trie, level, fun)
+
+  # def each({arg1, arg2, arg3, arg4}, _level = 0, fun) do
   #   fun.(arg1)
   #   fun.(arg2)
   #   fun.(arg3)
   #   fun.(arg4)
   #   :ok
   # end
-  def each_leaf(unquote(C.array()), fun, _acc) do
+  def each(unquote(C.array()), _level = 0, fun) do
     unquote(
       C.arguments()
       |> Enum.map(C.apply_mapper(C.var(fun)))
@@ -644,7 +748,37 @@ defmodule A.Vector.Trie do
     :ok
   end
 
+  # def each({arg1, arg2, arg3, arg4}, level, fun) do
+  #   child_level = level - bits
+  #   arg1 && each(arg1, child_level, fun) &&
+  #   arg2 && each(arg2, child_level, fun) &&
+  #   arg3 && each(arg3, child_level, fun) &&
+  #   arg4 && each(arg4, child_level, fun)
+  # end
+  def each(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.map(fn arg ->
+        quote do
+          unquote(arg) && each(unquote(arg), var!(child_level), var!(fun))
+        end
+      end)
+      |> Enum.reduce(fn
+        expr, acc ->
+          quote do
+            unquote(acc) && unquote(expr)
+          end
+      end)
+    )
+
+    :ok
+  end
+
   def sum(trie, level, acc)
+
+  def sum(_trie = nil, _level, acc), do: acc
 
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc + arg1 + arg2 + arg3 + arg4
@@ -653,26 +787,28 @@ defmodule A.Vector.Trie do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.sum_reducer/2))
   end
 
-  # def sum({arg1, arg2, nil, _}, level, acc) do
+  # def sum({arg1, arg2, arg3, arg4}, level, acc) do
   #   child_level = level - bits
-  #   sum(arg2, child_level, sum(arg1, child_level, acc))
+  #   sum(arg4, child_level,
+  #     sum(arg3, child_level,
+  #        sum(arg2, child_level,
+  #          sum(arg1, child_level, acc))))
   # end
-  for i <- C.range() do
-    def sum(unquote(C.array_with_nils(i)), level, acc) do
-      child_level = C.decr_level(level)
+  def sum(unquote(C.array()), level, acc) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), fn arg, acc ->
-          quote do
-            sum(unquote(arg), var!(child_level), unquote(acc))
-          end
-        end)
-      )
-    end
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          sum(unquote(arg), var!(child_level), unquote(acc))
+        end
+      end)
+    )
   end
 
   def product(trie, level, acc)
+  def product(_trie = nil, _level, acc), do: acc
 
   # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc * arg1 * arg2 * arg3 * arg4
@@ -681,23 +817,24 @@ defmodule A.Vector.Trie do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.product_reducer/2))
   end
 
-  # def product({arg1, arg2, nil, _}, level, acc) do
+  # def product({arg1, arg2, arg3, arg4}, level, acc) do
   #   child_level = level - bits
-  #   product(arg2, child_level, product(arg1, child_level, acc))
+  #   product(arg4, child_level,
+  #     product(arg3, child_level,
+  #        product(arg2, child_level,
+  #          product(arg1, child_level, acc))))
   # end
-  for i <- C.range() do
-    def product(unquote(C.array_with_nils(i)), level, acc) do
-      child_level = C.decr_level(level)
+  def product(unquote(C.array()), level, acc) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), fn arg, acc ->
-          quote do
-            product(unquote(arg), var!(child_level), unquote(acc))
-          end
-        end)
-      )
-    end
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do
+          product(unquote(arg), var!(child_level), unquote(acc))
+        end
+      end)
+    )
   end
 
   def intersperse(trie, level, separator, acc) do
@@ -745,55 +882,27 @@ defmodule A.Vector.Trie do
     )
   end
 
-  # def map({arg1, arg2, nil, _}, level, f) do
+  # def map({arg1, arg2, arg3, arg4}, level, f) do
   #   child_level = level - bits
-  #   {map(arg1, child_level, f), map(arg2, child_level, f), nil, nil}
+  #   {
+  #     arg1 && map(arg1, child_level, f),
+  #     arg2 && map(arg2, child_level, f),
+  #     arg3 && map(arg3, child_level, f),
+  #     arg4 && map(arg4, child_level, f),
+  #   }
   # end
-  for i <- C.range() do
-    def map(unquote(C.array_with_nils(i)), level, fun) do
-      child_level = C.decr_level(level)
+  def map(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.arguments_with_nils(i)
-        |> C.sparse_map(fn arg ->
-          quote do
-            map(unquote(arg), var!(child_level), var!(fun))
-          end
-        end)
-        |> C.array()
-      )
-    end
-  end
-
-  defp foldl_leaves(trie, level, acc, params, fun)
-
-  defp foldl_leaves(leaf, _level = 0, acc, params, fun) do
-    fun.(leaf, params, acc)
-  end
-
-  # def foldl_leaves({arg1, arg2, nil, _}, level, acc, params, fun) do
-  #   child_level = level - bits
-  #   foldl_leaves(arg2, child_level, foldl_leaves(arg1, child_level, acc, params, fun), params, fun)
-  # end
-  for i <- C.range() do
-    defp foldl_leaves(
-           unquote(C.array_with_nils(i)),
-           level,
-           acc,
-           params,
-           fun
-         ) do
-      child_level = C.decr_level(level)
-
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), fn arg, acc ->
-          quote do
-            foldl_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
-          end
-        end)
-      )
-    end
+    unquote(
+      C.arguments()
+      |> C.sparse_map(fn arg ->
+        quote do
+          unquote(arg) && map(unquote(arg), var!(child_level), var!(fun))
+        end
+      end)
+      |> C.array()
+    )
   end
 
   defp foldr_leaves(trie, level, acc, params, fun)
@@ -802,7 +911,7 @@ defmodule A.Vector.Trie do
     fun.(leaf, params, acc)
   end
 
-  # def foldr_leaves({arg1, arg2, nil, _}, level, acc, params, fun) do
+  # def foldr_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
   #   child_level = level - bits
   #   foldr_leaves(arg1, child_level, foldr_leaves(arg2, child_level, acc, params, fun), params, fun)
   # end
@@ -955,34 +1064,33 @@ defmodule A.Vector.Trie do
     )
   end
 
-  # def with_index({arg1, arg2, nil, _}, level, offset) do
+  # def with_index({arg1, arg2, arg3, arg3}, level, offset) do
   #   child_level = level - bits
   #   {
-  #     with_index(arg1, child_level, offset + (0 <<< level)),
-  #     with_index(arg2, child_level, offset + (1 <<< level)),
-  #     nil,
-  #     nil
+  #     arg1 && with_index(arg1, child_level, offset + (0 <<< level)),
+  #     arg2 && with_index(arg2, child_level, offset + (1 <<< level)),
+  #     arg3 && with_index(arg3, child_level, offset + (2 <<< level)),
+  #     arg4 && with_index(arg4, child_level, offset + (3 <<< level)),
   #  }
   # end
-  for i <- C.range() do
-    def with_index(unquote(C.array_with_nils(i)), level, offset) do
-      child_level = C.decr_level(level)
+  def with_index(unquote(C.array()), level, offset) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.arguments(i)
-        |> Enum.with_index()
-        |> Enum.map(fn {arg, index} ->
-          quote do
+    unquote(
+      C.arguments()
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} ->
+        quote do
+          unquote(arg) &&
             with_index(
               unquote(arg),
               var!(child_level),
               var!(offset) + (unquote(index) <<< var!(level))
             )
-          end
-        end)
-        |> C.fill_with(nil)
-        |> C.array()
-      )
-    end
+        end
+      end)
+      |> C.fill_with(nil)
+      |> C.array()
+    )
   end
 end

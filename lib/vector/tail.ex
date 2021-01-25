@@ -76,65 +76,133 @@ defmodule A.Vector.Tail do
     end
   end
 
-  for i <- C.range() do
-    # def partial_member?({arg1, arg2, _arg3, _arg4}, 2, value) do
-    #   (arg1 === value) or (arg2 === value)
-    # end
-    def partial_member?(unquote(C.array_with_wildcards(i)), unquote(i), value) do
+  # def partial_member?({arg1, arg2, arg3, _arg4}, size, value) do
+  #   cond do
+  #     arg1 === value -> true
+  #     size === 1 -> false
+  #     arg2 === value -> true
+  #     size === 2 -> false
+  #     arg3 === value -> true
+  #     size === 3 -> false
+  #     arg4 === value -> true
+  #     true -> false
+  #   end
+  # end
+  def partial_member?(unquote(C.array()), size, value) do
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(C.strict_equal_mapper(C.var(value)))
-        |> Enum.reduce(&C.strict_or_reducer/2)
+        C.any_cond_tail(
+          fn arg ->
+            quote do
+              unquote(arg) === var!(value)
+            end
+          end,
+          C.var(size)
+        )
       )
     end
   end
 
-  for i <- C.range() do
-    # def partial_any?({arg1, arg2, arg3, _arg4}, 3) do
-    #   arg1 || arg2 || arg3
-    # end
-    def partial_any?(unquote(C.array_with_wildcards(i)), unquote(i)) do
+  # def partial_any?({arg1, arg2, arg3, arg4}, size) do
+  #   cond do
+  #     arg1 -> true
+  #     size === 1 -> false
+  #     arg2 -> true
+  #     size === 2 -> false
+  #     arg3 -> true
+  #     size === 3 -> false
+  #     arg4 -> true
+  #     true -> false
+  #   end
+  # end
+  def partial_any?(unquote(C.array()), size) do
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.reduce(&C.or_reducer/2)
+        C.any_cond_tail(
+          fn arg -> arg end,
+          C.var(size)
+        )
       )
     end
   end
 
-  for i <- C.range() do
-    # def partial_any?({arg1, arg2, arg3, _arg4}, 3, fun) do
-    #   fun.(arg1) || fun.(arg2) || fun.(arg3)
-    # end
-    def partial_any?(unquote(C.array_with_wildcards(i)), unquote(i), fun) do
+  # def partial_any?({arg1, arg2, arg3, arg4}, size, fun) do
+  #   cond do
+  #     fun.(arg1) -> true
+  #     size === 1 -> false
+  #     fun.(arg2) -> true
+  #     size === 2 -> false
+  #     fun.(arg3) -> true
+  #     size === 3 -> false
+  #     fun.(arg4) -> true
+  #     true -> false
+  #   end
+  # end
+  def partial_any?(unquote(C.array()), size, fun) do
+    cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(C.apply_mapper(C.var(fun)))
-        |> Enum.reduce(&C.or_reducer/2)
+        C.any_cond_tail(
+          fn arg ->
+            quote do
+              var!(fun).(unquote(arg))
+            end
+          end,
+          C.var(size)
+        )
       )
     end
   end
 
-  for i <- C.range() do
-    # def partial_all?({arg1, arg2, arg3, _arg4}, 3) do
-    #   arg1 && arg2 && arg3
-    # end
-    def partial_all?(unquote(C.array_with_wildcards(i)), unquote(i)) do
+  # def partial_all?({arg1, arg2, arg3, arg4}, size) do
+  #   !cond do
+  #     !arg1 -> true
+  #     size === 1 -> false
+  #     !arg2 -> true
+  #     size === 2 -> false
+  #     !arg3 -> true
+  #     size === 3 -> false
+  #     !arg4 -> true
+  #     true -> false
+  #   end
+  # end
+  def partial_all?(unquote(C.array()), size) do
+    !cond do
       unquote(
-        C.arguments(i)
-        |> Enum.reduce(&C.and_reducer/2)
+        C.any_cond_tail(
+          fn arg ->
+            quote do
+              !unquote(arg)
+            end
+          end,
+          C.var(size)
+        )
       )
     end
   end
 
-  for i <- C.range() do
-    # def partial_all?({arg1, arg2, arg3, _arg4}, 3, fun) do
-    #   fun.(arg1) && fun.(arg2) && fun.(arg3)
-    # end
-    def partial_all?(unquote(C.array_with_wildcards(i)), unquote(i), fun) do
+  # def partial_all?({arg1, arg2, arg3, arg4}, size, fun) do
+  #   !cond do
+  #     !fun.(arg1) -> true
+  #     size === 1 -> false
+  #     !fun.(arg2) -> true
+  #     size === 2 -> false
+  #     !fun.(arg3) -> true
+  #     size === 3 -> false
+  #     !fun.(arg4) -> true
+  #     true -> false
+  #   end
+  # end
+  def partial_all?(unquote(C.array()), size, fun) do
+    !cond do
       unquote(
-        C.arguments(i)
-        |> Enum.map(C.apply_mapper(C.var(fun)))
-        |> Enum.reduce(&C.and_reducer/2)
+        C.any_cond_tail(
+          fn arg ->
+            quote do
+              !var!(fun).(unquote(arg))
+            end
+          end,
+          C.var(size)
+        )
       )
     end
   end
@@ -163,54 +231,32 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_intersperse(
-        unquote(C.array_with_wildcards(1)),
-        1,
-        _separator
-      ) do
-    unquote(C.arguments(1))
+  def partial_intersperse(tail, size, separator) do
+    value = :erlang.element(size, tail)
+    do_partial_intersperse(tail, size - 1, separator, [value])
   end
 
-  # case i = 1 needs to declare `_separator`, not `separator`
-  for i <- C.range(), i > 1 do
-    # def partial_intersperse({arg1, arg2, arg3, _arg4}, 3, separator) do
-    #   [arg1, separator, arg2, separator, arg3]
-    # end
-    def partial_intersperse(
-          unquote(C.array_with_wildcards(i)),
-          unquote(i),
-          separator
-        ) do
-      unquote(
-        C.arguments(i)
-        |> Enum.intersperse(C.var(separator))
-      )
-    end
+  @compile {:inline, do_partial_intersperse: 4}
+  defp do_partial_intersperse(_tail, _erl_index = 0, _separator, acc), do: acc
+
+  defp do_partial_intersperse(tail, erl_index, separator, acc) do
+    value = :erlang.element(erl_index, tail)
+    new_acc = [value, separator | acc]
+    do_partial_intersperse(tail, erl_index - 1, separator, new_acc)
   end
 
-  def partial_join_as_iodata(
-        unquote(C.array_with_wildcards(1)),
-        1,
-        _separator
-      ) do
-    [to_string(unquote(C.argument_at(0)))]
+  def partial_join_as_iodata(tail, size, separator) do
+    value = :erlang.element(size, tail) |> to_string()
+    do_partial_join_as_iodata(tail, size - 1, separator, [value])
   end
 
-  # case i = 1 needs to declare `_separator`, not `separator`
-  for i <- C.range(), i > 1 do
-    # def partial_join_as_iodata({arg1, arg2, arg3, _arg4}, 3, separator) do
-    #   [to_string(arg1), separator, to_string(arg2), separator, to_string(arg3)]
-    # end
-    def partial_join_as_iodata(
-          unquote(C.array_with_wildcards(i)),
-          unquote(i),
-          separator
-        ) do
-      unquote(
-        C.arguments(i)
-        |> Enum.map_intersperse(C.var(separator), C.apply_mapper(C.var(&to_string/1)))
-      )
-    end
+  @compile {:inline, do_partial_join_as_iodata: 4}
+  defp do_partial_join_as_iodata(_tail, _erl_index = 0, _separator, acc), do: acc
+
+  defp do_partial_join_as_iodata(tail, erl_index, separator, acc) do
+    value = :erlang.element(erl_index, tail) |> to_string()
+    new_acc = [value, separator | acc]
+    do_partial_join_as_iodata(tail, erl_index - 1, separator, new_acc)
   end
 
   def complete_tail(tail, tail_size, values)

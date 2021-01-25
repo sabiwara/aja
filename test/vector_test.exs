@@ -264,12 +264,20 @@ defmodule A.VectorTest do
     assert 1 = A.Vector.new(1..5) |> A.Vector.min()
     assert 1 = A.Vector.new(1..50) |> A.Vector.min()
     assert 1 = A.Vector.new(1..500) |> A.Vector.min()
+
+    assert 1 = A.Vector.new(5..1) |> A.Vector.min()
+    assert 1 = A.Vector.new(50..1) |> A.Vector.min()
+    assert 1 = A.Vector.new(500..1) |> A.Vector.min()
   end
 
   test "max/1" do
     assert 5 = A.Vector.new(1..5) |> A.Vector.max()
     assert 50 = A.Vector.new(1..50) |> A.Vector.max()
     assert 500 = A.Vector.new(1..500) |> A.Vector.max()
+
+    assert 5 = A.Vector.new(5..1) |> A.Vector.max()
+    assert 50 = A.Vector.new(50..1) |> A.Vector.max()
+    assert 500 = A.Vector.new(500..1) |> A.Vector.max()
   end
 
   test "map/2" do
@@ -419,6 +427,10 @@ defmodule A.VectorTest do
     assert 1 in small
     assert 5 in small
     refute 6 in small
+
+    full_tail = A.Vector.new(1..16)
+    assert 16 in full_tail
+    refute 17 in full_tail
 
     large = A.Vector.new(1..500)
     refute 0 in large

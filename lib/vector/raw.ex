@@ -653,7 +653,7 @@ defmodule A.Vector.Raw do
   def filter(vector, fun)
 
   def filter(large(size, tail_offset, level, trie, tail), fun) do
-    acc = Trie.filter(trie, level, fun)
+    acc = Trie.filter(trie, level, fun, [])
 
     Tail.partial_filter(tail, fun, size - tail_offset, acc)
     |> from_list()
