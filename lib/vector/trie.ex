@@ -3,7 +3,6 @@ defmodule A.Vector.Trie do
 
   alias A.Vector.CodeGen, as: C
   require C
-  import A.Vector.Trie.Macros
 
   import Bitwise
 
@@ -373,7 +372,7 @@ defmodule A.Vector.Trie do
   # def to_reverse_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   [arg4, arg3, arg2, arg1 | acc]
   # end
-  def_foldl to_reverse_list(trie, level, acc) do
+  C.def_foldl_trie to_reverse_list(trie, level, acc) do
     unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
   end
 
@@ -422,7 +421,7 @@ defmodule A.Vector.Trie do
   def member?(unquote(C.array()), level, value) do
     child_level = C.decr_level(level)
 
-    find_cond arg do
+    C.find_cond_trie arg do
       member?(arg, child_level, value) -> true
       _ -> false
     end
@@ -431,10 +430,19 @@ defmodule A.Vector.Trie do
   def any?(trie, level)
 
   # def any?({arg1, arg2, arg3, arg4}, _level = 0) do
-  #   arg1 || arg2 || arg3 || arg4
+  #   cond do
+  #     arg1 -> true
+  #     arg2 -> true
+  #     arg3 -> true
+  #     arg4 -> true
+  #     true -> false
+  #   end
   # end
   def any?(unquote(C.array()), _level = 0) do
-    unquote(C.arguments() |> Enum.reduce(&C.or_reducer/2))
+    C.find_cond_leaf arg do
+      arg -> true
+      _ -> false
+    end
   end
 
   # def any?({arg1, arg2, arg3, arg4}, level) do
@@ -453,7 +461,7 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    find_cond arg do
+    C.find_cond_trie arg do
       any?(arg, child_level) -> true
       _ -> false
     end
@@ -462,14 +470,19 @@ defmodule A.Vector.Trie do
   def any?(trie, level, fun)
 
   # def any?({arg1, arg2, arg3, arg4}, _level = 0, fun) do
-  #   fun.(arg1) || fun.(arg2) || fun.(arg3) || fun.(arg4)
+  #   cond do
+  #     fun.(arg1) -> true
+  #     fun.(arg2) -> true
+  #     fun.(arg3) -> true
+  #     fun.(arg4) -> true
+  #     true -> false
+  #   end
   # end
   def any?(unquote(C.array()), _level = 0, fun) do
-    unquote(
-      C.arguments()
-      |> Enum.map(C.apply_mapper(C.var(fun)))
-      |> Enum.reduce(&C.or_reducer/2)
-    )
+    C.find_cond_leaf arg do
+      fun.(arg) -> true
+      _ -> false
+    end
   end
 
   # def any?({arg1, arg2, arg3, arg4}, level, fun) do
@@ -488,7 +501,7 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    find_cond arg do
+    C.find_cond_trie arg do
       any?(arg, child_level, fun) -> true
       _ -> false
     end
@@ -497,10 +510,19 @@ defmodule A.Vector.Trie do
   def all?(trie, level)
 
   # def all?({arg1, arg2, arg3, arg4}, _level = 0) do
-  #   arg1 && arg2 && arg3 && arg4
+  #   cond do
+  #     !arg1 -> false
+  #     !arg2 -> false
+  #     !arg3 -> false
+  #     !arg4 -> false
+  #     true -> true
+  #   end
   # end
   def all?(unquote(C.array()), _level = 0) do
-    unquote(C.arguments() |> Enum.reduce(&C.and_reducer/2))
+    C.find_cond_leaf arg do
+      !arg -> false
+      _ -> true
+    end
   end
 
   # def all?({arg1, arg2, arg3, arg4}, level) do
@@ -519,7 +541,7 @@ defmodule A.Vector.Trie do
   def all?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    find_cond arg do
+    C.find_cond_trie arg do
       !all?(arg, child_level) -> false
       _ -> true
     end
@@ -528,14 +550,19 @@ defmodule A.Vector.Trie do
   def all?(trie, level, fun)
 
   # def all?({arg1, arg2, arg3, arg4}, _level = 0, fun) do
-  #   fun.(arg1) && fun.(arg2) && fun.(arg3) && fun.(arg4)
+  #   cond do
+  #     !fun.(arg1) -> false
+  #     !fun.(arg2) -> false
+  #     !fun.(arg3) -> false
+  #     !fun.(arg4) -> false
+  #     true -> true
+  #   end
   # end
   def all?(unquote(C.array()), _level = 0, fun) do
-    unquote(
-      C.arguments()
-      |> Enum.map(C.apply_mapper(C.var(fun)))
-      |> Enum.reduce(&C.and_reducer/2)
-    )
+    C.find_cond_leaf arg do
+      !fun.(arg) -> false
+      _ -> true
+    end
   end
 
   # def all?({arg1, arg2, arg3, arg4}, level, fun) do
@@ -554,7 +581,7 @@ defmodule A.Vector.Trie do
   def all?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    find_cond arg do
+    C.find_cond_trie arg do
       !all?(arg, child_level, fun) -> false
       _ -> true
     end
@@ -563,7 +590,7 @@ defmodule A.Vector.Trie do
   # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  def_foldl foldl(trie, level, acc, fun) do
+  C.def_foldl_trie foldl(trie, level, acc, fun) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
@@ -598,7 +625,7 @@ defmodule A.Vector.Trie do
   #   acc = if(fun.(arg3), do: [arg3 | acc], else: acc)
   #   if(fun.(arg4), do: [arg4 | acc], else: acc)
   # end
-  def_foldl filter(trie, level, acc, fun) do
+  C.def_foldl_trie filter(trie, level, acc, fun) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
@@ -622,7 +649,7 @@ defmodule A.Vector.Trie do
   #   fun.(arg4)
   #   fun
   # end
-  def_foldl each(trie, level, fun) do
+  C.def_foldl_trie each(trie, level, fun) do
     unquote(
       C.arguments()
       |> Enum.map(C.apply_mapper(C.var(fun)))
@@ -635,14 +662,14 @@ defmodule A.Vector.Trie do
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc + arg1 + arg2 + arg3 + arg4
   # end
-  def_foldl sum(trie, level, acc) do
+  C.def_foldl_trie sum(trie, level, acc) do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.sum_reducer/2))
   end
 
   # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc * arg1 * arg2 * arg3 * arg4
   # end
-  def_foldl product(trie, level, acc) do
+  C.def_foldl_trie product(trie, level, acc) do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.product_reducer/2))
   end
 

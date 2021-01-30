@@ -560,6 +560,8 @@ defmodule A.Vector.Raw do
     end)
   end
 
+  # FIND
+
   def member?(large(size, tail_offset, level, trie, tail), value) do
     Trie.member?(trie, level, value) or Tail.partial_member?(tail, size - tail_offset, value)
   end
@@ -569,16 +571,14 @@ defmodule A.Vector.Raw do
   end
 
   def member?(empty_pattern(), _value), do: false
-
   @spec any?(t()) :: boolean()
 
   def any?(large(size, tail_offset, level, trie, tail)) do
-    (Trie.any?(trie, level) || Tail.partial_any?(tail, size - tail_offset))
-    |> as_boolean()
+    Trie.any?(trie, level) or Tail.partial_any?(tail, size - tail_offset)
   end
 
   def any?(small(size, tail)) do
-    Tail.partial_any?(tail, size) |> as_boolean()
+    Tail.partial_any?(tail, size)
   end
 
   def any?(empty_pattern()), do: false
@@ -586,12 +586,11 @@ defmodule A.Vector.Raw do
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
   def any?(large(size, tail_offset, level, trie, tail), fun) do
-    (Trie.any?(trie, level, fun) || Tail.partial_any?(tail, size - tail_offset, fun))
-    |> as_boolean()
+    Trie.any?(trie, level, fun) or Tail.partial_any?(tail, size - tail_offset, fun)
   end
 
   def any?(small(size, tail), fun) do
-    Tail.partial_any?(tail, size, fun) |> as_boolean()
+    Tail.partial_any?(tail, size, fun)
   end
 
   def any?(empty_pattern(), _fun), do: false
@@ -599,12 +598,11 @@ defmodule A.Vector.Raw do
   @spec all?(t()) :: boolean()
 
   def all?(large(size, tail_offset, level, trie, tail)) do
-    (Trie.all?(trie, level) && Tail.partial_all?(tail, size - tail_offset))
-    |> as_boolean()
+    Trie.all?(trie, level) and Tail.partial_all?(tail, size - tail_offset)
   end
 
   def all?(small(size, tail)) do
-    Tail.partial_all?(tail, size) |> as_boolean()
+    Tail.partial_all?(tail, size)
   end
 
   def all?(empty_pattern()), do: true
@@ -612,23 +610,14 @@ defmodule A.Vector.Raw do
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
   def all?(large(size, tail_offset, level, trie, tail), fun) do
-    (Trie.all?(trie, level, fun) && Tail.partial_all?(tail, size - tail_offset, fun))
-    |> as_boolean()
+    Trie.all?(trie, level, fun) and Tail.partial_all?(tail, size - tail_offset, fun)
   end
 
   def all?(small(size, tail), fun) do
-    Tail.partial_all?(tail, size, fun) |> as_boolean()
+    Tail.partial_all?(tail, size, fun)
   end
 
   def all?(empty_pattern(), _fun), do: true
-
-  defp as_boolean(value) do
-    if value do
-      true
-    else
-      false
-    end
-  end
 
   @compile {:inline, map: 2}
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value

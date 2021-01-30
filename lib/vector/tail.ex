@@ -3,7 +3,6 @@ defmodule A.Vector.Tail do
 
   alias A.Vector.CodeGen, as: C
   require C
-  import A.Vector.Tail.Macros
 
   alias A.Vector.Node
 
@@ -90,7 +89,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_member?(unquote(C.array()), size, value) do
-    find_cond arg, size do
+    C.find_cond_tail arg, size do
       arg === value -> true
       _ -> false
     end
@@ -109,7 +108,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size) do
-    find_cond arg, size do
+    C.find_cond_tail arg, size do
       arg -> true
       _ -> false
     end
@@ -128,7 +127,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size, fun) do
-    find_cond arg, size do
+    C.find_cond_tail arg, size do
       fun.(arg) -> true
       _ -> false
     end
@@ -147,7 +146,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_all?(unquote(C.array()), size) do
-    find_cond arg, size do
+    C.find_cond_tail arg, size do
       !arg -> false
       _ -> true
     end
@@ -166,7 +165,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_all?(unquote(C.array()), size, fun) do
-    find_cond arg, size do
+    C.find_cond_tail arg, size do
       !fun.(arg) -> false
       _ -> true
     end

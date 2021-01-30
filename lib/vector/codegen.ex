@@ -272,4 +272,128 @@ defmodule A.Vector.CodeGen do
       unquote(acc) && unquote(arg)
     end
   end
+
+  # FIND
+
+  defmacro find_cond_tail({arg_name, _, nil}, size,
+             do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
+           ) do
+    clauses =
+      arguments()
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {arg, i} ->
+        stop_check = quote do: (unquote(i) === unquote(size) -> unquote(default))
+
+        cond_check =
+          quote do
+            unquote(inject_arg(condition, arg_name, arg)) ->
+              unquote(inject_arg(returned, arg_name, arg))
+          end
+
+        if i > 0 do
+          stop_check ++ cond_check
+        else
+          cond_check
+        end
+      end)
+
+    final_clause = quote do: (true -> unquote(default))
+
+    quote do
+      cond do
+        unquote(clauses ++ final_clause)
+      end
+    end
+  end
+
+  defmacro find_cond_trie({arg_name, _, nil},
+             do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
+           ) do
+    clauses =
+      arguments()
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {arg, i} ->
+        stop_check = quote do: (unquote(arg) === nil -> unquote(default))
+
+        cond_check =
+          quote do
+            unquote(inject_arg(condition, arg_name, arg)) ->
+              unquote(inject_arg(returned, arg_name, arg))
+          end
+
+        if i > 0 do
+          stop_check ++ cond_check
+        else
+          cond_check
+        end
+      end)
+
+    final_clause = quote do: (true -> unquote(default))
+
+    quote do
+      cond do
+        unquote(clauses ++ final_clause)
+      end
+    end
+  end
+
+  defmacro find_cond_leaf({arg_name, _, nil},
+             do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
+           ) do
+    clauses =
+      arguments()
+      |> Enum.flat_map(fn arg ->
+        quote do
+          unquote(inject_arg(condition, arg_name, arg)) ->
+            unquote(inject_arg(returned, arg_name, arg))
+        end
+      end)
+
+    final_clause = quote do: (true -> unquote(default))
+
+    quote do
+      cond do
+        unquote(clauses ++ final_clause)
+      end
+    end
+  end
+
+  # FOLDS
+
+  defmacro def_foldl_trie(header, do: body) do
+    {name, args} = Macro.decompose_call(header)
+    [{:trie, _, _}, {:level, _, _} = level, acc | rest_args] = args
+    expanded_body = Macro.expand(body, __CALLER__)
+
+    quote do
+      def unquote(name)(unquote_splicing(args))
+
+      def unquote(name)(unquote(array()), _level = 0, unquote(acc), unquote_splicing(rest_args)) do
+        unquote(expanded_body)
+      end
+
+      def unquote(name)(
+            unquote(array()),
+            unquote(level),
+            unquote(acc),
+            unquote_splicing(rest_args)
+          ) do
+        child_level = unquote(level) - unquote(@bits)
+
+        unquote(
+          arguments()
+          |> Enum.reduce(acc, fn arg, acc ->
+            quote do
+              acc = unquote(acc)
+
+              case unquote(arg) do
+                nil -> acc
+                value -> unquote(name)(value, child_level, acc, unquote_splicing(rest_args))
+              end
+            end
+          end)
+        )
+      end
+    end
+  end
 end

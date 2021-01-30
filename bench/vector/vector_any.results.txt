@@ -17,9 +17,9 @@ Benchmarking A.Vector.any?/2...
 Benchmarking Enum.any?/2 (list)...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.any?/2         333.75 K        3.00 μs   ±636.34%        2.86 μs        3.39 μs
-Enum.any?/2 (list)       77.58 K       12.89 μs    ±18.06%       12.67 μs       17.90 μs
+A.Vector.any?/2         368.45 K        2.71 μs   ±765.08%        2.44 μs        5.43 μs
+Enum.any?/2 (list)       66.74 K       14.98 μs    ±27.59%       14.45 μs       24.21 μs
 
 Comparison: 
-A.Vector.any?/2         333.75 K
-Enum.any?/2 (list)       77.58 K - 4.30x slower +9.89 μs
+A.Vector.any?/2         368.45 K
+Enum.any?/2 (list)       66.74 K - 5.52x slower +12.27 μs
