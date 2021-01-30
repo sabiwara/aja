@@ -26,6 +26,7 @@ defmodule A.Vector.PropTest do
   end
 
   def simple_value, do: one_of([float(), string(:printable), atom(:alphanumeric)])
+  def big_positive_integer, do: positive_integer() |> resize(20_000)
 
   def value do
     # prefer simple values which will should be more representative of actual uses, but keep exploring
@@ -148,7 +149,7 @@ defmodule A.Vector.PropTest do
   property "duplicate/2 should work as expected" do
     check all(
             x <- value(),
-            n <- positive_integer()
+            n <- big_positive_integer()
           ) do
       list = List.duplicate(x, n)
       vector = A.Vector.duplicate(x, n)
@@ -273,6 +274,44 @@ defmodule A.Vector.PropTest do
       vector = A.Vector.new(list)
 
       assert Enum.sum(list) === A.Vector.sum(vector)
+    end
+  end
+
+  @tag :property
+  property "A.Vector any?/all?/find always return the same as Enum equivalents" do
+    # use 33 as an arbitrary truthy value
+    check all(
+            value <- one_of([true, false, nil, constant(33)]),
+            i1 <- big_positive_integer(),
+            i2 <- big_positive_integer()
+          ) do
+      count = i1 + i2
+
+      vector = A.Vector.duplicate(value, count)
+      id = fn x -> x end
+
+      negate = fn
+        true -> false
+        false -> true
+        nil -> 33
+        33 -> nil
+      end
+
+      replaced_vector = A.Vector.update_at(vector, i1, negate)
+
+      assert !!value === A.Vector.any?(vector)
+      assert !!value === A.Vector.any?(vector, id)
+      assert !value === A.Vector.any?(vector, negate)
+      assert !!value === A.Vector.all?(vector)
+      assert !!value === A.Vector.all?(vector, id)
+      assert !value === A.Vector.all?(vector, negate)
+
+      assert true === A.Vector.any?(replaced_vector)
+      assert true === A.Vector.any?(replaced_vector, id)
+      assert true === A.Vector.any?(replaced_vector, negate)
+      assert false === A.Vector.all?(replaced_vector)
+      assert false === A.Vector.all?(replaced_vector, id)
+      assert false === A.Vector.all?(replaced_vector, negate)
     end
   end
 end
