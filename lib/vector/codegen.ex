@@ -184,9 +184,6 @@ defmodule A.Vector.CodeGen do
         unquote(fun.(arg)) ->
           true
 
-        unquote(size) === unquote(i) ->
-          false
-
         unquote(
           unless i == branch_factor() do
             quote do: unquote(size) === unquote(i)
