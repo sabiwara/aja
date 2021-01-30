@@ -3,6 +3,7 @@ defmodule A.Vector.Tail do
 
   alias A.Vector.CodeGen, as: C
   require C
+  import A.Vector.Tail.Macros
 
   alias A.Vector.Node
 
@@ -89,17 +90,9 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_member?(unquote(C.array()), size, value) do
-    cond do
-      unquote(
-        C.any_cond_tail(
-          fn arg ->
-            quote do
-              unquote(arg) === var!(value)
-            end
-          end,
-          C.var(size)
-        )
-      )
+    find_cond arg, size do
+      arg === value -> true
+      _ -> false
     end
   end
 
@@ -116,13 +109,9 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size) do
-    cond do
-      unquote(
-        C.any_cond_tail(
-          fn arg -> arg end,
-          C.var(size)
-        )
-      )
+    find_cond arg, size do
+      arg -> true
+      _ -> false
     end
   end
 
@@ -139,71 +128,47 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size, fun) do
-    cond do
-      unquote(
-        C.any_cond_tail(
-          fn arg ->
-            quote do
-              var!(fun).(unquote(arg))
-            end
-          end,
-          C.var(size)
-        )
-      )
+    find_cond arg, size do
+      fun.(arg) -> true
+      _ -> false
     end
   end
 
   # def partial_all?({arg1, arg2, arg3, arg4}, size) do
-  #   !cond do
-  #     !arg1 -> true
-  #     size === 1 -> false
-  #     !arg2 -> true
-  #     size === 2 -> false
-  #     !arg3 -> true
-  #     size === 3 -> false
-  #     !arg4 -> true
-  #     true -> false
+  #   cond do
+  #     !arg1 -> false
+  #     size === 1 -> true
+  #     !arg2 -> false
+  #     size === 2 -> true
+  #     !arg3 -> false
+  #     size === 3 -> true
+  #     !arg4 -> false
+  #     true -> true
   #   end
   # end
   def partial_all?(unquote(C.array()), size) do
-    !cond do
-      unquote(
-        C.any_cond_tail(
-          fn arg ->
-            quote do
-              !unquote(arg)
-            end
-          end,
-          C.var(size)
-        )
-      )
+    find_cond arg, size do
+      !arg -> false
+      _ -> true
     end
   end
 
   # def partial_all?({arg1, arg2, arg3, arg4}, size, fun) do
-  #   !cond do
-  #     !fun.(arg1) -> true
-  #     size === 1 -> false
-  #     !fun.(arg2) -> true
-  #     size === 2 -> false
-  #     !fun.(arg3) -> true
-  #     size === 3 -> false
-  #     !fun.(arg4) -> true
-  #     true -> false
+  #   cond do
+  #     !fun.(arg1) -> false
+  #     size === 1 -> true
+  #     !fun.(arg2) -> false
+  #     size === 2 -> true
+  #     !fun.(arg3) -> false
+  #     size === 3 -> true
+  #     !fun.(arg4) -> false
+  #     true -> true
   #   end
   # end
   def partial_all?(unquote(C.array()), size, fun) do
-    !cond do
-      unquote(
-        C.any_cond_tail(
-          fn arg ->
-            quote do
-              !var!(fun).(unquote(arg))
-            end
-          end,
-          C.var(size)
-        )
-      )
+    find_cond arg, size do
+      !fun.(arg) -> false
+      _ -> true
     end
   end
 

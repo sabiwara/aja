@@ -422,14 +422,9 @@ defmodule A.Vector.Trie do
   def member?(unquote(C.array()), level, value) do
     child_level = C.decr_level(level)
 
-    cond do
-      unquote(
-        C.any_cond_trie(fn arg ->
-          quote do
-            member?(unquote(arg), var!(child_level), var!(value))
-          end
-        end)
-      )
+    find_cond arg do
+      member?(arg, child_level, value) -> true
+      _ -> false
     end
   end
 
@@ -458,14 +453,9 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    cond do
-      unquote(
-        C.any_cond_trie(fn arg ->
-          quote do
-            any?(unquote(arg), var!(child_level))
-          end
-        end)
-      )
+    find_cond arg do
+      any?(arg, child_level) -> true
+      _ -> false
     end
   end
 
@@ -498,14 +488,9 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    cond do
-      unquote(
-        C.any_cond_trie(fn arg ->
-          quote do
-            any?(unquote(arg), var!(child_level), var!(fun))
-          end
-        end)
-      )
+    find_cond arg do
+      any?(arg, child_level, fun) -> true
+      _ -> false
     end
   end
 
@@ -520,28 +505,23 @@ defmodule A.Vector.Trie do
 
   # def all?({arg1, arg2, arg3, arg4}, level) do
   #   child_level = level - bits
-  #   !cond do
-  #     !all?(arg1, child_level) -> true
-  #     arg2 === null -> false
-  #     !all?(arg2, child_level) -> true
-  #     arg3 === null -> false
-  #     !all?(arg3, child_level) -> true
-  #     arg4 === null -> false
-  #     !all?(arg4, child_level) -> true
-  #     true -> false
+  #   cond do
+  #     !all?(arg1, child_level) -> false
+  #     arg2 === null -> true
+  #     !all?(arg2, child_level) -> false
+  #     arg3 === null -> true
+  #     !all?(arg3, child_level) -> false
+  #     arg4 === null -> true
+  #     !all?(arg4, child_level) -> false
+  #     true -> true
   #   end
   # end
   def all?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    !cond do
-      unquote(
-        C.any_cond_trie(fn arg ->
-          quote do
-            !all?(unquote(arg), var!(child_level))
-          end
-        end)
-      )
+    find_cond arg do
+      !all?(arg, child_level) -> false
+      _ -> true
     end
   end
 
@@ -560,28 +540,23 @@ defmodule A.Vector.Trie do
 
   # def all?({arg1, arg2, arg3, arg4}, level, fun) do
   #   child_level = level - bits
-  #   !cond do
-  #     !all?(arg1, child_level, fun) -> true
-  #     arg2 === null -> false
-  #     !all?(arg2, child_level, fun) -> true
-  #     arg3 === null -> false
-  #     !all?(arg3, child_level, fun) -> true
-  #     arg4 === null -> false
-  #     !all?(arg4, child_level, fun) -> true
-  #     true -> false
+  #   cond do
+  #     !all?(arg1, child_level, fun) -> false
+  #     arg2 === null -> true
+  #     !all?(arg2, child_level, fun) -> false
+  #     arg3 === null -> true
+  #     !all?(arg3, child_level, fun) -> false
+  #     arg4 === null -> true
+  #     !all?(arg4, child_level, fun) -> false
+  #     true -> true
   #   end
   # end
   def all?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    !cond do
-      unquote(
-        C.any_cond_trie(fn arg ->
-          quote do
-            !all?(unquote(arg), var!(child_level), var!(fun))
-          end
-        end)
-      )
+    find_cond arg do
+      !all?(arg, child_level, fun) -> false
+      _ -> true
     end
   end
 

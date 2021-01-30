@@ -180,47 +180,11 @@ defmodule A.Vector.CodeGen do
     Macro.escape(variable)
   end
 
-  def any_cond_tail(fun, size) do
-    @arguments_ast
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {arg, i} ->
-      quote do
-        unquote(fun.(arg)) ->
-          true
-
-        unquote(
-          unless i == branch_factor() do
-            quote do: unquote(size) === unquote(i)
-          else
-            true
-          end
-        ) ->
-          false
-      end
+  def inject_arg(expr, arg_name, arg) do
+    Macro.postwalk(expr, fn
+      {^arg_name, _, nil} -> arg
+      ast -> ast
     end)
-  end
-
-  def any_cond_trie(fun) do
-    clauses =
-      @arguments_ast
-      |> Enum.with_index()
-      |> Enum.flat_map(fn {arg, i} ->
-        if i > 0 do
-          quote do
-            unquote(arg) === nil -> false
-          end
-        else
-          []
-        end ++
-          quote do
-            unquote(fun.(arg)) -> true
-          end
-      end)
-
-    clauses ++
-      quote do
-        true -> false
-      end
   end
 
   defp validate_args_length(args) do
