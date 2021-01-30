@@ -19,13 +19,13 @@ Benchmarking Enum.each/2...
 Benchmarking Enum.map/2...
 
 Name                      ips        average  deviation         median         99th %
-A.Vector.each/2      795.14 K        1.26 μs  ±2022.50%        1.12 μs        1.62 μs
-Enum.each/2          738.66 K        1.35 μs   ±513.68%        1.32 μs        1.59 μs
-A.Vector.map/2       649.14 K        1.54 μs  ±1534.13%        1.40 μs        1.90 μs
-Enum.map/2           602.22 K        1.66 μs  ±1377.93%        1.51 μs        2.00 μs
+A.Vector.each/2      758.98 K        1.32 μs  ±2036.94%        1.15 μs        1.96 μs
+A.Vector.map/2       627.94 K        1.59 μs  ±1580.53%        1.40 μs        2.64 μs
+Enum.each/2          609.84 K        1.64 μs  ±1147.69%        1.41 μs        3.34 μs
+Enum.map/2           475.31 K        2.10 μs   ±820.14%        1.70 μs        5.10 μs
 
 Comparison: 
-A.Vector.each/2      795.14 K
-Enum.each/2          738.66 K - 1.08x slower +0.0962 μs
-A.Vector.map/2       649.14 K - 1.22x slower +0.28 μs
-Enum.map/2           602.22 K - 1.32x slower +0.40 μs
+A.Vector.each/2      758.98 K
+A.Vector.map/2       627.94 K - 1.21x slower +0.27 μs
+Enum.each/2          609.84 K - 1.24x slower +0.32 μs
+Enum.map/2           475.31 K - 1.60x slower +0.79 μs

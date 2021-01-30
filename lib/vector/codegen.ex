@@ -176,6 +176,10 @@ defmodule A.Vector.CodeGen do
     end
   end
 
+  defmacro var(variable) do
+    Macro.escape(variable)
+  end
+
   def any_cond_tail(fun, size) do
     @arguments_ast
     |> Enum.with_index(1)
@@ -217,10 +221,6 @@ defmodule A.Vector.CodeGen do
       quote do
         true -> false
       end
-  end
-
-  defmacro var(variable) do
-    Macro.escape(variable)
   end
 
   defp validate_args_length(args) do

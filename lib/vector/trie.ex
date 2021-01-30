@@ -3,6 +3,7 @@ defmodule A.Vector.Trie do
 
   alias A.Vector.CodeGen, as: C
   require C
+  import A.Vector.Trie.Macros
 
   import Bitwise
 
@@ -369,38 +370,11 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def to_reverse_list(trie, level, acc)
-
-  def to_reverse_list(_trie = nil, _level, acc), do: acc
-
   # def to_reverse_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   [arg4, arg3, arg2, arg1 | acc]
   # end
-  def to_reverse_list(unquote(C.array()), _level = 0, acc) do
+  def_foldl to_reverse_list(trie, level, acc) do
     unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
-  end
-
-  # def to_reverse_list({arg1, arg2, arg3, arg4}, level, acc) do
-  #   child_level = level - bits
-  #   to_reverse_list(arg4, child_level,
-  #     to_reverse_list(arg3, child_level,
-  #       to_reverse_list(arg2, child_level,
-  #         to_reverse_list(arg1, child_level, acc)
-  #       )
-  #     )
-  #   )
-  # end
-  def to_reverse_list(unquote(C.array()), level, acc) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          to_reverse_list(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
-    )
   end
 
   def member?(trie, level, value)
@@ -611,46 +585,15 @@ defmodule A.Vector.Trie do
     end
   end
 
-  def foldl(trie, level, acc, fun)
-  def foldl(_trie = nil, _level, acc, _fun), do: acc
-
   # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
   # end
-  def foldl(unquote(C.array()), _level = 0, acc, fun) do
+  def_foldl foldl(trie, level, acc, fun) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
         quote do
           var!(fun).(unquote(arg), unquote(acc))
-        end
-      end)
-    )
-  end
-
-  # def foldl({arg1, arg2, arg3, arg4}, level, acc, fun) do
-  #   child_level = level - bits
-  #   foldl(arg4, child_level,
-  #     foldl(arg3, child_level,
-  #       foldl(arg2, child_level,
-  #         foldl(arg1, child_level, acc, fun),
-  #         fun),
-  #       fun),
-  #     fun)
-  # end
-  def foldl(
-        unquote(C.array()),
-        level,
-        acc,
-        fun
-      ) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          foldl(unquote(arg), var!(child_level), unquote(acc), var!(fun))
         end
       end)
     )
@@ -674,16 +617,13 @@ defmodule A.Vector.Trie do
     )
   end
 
-  def filter(trie, level, fun, acc)
-  def filter(_trie = nil, _level, _fun, acc), do: acc
-
-  # def filter({arg1, arg2, arg3, arg4}, _level = 0, fun, acc) do
+  # def filter({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   acc = if(fun.(arg1), do: [arg1 | acc], else: acc)
   #   acc = if(fun.(arg2), do: [arg2 | acc], else: acc)
   #   acc = if(fun.(arg3), do: [arg3 | acc], else: acc)
   #   if(fun.(arg4), do: [arg4 | acc], else: acc)
   # end
-  def filter(unquote(C.array()), _level = 0, fun, acc) do
+  def_foldl filter(trie, level, acc, fun) do
     unquote(
       C.arguments()
       |> Enum.reduce(C.var(acc), fn arg, acc ->
@@ -700,135 +640,35 @@ defmodule A.Vector.Trie do
     )
   end
 
-  # def filter({arg1, arg2, arg3, arg4}, level, fun, acc) do
-  #   child_level = level - bits
-  #   filter(arg4, child_level, fun,
-  #     filter(arg3, child_level, fun,
-  #       filter(arg2, child_level, fun,
-  #         filter(arg1, child_level, fun, acc)
-  #       )
-  #     )
-  #   )
-  # end
-  def filter(unquote(C.array()), level, fun, acc) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          filter(unquote(arg), var!(child_level), var!(fun), unquote(acc))
-        end
-      end)
-    )
-  end
-
-  def each(trie, level, fun)
-
   # def each({arg1, arg2, arg3, arg4}, _level = 0, fun) do
   #   fun.(arg1)
   #   fun.(arg2)
   #   fun.(arg3)
   #   fun.(arg4)
-  #   :ok
+  #   fun
   # end
-  def each(unquote(C.array()), _level = 0, fun) do
+  def_foldl each(trie, level, fun) do
     unquote(
       C.arguments()
       |> Enum.map(C.apply_mapper(C.var(fun)))
       |> C.block()
     )
 
-    :ok
+    fun
   end
-
-  # def each({arg1, arg2, arg3, arg4}, level, fun) do
-  #   child_level = level - bits
-  #   arg1 && each(arg1, child_level, fun) &&
-  #   arg2 && each(arg2, child_level, fun) &&
-  #   arg3 && each(arg3, child_level, fun) &&
-  #   arg4 && each(arg4, child_level, fun)
-  # end
-  def each(unquote(C.array()), level, fun) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.map(fn arg ->
-        quote do
-          unquote(arg) && each(unquote(arg), var!(child_level), var!(fun))
-        end
-      end)
-      |> Enum.reduce(fn
-        expr, acc ->
-          quote do
-            unquote(acc) && unquote(expr)
-          end
-      end)
-    )
-
-    :ok
-  end
-
-  def sum(trie, level, acc)
-
-  def sum(_trie = nil, _level, acc), do: acc
 
   # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc + arg1 + arg2 + arg3 + arg4
   # end
-  def sum(unquote(C.array()), _level = 0, acc) do
+  def_foldl sum(trie, level, acc) do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.sum_reducer/2))
   end
-
-  # def sum({arg1, arg2, arg3, arg4}, level, acc) do
-  #   child_level = level - bits
-  #   sum(arg4, child_level,
-  #     sum(arg3, child_level,
-  #        sum(arg2, child_level,
-  #          sum(arg1, child_level, acc))))
-  # end
-  def sum(unquote(C.array()), level, acc) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          sum(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
-    )
-  end
-
-  def product(trie, level, acc)
-  def product(_trie = nil, _level, acc), do: acc
 
   # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc * arg1 * arg2 * arg3 * arg4
   # end
-  def product(unquote(C.array()), _level = 0, acc) do
+  def_foldl product(trie, level, acc) do
     unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.product_reducer/2))
-  end
-
-  # def product({arg1, arg2, arg3, arg4}, level, acc) do
-  #   child_level = level - bits
-  #   product(arg4, child_level,
-  #     product(arg3, child_level,
-  #        product(arg2, child_level,
-  #          product(arg1, child_level, acc))))
-  # end
-  def product(unquote(C.array()), level, acc) do
-    child_level = C.decr_level(level)
-
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          product(unquote(arg), var!(child_level), unquote(acc))
-        end
-      end)
-    )
   end
 
   def intersperse(trie, level, separator, acc) do

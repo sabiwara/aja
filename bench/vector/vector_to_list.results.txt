@@ -19,13 +19,13 @@ Benchmarking A.Vector.to_list/1...
 Benchmarking Enum.to_list/1...
 
 Name                             ips        average  deviation         median         99th %
-A.Vector.Raw.to_list/1        2.65 M        0.38 μs  ±8932.56%        0.25 μs        0.60 μs
-A.Vector.to_list/1            2.48 M        0.40 μs  ±8462.23%        0.27 μs        1.15 μs
-:array.to_list/1              0.84 M        1.19 μs  ±1711.68%        1.03 μs        2.27 μs
-Enum.to_list/1                0.26 M        3.78 μs   ±460.02%        3.39 μs        5.72 μs
+A.Vector.Raw.to_list/1        2.44 M        0.41 μs  ±9094.18%        0.27 μs        0.66 μs
+A.Vector.to_list/1            2.34 M        0.43 μs  ±8566.61%        0.29 μs        0.65 μs
+:array.to_list/1              0.83 M        1.20 μs  ±1810.09%        1.04 μs        2.07 μs
+Enum.to_list/1                0.26 M        3.92 μs   ±484.74%        3.42 μs       11.52 μs
 
 Comparison: 
-A.Vector.Raw.to_list/1        2.65 M
-A.Vector.to_list/1            2.48 M - 1.07x slower +0.0272 μs
-:array.to_list/1              0.84 M - 3.15x slower +0.81 μs
-Enum.to_list/1                0.26 M - 10.03x slower +3.40 μs
+A.Vector.Raw.to_list/1        2.44 M
+A.Vector.to_list/1            2.34 M - 1.04x slower +0.0176 μs
+:array.to_list/1              0.83 M - 2.93x slower +0.79 μs
+Enum.to_list/1                0.26 M - 9.56x slower +3.51 μs
