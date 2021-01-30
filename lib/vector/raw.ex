@@ -338,7 +338,7 @@ defmodule A.Vector.Raw do
   def pop_last(large(size, tail_offset, level, trie, tail)) do
     case size - tail_offset - 1 do
       0 ->
-        {new_tail, new_trie, new_level} = Trie.pop_leaf(trie, level)
+        {new_tail, new_trie, new_level} = Trie.pop_leaf(trie, level, tail_offset - 1)
 
         new_vector =
           large(size - 1, tail_offset - C.branch_factor(), new_level, new_trie, new_tail)

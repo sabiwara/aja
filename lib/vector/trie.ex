@@ -299,8 +299,8 @@ defmodule A.Vector.Trie do
 
   # POP LEAF
 
-  def pop_leaf(trie, level) do
-    {popped, new} = do_nested_pop_leaf(trie, level)
+  def pop_leaf(trie, level, index) do
+    {popped, new} = do_nested_pop_leaf(trie, level, index)
 
     case elem(new, 1) do
       nil -> {popped, elem(new, 0), C.decr_level(level)}
@@ -308,41 +308,35 @@ defmodule A.Vector.Trie do
     end
   end
 
-  defp do_nested_pop_leaf(leaves, _level = C.bits()) do
-    do_pop_leaf(leaves)
+  defp do_nested_pop_leaf(leaves, level = C.bits(), index) do
+    current_index = C.radix_search(index, level)
+    do_pop_leaf(leaves, current_index)
   end
 
-  defp do_nested_pop_leaf(unquote(C.array_with_nils(1)), level) do
-    {popped, trie} = do_nested_pop_leaf(unquote(C.argument_at(0)), C.decr_level(level))
+  defp do_nested_pop_leaf(trie, level, index) do
+    current_index = C.radix_search(index, level)
+    child = elem(trie, current_index)
 
-    case trie do
-      nil ->
+    {popped, new_child} = do_nested_pop_leaf(child, C.decr_level(level), index)
+
+    case {current_index, new_child} do
+      {0, nil} ->
         {popped, nil}
 
       _ ->
-        new_trie = unquote(C.var(trie) |> C.value_with_nils() |> C.array())
+        new_trie = put_elem(trie, current_index, new_child)
         {popped, new_trie}
     end
   end
 
-  for i <- C.range(), i > 1 do
-    defp do_nested_pop_leaf(unquote(C.array_with_nils(i)), level) do
-      {popped, unquote(C.argument_at(i - 1))} =
-        do_nested_pop_leaf(unquote(C.argument_at(i - 1)), C.decr_level(level))
+  defp do_pop_leaf(trie, index) do
+    new_trie =
+      case index do
+        0 -> nil
+        _ -> put_elem(trie, index, nil)
+      end
 
-      new_trie = unquote(C.array_with_nils(i))
-      {popped, new_trie}
-    end
-  end
-
-  defp do_pop_leaf(unquote(C.array_with_nils(1))) do
-    {unquote(C.argument_at(0)), nil}
-  end
-
-  for i <- C.range(), i > 1 do
-    defp do_pop_leaf(unquote(C.array_with_nils(i))) do
-      {unquote(C.argument_at(i - 1)), unquote(C.array_with_nils(i - 1))}
-    end
+    {elem(trie, index), new_trie}
   end
 
   # LOOPS
@@ -1016,7 +1010,7 @@ defmodule A.Vector.Trie do
         {:small, tail}
 
       {tmp_level, tmp_trie} ->
-        {new_tail, new_trie, new_level} = pop_leaf(tmp_trie, tmp_level)
+        {new_tail, new_trie, new_level} = pop_leaf(tmp_trie, tmp_level, amount - 1)
         {:large, new_trie, new_level, new_tail}
     end
   end
