@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.5 (2021-01-31)
+
 ### Enhancements
 
 * Add `A.Vector.find/3` and `A.Vector.find_value/3`
