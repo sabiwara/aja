@@ -787,29 +787,62 @@ defmodule A.Vector.Trie do
     fun.(leaf, params, acc)
   end
 
-  # def foldr_leaves({arg1, arg2, nil, nil}, level, acc, params, fun) do
+  # def foldr_leaves({arg1, arg2, arg3, arg4}, level, acc, params, fun) do
   #   child_level = level - bits
-  #   foldr_leaves(arg1, child_level, foldr_leaves(arg2, child_level, acc, params, fun), params, fun)
+  #
+  #   foldr_leaves(arg1, child_level,
+  #     case arg2 do
+  #       nil -> acc
+  #       _ -> foldr_leaves(arg2, child_level,
+  #         case arg3 do
+  #           nil -> acc
+  #           _ -> foldr_leaves(arg3, child_level,
+  #             case arg4 do
+  #               nil -> acc
+  #               _ -> foldr_leaves(arg4, child_level, acc, params, fun)
+  #             end,
+  #             params, fun)
+  #         end,
+  #         params, fun)
+  #     end,
+  #     params, fun)
   # end
-  for i <- C.range() do
-    defp foldr_leaves(
-           unquote(C.array_with_nils(i)),
-           level,
-           acc,
-           params,
-           fun
-         ) do
-      child_level = C.decr_level(level)
+  defp foldr_leaves(
+         unquote(C.array()),
+         level,
+         acc,
+         params,
+         fun
+       ) do
+    child_level = C.decr_level(level)
 
-      unquote(
-        C.reversed_arguments(i)
-        |> Enum.reduce(C.var(acc), fn arg, acc ->
+    unquote(
+      C.reversed_arguments()
+      |> Enum.with_index(1)
+      |> Enum.reduce(C.var(acc), fn {arg, i}, ast_acc ->
+        recursive_call =
           quote do
-            foldr_leaves(unquote(arg), var!(child_level), unquote(acc), var!(params), var!(fun))
+            foldr_leaves(
+              unquote(arg),
+              var!(child_level),
+              unquote(ast_acc),
+              var!(params),
+              var!(fun)
+            )
           end
-        end)
-      )
-    end
+
+        if i == C.branch_factor() do
+          recursive_call
+        else
+          quote do
+            case unquote(arg) do
+              nil -> var!(acc)
+              _ -> unquote(recursive_call)
+            end
+          end
+        end
+      end)
+    )
   end
 
   @compile {:inline, slice: 6}
