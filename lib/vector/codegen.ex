@@ -249,30 +249,6 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  def strict_or_reducer(arg, acc) do
-    quote do
-      unquote(acc) or unquote(arg)
-    end
-  end
-
-  def or_reducer(arg, acc) do
-    quote do
-      unquote(acc) || unquote(arg)
-    end
-  end
-
-  def strict_and_reducer(arg, acc) do
-    quote do
-      unquote(acc) and unquote(arg)
-    end
-  end
-
-  def and_reducer(arg, acc) do
-    quote do
-      unquote(acc) && unquote(arg)
-    end
-  end
-
   # FIND
 
   defmacro find_cond_tail({arg_name, _, nil}, size,
