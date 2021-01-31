@@ -703,14 +703,24 @@ defmodule A.Vector.Trie do
   #   acc + arg1 + arg2 + arg3 + arg4
   # end
   C.def_foldl_trie sum(trie, level, acc) do
-    unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.sum_reducer/2))
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do: unquote(acc) + unquote(arg)
+      end)
+    )
   end
 
   # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
   #   acc * arg1 * arg2 * arg3 * arg4
   # end
   C.def_foldl_trie product(trie, level, acc) do
-    unquote(C.arguments() |> Enum.reduce(C.var(acc), &C.product_reducer/2))
+    unquote(
+      C.arguments()
+      |> Enum.reduce(C.var(acc), fn arg, acc ->
+        quote do: unquote(acc) * unquote(arg)
+      end)
+    )
   end
 
   def intersperse(trie, level, separator, acc) do

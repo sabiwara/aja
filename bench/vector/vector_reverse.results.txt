@@ -17,9 +17,9 @@ Benchmarking A.Vector.reverse/1...
 Benchmarking Enum.reverse/2...
 
 Name                         ips        average  deviation         median         99th %
-Enum.reverse/2            3.20 M        0.31 μs ±10707.39%       0.158 μs        0.47 μs
-A.Vector.reverse/1        0.89 M        1.12 μs  ±2168.11%        0.88 μs        2.08 μs
+Enum.reverse/2            3.70 M        0.27 μs ±11686.83%       0.135 μs        0.42 μs
+A.Vector.reverse/1        0.95 M        1.05 μs  ±2228.57%        0.83 μs        2.26 μs
 
 Comparison: 
-Enum.reverse/2            3.20 M
-A.Vector.reverse/1        0.89 M - 3.59x slower +0.81 μs
+Enum.reverse/2            3.70 M
+A.Vector.reverse/1        0.95 M - 3.89x slower +0.78 μs

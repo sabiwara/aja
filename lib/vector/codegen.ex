@@ -215,40 +215,6 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  def apply_sparse_mapper(fun) do
-    fn
-      nil ->
-        nil
-
-      arg ->
-        quote do
-          unquote(fun).(unquote(arg))
-        end
-    end
-  end
-
-  def strict_equal_mapper(val) do
-    fn arg ->
-      quote do
-        unquote(arg) === unquote(val)
-      end
-    end
-  end
-
-  # REDUCERS
-
-  def sum_reducer(arg, acc) do
-    quote do
-      unquote(acc) + unquote(arg)
-    end
-  end
-
-  def product_reducer(arg, acc) do
-    quote do
-      unquote(acc) * unquote(arg)
-    end
-  end
-
   # FIND
 
   defmacro find_cond_tail({arg_name, _, nil}, size,
@@ -335,6 +301,32 @@ defmodule A.Vector.CodeGen do
   end
 
   # FOLDS
+
+  defmacro def_foldl_tail(header, do: body) do
+    {name, [arg_var, acc_var]} = Macro.decompose_call(header)
+    expanded_body = Macro.expand(body, __CALLER__)
+
+    quote do
+      def unquote(name)(tail, size, unquote_splicing([acc_var]))
+
+      def unquote(name)(unquote(array()), size, unquote(acc_var)) do
+        case size do
+          unquote(
+            arguments()
+            |> Enum.scan(acc_var, fn arg_ast, acc_ast ->
+              expanded_body
+              |> inject_arg(elem(arg_var, 0), arg_ast)
+              |> inject_arg(elem(acc_var, 0), acc_ast)
+            end)
+            |> Enum.with_index(1)
+            |> Enum.flat_map(fn {expr, i} ->
+              quote do: (unquote(i) -> unquote(expr))
+            end)
+          )
+        end
+      end
+    end
+  end
 
   defmacro def_foldl_trie(header, do: body) do
     {name, args} = Macro.decompose_call(header)

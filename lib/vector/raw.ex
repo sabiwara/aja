@@ -409,11 +409,11 @@ defmodule A.Vector.Raw do
   @spec to_reverse_list(t(val)) :: [val] when val: value
   def to_reverse_list(large(size, tail_offset, shift, trie, tail)) do
     acc = Trie.to_reverse_list(trie, shift, [])
-    Tail.partial_reverse(tail, size - tail_offset) ++ acc
+    Tail.partial_reverse(tail, size - tail_offset, acc)
   end
 
   def to_reverse_list(small(size, tail)) do
-    Tail.partial_reverse(tail, size)
+    Tail.partial_reverse(tail, size, [])
   end
 
   def to_reverse_list(empty_pattern()) do

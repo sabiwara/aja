@@ -54,13 +54,8 @@ defmodule A.Vector.Tail do
     end
   end
 
-  for i <- C.range() do
-    # def partial_reverse({arg1, arg2, _arg3, _arg4}, 2) do
-    #   [arg2, arg1]
-    # end
-    def partial_reverse(unquote(C.array_with_wildcards(i)), unquote(i)) do
-      unquote(C.reversed_arguments(i))
-    end
+  C.def_foldl_tail partial_reverse(arg, acc) do
+    [arg | acc]
   end
 
   for i <- C.range() do
@@ -185,28 +180,20 @@ defmodule A.Vector.Tail do
     end
   end
 
-  for i <- C.range() do
-    # def partial_sum({arg1, arg2, arg3, _arg4}, 3, acc) do
-    #   acc + arg1 + arg2 + arg3
-    # end
-    def partial_sum(unquote(C.array_with_wildcards(i)), unquote(i), acc) do
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), &C.sum_reducer/2)
-      )
-    end
+  # def partial_sum({arg1, arg2, arg3, arg4}, size, acc) do
+  #   case size do
+  #     1 -> acc + arg1
+  #     2 -> (acc + arg1) + arg2)
+  #     3 -> ((acc + arg1) + arg2) + arg3
+  #     4 -> (((acc + arg1) + arg2) + arg3) + arg4
+  #  end
+  # end
+  C.def_foldl_tail partial_sum(arg, acc) do
+    acc + arg
   end
 
-  for i <- C.range() do
-    # def partial_product({arg1, arg2, arg3, _arg4}, 3, acc) do
-    #   acc * arg1 * arg2 * arg3
-    # end
-    def partial_product(unquote(C.array_with_wildcards(i)), unquote(i), acc) do
-      unquote(
-        C.arguments(i)
-        |> Enum.reduce(C.var(acc), &C.product_reducer/2)
-      )
-    end
+  C.def_foldl_tail partial_product(arg, acc) do
+    acc * arg
   end
 
   def partial_intersperse(tail, size, separator) do
