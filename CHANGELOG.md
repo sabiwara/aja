@@ -5,6 +5,7 @@
 ### Enhancements
 
 * Add `A.Vector.find/3` and `A.Vector.find_value/3`
+* Add `A.+++/2` convenience operator
 * Improve efficiency of vector access functions: `A.Vector.at/2`,
   `A.Vector.fetch/2`, `A.Vector.replace_at/3`,  `A.Vector.delete_at/2`...  ⚡️
 * Improve compile times
@@ -22,7 +23,6 @@
 * Add `A.Vector.with_index/2`
 * Add `A.Vector.random/1`, `A.Vector.take_random/2` and `A.Vector.shuffle/1`
 * Drastically improve efficiency of `A.Vector.duplicate/2` ⚡️⚡️⚡️
-* Add `A.+++/2` convenience operator
 
 ### Breaking changes
 
