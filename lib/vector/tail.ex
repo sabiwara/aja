@@ -171,6 +171,20 @@ defmodule A.Vector.Tail do
     end
   end
 
+  def partial_find(unquote(C.array()), size, fun) do
+    C.find_cond_tail arg, size do
+      fun.(arg) -> {:ok, arg}
+      _ -> nil
+    end
+  end
+
+  def partial_find_value(unquote(C.array()), size, fun) do
+    C.find_cond_tail arg, size do
+      value = fun.(arg) -> value
+      _ -> nil
+    end
+  end
+
   for i <- C.range() do
     # def partial_sum({arg1, arg2, arg3, _arg4}, 3, acc) do
     #   acc + arg1 + arg2 + arg3

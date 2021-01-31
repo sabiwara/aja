@@ -1593,6 +1593,54 @@ defmodule A.Vector do
   end
 
   @doc """
+  Returns the first element of `vector` for which `fun` returns a truthy value (neither `nil` nor `false`).
+
+  If no such element is found, returns `default`.
+
+  Runs in linear time, but stops evaluating when finds the first truthy value.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(2..10)
+      iex> A.Vector.find(vector, fn i -> rem(49, i) == 0 end)
+      7
+      iex> A.Vector.find(vector, fn i -> rem(13, i) == 0 end)
+      nil
+
+  """
+  @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
+        when val: value, default: value
+  def find(%__MODULE__{__vector__: internal}, default \\ nil, fun) when is_function(fun, 1) do
+    case Raw.find(internal, fun) do
+      {:ok, value} -> value
+      nil -> default
+    end
+  end
+
+  @doc """
+  Similar to `find/3`, but returns the value of the function invocation instead of the element itself.
+
+  The return value is considered to be found when the result is truthy (neither `nil` nor `false`).
+
+  Runs in linear time, but stops evaluating when finds the first truthy value.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(["Ant", "Bat", "Cat", "Dinosaur"])
+      iex> A.Vector.find_value(vector, fn s -> String.at(s, 4) end)
+      "s"
+      iex> A.Vector.find_value(vector, fn s -> String.at(s, 10) end)
+      nil
+
+  """
+  @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
+        when val: value, new_val: value, default: value
+  def find_value(%__MODULE__{__vector__: internal}, default \\ nil, fun)
+      when is_function(fun, 1) do
+    Raw.find_value(internal, fun) || default
+  end
+
+  @doc """
   Returns the `vector` in reverse order.
 
   Runs in linear time.

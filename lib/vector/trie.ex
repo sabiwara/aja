@@ -376,6 +376,8 @@ defmodule A.Vector.Trie do
     unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
   end
 
+  # FIND
+
   def member?(trie, level, value)
 
   # def member?({arg1, arg2, arg3, arg4}, _level = 0, value) do
@@ -586,6 +588,44 @@ defmodule A.Vector.Trie do
       _ -> true
     end
   end
+
+  def find(trie, level, fun)
+
+  def find(unquote(C.array()), _level = 0, fun) do
+    C.find_cond_leaf arg do
+      fun.(arg) -> {:ok, arg}
+      _ -> nil
+    end
+  end
+
+  def find(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
+
+    C.find_cond_trie arg do
+      value = find(arg, child_level, fun) -> value
+      _ -> nil
+    end
+  end
+
+  def find_value(trie, level, fun)
+
+  def find_value(unquote(C.array()), _level = 0, fun) do
+    C.find_cond_leaf arg do
+      value = fun.(arg) -> value
+      _ -> nil
+    end
+  end
+
+  def find_value(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
+
+    C.find_cond_trie arg do
+      value = find_value(arg, child_level, fun) -> value
+      _ -> nil
+    end
+  end
+
+  # FOLDS
 
   # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))

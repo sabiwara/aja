@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* Add `A.Vector.find/3` and `A.Vector.find_value/3`
 * Improve efficiency of vector access functions: `A.Vector.at/2`,
   `A.Vector.fetch/2`, `A.Vector.replace_at/3`,  `A.Vector.delete_at/2`...  ⚡️
 * Improve compile times

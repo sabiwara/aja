@@ -619,6 +619,30 @@ defmodule A.Vector.Raw do
 
   def all?(empty_pattern(), _fun), do: true
 
+  @spec find(t(val), (val -> as_boolean(term))) :: {:ok, val} | nil when val: value
+
+  def find(large(size, tail_offset, level, trie, tail), fun) do
+    Trie.find(trie, level, fun) || Tail.partial_find(tail, size - tail_offset, fun)
+  end
+
+  def find(small(size, tail), fun) do
+    Tail.partial_find(tail, size, fun)
+  end
+
+  def find(empty_pattern(), _fun), do: nil
+
+  @spec find_value(t(val), (val -> new_val)) :: new_val | nil when val: value, new_val: value
+
+  def find_value(large(size, tail_offset, level, trie, tail), fun) do
+    Trie.find_value(trie, level, fun) || Tail.partial_find_value(tail, size - tail_offset, fun)
+  end
+
+  def find_value(small(size, tail), fun) do
+    Tail.partial_find_value(tail, size, fun)
+  end
+
+  def find_value(empty_pattern(), _fun), do: nil
+
   @compile {:inline, map: 2}
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def map(vector, fun)

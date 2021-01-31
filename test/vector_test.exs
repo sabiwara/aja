@@ -157,28 +157,82 @@ defmodule A.VectorTest do
   end
 
   test "any?/2" do
-    {zero?, pop_args} = spy_callback(&(&1 == 0))
+    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
 
-    assert false == A.Vector.new() |> A.Vector.any?(zero?)
+    assert false == A.Vector.new() |> A.Vector.any?(lt_zero?)
     assert [] == pop_args.()
 
-    assert false == A.Vector.new(5..1) |> A.Vector.any?(zero?)
-    assert [5, 4, 3, 2, 1] == pop_args.()
-
-    assert false == A.Vector.new(50..1) |> A.Vector.any?(zero?)
-    assert Enum.to_list(50..1) == pop_args.()
-
-    assert false == A.Vector.new(500..1) |> A.Vector.any?(zero?)
-    assert Enum.to_list(500..1) == pop_args.()
-
-    assert true == A.Vector.new(5..0) |> A.Vector.any?(zero?)
+    assert false == A.Vector.new(5..0) |> A.Vector.any?(lt_zero?)
     assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-    assert true == A.Vector.new(50..0) |> A.Vector.any?(zero?)
+    assert false == A.Vector.new(50..0) |> A.Vector.any?(lt_zero?)
     assert Enum.to_list(50..0) == pop_args.()
 
-    assert true == A.Vector.new(500..0) |> A.Vector.any?(zero?)
+    assert false == A.Vector.new(500..0) |> A.Vector.any?(lt_zero?)
     assert Enum.to_list(500..0) == pop_args.()
+
+    assert true == A.Vector.new(5..-5) |> A.Vector.any?(lt_zero?)
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert true == A.Vector.new(50..-50) |> A.Vector.any?(lt_zero?)
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert true == A.Vector.new(500..-500) |> A.Vector.any?(lt_zero?)
+    assert Enum.to_list(500..-1) == pop_args.()
+  end
+
+  test "find/2" do
+    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
+
+    assert nil == A.Vector.new() |> A.Vector.find(lt_zero?)
+    assert [] == pop_args.()
+
+    assert nil == A.Vector.new(5..0) |> A.Vector.find(lt_zero?)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert nil == A.Vector.new(50..0) |> A.Vector.find(lt_zero?)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert nil == A.Vector.new(500..0) |> A.Vector.find(lt_zero?)
+    assert Enum.to_list(500..0) == pop_args.()
+
+    assert -1 == A.Vector.new(5..-5) |> A.Vector.find(lt_zero?)
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert -1 == A.Vector.new(50..-50) |> A.Vector.find(lt_zero?)
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert -1 == A.Vector.new(500..-500) |> A.Vector.find(lt_zero?)
+    assert Enum.to_list(500..-1) == pop_args.()
+  end
+
+  test "find_value/2" do
+    {spy, pop_args} =
+      spy_callback(fn
+        x when x < 0 -> -x
+        _ -> nil
+      end)
+
+    assert nil == A.Vector.new() |> A.Vector.find_value(spy)
+    assert [] == pop_args.()
+
+    assert nil == A.Vector.new(5..0) |> A.Vector.find_value(spy)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert nil == A.Vector.new(50..0) |> A.Vector.find_value(spy)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert nil == A.Vector.new(500..0) |> A.Vector.find_value(spy)
+    assert Enum.to_list(500..0) == pop_args.()
+
+    assert 1 == A.Vector.new(5..-5) |> A.Vector.find_value(spy)
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert 1 == A.Vector.new(50..-50) |> A.Vector.find_value(spy)
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert 1 == A.Vector.new(500..-500) |> A.Vector.find_value(spy)
+    assert Enum.to_list(500..-1) == pop_args.()
   end
 
   test "sum/1" do
