@@ -235,6 +235,31 @@ defmodule A.VectorTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
+  test "find_index/2" do
+    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
+
+    assert nil == A.Vector.new() |> A.Vector.find_index(lt_zero?)
+    assert [] == pop_args.()
+
+    assert nil == A.Vector.new(5..0) |> A.Vector.find_index(lt_zero?)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert nil == A.Vector.new(50..0) |> A.Vector.find_index(lt_zero?)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert nil == A.Vector.new(500..0) |> A.Vector.find_index(lt_zero?)
+    assert Enum.to_list(500..0) == pop_args.()
+
+    assert 6 == A.Vector.new(5..-5) |> A.Vector.find_index(lt_zero?)
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert 51 == A.Vector.new(50..-50) |> A.Vector.find_index(lt_zero?)
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert 501 == A.Vector.new(500..-500) |> A.Vector.find_index(lt_zero?)
+    assert Enum.to_list(500..-1) == pop_args.()
+  end
+
   test "sum/1" do
     assert 0 = A.Vector.new() |> A.Vector.sum()
     assert 15 = A.Vector.new(1..5) |> A.Vector.sum()

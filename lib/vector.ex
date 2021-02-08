@@ -1664,6 +1664,27 @@ defmodule A.Vector do
   end
 
   @doc """
+  Similar to `find/3`, but returns the index (zero-based) of the element instead of the element itself.
+
+  If no such element is found, returns `nil`.
+
+  Runs in linear time, but stops evaluating when finds the first truthy value.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(["Ant", "Bat", "Cat", "Dinosaur"])
+      iex> A.Vector.find_index(vector, fn s -> String.first(s) == "C" end)
+      2
+      iex> A.Vector.find_index(vector, fn s -> String.first(s) == "Z" end)
+      nil
+
+  """
+  @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
+  def find_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+    Raw.find_index(internal, fun)
+  end
+
+  @doc """
   Returns the `vector` in reverse order.
 
   Runs in linear time.

@@ -242,6 +242,9 @@ defmodule A.Vector.PropTest do
       assert Enum.find_value(list, &hash_multiple_of_2/1) ===
                A.Vector.find_value(vector, &hash_multiple_of_2/1)
 
+      assert Enum.find_index(list, &hash_multiple_of_2/1) ===
+               A.Vector.find_index(vector, &hash_multiple_of_2/1)
+
       assert capture_error(Enum.sum(list)) === capture_error(A.Vector.sum(vector))
 
       assert capture_error(Enum.reduce(list, 1, &(&2 * &1))) ===

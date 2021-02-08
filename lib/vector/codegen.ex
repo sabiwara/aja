@@ -237,7 +237,7 @@ defmodule A.Vector.CodeGen do
         cond_check =
           quote do
             unquote(inject_args(condition, arg: arg)) ->
-              unquote(inject_args(returned, arg: arg))
+              unquote(inject_args(returned, arg: arg, i: i))
           end
 
         if i > 0 do
@@ -266,7 +266,7 @@ defmodule A.Vector.CodeGen do
         cond_check =
           quote do
             unquote(inject_args(condition, arg: arg)) ->
-              unquote(inject_args(returned, arg: arg))
+              unquote(inject_args(returned, arg: arg, i: i))
           end
 
         if i > 0 do
@@ -288,10 +288,11 @@ defmodule A.Vector.CodeGen do
   defmacro find_cond_leaf(do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]) do
     clauses =
       arguments()
-      |> Enum.flat_map(fn arg ->
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {arg, i} ->
         quote do
           unquote(inject_args(condition, arg: arg)) ->
-            unquote(inject_args(returned, arg: arg))
+            unquote(inject_args(returned, arg: arg, i: i))
         end
       end)
 

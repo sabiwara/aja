@@ -643,6 +643,22 @@ defmodule A.Vector.Raw do
 
   def find_value(empty_pattern(), _fun), do: nil
 
+  @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
+
+  def find_index(large(size, tail_offset, level, trie, tail), fun) do
+    cond do
+      index = Trie.find_index(trie, level, fun) -> index
+      index = Tail.partial_find_index(tail, size - tail_offset, fun) -> index + tail_offset
+      true -> nil
+    end
+  end
+
+  def find_index(small(size, tail), fun) do
+    Tail.partial_find_index(tail, size, fun)
+  end
+
+  def find_index(empty_pattern(), _fun), do: nil
+
   @compile {:inline, map: 2}
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def map(vector, fun)
