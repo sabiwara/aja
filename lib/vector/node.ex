@@ -13,32 +13,12 @@ defmodule A.Vector.Node do
     put_elem(tuple, index, fun.(value))
   end
 
-  # def from_list([arg1, arg2, arg3, arg4]) do
-  #   {arg1, arg2, arg3, arg4}
-  # end
-  def from_list(unquote(C.arguments())) do
-    unquote(C.array())
-  end
-
   # def from_incomplete_list([arg1, arg2]) do
   #   {arg1, arg2, nil, nil}
   # end
   for i <- C.range() do
     def from_incomplete_list(unquote(C.arguments(i))) do
       unquote(C.array_with_nils(i))
-    end
-  end
-
-  # def from_incomplete_reverse_list([arg1, arg2]) do
-  #   {arg2, arg1, nil, nil}
-  # end
-  for i <- C.range() do
-    def from_incomplete_reverse_list(unquote(C.arguments(i))) do
-      unquote(
-        C.reversed_arguments(i)
-        |> C.fill_with(nil)
-        |> C.array()
-      )
     end
   end
 
