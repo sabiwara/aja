@@ -254,6 +254,11 @@ defmodule A.Vector.PropTest do
       assert Enum.drop_while(list, &hash_multiple_of_2/1) |> A.Vector.new() ===
                A.Vector.drop_while(vector, &hash_multiple_of_2/1)
 
+      {taken, dropped} = Enum.split_while(list, &hash_multiple_of_2/1)
+
+      assert {A.Vector.new(taken), A.Vector.new(dropped)} ===
+               A.Vector.split_while(vector, &hash_multiple_of_2/1)
+
       assert capture_error(Enum.sum(list)) === capture_error(A.Vector.sum(vector))
 
       assert capture_error(Enum.reduce(list, 1, &(&2 * &1))) ===

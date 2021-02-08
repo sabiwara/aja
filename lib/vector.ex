@@ -1928,6 +1928,49 @@ defmodule A.Vector do
   end
 
   @doc """
+  Splits `vector` in two at the position of the element for which `fun` returns a falsy value
+  (`false` or `nil`) for the first time.
+
+  It returns a two-element tuple with two vectors of elements.
+  The element that triggered the split is part of the second vector.
+
+  Is basically performing `take_while/2` and `drop_while/2` at once.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> {taken, dropped} = A.Vector.new(1..10) |> A.Vector.split_while(fn x -> x < 7 end)
+      iex> taken
+      #A<vec([1, 2, 3, 4, 5, 6])>
+      iex> dropped
+      #A<vec([7, 8, 9, 10])>
+
+  """
+  @spec split_while(t(val), (val -> as_boolean(term()))) :: {t(val), t(val)} when val: value
+  def split_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+    case Raw.find_falsy_index(internal, fun) do
+      nil ->
+        {vector, %__MODULE__{__vector__: @empty_raw}}
+
+      0 ->
+        {%__MODULE__{__vector__: @empty_raw}, vector}
+
+      index ->
+        size = Raw.size(internal)
+
+        taken = Raw.take(internal, index)
+
+        dropped =
+          internal
+          |> Raw.slice(index, size - 1)
+          |> Raw.from_list()
+
+        {%__MODULE__{__vector__: taken}, %__MODULE__{__vector__: dropped}}
+    end
+  end
+
+  @doc """
   Returns the `vector` with each element wrapped in a tuple alongside its index.
 
   If an `offset` is given, we will index from the given `offset` instead of from zero.

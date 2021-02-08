@@ -283,6 +283,10 @@ defmodule A.VectorTest do
 
     assert A.Vector.new(500..0) == A.Vector.new(500..-500) |> A.Vector.take_while(gte_zero?)
     assert Enum.to_list(500..-1) == pop_args.()
+
+    assert A.Vector.new() == A.Vector.new([-1, 0, 1]) |> A.Vector.take_while(gte_zero?)
+
+    assert Enum.to_list([-1]) == pop_args.()
   end
 
   test "drop_while/2" do
@@ -310,6 +314,52 @@ defmodule A.VectorTest do
 
     assert A.Vector.new(-1..-500) == A.Vector.new(500..-500) |> A.Vector.drop_while(gte_zero?)
     assert Enum.to_list(500..-1) == pop_args.()
+
+    assert A.Vector.new([-1, 0, 1]) == A.Vector.new([-1, 0, 1]) |> A.Vector.drop_while(gte_zero?)
+
+    assert Enum.to_list([-1]) == pop_args.()
+  end
+
+  test "split_while/2" do
+    {gte_zero?, pop_args} = spy_callback(&(&1 >= 0))
+
+    assert {A.Vector.new(), A.Vector.new()} == A.Vector.new() |> A.Vector.split_while(gte_zero?)
+    assert [] == pop_args.()
+
+    assert {A.Vector.new(5..0), A.Vector.new()} ==
+             A.Vector.new(5..0) |> A.Vector.split_while(gte_zero?)
+
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert {A.Vector.new(50..0), A.Vector.new()} ==
+             A.Vector.new(50..0) |> A.Vector.split_while(gte_zero?)
+
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert {A.Vector.new(500..0), A.Vector.new()} ==
+             A.Vector.new(500..0) |> A.Vector.split_while(gte_zero?)
+
+    assert Enum.to_list(500..0) == pop_args.()
+
+    assert {A.Vector.new(5..0), A.Vector.new(-1..-5)} ==
+             A.Vector.new(5..-5) |> A.Vector.split_while(gte_zero?)
+
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert {A.Vector.new(50..0), A.Vector.new(-1..-50)} ==
+             A.Vector.new(50..-50) |> A.Vector.split_while(gte_zero?)
+
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert {A.Vector.new(500..0), A.Vector.new(-1..-500)} ==
+             A.Vector.new(500..-500) |> A.Vector.split_while(gte_zero?)
+
+    assert Enum.to_list(500..-1) == pop_args.()
+
+    assert {A.Vector.new(), A.Vector.new([-1, 0, 1])} ==
+             A.Vector.new([-1, 0, 1]) |> A.Vector.split_while(gte_zero?)
+
+    assert Enum.to_list([-1]) == pop_args.()
   end
 
   test "sum/1" do
