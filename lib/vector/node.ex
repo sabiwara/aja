@@ -22,13 +22,10 @@ defmodule A.Vector.Node do
     end
   end
 
-  # def ast_from_incomplete_list([arg1, arg2]) do
-  #   {:{}, [], [arg1, arg2, nil, nil]}
-  # end
-  for i <- C.range() do
-    def ast_from_incomplete_list(unquote(C.arguments(i))) do
-      unquote(C.array_ast(C.arguments_with_nils(i)))
-    end
+  def ast_from_incomplete_list(list) do
+    # note: no need to optimize this one for runtime
+    nil_count = C.branch_factor() - length(list)
+    {:{}, [], list ++ List.duplicate(nil, nil_count)}
   end
 
   # def to_list({arg1, arg2, arg3, arg4}) do
