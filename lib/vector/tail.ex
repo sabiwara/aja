@@ -315,4 +315,26 @@ defmodule A.Vector.Tail do
       )
     end
   end
+
+  def partial_zip(tail1, tail2, tail_size)
+
+  for i <- C.range() do
+    # def partial_zip(tail1, tail2, 2) do
+    #   {{elem(tail1, 0), elem(tail2, 0)}, {elem(tail1, 1), elem(tail2, 1)}, nil, nil}
+    # end
+    def partial_zip(tail1, tail2, unquote(i)) do
+      unquote(
+        Enum.map(C.range(), fn
+          j when j <= i ->
+            quote do
+              {:erlang.element(unquote(j), var!(tail1)), :erlang.element(unquote(j), var!(tail2))}
+            end
+
+          _ ->
+            nil
+        end)
+        |> C.array()
+      )
+    end
+  end
 end

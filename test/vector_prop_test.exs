@@ -222,6 +222,9 @@ defmodule A.Vector.PropTest do
       index_list = Enum.with_index(list, i1)
       assert A.Vector.new(index_list) === A.Vector.with_index(vector, i1)
 
+      assert A.Vector.new(index_list) ===
+               A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
+
       assert Enum.any?(list) === A.Vector.any?(vector)
       assert Enum.all?(list) === A.Vector.all?(vector)
 

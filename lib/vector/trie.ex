@@ -1044,7 +1044,51 @@ defmodule A.Vector.Trie do
             )
         end
       end)
-      |> C.fill_with(nil)
+      |> C.array()
+    )
+  end
+
+  def zip(trie1, trie2, level)
+
+  # def zip({arg1, arg2, arg3, arg4}, {arg5, arg6, arg7, arg8}, _level = 0) do
+  #   {{arg1, arg5, {arg2, arg6}, {arg3, arg7}, {arg4, arg8}}
+  # end
+  def zip(unquote(C.array()), unquote(C.array(C.other_arguments())), _level = 0) do
+    unquote(
+      Enum.zip(C.arguments(), C.other_arguments())
+      |> Enum.map(fn {arg, other_arg} ->
+        quote do
+          {unquote(arg), unquote(other_arg)}
+        end
+      end)
+      |> C.array()
+    )
+  end
+
+  # def zip({arg1, arg2, arg3, arg4}, {arg5, arg6, arg7, arg8}, level) do
+  #   child_level = level - bits
+  #   {
+  #     arg1 && zip(arg1, arg5, child_level),
+  #     arg2 && zip(arg2, arg6, child_level),
+  #     arg3 && zip(arg3, arg7, child_level),
+  #     arg4 && zip(arg4, arg8, child_level),
+  #  }
+  # end
+  def zip(unquote(C.array()), unquote(C.array(C.other_arguments())), level) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      Enum.zip(C.arguments(), C.other_arguments())
+      |> Enum.map(fn {arg, other_arg} ->
+        quote do
+          unquote(arg) &&
+            zip(
+              unquote(arg),
+              unquote(other_arg),
+              var!(child_level)
+            )
+        end
+      end)
       |> C.array()
     )
   end

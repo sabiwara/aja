@@ -485,6 +485,32 @@ defmodule A.VectorTest do
              A.Vector.new(1..500) |> A.Vector.with_index(77)
   end
 
+  test "zip/2" do
+    assert A.Vector.new() == A.Vector.zip(A.Vector.new(), A.Vector.new(1..1000))
+    assert A.Vector.new() == A.Vector.zip(A.Vector.new(1..1000), A.Vector.new())
+
+    assert A.Vector.new(Enum.zip(-1..-5, 1..5)) ==
+             A.Vector.zip(A.Vector.new(-1..-1000), A.Vector.new(1..5))
+
+    assert A.Vector.new(Enum.zip(1..5, -1..-5)) ==
+             A.Vector.zip(A.Vector.new(1..5), A.Vector.new(-1..-1000))
+
+    assert A.Vector.new(Enum.zip(1..5, -1..-5)) ==
+             A.Vector.zip(A.Vector.new(1..5), A.Vector.new(-1..-5))
+
+    assert A.Vector.new(Enum.zip(-1..-50, 1..50)) ==
+             A.Vector.zip(A.Vector.new(-1..-1000), A.Vector.new(1..50))
+
+    assert A.Vector.new(Enum.zip(1..50, -1..-50)) ==
+             A.Vector.zip(A.Vector.new(1..50), A.Vector.new(-1..-1000))
+
+    assert A.Vector.new(Enum.zip(-1..-500, 1..500)) ==
+             A.Vector.zip(A.Vector.new(-1..-1000), A.Vector.new(1..500))
+
+    assert A.Vector.new(Enum.zip(1..500, -1..-500)) ==
+             A.Vector.zip(A.Vector.new(1..500), A.Vector.new(-1..-1000))
+  end
+
   test "slice/2" do
     assert A.Vector.new([]) == A.Vector.new() |> A.Vector.slice(1..5)
     assert A.Vector.new([2, 3, 4, 5, 6]) == A.Vector.new(1..10) |> A.Vector.slice(1..5)

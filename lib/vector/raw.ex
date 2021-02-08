@@ -832,4 +832,32 @@ defmodule A.Vector.Raw do
   def take_random(vector, amount) do
     vector |> to_list() |> Enum.take_random(amount) |> from_list()
   end
+
+  @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
+  def zip(vector1, vector2) do
+    size1 = size(vector1)
+    size2 = size(vector2)
+
+    cond do
+      size1 > size2 -> do_zip(take(vector1, size2), vector2)
+      size1 == size2 -> do_zip(vector1, vector2)
+      true -> do_zip(vector1, take(vector2, size1))
+    end
+  end
+
+  defp do_zip(
+         large(size, tail_offset, level, trie1, tail1),
+         large(size, tail_offset, level, trie2, tail2)
+       ) do
+    new_tail = Tail.partial_zip(tail1, tail2, size - tail_offset)
+    new_trie = Trie.zip(trie1, trie2, level)
+    large(size, tail_offset, level, new_trie, new_tail)
+  end
+
+  defp do_zip(small(size, tail1), small(size, tail2)) do
+    new_tail = Tail.partial_zip(tail1, tail2, size)
+    small(size, new_tail)
+  end
+
+  defp do_zip(empty_pattern(), empty_pattern()), do: @empty
 end

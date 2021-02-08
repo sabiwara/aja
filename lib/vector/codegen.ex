@@ -16,6 +16,8 @@ defmodule A.Vector.CodeGen do
   @range 1..@branch_factor
 
   @arguments_ast Macro.generate_arguments(@branch_factor, nil)
+  @other_arguments_ast Macro.generate_arguments(2 * @branch_factor, nil)
+                       |> Enum.drop(@branch_factor)
   @wildcard quote do: _
 
   defmacro bits do
@@ -116,6 +118,14 @@ defmodule A.Vector.CodeGen do
     @arguments_ast
     |> Enum.take(i)
     |> Enum.reverse()
+  end
+
+  def other_arguments do
+    @other_arguments_ast
+  end
+
+  def other_arguments(i) when i in 1..@branch_factor do
+    Enum.take(@other_arguments_ast, i)
   end
 
   def duplicate_argument(arg) do

@@ -2037,6 +2037,26 @@ defmodule A.Vector do
     %__MODULE__{__vector__: new_internal}
   end
 
+  @doc """
+  Zips corresponding elements from two vectors into one vector of tuples.
+
+  The size of the returned vector is the one of the smallest of the input vectors.
+
+  Runs in linerar time.
+
+      iex> A.Vector.zip(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]))
+      #A<vec([{1, :a}, {2, :b}, {3, :c}])>
+      iex> A.Vector.zip(A.Vector.new(0..100), A.Vector.new([:a, :b, :c]))
+      #A<vec([{0, :a}, {1, :b}, {2, :c}])>
+
+  """
+  @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
+  def zip(%__MODULE__{__vector__: internal1}, %__MODULE__{__vector__: internal2}) do
+    new_internal = Raw.zip(internal1, internal2)
+
+    %__MODULE__{__vector__: new_internal}
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 
