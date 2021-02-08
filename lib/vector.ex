@@ -591,6 +591,8 @@ defmodule A.Vector do
     end
   end
 
+  defdelegate fetch!(vector, index), to: __MODULE__, as: :at!
+
   @doc """
   Finds the element at the given `index` (zero-based).
 
