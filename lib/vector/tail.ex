@@ -84,7 +84,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_member?(unquote(C.array()), size, value) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       arg === value -> true
       _ -> false
     end
@@ -103,7 +103,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       arg -> true
       _ -> false
     end
@@ -122,7 +122,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_any?(unquote(C.array()), size, fun) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       fun.(arg) -> true
       _ -> false
     end
@@ -141,7 +141,7 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_all?(unquote(C.array()), size) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       !arg -> false
       _ -> true
     end
@@ -160,21 +160,21 @@ defmodule A.Vector.Tail do
   #   end
   # end
   def partial_all?(unquote(C.array()), size, fun) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       !fun.(arg) -> false
       _ -> true
     end
   end
 
   def partial_find(unquote(C.array()), size, fun) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       fun.(arg) -> {:ok, arg}
       _ -> nil
     end
   end
 
   def partial_find_value(unquote(C.array()), size, fun) do
-    C.find_cond_tail arg, size do
+    C.find_cond_tail size do
       value = fun.(arg) -> value
       _ -> nil
     end

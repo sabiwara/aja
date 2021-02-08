@@ -423,7 +423,7 @@ defmodule A.Vector.Trie do
   def member?(unquote(C.array()), level, value) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       member?(arg, child_level, value) -> true
       _ -> false
     end
@@ -441,7 +441,7 @@ defmodule A.Vector.Trie do
   #   end
   # end
   def any?(unquote(C.array()), _level = 0) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       arg -> true
       _ -> false
     end
@@ -463,7 +463,7 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       any?(arg, child_level) -> true
       _ -> false
     end
@@ -481,7 +481,7 @@ defmodule A.Vector.Trie do
   #   end
   # end
   def any?(unquote(C.array()), _level = 0, fun) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       fun.(arg) -> true
       _ -> false
     end
@@ -503,7 +503,7 @@ defmodule A.Vector.Trie do
   def any?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       any?(arg, child_level, fun) -> true
       _ -> false
     end
@@ -521,7 +521,7 @@ defmodule A.Vector.Trie do
   #   end
   # end
   def all?(unquote(C.array()), _level = 0) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       !arg -> false
       _ -> true
     end
@@ -543,7 +543,7 @@ defmodule A.Vector.Trie do
   def all?(unquote(C.array()), level) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       !all?(arg, child_level) -> false
       _ -> true
     end
@@ -561,7 +561,7 @@ defmodule A.Vector.Trie do
   #   end
   # end
   def all?(unquote(C.array()), _level = 0, fun) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       !fun.(arg) -> false
       _ -> true
     end
@@ -583,7 +583,7 @@ defmodule A.Vector.Trie do
   def all?(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       !all?(arg, child_level, fun) -> false
       _ -> true
     end
@@ -592,7 +592,7 @@ defmodule A.Vector.Trie do
   def find(trie, level, fun)
 
   def find(unquote(C.array()), _level = 0, fun) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       fun.(arg) -> {:ok, arg}
       _ -> nil
     end
@@ -601,7 +601,7 @@ defmodule A.Vector.Trie do
   def find(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       value = find(arg, child_level, fun) -> value
       _ -> nil
     end
@@ -610,7 +610,7 @@ defmodule A.Vector.Trie do
   def find_value(trie, level, fun)
 
   def find_value(unquote(C.array()), _level = 0, fun) do
-    C.find_cond_leaf arg do
+    C.find_cond_leaf do
       value = fun.(arg) -> value
       _ -> nil
     end
@@ -619,7 +619,7 @@ defmodule A.Vector.Trie do
   def find_value(unquote(C.array()), level, fun) do
     child_level = C.decr_level(level)
 
-    C.find_cond_trie arg do
+    C.find_cond_trie do
       value = find_value(arg, child_level, fun) -> value
       _ -> nil
     end

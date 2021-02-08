@@ -180,10 +180,18 @@ defmodule A.Vector.CodeGen do
     Macro.escape(variable)
   end
 
-  def inject_arg(expr, arg_name, arg) do
+  def inject_args(expr, args) do
+    map = Map.new(args)
+
     Macro.postwalk(expr, fn
-      {^arg_name, _, nil} -> arg
-      ast -> ast
+      {arg_name, _, nil} = ast ->
+        case map do
+          %{^arg_name => arg_value} -> arg_value
+          _ -> ast
+        end
+
+      ast ->
+        ast
     end)
   end
 
@@ -217,7 +225,7 @@ defmodule A.Vector.CodeGen do
 
   # FIND
 
-  defmacro find_cond_tail({arg_name, _, nil}, size,
+  defmacro find_cond_tail(size,
              do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
            ) do
     clauses =
@@ -228,8 +236,8 @@ defmodule A.Vector.CodeGen do
 
         cond_check =
           quote do
-            unquote(inject_arg(condition, arg_name, arg)) ->
-              unquote(inject_arg(returned, arg_name, arg))
+            unquote(inject_args(condition, arg: arg)) ->
+              unquote(inject_args(returned, arg: arg))
           end
 
         if i > 0 do
@@ -248,9 +256,7 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defmacro find_cond_trie({arg_name, _, nil},
-             do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
-           ) do
+  defmacro find_cond_trie(do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]) do
     clauses =
       arguments()
       |> Enum.with_index()
@@ -259,8 +265,8 @@ defmodule A.Vector.CodeGen do
 
         cond_check =
           quote do
-            unquote(inject_arg(condition, arg_name, arg)) ->
-              unquote(inject_arg(returned, arg_name, arg))
+            unquote(inject_args(condition, arg: arg)) ->
+              unquote(inject_args(returned, arg: arg))
           end
 
         if i > 0 do
@@ -279,15 +285,13 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defmacro find_cond_leaf({arg_name, _, nil},
-             do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]
-           ) do
+  defmacro find_cond_leaf(do: [{:->, _, [[condition], returned]}, {:->, _, [_, default]}]) do
     clauses =
       arguments()
       |> Enum.flat_map(fn arg ->
         quote do
-          unquote(inject_arg(condition, arg_name, arg)) ->
-            unquote(inject_arg(returned, arg_name, arg))
+          unquote(inject_args(condition, arg: arg)) ->
+            unquote(inject_args(returned, arg: arg))
         end
       end)
 
@@ -303,7 +307,7 @@ defmodule A.Vector.CodeGen do
   # FOLDS
 
   defmacro def_foldl_tail(header, do: body) do
-    {name, [arg_var, acc_var]} = Macro.decompose_call(header)
+    {name, [{arg_name, _, nil}, {acc_name, _, nil} = acc_var]} = Macro.decompose_call(header)
     expanded_body = Macro.expand(body, __CALLER__)
 
     quote do
@@ -314,9 +318,7 @@ defmodule A.Vector.CodeGen do
           unquote(
             arguments()
             |> Enum.scan(acc_var, fn arg_ast, acc_ast ->
-              expanded_body
-              |> inject_arg(elem(arg_var, 0), arg_ast)
-              |> inject_arg(elem(acc_var, 0), acc_ast)
+              inject_args(expanded_body, %{arg_name => arg_ast, acc_name => acc_ast})
             end)
             |> Enum.with_index(1)
             |> Enum.flat_map(fn {expr, i} ->
