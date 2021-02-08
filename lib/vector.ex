@@ -1873,9 +1873,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..100) |> A.Vector.take_while(&(&1 < 7))
+      iex> A.Vector.new(1..100) |> A.Vector.take_while(fn x -> x < 7 end)
       #A<vec([1, 2, 3, 4, 5, 6])>
-      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.take_while(& &1)
+      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.take_while(fn x -> x end)
       #A<vec([1, true, %{}])>
 
   """
@@ -1887,6 +1887,40 @@ defmodule A.Vector do
 
       index ->
         new_internal = Raw.take(internal, index)
+        %__MODULE__{__vector__: new_internal}
+    end
+  end
+
+  @doc """
+  Drops elements at the beginning of the `vector` while `fun` returns a truthy value.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..10) |> A.Vector.drop_while(fn x -> x < 7 end)
+      #A<vec([7, 8, 9, 10])>
+      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.drop_while(fn x -> x end)
+      #A<vec([nil, "abc"])>
+
+  """
+  @spec drop_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
+  def drop_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+    case Raw.find_falsy_index(internal, fun) do
+      nil ->
+        %__MODULE__{__vector__: @empty_raw}
+
+      0 ->
+        vector
+
+      index ->
+        size = Raw.size(internal)
+
+        new_internal =
+          internal
+          |> Raw.slice(index, size - 1)
+          |> Raw.from_list()
+
         %__MODULE__{__vector__: new_internal}
     end
   end

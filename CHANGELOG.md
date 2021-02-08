@@ -5,7 +5,7 @@
 ### Enhancements
 
 * Add `A.Vector.find_index/2`
-* Add `A.Vector.take_while/2`
+* Add `A.Vector.take_while/2` and `A.Vector.drop_while/2`
 
 ## v0.4.5 (2021-01-31)
 
