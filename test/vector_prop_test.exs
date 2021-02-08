@@ -225,6 +225,9 @@ defmodule A.Vector.PropTest do
       assert A.Vector.new(index_list) ===
                A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
 
+      assert {vector, A.Vector.new(A.ExRange.new(i1, list_length + i1))} ==
+               A.Vector.new(index_list) |> A.Vector.unzip()
+
       assert Enum.any?(list) === A.Vector.any?(vector)
       assert Enum.all?(list) === A.Vector.all?(vector)
 

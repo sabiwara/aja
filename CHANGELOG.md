@@ -6,7 +6,7 @@
 
 * Add `A.Vector.find_index/2`
 * Add `A.Vector.take_while/2`, `A.Vector.drop_while/2` and `A.Vector.split_while/2`
-* Add `A.Vector.zip/2`
+* Add `A.Vector.zip/2` and `A.Vector.unzip/2`
 * Add `A.Vector.fetch!/2` alias
 
 ## v0.4.5 (2021-01-31)

@@ -2100,6 +2100,30 @@ defmodule A.Vector do
     %__MODULE__{__vector__: new_internal}
   end
 
+  @doc """
+  Opposite of `zip/2`. Extracts two-element tuples from the given `vector` and groups them together.
+
+  It takes a `vector` with elements being two-element tuples and returns a tuple with two vectors,
+  each of which is formed by the first and second element of each tuple, respectively.
+
+  This function fails unless `vector` only contains tuples with exactly two elements in each tuple.
+
+  Runs in linerar time.
+
+      iex> {vector1, vector2} = A.Vector.new([{1, :a}, {2, :b}, {3, :c}]) |> A.Vector.unzip()
+      iex> vector1
+      #A<vec([1, 2, 3])>
+      iex> vector2
+      #A<vec([:a, :b, :c])>
+
+  """
+  @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
+  def unzip(%__MODULE__{__vector__: internal}) do
+    {internal1, internal2} = Raw.unzip(internal)
+
+    {%__MODULE__{__vector__: internal1}, %__MODULE__{__vector__: internal2}}
+  end
+
   defimpl Inspect do
     import Inspect.Algebra
 

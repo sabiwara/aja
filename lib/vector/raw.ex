@@ -860,4 +860,22 @@ defmodule A.Vector.Raw do
   end
 
   defp do_zip(empty_pattern(), empty_pattern()), do: @empty
+
+  @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
+  def unzip(large(size, tail_offset, level, trie, tail)) do
+    {tail1, tail2} = Tail.partial_unzip(tail, size - tail_offset)
+    {trie1, trie2} = Trie.unzip(trie, level)
+
+    {
+      large(size, tail_offset, level, trie1, tail1),
+      large(size, tail_offset, level, trie2, tail2)
+    }
+  end
+
+  def unzip(small(size, tail)) do
+    {tail1, tail2} = Tail.partial_unzip(tail, size)
+    {small(size, tail1), small(size, tail2)}
+  end
+
+  def unzip(empty_pattern()), do: {@empty, @empty}
 end

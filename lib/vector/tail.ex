@@ -337,4 +337,25 @@ defmodule A.Vector.Tail do
       )
     end
   end
+
+  def partial_unzip(tail, tail_size)
+
+  for i <- C.range() do
+    # def partial_zip({{arg1, arg5}, {arg2, arg6}, _, _}, 2) do
+    #   {{arg1, arg2, nil, nil}, {arg5, arg6, nil, nil}}
+    # end
+    def partial_unzip(
+          unquote(
+            Enum.zip(C.arguments(i), C.other_arguments(i))
+            |> C.fill_with(nil)
+            |> C.array()
+          ),
+          unquote(i)
+        ) do
+      {
+        unquote(C.arguments(i) |> C.fill_with(nil) |> C.array()),
+        unquote(C.other_arguments(i) |> C.fill_with(nil) |> C.array())
+      }
+    end
+  end
 end

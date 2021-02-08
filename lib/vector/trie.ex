@@ -1092,4 +1092,51 @@ defmodule A.Vector.Trie do
       |> C.array()
     )
   end
+
+  def unzip(trie, level)
+
+  # def unzip({{arg1, arg5, {arg2, arg6}, {arg3, arg7}, {arg4, arg8}}, _level = 0) do
+  #   {{arg1, arg2, arg3, arg4}, {arg5, arg6, arg7, arg8}}
+  # end
+  def unzip(
+        unquote(C.array(Enum.zip(C.arguments(), C.other_arguments()))),
+        _level = 0
+      ) do
+    {unquote(C.array()), unquote(C.array(C.other_arguments()))}
+  end
+
+  # def unzip({arg1, arg2, arg3, arg4}, level) do
+  #   child_level = level - bits
+  #
+  #   {arg1, arg5} = case arg1 do
+  #     nil -> {nil, nil}
+  #     value -> unzip(value, child_level)
+  #   end
+  #   # ...
+  #   {arg4, arg8} = case arg4 do
+  #     nil -> {nil, nil}
+  #     value -> unzip(value, child_level)
+  #   end
+  #
+  #   {{arg1, arg2, arg3, arg4}, {arg5, arg6, arg7, arg8}}
+  # end
+  def unzip(unquote(C.array()), level) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      Enum.zip(C.arguments(), C.other_arguments())
+      |> Enum.map(fn {arg, other_arg} ->
+        quote do
+          {unquote(arg), unquote(other_arg)} =
+            case unquote(arg) do
+              nil -> {nil, nil}
+              value -> unzip(value, var!(child_level))
+            end
+        end
+      end)
+      |> C.block()
+    )
+
+    {unquote(C.array()), unquote(C.array(C.other_arguments()))}
+  end
 end

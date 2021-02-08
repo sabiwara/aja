@@ -561,6 +561,19 @@ defmodule A.VectorTest do
              A.Vector.zip(A.Vector.new(1..500), A.Vector.new(-1..-1000))
   end
 
+  test "unzip/2" do
+    assert {A.Vector.new(), A.Vector.new()} == A.Vector.unzip(A.Vector.new())
+
+    assert {A.Vector.new(-1..-5), A.Vector.new(1..5)} ==
+             A.Vector.unzip(A.Vector.new(Enum.zip(-1..-5, 1..5)))
+
+    assert {A.Vector.new(-1..-50), A.Vector.new(1..50)} ==
+             A.Vector.unzip(A.Vector.new(Enum.zip(-1..-50, 1..50)))
+
+    assert {A.Vector.new(-1..-500), A.Vector.new(1..500)} ==
+             A.Vector.unzip(A.Vector.new(Enum.zip(-1..-500, 1..500)))
+  end
+
   test "slice/2" do
     assert A.Vector.new([]) == A.Vector.new() |> A.Vector.slice(1..5)
     assert A.Vector.new([2, 3, 4, 5, 6]) == A.Vector.new(1..10) |> A.Vector.slice(1..5)
