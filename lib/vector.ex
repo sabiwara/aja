@@ -2034,7 +2034,7 @@ defmodule A.Vector do
 
   See `Enum.random/1` for notes on implementation and random seed.
 
-  Runs in linerar time (except for `amount <= 1`, which is effective constant time).
+  Runs in linear time (except for `amount <= 1`, which is effective constant time).
 
   ## Examples
 
@@ -2085,7 +2085,7 @@ defmodule A.Vector do
 
   The size of the returned vector is the one of the smallest of the input vectors.
 
-  Runs in linerar time.
+  Runs in linear time.
 
       iex> A.Vector.zip(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]))
       #A<vec([{1, :a}, {2, :b}, {3, :c}])>
@@ -2108,7 +2108,7 @@ defmodule A.Vector do
 
   This function fails unless `vector` only contains tuples with exactly two elements in each tuple.
 
-  Runs in linerar time.
+  Runs in linear time.
 
       iex> {vector1, vector2} = A.Vector.new([{1, :a}, {2, :b}, {3, :c}]) |> A.Vector.unzip()
       iex> vector1
