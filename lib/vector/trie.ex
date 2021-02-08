@@ -643,6 +643,24 @@ defmodule A.Vector.Trie do
     end
   end
 
+  def find_falsy_index(trie, level, fun)
+
+  def find_falsy_index(unquote(C.array()), _level = 0, fun) do
+    C.find_cond_leaf do
+      !fun.(arg) -> i
+      _ -> nil
+    end
+  end
+
+  def find_falsy_index(unquote(C.array()), level, fun) do
+    child_level = C.decr_level(level)
+
+    C.find_cond_trie do
+      child_index = find_falsy_index(arg, child_level, fun) -> child_index + (i <<< level)
+      _ -> nil
+    end
+  end
+
   # FOLDS
 
   # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do

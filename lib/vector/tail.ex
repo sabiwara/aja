@@ -187,6 +187,13 @@ defmodule A.Vector.Tail do
     end
   end
 
+  def partial_find_falsy_index(unquote(C.array()), size, fun) do
+    C.find_cond_tail size do
+      !fun.(arg) -> i
+      _ -> nil
+    end
+  end
+
   # def partial_sum({arg1, arg2, arg3, arg4}, size, acc) do
   #   case size do
   #     1 -> acc + arg1

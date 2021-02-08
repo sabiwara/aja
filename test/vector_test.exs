@@ -260,6 +260,31 @@ defmodule A.VectorTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
+  test "take_while/2" do
+    {gte_zero?, pop_args} = spy_callback(&(&1 >= 0))
+
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.take_while(gte_zero?)
+    assert [] == pop_args.()
+
+    assert A.Vector.new(5..0) == A.Vector.new(5..0) |> A.Vector.take_while(gte_zero?)
+    assert [5, 4, 3, 2, 1, 0] == pop_args.()
+
+    assert A.Vector.new(50..0) == A.Vector.new(50..0) |> A.Vector.take_while(gte_zero?)
+    assert Enum.to_list(50..0) == pop_args.()
+
+    assert A.Vector.new(500..0) == A.Vector.new(500..0) |> A.Vector.take_while(gte_zero?)
+    assert Enum.to_list(500..0) == pop_args.()
+
+    assert A.Vector.new(5..0) == A.Vector.new(5..-5) |> A.Vector.take_while(gte_zero?)
+    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
+
+    assert A.Vector.new(50..0) == A.Vector.new(50..-50) |> A.Vector.take_while(gte_zero?)
+    assert Enum.to_list(50..-1) == pop_args.()
+
+    assert A.Vector.new(500..0) == A.Vector.new(500..-500) |> A.Vector.take_while(gte_zero?)
+    assert Enum.to_list(500..-1) == pop_args.()
+  end
+
   test "sum/1" do
     assert 0 = A.Vector.new() |> A.Vector.sum()
     assert 15 = A.Vector.new(1..5) |> A.Vector.sum()

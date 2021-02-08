@@ -1867,6 +1867,31 @@ defmodule A.Vector do
   end
 
   @doc """
+  Takes the elements from the beginning of the `vector` while `fun` returns a truthy value.
+
+  Runs in linear time regarding the size of the returned subset.
+
+  ## Examples
+
+      iex> A.Vector.new(1..100) |> A.Vector.take_while(&(&1 < 7))
+      #A<vec([1, 2, 3, 4, 5, 6])>
+      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.take_while(& &1)
+      #A<vec([1, true, %{}])>
+
+  """
+  @spec take_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
+  def take_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+    case Raw.find_falsy_index(internal, fun) do
+      nil ->
+        vector
+
+      index ->
+        new_internal = Raw.take(internal, index)
+        %__MODULE__{__vector__: new_internal}
+    end
+  end
+
+  @doc """
   Returns the `vector` with each element wrapped in a tuple alongside its index.
 
   If an `offset` is given, we will index from the given `offset` instead of from zero.
