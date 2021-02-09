@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.6 (2021-02-10)
+
 ### Enhancements
 
 * Add `A.Vector.find_index/2`
