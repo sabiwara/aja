@@ -514,6 +514,54 @@ defmodule A.VectorTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
+  test "reject/2" do
+    odd? = &(rem(&1, 2) == 0)
+    {spy, pop_args} = spy_callback(odd?)
+
+    assert A.Vector.new() == A.Vector.new() |> A.Vector.reject(spy)
+    assert [] == pop_args.()
+
+    assert A.Vector.new([1, 3, 5]) == A.Vector.new(1..5) |> A.Vector.reject(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert Enum.reject(1..50, odd?) |> A.Vector.new() ==
+             A.Vector.new(1..50) |> A.Vector.reject(spy)
+
+    assert Enum.to_list(1..50) == pop_args.()
+
+    assert Enum.reject(1..500, odd?) |> A.Vector.new() ==
+             A.Vector.new(1..500) |> A.Vector.reject(spy)
+
+    assert Enum.to_list(1..500) == pop_args.()
+  end
+
+  test "split_with/2" do
+    odd? = &(rem(&1, 2) == 0)
+    {spy, pop_args} = spy_callback(odd?)
+
+    assert {A.Vector.new(), A.Vector.new()} == A.Vector.new() |> A.Vector.split_with(spy)
+    assert [] == pop_args.()
+
+    assert {A.Vector.new([2, 4]), A.Vector.new([1, 3, 5])} ==
+             A.Vector.new(1..5) |> A.Vector.split_with(spy)
+
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    {list1, list2} = Enum.split_with(1..50, odd?)
+
+    assert {A.Vector.new(list1), A.Vector.new(list2)} ==
+             A.Vector.new(1..50) |> A.Vector.split_with(spy)
+
+    assert Enum.to_list(1..50) == pop_args.()
+
+    {list1, list2} = Enum.split_with(1..500, odd?)
+
+    assert {A.Vector.new(list1), A.Vector.new(list2)} ==
+             A.Vector.new(1..500) |> A.Vector.split_with(spy)
+
+    assert Enum.to_list(1..500) == pop_args.()
+  end
+
   test "with_index/2" do
     assert A.Vector.new() == A.Vector.new() |> A.Vector.with_index()
     assert A.Vector.new() == A.Vector.new() |> A.Vector.with_index(77)

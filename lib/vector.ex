@@ -1141,6 +1141,39 @@ defmodule A.Vector do
   end
 
   @doc """
+  Splits the `vector` in two vectors according to the given function `fun`.
+
+  Returns a tuple with the first vector containing all the elements in `vector`
+  for which applying `fun` returned a truthy value, and a second vector with all
+  the elements for which applying `fun` returned a falsy value (`false` or `nil`).
+
+  Returns the same result as `filter/2` and `reject/2` at once, but only walks the
+  `vector` once and calls `fun` exactly once per element.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(1..12)
+      iex> {filtered, rejected} = A.Vector.split_with(vector, fn i -> rem(i, 3) == 0 end)
+      iex> filtered
+      #A<vec([3, 6, 9, 12])>
+      iex> rejected
+      #A<vec([1, 2, 4, 5, 7, 8, 10, 11])>
+
+  """
+  @spec split_with(t(val), (val -> boolean)) :: {t(val), t(val)} when val: value
+  def split_with(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+    # note: unlike filter/2, optimization does not bring much benefit
+    {filtered, rejected} = internal |> Raw.to_list() |> Enum.split_with(fun)
+
+    {
+      %__MODULE__{__vector__: Raw.from_list(filtered)},
+      %__MODULE__{__vector__: Raw.from_list(rejected)}
+    }
+  end
+
+  @doc """
   Sorts the `vector` in the same way as `Enum.sort/1`.
 
   ## Examples
