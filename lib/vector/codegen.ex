@@ -328,7 +328,13 @@ defmodule A.Vector.CodeGen do
           {:acc_var, Macro.var(acc_name, nil)}
 
         {:\\, _, [{acc_name, _, nil}, acc_value]} ->
-          {:acc_value, Macro.var(acc_name, nil), acc_value}
+          case acc_value do
+            {:first, _, []} ->
+              {:acc_first, Macro.var(acc_name, nil)}
+
+            _ ->
+              {:acc_value, Macro.var(acc_name, nil), acc_value}
+          end
       end
 
     do_def_foldl(fun_name, arg_name, acc_params, rest_args, expanded_body)
@@ -348,8 +354,24 @@ defmodule A.Vector.CodeGen do
 
         {:acc_value, _acc_var, acc_value} ->
           do_foldl_with_value(fun_name, tail_fun_name, trie_fun_name, acc_value, rest_args)
+
+        {:acc_first, acc_var} ->
+          trie_left_fun_name = fun_name_with_suffix(fun_name, :trie_left)
+
+          [
+            do_def_foldl_trie_left(
+              trie_left_fun_name,
+              trie_fun_name,
+              arg_name,
+              acc_var,
+              rest_args,
+              expanded_body
+            ),
+            do_foldl_with_first(fun_name, tail_fun_name, trie_left_fun_name, rest_args)
+          ]
       end
     ]
+    |> List.flatten()
   end
 
   defp do_foldl_with_acc(fun_name, tail_fun_name, trie_fun_name, acc_var, rest_args) do
@@ -381,7 +403,13 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  defp do_foldl_with_value(fun_name, tail_fun_name, trie_fun_name, acc_value, rest_args) do
+  defp do_foldl_with_value(
+         fun_name,
+         tail_fun_name,
+         trie_left_fun_name,
+         acc_value,
+         rest_args
+       ) do
     quote do
       def unquote(fun_name)(vector, unquote_splicing(rest_args))
 
@@ -390,7 +418,12 @@ defmodule A.Vector.CodeGen do
             unquote_splicing(rest_args)
           ) do
         new_acc =
-          unquote(trie_fun_name)(trie, level, unquote(acc_value), unquote_splicing(rest_args))
+          unquote(trie_left_fun_name)(
+            trie,
+            level,
+            unquote(acc_value),
+            unquote_splicing(rest_args)
+          )
 
         unquote(tail_fun_name)(tail, 0, size - tail_offset, new_acc, unquote_splicing(rest_args))
       end
@@ -404,6 +437,26 @@ defmodule A.Vector.CodeGen do
             unquote_splicing(for _ <- rest_args, do: @wildcard)
           ) do
         unquote(acc_value)
+      end
+    end
+  end
+
+  defp do_foldl_with_first(fun_name, tail_fun_name, trie_left_fun_name, rest_args) do
+    quote do
+      def unquote(fun_name)(vector, unquote_splicing(rest_args))
+
+      def unquote(fun_name)(
+            {size, tail_offset, level, trie, tail},
+            unquote_splicing(rest_args)
+          ) do
+        new_acc = unquote(trie_left_fun_name)(trie, level, unquote_splicing(rest_args))
+
+        unquote(tail_fun_name)(tail, 0, size - tail_offset, new_acc, unquote_splicing(rest_args))
+      end
+
+      def unquote(fun_name)({size, tail}, unquote_splicing(rest_args)) do
+        acc = :erlang.element(1, tail)
+        unquote(tail_fun_name)(tail, 1, size, acc, unquote_splicing(rest_args))
       end
     end
   end
@@ -479,6 +532,63 @@ defmodule A.Vector.CodeGen do
               case unquote(arg) do
                 nil -> acc
                 value -> unquote(fun_name)(value, child_level, acc, unquote_splicing(rest_args))
+              end
+            end
+          end)
+        )
+      end
+    end
+  end
+
+  defp do_def_foldl_trie_left(
+         left_fun_name,
+         rest_fun_name,
+         arg_name,
+         acc_var,
+         rest_args,
+         expanded_body
+       ) do
+    [first_arg | right_args] = arguments()
+
+    left_acc =
+      quote do
+        unquote(left_fun_name)(unquote(first_arg), child_level, unquote_splicing(rest_args))
+      end
+
+    quote do
+      def unquote(left_fun_name)(trie, level, unquote_splicing(rest_args))
+
+      def unquote(left_fun_name)(
+            unquote(array()),
+            _level = 0,
+            unquote_splicing(rest_args)
+          ) do
+        unquote(
+          arguments()
+          |> Enum.reduce(fn arg_ast, acc_ast ->
+            inject_reducer_variables(expanded_body, arg_name, arg_ast, acc_var, acc_ast)
+          end)
+        )
+      end
+
+      def unquote(left_fun_name)(
+            unquote(array()),
+            level,
+            unquote_splicing(rest_args)
+          ) do
+        child_level = level - unquote(@bits)
+
+        unquote(
+          Enum.reduce(right_args, left_acc, fn arg, acc ->
+            quote do
+              acc = unquote(acc)
+
+              case unquote(arg) do
+                nil ->
+                  acc
+
+                value ->
+                  unquote(rest_fun_name)(value, child_level, acc, unquote_splicing(rest_args))
               end
             end
           end)

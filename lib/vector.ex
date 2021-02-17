@@ -1365,6 +1365,8 @@ defmodule A.Vector do
   Folds (reduces) the given `vector` from the left with the function `fun`.
   Requires an accumulator `acc`.
 
+  Same as `reduce/3`.
+
   Runs in linear time.
 
   ## Examples
@@ -1401,6 +1403,56 @@ defmodule A.Vector do
   def foldr(%__MODULE__{__vector__: internal}, acc, fun) when is_function(fun, 2) do
     Raw.foldr(internal, acc, fun)
   end
+
+  @doc """
+  Invokes `fun` for each element in the `vector` with the accumulator.
+
+  Raises `A.Vector.EmptyError` if `vector` is empty.
+
+  The first element of the `vector` is used as the initial value
+  of the accumulator. Then the function is invoked with the next
+  element and the accumulator. The result returned by the function
+  is used as the accumulator for the next iteration, recursively.
+
+  Since the first element of the `vector` is used as the initial
+  value of the accumulator, `fun` will only be executed `n - 1` times
+  where `n` is the size of the `vector`. This function won't call
+  the specified function if `vector` only has one element.
+
+  If you wish to use another value for the accumulator, use `reduce/3`.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new([1, 2, 3, 4, 5]) |> A.Vector.reduce(fn x, acc -> x * acc end)
+      120
+      iex> A.Vector.new([]) |> A.Vector.reduce(fn x, acc -> x * acc end)
+      ** (A.Vector.EmptyError) empty vector error
+
+  """
+  @spec reduce(t(val), (val, val -> val)) :: val when val: value
+  def reduce(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
+    Raw.reduce(internal, fun)
+  end
+
+  @doc """
+  Folds (reduces) the given `vector` from the left with the function `fun`.
+  Requires an accumulator `acc`.
+
+  Same as `foldl/3`.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..10) |> A.Vector.reduce(0, &+/2)
+      55
+      iex> A.Vector.new(1..10) |> A.Vector.reduce([], & [&1 | &2])
+      [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+  """
+  defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
 
   @doc """
   Invokes the given `fun` for each element in the `vector`.

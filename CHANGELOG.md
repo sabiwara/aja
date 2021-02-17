@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* Add `A.Vector.reduce/2` and `A.Vector.reduce/3`
 * Add `A.Vector.split/2` and `A.Vector.split_with/2`
 * Improve performance for  `A.Vector.min/1` and `A.Vector.max/1`
 

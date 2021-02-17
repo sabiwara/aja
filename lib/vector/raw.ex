@@ -418,6 +418,15 @@ defmodule A.Vector.Raw do
     fun.(arg, acc)
   end
 
+  @spec reduce(t(val), (val, val -> val)) :: val when val: value
+  C.def_foldl reduce(arg, acc \\ first(), fun) do
+    fun.(arg, acc)
+  end
+
+  def reduce(empty_pattern(), _fun) do
+    raise A.Vector.EmptyError
+  end
+
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   def foldr(vector, acc, fun)
 
@@ -482,17 +491,21 @@ defmodule A.Vector.Raw do
 
   def join_as_iodata(empty_pattern(), _separator), do: []
 
+  @spec max(t(val)) :: val when val: value
+  C.def_foldl max(arg, acc \\ first()) do
+    if acc >= arg do
+      acc
+    else
+      arg
+    end
+  end
+
   def max(empty_pattern()) do
     raise A.Vector.EmptyError
   end
 
-  def max(vector) do
-    # TODO use reduce/2 signature
-    do_max(vector, first(vector, nil))
-  end
-
-  C.def_foldl do_max(arg, acc) do
-    if acc >= arg do
+  C.def_foldl min(arg, acc \\ first()) do
+    if acc <= arg do
       acc
     else
       arg
@@ -501,19 +514,6 @@ defmodule A.Vector.Raw do
 
   def min(empty_pattern()) do
     raise A.Vector.EmptyError
-  end
-
-  def min(vector) do
-    # TODO use reduce/2 signature
-    do_min(vector, first(vector, nil))
-  end
-
-  C.def_foldl do_min(arg, acc) do
-    if acc <= arg do
-      acc
-    else
-      arg
-    end
   end
 
   # FIND

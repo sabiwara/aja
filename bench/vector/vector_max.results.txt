@@ -19,13 +19,13 @@ Benchmarking Enum.max/1 (list)...
 Benchmarking Enum.max/1 (vector)...
 
 Name                          ips        average  deviation         median         99th %
-:lists.max/1             237.06 K        4.22 μs    ±41.97%        3.92 μs        7.94 μs
-A.Vector.max/1           235.89 K        4.24 μs   ±424.23%        3.91 μs        8.27 μs
-Enum.max/1 (list)         50.08 K       19.97 μs    ±25.88%       19.11 μs       41.44 μs
-Enum.max/1 (vector)       16.75 K       59.69 μs    ±20.49%       56.59 μs      111.38 μs
+:lists.max/1             256.07 K        3.91 μs    ±23.30%        3.78 μs        4.77 μs
+A.Vector.max/1           252.50 K        3.96 μs   ±380.49%        3.81 μs        4.23 μs
+Enum.max/1 (list)         55.09 K       18.15 μs    ±21.83%       17.69 μs       31.85 μs
+Enum.max/1 (vector)       17.73 K       56.41 μs    ±17.76%       54.72 μs      107.06 μs
 
 Comparison: 
-:lists.max/1             237.06 K
-A.Vector.max/1           235.89 K - 1.00x slower +0.0208 μs
-Enum.max/1 (list)         50.08 K - 4.73x slower +15.75 μs
-Enum.max/1 (vector)       16.75 K - 14.15x slower +55.47 μs
+:lists.max/1             256.07 K
+A.Vector.max/1           252.50 K - 1.01x slower +0.0552 μs
+Enum.max/1 (list)         55.09 K - 4.65x slower +14.25 μs
+Enum.max/1 (vector)       17.73 K - 14.45x slower +52.50 μs
