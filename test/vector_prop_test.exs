@@ -278,6 +278,11 @@ defmodule A.Vector.PropTest do
       assert Enum.map_intersperse(list, nil, &inspect/1) |> A.Vector.new() ===
                A.Vector.map_intersperse(vector, nil, &inspect/1)
 
+      assert Enum.frequencies(list) === A.Vector.frequencies(vector)
+
+      assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===
+               A.Vector.frequencies_by(vector, &hash_multiple_of_2/1)
+
       shuffled = A.Vector.shuffle(vector)
       assert ^list_length = A.Vector.size(shuffled)
 

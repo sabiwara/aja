@@ -516,6 +516,28 @@ defmodule A.Vector.Raw do
     raise A.Vector.EmptyError
   end
 
+  @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
+  C.def_foldl frequencies(arg, acc \\ %{}) do
+    # note: without this assignment, there is a weird bug, not sure why
+    key = arg
+
+    case acc do
+      %{^key => value} -> %{acc | key => value + 1}
+      _ -> Map.put(acc, key, 1)
+    end
+  end
+
+  @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
+        when val: value, key: any
+  C.def_foldl frequencies_by(arg, acc \\ %{}, key_fun) do
+    key = key_fun.(arg)
+
+    case acc do
+      %{^key => value} -> %{acc | key => value + 1}
+      _ -> Map.put(acc, key, 1)
+    end
+  end
+
   # FIND
 
   def member?(large(size, tail_offset, level, trie, tail), value) do

@@ -1607,6 +1607,43 @@ defmodule A.Vector do
   end
 
   @doc """
+  Returns a map with keys as unique elements of `vector` and values
+  as the count of every element.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(~w{ant buffalo ant ant buffalo dingo})
+      iex> A.Vector.frequencies(vector)
+      %{"ant" => 3, "buffalo" => 2, "dingo" => 1}
+
+  """
+  @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
+  def frequencies(%__MODULE__{__vector__: internal}) do
+    Raw.frequencies(internal)
+  end
+
+  @doc """
+  Returns a map with keys as unique elements given by `key_fun` and values
+  as the count of every element from the `vector`.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(~w{aa aA bb cc})
+      iex> A.Vector.frequencies_by(vector, &String.downcase/1)
+      %{"aa" => 2, "bb" => 1, "cc" => 1}
+
+      iex> vector = A.Vector.new(~w{aaa aA bbb cc c})
+      iex> A.Vector.frequencies_by(vector, &String.length/1)
+      %{3 => 2, 2 => 2, 1 => 1}
+
+  """
+  @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
+        when val: value, key: any
+  def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun) do
+    Raw.frequencies_by(internal, key_fun)
+  end
+
+  @doc """
   Returns `true` if at least one element in `enumerable` is truthy.
 
   Runs in linear time, but stops evaluating when finds the first truthy value.
