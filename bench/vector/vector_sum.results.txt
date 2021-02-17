@@ -19,13 +19,13 @@ Benchmarking A.Vector.sum/1...
 Benchmarking Enum.sum/1 (list)...
 
 Name                        ips        average  deviation         median         99th %
-A.Vector.sum/1         315.93 K        3.17 μs   ±634.40%        2.84 μs        7.51 μs
-:lists.sum/1           279.34 K        3.58 μs    ±46.42%        3.30 μs        6.57 μs
-Enum.sum/1 (list)      278.49 K        3.59 μs    ±69.02%        3.30 μs        7.37 μs
-A.Vector.foldl/3        58.50 K       17.09 μs    ±36.76%       15.87 μs       40.30 μs
+A.Vector.sum/1         346.69 K        2.88 μs   ±674.88%        2.76 μs        3.13 μs
+:lists.sum/1           304.11 K        3.29 μs    ±25.49%        3.19 μs        4.05 μs
+Enum.sum/1 (list)      303.84 K        3.29 μs    ±48.17%        3.19 μs        4.03 μs
+A.Vector.foldl/3        64.87 K       15.42 μs    ±27.71%       15.12 μs       28.55 μs
 
 Comparison: 
-A.Vector.sum/1         315.93 K
-:lists.sum/1           279.34 K - 1.13x slower +0.41 μs
-Enum.sum/1 (list)      278.49 K - 1.13x slower +0.43 μs
-A.Vector.foldl/3        58.50 K - 5.40x slower +13.93 μs
+A.Vector.sum/1         346.69 K
+:lists.sum/1           304.11 K - 1.14x slower +0.40 μs
+Enum.sum/1 (list)      303.84 K - 1.14x slower +0.41 μs
+A.Vector.foldl/3        64.87 K - 5.34x slower +12.53 μs

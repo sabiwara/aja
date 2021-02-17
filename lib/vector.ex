@@ -1388,6 +1388,7 @@ defmodule A.Vector do
   @spec each(t(val), (val -> term)) :: :ok when val: value
   def each(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.each(internal, fun)
+    :ok
   end
 
   @doc """

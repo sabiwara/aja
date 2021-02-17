@@ -1,6 +1,8 @@
 defmodule A.Vector.Raw do
   @moduledoc false
 
+  import Kernel, except: [min: 2, max: 2]
+
   alias A.Vector.CodeGen, as: C
   require C
 
@@ -407,35 +409,14 @@ defmodule A.Vector.Raw do
   end
 
   @spec to_reverse_list(t(val)) :: [val] when val: value
-  def to_reverse_list(large(size, tail_offset, shift, trie, tail)) do
-    acc = Trie.to_reverse_list(trie, shift, [])
-    Tail.partial_reverse(tail, size - tail_offset, acc)
-  end
-
-  def to_reverse_list(small(size, tail)) do
-    Tail.partial_reverse(tail, size, [])
-  end
-
-  def to_reverse_list(empty_pattern()) do
-    []
+  C.def_foldl to_reverse_list(arg, acc \\ []) do
+    [arg | acc]
   end
 
   @spec foldl(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  def foldl(vector, acc, fun)
-
-  def foldl(large(size, tail_offset, level, trie, tail), acc, fun) do
-    new_acc = Trie.foldl(trie, level, acc, fun)
-
-    Tail.partial_to_list(tail, size - tail_offset)
-    |> List.foldl(new_acc, fun)
+  C.def_foldl foldl(arg, acc, fun) do
+    fun.(arg, acc)
   end
-
-  def foldl(small(size, tail), acc, fun) do
-    Tail.partial_to_list(tail, size)
-    |> List.foldl(acc, fun)
-  end
-
-  def foldl(empty_pattern(), acc, _fun), do: acc
 
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   def foldr(vector, acc, fun)
@@ -456,49 +437,20 @@ defmodule A.Vector.Raw do
   def foldr(empty_pattern(), acc, _fun), do: acc
 
   @spec each(t(val), (val -> term)) :: :ok when val: value
-  def each(vector, fun)
-
-  def each(large(size, tail_offset, level, trie, tail), fun) do
-    Trie.each(trie, level, fun)
-
-    Tail.partial_to_list(tail, size - tail_offset)
-    |> Enum.each(fun)
+  C.def_foldl each(arg, fun) do
+    fun.(arg)
+    fun
   end
-
-  def each(small(size, tail), fun) do
-    Tail.partial_to_list(tail, size)
-    |> Enum.each(fun)
-  end
-
-  def each(empty_pattern(), _fun), do: :ok
 
   @spec sum(t(number)) :: number
-  def sum(vector)
-
-  def sum(large(size, tail_offset, level, trie, tail)) do
-    acc = Trie.sum(trie, level, 0)
-    Tail.partial_sum(tail, size - tail_offset, acc)
+  C.def_foldl sum(arg, acc \\ 0) do
+    acc + arg
   end
-
-  def sum(small(size, tail)) do
-    Tail.partial_sum(tail, size, 0)
-  end
-
-  def sum(empty_pattern()), do: 0
 
   @spec product(t(number)) :: number
-  def product(vector)
-
-  def product(large(size, tail_offset, level, trie, tail)) do
-    acc = Trie.product(trie, level, 1)
-    Tail.partial_product(tail, size - tail_offset, acc)
+  C.def_foldl product(arg, acc \\ 1) do
+    acc * arg
   end
-
-  def product(small(size, tail)) do
-    Tail.partial_product(tail, size, 1)
-  end
-
-  def product(empty_pattern()), do: 1
 
   @spec intersperse(t(val), sep) :: [val | sep] when val: value, sep: value
   def intersperse(vector, separator)
@@ -535,14 +487,16 @@ defmodule A.Vector.Raw do
   end
 
   def max(vector) do
-    # TODO write optimized version
-    foldl(vector, last(vector, nil), fn val, acc ->
-      if val > acc do
-        val
-      else
-        acc
-      end
-    end)
+    # TODO use reduce/2 signature
+    do_max(vector, first(vector, nil))
+  end
+
+  C.def_foldl do_max(arg, acc) do
+    if acc >= arg do
+      acc
+    else
+      arg
+    end
   end
 
   def min(empty_pattern()) do
@@ -550,14 +504,16 @@ defmodule A.Vector.Raw do
   end
 
   def min(vector) do
-    # TODO write optimized version
-    foldl(vector, last(vector, nil), fn val, acc ->
-      if val < acc do
-        val
-      else
-        acc
-      end
-    end)
+    # TODO use reduce/2 signature
+    do_min(vector, first(vector, nil))
+  end
+
+  C.def_foldl do_min(arg, acc) do
+    if acc <= arg do
+      acc
+    else
+      arg
+    end
   end
 
   # FIND
@@ -692,27 +648,35 @@ defmodule A.Vector.Raw do
   def map(empty_pattern(), _fun), do: @empty
 
   @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-
-  def filter(vector, fun)
-
-  def filter(large(size, tail_offset, level, trie, tail), fun) do
-    acc = Trie.filter(trie, level, [], fun)
-
-    Tail.partial_filter(tail, fun, size - tail_offset, acc)
+  def filter(vector, fun) do
+    vector
+    |> do_filter(fun)
+    |> :lists.reverse()
     |> from_list()
   end
 
-  def filter(small(size, tail), fun) do
-    Tail.partial_filter(tail, fun, size, [])
-    |> from_list()
+  C.def_foldl do_filter(arg, acc \\ [], fun) do
+    if fun.(arg) do
+      [arg | acc]
+    else
+      acc
+    end
   end
-
-  def filter(empty_pattern(), _fun), do: @empty
 
   @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
   def reject(vector, fun) do
-    # TODO optimize
-    filter(vector, &(!fun.(&1)))
+    vector
+    |> do_reject(fun)
+    |> :lists.reverse()
+    |> from_list()
+  end
+
+  C.def_foldl do_reject(arg, acc \\ [], fun) do
+    if fun.(arg) do
+      acc
+    else
+      [arg | acc]
+    end
   end
 
   @compile {:inline, slice: 3}
@@ -724,11 +688,11 @@ defmodule A.Vector.Raw do
       if last < tail_offset do
         []
       else
-        Tail.slice(tail, max(0, start - tail_offset), last - tail_offset)
+        Tail.slice(tail, Kernel.max(0, start - tail_offset), last - tail_offset)
       end
 
     if start < tail_offset do
-      Trie.slice(trie, start, min(last, tail_offset - 1), level, acc)
+      Trie.slice(trie, start, Kernel.min(last, tail_offset - 1), level, acc)
     else
       acc
     end

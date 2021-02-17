@@ -369,13 +369,6 @@ defmodule A.Vector.Trie do
     end
   end
 
-  # def to_reverse_list({arg1, arg2, arg3, arg4}, _level = 0, acc) do
-  #   [arg4, arg3, arg2, arg1 | acc]
-  # end
-  C.def_foldl_trie to_reverse_list(trie, level, acc) do
-    unquote(C.reversed_arguments() |> C.list_with_rest(C.var(acc)))
-  end
-
   # FIND
 
   def member?(trie, level, value)
@@ -663,20 +656,6 @@ defmodule A.Vector.Trie do
 
   # FOLDS
 
-  # def foldl({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
-  #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
-  # end
-  C.def_foldl_trie foldl(trie, level, acc, fun) do
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          var!(fun).(unquote(arg), unquote(acc))
-        end
-      end)
-    )
-  end
-
   def foldr(trie, level, acc, fun) do
     foldr_leaves(trie, level, acc, fun, &foldr_leaf/3)
   end
@@ -691,70 +670,6 @@ defmodule A.Vector.Trie do
         quote do
           var!(fun).(unquote(arg), unquote(acc))
         end
-      end)
-    )
-  end
-
-  # def filter({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
-  #   acc = if(fun.(arg1), do: [arg1 | acc], else: acc)
-  #   acc = if(fun.(arg2), do: [arg2 | acc], else: acc)
-  #   acc = if(fun.(arg3), do: [arg3 | acc], else: acc)
-  #   if(fun.(arg4), do: [arg4 | acc], else: acc)
-  # end
-  C.def_foldl_trie filter(trie, level, acc, fun) do
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          acc = unquote(acc)
-
-          if var!(fun).(unquote(arg)) do
-            [unquote(arg) | acc]
-          else
-            acc
-          end
-        end
-      end)
-    )
-  end
-
-  # def each({arg1, arg2, arg3, arg4}, _level = 0, fun) do
-  #   fun.(arg1)
-  #   fun.(arg2)
-  #   fun.(arg3)
-  #   fun.(arg4)
-  #   fun
-  # end
-  C.def_foldl_trie each(trie, level, fun) do
-    unquote(
-      C.arguments()
-      |> Enum.map(C.apply_mapper(C.var(fun)))
-      |> C.block()
-    )
-
-    fun
-  end
-
-  # def sum({arg1, arg2, arg3, arg4}, _level = 0, acc) do
-  #   acc + arg1 + arg2 + arg3 + arg4
-  # end
-  C.def_foldl_trie sum(trie, level, acc) do
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do: unquote(acc) + unquote(arg)
-      end)
-    )
-  end
-
-  # def product({arg1, arg2, arg3, arg4}, _level = 0, acc) do
-  #   acc * arg1 * arg2 * arg3 * arg4
-  # end
-  C.def_foldl_trie product(trie, level, acc) do
-    unquote(
-      C.arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do: unquote(acc) * unquote(arg)
       end)
     )
   end

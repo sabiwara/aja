@@ -24,27 +24,6 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_filter(tail, fun, i, acc) do
-    do_partial_filter(tail, fun, acc, 1, i + 1)
-    |> :lists.reverse()
-  end
-
-  @compile {:inline, do_partial_filter: 5}
-  def do_partial_filter(_tail, _fun, acc, stop, stop), do: acc
-
-  def do_partial_filter(tail, fun, acc, erl_index, stop) do
-    value = :erlang.element(erl_index, tail)
-
-    new_acc =
-      if fun.(value) do
-        [value | acc]
-      else
-        acc
-      end
-
-    do_partial_filter(tail, fun, new_acc, erl_index + 1, stop)
-  end
-
   for i <- C.range() do
     # def partial_to_list({arg1, arg2, _arg3, _arg4}, 2) do
     #   [arg1, arg2]
@@ -52,10 +31,6 @@ defmodule A.Vector.Tail do
     def partial_to_list(unquote(C.array_with_wildcards(i)), unquote(i)) do
       unquote(C.arguments(i))
     end
-  end
-
-  C.def_foldl_tail partial_reverse(arg, acc) do
-    [arg | acc]
   end
 
   for i <- C.range() do
@@ -192,22 +167,6 @@ defmodule A.Vector.Tail do
       !fun.(arg) -> i
       _ -> nil
     end
-  end
-
-  # def partial_sum({arg1, arg2, arg3, arg4}, size, acc) do
-  #   case size do
-  #     1 -> acc + arg1
-  #     2 -> (acc + arg1) + arg2)
-  #     3 -> ((acc + arg1) + arg2) + arg3
-  #     4 -> (((acc + arg1) + arg2) + arg3) + arg4
-  #  end
-  # end
-  C.def_foldl_tail partial_sum(arg, acc) do
-    acc + arg
-  end
-
-  C.def_foldl_tail partial_product(arg, acc) do
-    acc * arg
   end
 
   def partial_intersperse(tail, size, separator) do

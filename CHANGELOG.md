@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+* Improve performance for  `A.Vector.min/1` and `A.Vector.max/1`
+
 ## v0.4.6 (2021-02-10)
 
 ### Enhancements
