@@ -1903,6 +1903,46 @@ defmodule A.Vector do
   end
 
   @doc """
+  Splits the `vector` into two vectors, leaving `amount` elements in the first one.
+
+  If `amount` is a negative number, it starts counting from the back to the beginning of the `vector`.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> vector = A.Vector.new([1, 2, 3])
+      iex> A.Vector.split(vector, 2) |> inspect()
+      "{#A<vec([1, 2])>, #A<vec([3])>}"
+      iex> A.Vector.split(vector, 10) |> inspect()
+      "{#A<vec([1, 2, 3])>, #A<vec([])>}"
+      iex> A.Vector.split(vector, 0) |> inspect()
+      "{#A<vec([])>, #A<vec([1, 2, 3])>}"
+      iex> A.Vector.split(vector, -1) |> inspect()
+      "{#A<vec([1, 2])>, #A<vec([3])>}"
+      iex> A.Vector.split(vector, -5) |> inspect()
+      "{#A<vec([])>, #A<vec([1, 2, 3])>}"
+
+  """
+  @spec split(t(val), integer) :: {t(val), t(val)} when val: value
+  def split(%__MODULE__{__vector__: internal} = vector, amount) when is_integer(amount) do
+    size = Raw.size(internal)
+
+    case Raw.actual_index(amount, size) do
+      nil ->
+        case amount do
+          positive when positive > 0 -> {vector, new()}
+          _ -> {new(), vector}
+        end
+
+      actual_amount ->
+        taken = Raw.take(internal, actual_amount)
+        dropped = do_drop(internal, actual_amount)
+        {%__MODULE__{__vector__: taken}, %__MODULE__{__vector__: dropped}}
+    end
+  end
+
+  @doc """
   Takes the elements from the beginning of the `vector` while `fun` returns a truthy value.
 
   Runs in linear time regarding the size of the returned subset.

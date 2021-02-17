@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-* Add `A.Vector.split_with/2`
+* Add `A.Vector.split/2` and `A.Vector.split_with/2`
 * Improve performance for  `A.Vector.min/1` and `A.Vector.max/1`
 
 ## v0.4.6 (2021-02-10)

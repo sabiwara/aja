@@ -194,6 +194,9 @@ defmodule A.Vector.PropTest do
       assert Enum.take(list, i1) |> A.Vector.new() === A.Vector.take(vector, i1)
       assert Enum.drop(list, i1) |> A.Vector.new() === A.Vector.drop(vector, i1)
 
+      {l1, l2} = Enum.split(list, i1)
+      assert {A.Vector.new(l1), A.Vector.new(l2)} === A.Vector.split(vector, i1)
+
       replaced_list = List.replace_at(list, i1, :replaced)
       assert A.Vector.new(replaced_list) == A.Vector.replace_at(vector, i1, :replaced)
       assert A.Vector.new(replaced_list) == A.Vector.update_at(vector, i1, fn _ -> :replaced end)
