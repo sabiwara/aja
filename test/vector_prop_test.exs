@@ -283,6 +283,12 @@ defmodule A.Vector.PropTest do
       assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===
                A.Vector.frequencies_by(vector, &hash_multiple_of_2/1)
 
+      assert Enum.group_by(list, &hash_multiple_of_2/1) ===
+               A.Vector.group_by(vector, &hash_multiple_of_2/1)
+
+      assert Enum.group_by(list, &hash_multiple_of_2/1, &inspect/1) ===
+               A.Vector.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
+
       shuffled = A.Vector.shuffle(vector)
       assert ^list_length = A.Vector.size(shuffled)
 

@@ -1638,8 +1638,33 @@ defmodule A.Vector do
   """
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
-  def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun) do
+  def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun, 1) do
     Raw.frequencies_by(internal, key_fun)
+  end
+
+  @doc """
+  Splits the `vector` into groups based on `key_fun`.
+
+  The result is a map where each key is given by `key_fun`
+  and each value is a list of elements given by `value_fun`.
+
+  The order of elements within each list is preserved from the `vector`.
+  However, like all maps, the resulting map is unordered.
+
+  ## Examples
+
+      iex> vector = A.Vector.new(~w{ant buffalo cat dingo})
+      iex> A.Vector.group_by(vector, &String.length/1)
+      %{3 => ["ant", "cat"], 5 => ["dingo"], 7 => ["buffalo"]}
+      iex> A.Vector.group_by(vector, &String.length/1, &String.first/1)
+      %{3 => ["a", "c"], 5 => ["d"], 7 => ["b"]}
+
+  """
+  @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
+        when val: value, key: any, mapped_val: any
+  def group_by(%__MODULE__{__vector__: internal}, key_fun, value_fun \\ fn x -> x end)
+      when is_function(key_fun, 1) and is_function(value_fun, 1) do
+    Raw.group_by(internal, key_fun, value_fun)
   end
 
   @doc """

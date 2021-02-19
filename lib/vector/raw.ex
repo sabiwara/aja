@@ -552,6 +552,18 @@ defmodule A.Vector.Raw do
     end
   end
 
+  @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
+        when val: value, key: any, mapped_val: any
+  C.def_foldr group_by(arg, acc \\ %{}, key_fun, value_fun) do
+    key = key_fun.(arg)
+    value = value_fun.(arg)
+
+    case acc do
+      %{^key => list} -> %{acc | key => [value | list]}
+      _ -> Map.put(acc, key, [value])
+    end
+  end
+
   # FIND
 
   def member?(large(size, tail_offset, level, trie, tail), value) do

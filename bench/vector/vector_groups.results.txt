@@ -1,0 +1,37 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.0.4
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 42 s
+
+Benchmarking A.Vector.frequencies/1...
+Benchmarking A.Vector.frequencies_by/2...
+Benchmarking A.Vector.group_by/2...
+Benchmarking Enum.frequencies/1 (list)...
+Benchmarking Enum.frequencies_by/2 (list)...
+Benchmarking Enum.group_by/2 (list)...
+
+Name                                   ips        average  deviation         median         99th %
+A.Vector.frequencies_by/2         165.35 K        6.05 μs   ±240.82%        5.12 μs       25.40 μs
+A.Vector.group_by/2               151.48 K        6.60 μs   ±209.19%        5.90 μs       23.50 μs
+Enum.frequencies_by/2 (list)      142.38 K        7.02 μs   ±165.28%        6.36 μs       16.15 μs
+Enum.group_by/2 (list)            116.00 K        8.62 μs   ±101.10%        8.00 μs       20.52 μs
+A.Vector.frequencies/1             98.31 K       10.17 μs    ±68.81%        9.47 μs       22.15 μs
+Enum.frequencies/1 (list)          86.49 K       11.56 μs    ±52.98%       10.67 μs       28.86 μs
+
+Comparison: 
+A.Vector.frequencies_by/2         165.35 K
+A.Vector.group_by/2               151.48 K - 1.09x slower +0.55 μs
+Enum.frequencies_by/2 (list)      142.38 K - 1.16x slower +0.98 μs
+Enum.group_by/2 (list)            116.00 K - 1.43x slower +2.57 μs
+A.Vector.frequencies/1             98.31 K - 1.68x slower +4.12 μs
+Enum.frequencies/1 (list)          86.49 K - 1.91x slower +5.51 μs
