@@ -482,12 +482,15 @@ defmodule A.Vector.Raw do
   end
 
   C.def_foldr do_join(arg, acc \\ []) do
-    [A.IO.to_iodata(arg) | acc]
+    [entry_to_string(arg) | acc]
   end
 
   C.def_foldr do_join(arg, acc \\ [], joiner) do
-    [joiner, A.IO.to_iodata(arg) | acc]
+    [joiner, entry_to_string(arg) | acc]
   end
+
+  defp entry_to_string(entry) when is_binary(entry), do: entry
+  defp entry_to_string(entry), do: String.Chars.to_string(entry)
 
   @spec max(t(val)) :: val when val: value
   C.def_foldl max(arg, acc \\ first()) do

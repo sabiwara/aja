@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Bug fixes
+
+* Fix `A.Vector.join/2` bug when working with chardata
+
 ## v0.4.7 (2021-02-19)
 
 ### Enhancements
