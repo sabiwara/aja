@@ -423,10 +423,6 @@ defmodule A.Vector.Raw do
     fun.(arg, acc)
   end
 
-  def reduce(empty_pattern(), _fun) do
-    raise A.Vector.EmptyError
-  end
-
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   C.def_foldr foldr(arg, acc, fun) do
     fun.(arg, acc)
@@ -514,10 +510,6 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def max(empty_pattern()) do
-    raise A.Vector.EmptyError
-  end
-
   C.def_foldl min(arg, acc \\ first()) do
     if acc <= arg do
       acc
@@ -526,8 +518,13 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def min(empty_pattern()) do
-    raise A.Vector.EmptyError
+  @spec custom_min_max(t(val), (val, val -> boolean)) :: val when val: value
+  C.def_foldl custom_min_max(arg, acc \\ first(), sorter) do
+    if sorter.(acc, arg) do
+      acc
+    else
+      arg
+    end
   end
 
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value

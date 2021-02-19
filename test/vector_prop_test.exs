@@ -175,8 +175,11 @@ defmodule A.Vector.PropTest do
       assert match?(v when vec_size(v) >= list_length, vector)
       refute match?(v when vec_size(v) < list_length, vector)
 
-      assert capture_error(Enum.min(list)) == capture_error(A.Vector.min(vector))
-      assert capture_error(Enum.max(list)) == capture_error(A.Vector.max(vector))
+      assert capture_error(Enum.min(list)) === capture_error(A.Vector.min(vector))
+      assert capture_error(Enum.max(list)) === capture_error(A.Vector.max(vector))
+
+      assert capture_error(Enum.min(list)) === capture_error(A.Vector.max(vector, &<=/2))
+      assert capture_error(Enum.max(list)) === capture_error(A.Vector.min(vector, &>=/2))
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1) === vector[i1]

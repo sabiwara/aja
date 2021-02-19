@@ -1617,6 +1617,10 @@ defmodule A.Vector do
   @doc """
   Returns the maximal element in the `vector` according to Erlang's term ordering.
 
+  If multiple elements are considered maximal, the first one that was found is returned.
+
+  Raises a `A.Vector.EmptyError` if empty.
+
   Runs in linear time.
 
   ## Examples
@@ -1633,7 +1637,41 @@ defmodule A.Vector do
   end
 
   @doc """
+  Returns the maximal element in the `vector` using `sorter` to compare elements.
+
+  `sorter` can either be an arity-2 function returning a boolean or a module
+  implementing a `compare/2` function, such as `Date.compare/2`.
+
+  See documentation for `Enum.max/3` for more explanations.
+
+  Raises a `A.Vector.EmptyError` if empty.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.max()
+      ~D[2017-03-31]
+      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.max(Date)
+      ~D[2017-04-01]
+      iex> A.Vector.new() |> A.Vector.max(Date)
+      ** (A.Vector.EmptyError) empty vector error
+
+  """
+  @spec max(t(val), (val, val -> boolean) | module) :: val when val: value
+  def max(%__MODULE__{__vector__: internal}, sorter) do
+    Raw.custom_min_max(internal, max_sort_fun(sorter))
+  end
+
+  defp max_sort_fun(sorter) when is_function(sorter, 2), do: sorter
+  defp max_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :lt)
+
+  @doc """
   Returns the minimal element in the `vector` according to Erlang's term ordering.
+
+  If multiple elements are considered minimal, the first one that was found is returned.
+
+  Raises a `A.Vector.EmptyError` if empty.
 
   Runs in linear time.
 
@@ -1647,9 +1685,38 @@ defmodule A.Vector do
   """
   @spec min(t(val)) :: val when val: value
   def min(%__MODULE__{__vector__: internal}) do
-    # TODO mirror Enum API
     Raw.min(internal)
   end
+
+  @doc """
+  Returns the minimal element in the `vector` using `sorter` to compare elements.
+
+  `sorter` can either be an arity-2 function returning a boolean or a module
+  implementing a `compare/2` function, such as `Date.compare/2`.
+
+  See documentation for `Enum.min/3` for more explanations.
+
+  Raises a `A.Vector.EmptyError` if empty.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.min()
+      ~D[2017-04-01]
+      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.min(Date)
+      ~D[2017-03-31]
+      iex> A.Vector.new() |> A.Vector.min(Date)
+      ** (A.Vector.EmptyError) empty vector error
+
+  """
+  @spec min(t(val), (val, val -> boolean) | module) :: val when val: value
+  def min(%__MODULE__{__vector__: internal}, sorter) do
+    Raw.custom_min_max(internal, min_sort_fun(sorter))
+  end
+
+  defp min_sort_fun(sorter) when is_function(sorter, 2), do: sorter
+  defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
 
   @doc """
   Returns a map with keys as unique elements of `vector` and values

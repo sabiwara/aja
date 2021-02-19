@@ -445,6 +445,13 @@ defmodule A.Vector.CodeGen do
         acc = :erlang.element(1, tail)
         unquote(tail_fun_name)(tail, 1, size, acc, unquote_splicing(rest_args))
       end
+
+      def unquote(fun_name)(
+            {_},
+            unquote_splicing(for _ <- rest_args, do: @wildcard)
+          ) do
+        raise A.Vector.EmptyError
+      end
     end
   end
 
