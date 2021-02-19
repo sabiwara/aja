@@ -8,7 +8,7 @@
 * Add `A.Vector.split/2` and `A.Vector.split_with/2`
 * Add `A.Vector.frequencies/1` and `A.Vector.frequencies_by/2`
 * Add `A.Vector.group_by/3`
-* Add `A.Vector.dedup/1`
+* Add `A.Vector.dedup/1` and `A.Vector.dedup_by/2`
 * Improve performance for  `A.Vector.min/1`, `A.Vector.max/1` and `A.Vector.uniq/1`
 
 ## v0.4.6 (2021-02-10)

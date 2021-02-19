@@ -1262,8 +1262,6 @@ defmodule A.Vector do
 
   The first occurrence of each element is kept.
 
-  Runs in linear time.
-
   ## Examples
 
       iex> A.Vector.new([1, 1, 2, 1, 2, 3, 2]) |> A.Vector.uniq()
@@ -1285,8 +1283,6 @@ defmodule A.Vector do
 
   The first occurrence of each element is kept.
 
-  Runs in linear time.
-
   ## Examples
 
       iex> vector = A.Vector.new([x: 1, y: 2, z: 1])
@@ -1306,13 +1302,11 @@ defmodule A.Vector do
   end
 
   @doc """
-  Returns a copy of the vector where all consecutive duplicated elements are collapsed to a single element.
+  Returns a copy of the `vector` where all consecutive duplicated elements are collapsed to a single element.
 
   Elements are compared using `===/2`.
 
   If you want to remove all duplicated elements, regardless of order, see `uniq/1`.
-
-  Runs in linear time.
 
   ## Examples
 
@@ -1327,6 +1321,34 @@ defmodule A.Vector do
     new_internal =
       internal
       |> Raw.dedup_list()
+      |> Raw.from_list()
+
+    %__MODULE__{__vector__: new_internal}
+  end
+
+  @doc """
+  Returns a copy of the `vector` where all consecutive duplicated elements are collapsed to a single element.
+
+  The function `fun` maps every element to a term which is used to determine if two elements are duplicates.
+
+  ## Examples
+
+      iex> vector = A.Vector.new([{1, :a}, {2, :b}, {2, :c}, {1, :a}])
+      iex> Enum.dedup_by(vector, fn {x, _} -> x end)
+      [{1, :a}, {2, :b}, {1, :a}]
+
+      iex> vector = A.Vector.new([5, 1, 2, 3, 2, 1])
+      iex> Enum.dedup_by(vector, fn x -> x > 2 end)
+      [5, 1, 3, 2]
+
+
+  """
+  @spec dedup_by(t(val), (val -> term)) :: t(val) when val: value
+  def dedup_by(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+    new_internal =
+      internal
+      |> Raw.to_list()
+      |> Enum.dedup_by(fun)
       |> Raw.from_list()
 
     %__MODULE__{__vector__: new_internal}
