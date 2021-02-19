@@ -81,7 +81,7 @@ defmodule A.IO do
   """
   @compile {:inline, to_iodata: 1}
   @spec to_iodata(String.Chars.t() | iodata | IO.chardata()) :: iodata | IO.chardata()
-  def to_iodata(data) when is_list(data) do
+  def to_iodata(data) when is_list(data) or is_binary(data) do
     data
   end
 

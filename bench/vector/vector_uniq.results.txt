@@ -19,13 +19,13 @@ Benchmarking Enum.dedup/2 (list)...
 Benchmarking Enum.uniq/2 (list)...
 
 Name                          ips        average  deviation         median         99th %
-A.Vector.dedup/1         667.48 K        1.50 μs  ±1533.04%        1.27 μs        4.94 μs
-Enum.dedup/2 (list)      214.56 K        4.66 μs   ±326.31%        4.09 μs       10.67 μs
-Enum.uniq/2 (list)       102.00 K        9.80 μs   ±114.24%        9.07 μs       19.62 μs
-A.Vector.uniq/1           93.82 K       10.66 μs   ±110.32%        8.83 μs       27.32 μs
+A.Vector.dedup/1         715.96 K        1.40 μs  ±1565.79%        1.20 μs        2.54 μs
+Enum.dedup/2 (list)      238.71 K        4.19 μs   ±290.63%        3.65 μs       13.57 μs
+Enum.uniq/2 (list)       110.01 K        9.09 μs    ±96.66%        8.34 μs       26.60 μs
+A.Vector.uniq/1          108.42 K        9.22 μs    ±71.06%        8.40 μs       27.83 μs
 
 Comparison: 
-A.Vector.dedup/1         667.48 K
-Enum.dedup/2 (list)      214.56 K - 3.11x slower +3.16 μs
-Enum.uniq/2 (list)       102.00 K - 6.54x slower +8.31 μs
-A.Vector.uniq/1           93.82 K - 7.11x slower +9.16 μs
+A.Vector.dedup/1         715.96 K
+Enum.dedup/2 (list)      238.71 K - 3.00x slower +2.79 μs
+Enum.uniq/2 (list)       110.01 K - 6.51x slower +7.69 μs
+A.Vector.uniq/1          108.42 K - 6.60x slower +7.83 μs

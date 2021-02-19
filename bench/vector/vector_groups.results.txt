@@ -21,17 +21,17 @@ Benchmarking Enum.frequencies_by/2 (list)...
 Benchmarking Enum.group_by/2 (list)...
 
 Name                                   ips        average  deviation         median         99th %
-A.Vector.frequencies_by/2         165.35 K        6.05 μs   ±240.82%        5.12 μs       25.40 μs
-A.Vector.group_by/2               151.48 K        6.60 μs   ±209.19%        5.90 μs       23.50 μs
-Enum.frequencies_by/2 (list)      142.38 K        7.02 μs   ±165.28%        6.36 μs       16.15 μs
-Enum.group_by/2 (list)            116.00 K        8.62 μs   ±101.10%        8.00 μs       20.52 μs
-A.Vector.frequencies/1             98.31 K       10.17 μs    ±68.81%        9.47 μs       22.15 μs
-Enum.frequencies/1 (list)          86.49 K       11.56 μs    ±52.98%       10.67 μs       28.86 μs
+A.Vector.frequencies_by/2         168.34 K        5.94 μs   ±200.86%        5.30 μs       23.07 μs
+Enum.frequencies_by/2 (list)      144.40 K        6.93 μs   ±152.47%        6.04 μs       24.62 μs
+A.Vector.group_by/2               141.03 K        7.09 μs   ±184.89%        6.36 μs       23.66 μs
+Enum.group_by/2 (list)            114.90 K        8.70 μs   ±115.68%        7.73 μs       26.30 μs
+A.Vector.frequencies/1             93.89 K       10.65 μs    ±74.60%        9.48 μs       32.71 μs
+Enum.frequencies/1 (list)          90.68 K       11.03 μs    ±64.64%       10.23 μs       28.36 μs
 
 Comparison: 
-A.Vector.frequencies_by/2         165.35 K
-A.Vector.group_by/2               151.48 K - 1.09x slower +0.55 μs
-Enum.frequencies_by/2 (list)      142.38 K - 1.16x slower +0.98 μs
-Enum.group_by/2 (list)            116.00 K - 1.43x slower +2.57 μs
-A.Vector.frequencies/1             98.31 K - 1.68x slower +4.12 μs
-Enum.frequencies/1 (list)          86.49 K - 1.91x slower +5.51 μs
+A.Vector.frequencies_by/2         168.34 K
+Enum.frequencies_by/2 (list)      144.40 K - 1.17x slower +0.98 μs
+A.Vector.group_by/2               141.03 K - 1.19x slower +1.15 μs
+Enum.group_by/2 (list)            114.90 K - 1.47x slower +2.76 μs
+A.Vector.frequencies/1             93.89 K - 1.79x slower +4.71 μs
+Enum.frequencies/1 (list)          90.68 K - 1.86x slower +5.09 μs

@@ -457,13 +457,13 @@ defmodule A.Vector.Raw do
   end
 
   def map_intersperse_list(vector, separator, mapper) do
-    case do_intersperse_list(vector, separator, mapper) do
+    case do_map_intersperse_list(vector, separator, mapper) do
       [] -> []
       [_ | rest] -> :lists.reverse(rest)
     end
   end
 
-  C.def_foldl do_intersperse_list(arg, acc \\ [], separator, mapper) do
+  C.def_foldl do_map_intersperse_list(arg, acc \\ [], separator, mapper) do
     [separator, mapper.(arg) | acc]
   end
 
@@ -482,23 +482,11 @@ defmodule A.Vector.Raw do
   end
 
   C.def_foldr do_join(arg, acc \\ []) do
-    value =
-      case arg do
-        iodata when is_binary(iodata) -> iodata
-        other -> to_string(other)
-      end
-
-    [value | acc]
+    [A.IO.to_iodata(arg) | acc]
   end
 
   C.def_foldr do_join(arg, acc \\ [], joiner) do
-    value =
-      case arg do
-        iodata when is_binary(iodata) -> iodata
-        other -> to_string(other)
-      end
-
-    [joiner, value | acc]
+    [joiner, A.IO.to_iodata(arg) | acc]
   end
 
   @spec max(t(val)) :: val when val: value
@@ -530,45 +518,37 @@ defmodule A.Vector.Raw do
   @spec custom_min_max_by(t(val), (val -> mapped_val), (mapped_val, mapped_val -> boolean)) :: val
         when val: value, mapped_val: value
   def custom_min_max_by(vector, fun, sorter) do
-    do_custom_min_max_by(vector, fun, sorter) |> elem(0)
-  end
+    foldl(vector, nil, fn arg, acc ->
+      case acc do
+        nil ->
+          {arg, fun.(arg)}
 
-  C.def_foldl do_custom_min_max_by(arg, acc \\ nil, fun, sorter) do
-    do_min_max_by_step(arg, acc, fun, sorter)
-  end
+        {_, prev_value} ->
+          arg_value = fun.(arg)
 
-  defp do_min_max_by_step(arg, acc, fun, sorter) do
-    case acc do
-      nil ->
-        {arg, fun.(arg)}
-
-      {_, prev_value} ->
-        arg_value = fun.(arg)
-
-        if sorter.(prev_value, arg_value) do
-          acc
-        else
-          {arg, arg_value}
-        end
-    end
+          if sorter.(prev_value, arg_value) do
+            acc
+          else
+            {arg, arg_value}
+          end
+      end
+    end)
+    |> elem(0)
   end
 
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
   C.def_foldl frequencies(arg, acc \\ %{}) do
-    # note: without this assignment, there is a weird bug, not sure why
-    key = arg
-
-    case acc do
-      %{^key => value} -> %{acc | key => value + 1}
-      _ -> Map.put(acc, key, 1)
-    end
+    increase_frequency(acc, arg)
   end
 
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
   C.def_foldl frequencies_by(arg, acc \\ %{}, key_fun) do
     key = key_fun.(arg)
+    increase_frequency(acc, key)
+  end
 
+  defp increase_frequency(acc, key) do
     case acc do
       %{^key => value} -> %{acc | key => value + 1}
       _ -> Map.put(acc, key, 1)
@@ -581,6 +561,10 @@ defmodule A.Vector.Raw do
     key = key_fun.(arg)
     value = value_fun.(arg)
 
+    add_to_group(acc, key, value)
+  end
+
+  defp add_to_group(acc, key, value) do
     case acc do
       %{^key => list} -> %{acc | key => [value | list]}
       _ -> Map.put(acc, key, [value])
@@ -592,13 +576,7 @@ defmodule A.Vector.Raw do
   end
 
   C.def_foldl do_uniq(arg, acc \\ {[], %{}}) do
-    key = arg
-    {list, set} = acc
-
-    case set do
-      %{^key => _} -> acc
-      _ -> {[arg | list], Map.put(set, key, true)}
-    end
+    add_to_set(acc, arg, arg)
   end
 
   def uniq_by_list(vector, fun) do
@@ -607,11 +585,13 @@ defmodule A.Vector.Raw do
 
   C.def_foldl do_uniq_by(arg, acc \\ {[], %{}}, fun) do
     key = fun.(arg)
-    {list, set} = acc
+    add_to_set(acc, key, arg)
+  end
 
+  defp add_to_set({list, set} = acc, key, value) do
     case set do
       %{^key => _} -> acc
-      _ -> {[arg | list], Map.put(set, key, true)}
+      _ -> {[value | list], Map.put(set, key, true)}
     end
   end
 
@@ -619,6 +599,38 @@ defmodule A.Vector.Raw do
     case acc do
       [^arg | _] -> acc
       _ -> [arg | acc]
+    end
+  end
+
+  @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
+  def filter(vector, fun) do
+    vector
+    |> do_filter(fun)
+    |> :lists.reverse()
+    |> from_list()
+  end
+
+  C.def_foldl do_filter(arg, acc \\ [], fun) do
+    if fun.(arg) do
+      [arg | acc]
+    else
+      acc
+    end
+  end
+
+  @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
+  def reject(vector, fun) do
+    vector
+    |> do_reject(fun)
+    |> :lists.reverse()
+    |> from_list()
+  end
+
+  C.def_foldl do_reject(arg, acc \\ [], fun) do
+    if fun.(arg) do
+      acc
+    else
+      [arg | acc]
     end
   end
 
@@ -752,38 +764,6 @@ defmodule A.Vector.Raw do
   end
 
   def map(empty_pattern(), _fun), do: @empty
-
-  @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-  def filter(vector, fun) do
-    vector
-    |> do_filter(fun)
-    |> :lists.reverse()
-    |> from_list()
-  end
-
-  C.def_foldl do_filter(arg, acc \\ [], fun) do
-    if fun.(arg) do
-      [arg | acc]
-    else
-      acc
-    end
-  end
-
-  @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-  def reject(vector, fun) do
-    vector
-    |> do_reject(fun)
-    |> :lists.reverse()
-    |> from_list()
-  end
-
-  C.def_foldl do_reject(arg, acc \\ [], fun) do
-    if fun.(arg) do
-      acc
-    else
-      [arg | acc]
-    end
-  end
 
   @compile {:inline, slice: 3}
   @spec slice(t(val), non_neg_integer, non_neg_integer) :: [val] when val: value
