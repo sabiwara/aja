@@ -1327,7 +1327,7 @@ defmodule A.Vector do
   def intersperse(%__MODULE__{__vector__: internal}, separator) do
     new_internal =
       internal
-      |> Raw.intersperse(separator)
+      |> Raw.intersperse_list(separator)
       |> Raw.from_list()
 
     %__MODULE__{__vector__: new_internal}
@@ -1354,8 +1354,7 @@ defmodule A.Vector do
       when is_function(mapper, 1) do
     new_internal =
       internal
-      |> Raw.map(mapper)
-      |> Raw.intersperse(separator)
+      |> Raw.map_intersperse_list(separator, mapper)
       |> Raw.from_list()
 
     %__MODULE__{__vector__: new_internal}

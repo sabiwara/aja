@@ -656,56 +656,6 @@ defmodule A.Vector.Trie do
 
   # FOLDS
 
-  def foldr(trie, level, acc, fun) do
-    foldr_leaves(trie, level, acc, fun, &foldr_leaf/3)
-  end
-
-  # defp foldr_leaf({arg1, arg2, arg3, arg4}, fun, acc) do
-  #   fun(arg1, fun(arg2, fun(arg3, fun(arg4, acc))))
-  # end
-  def foldr_leaf(unquote(C.array()), fun, acc) do
-    unquote(
-      C.reversed_arguments()
-      |> Enum.reduce(C.var(acc), fn arg, acc ->
-        quote do
-          var!(fun).(unquote(arg), unquote(acc))
-        end
-      end)
-    )
-  end
-
-  def intersperse(trie, level, separator, acc) do
-    foldr_leaves(trie, level, acc, separator, &intersperse_leaf/3)
-  end
-
-  # def intersperse_leaf({arg1, arg2, arg3, arg4}, separator, acc) do
-  #   [arg1, separator, arg2, ... separator | acc]
-  # end
-  defp intersperse_leaf(unquote(C.array()), separator, acc) do
-    unquote(
-      C.arguments()
-      |> Enum.intersperse(C.var(separator))
-      |> Enum.concat([C.var(separator)])
-      |> C.list_with_rest(C.var(acc))
-    )
-  end
-
-  def join(trie, level, joiner, acc) do
-    foldr_leaves(trie, level, acc, joiner, &join_leaf/3)
-  end
-
-  # def join({arg1, arg2, arg3, arg4}, joiner, acc) do
-  #   [mapper.(arg1), joiner, mapper.(arg2), ... joiner | acc]
-  # end
-  defp join_leaf(unquote(C.array()), joiner, acc) do
-    unquote(
-      C.arguments()
-      |> Enum.map_intersperse(C.var(joiner), C.apply_mapper(C.var(&to_string/1)))
-      |> Enum.concat([C.var(joiner)])
-      |> C.list_with_rest(C.var(acc))
-    )
-  end
-
   def map(trie, level, fun)
 
   # def map({arg1, arg2, arg3, arg4}, _level = 0, f) do
@@ -742,9 +692,9 @@ defmodule A.Vector.Trie do
     )
   end
 
-  defp foldr_leaves(trie, level, acc, params, fun)
+  def foldr_leaves(trie, level, acc, params, fun)
 
-  defp foldr_leaves(leaf, _level = 0, acc, params, fun) do
+  def foldr_leaves(leaf, _level = 0, acc, params, fun) do
     fun.(leaf, params, acc)
   end
 
@@ -768,13 +718,13 @@ defmodule A.Vector.Trie do
   #     end,
   #     params, fun)
   # end
-  defp foldr_leaves(
-         unquote(C.array()),
-         level,
-         acc,
-         params,
-         fun
-       ) do
+  def foldr_leaves(
+        unquote(C.array()),
+        level,
+        acc,
+        params,
+        fun
+      ) do
     child_level = C.decr_level(level)
 
     unquote(

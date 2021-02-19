@@ -315,27 +315,14 @@ defmodule A.Vector.CodeGen do
     end
   end
 
-  # FOLDS
+  # LEFT FOLDS
 
   defmacro def_foldl(header, do: body) do
     {fun_name, [{arg_name, _, nil}, acc | rest_args]} = Macro.decompose_call(header)
 
     expanded_body = Macro.expand(body, __CALLER__)
 
-    acc_params =
-      case acc do
-        {acc_name, _, nil} ->
-          {:acc_var, Macro.var(acc_name, nil)}
-
-        {:\\, _, [{acc_name, _, nil}, acc_value]} ->
-          case acc_value do
-            {:first, _, []} ->
-              {:acc_first, Macro.var(acc_name, nil)}
-
-            _ ->
-              {:acc_value, Macro.var(acc_name, nil), acc_value}
-          end
-      end
+    acc_params = parse_acc_params(acc)
 
     do_def_foldl(fun_name, arg_name, acc_params, rest_args, expanded_body)
   end
@@ -594,6 +581,205 @@ defmodule A.Vector.CodeGen do
           end)
         )
       end
+    end
+  end
+
+  # RIGHT FOLDS
+
+  defmacro def_foldr(header, do: body) do
+    {fun_name, [{arg_name, _, nil}, acc | rest_args]} = Macro.decompose_call(header)
+
+    expanded_body = Macro.expand(body, __CALLER__)
+
+    acc_params = parse_acc_params(acc)
+
+    do_def_foldr(fun_name, arg_name, acc_params, rest_args, expanded_body)
+  end
+
+  defp do_def_foldr(fun_name, arg_name, acc_params, rest_args, expanded_body) do
+    acc_var = elem(acc_params, 1)
+    tail_fun_name = fun_name_with_suffix(fun_name, :tail)
+    trie_fun_name = fun_name_with_suffix(fun_name, :trie)
+
+    [
+      do_def_foldr_trie(trie_fun_name, arg_name, acc_var, rest_args, expanded_body),
+      do_def_foldr_tail(tail_fun_name, arg_name, acc_var, rest_args, expanded_body),
+      case acc_params do
+        {:acc_var, acc_var} ->
+          do_foldr_with_acc(fun_name, tail_fun_name, trie_fun_name, acc_var, rest_args)
+
+        {:acc_value, _acc_var, acc_value} ->
+          do_foldr_with_value(fun_name, tail_fun_name, trie_fun_name, acc_value, rest_args)
+      end
+    ]
+    |> List.flatten()
+  end
+
+  defp do_foldr_with_acc(fun_name, tail_fun_name, trie_fun_name, acc_var, rest_args) do
+    quote do
+      def unquote(fun_name)(vector, unquote(acc_var), unquote_splicing(rest_args))
+
+      def unquote(fun_name)(
+            {size, tail_offset, level, trie, tail},
+            unquote(acc_var),
+            unquote_splicing(rest_args)
+          ) do
+        new_acc =
+          unquote(tail_fun_name)(
+            tail,
+            size - tail_offset,
+            unquote(acc_var),
+            unquote_splicing(rest_args)
+          )
+
+        unquote(trie_fun_name)(trie, level, new_acc, unquote_splicing(rest_args))
+      end
+
+      def unquote(fun_name)({size, tail}, unquote(acc_var), unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(tail, size, unquote(acc_var), unquote_splicing(rest_args))
+      end
+
+      def unquote(fun_name)(
+            {_},
+            unquote(acc_var),
+            unquote_splicing(for _ <- rest_args, do: @wildcard)
+          ) do
+        unquote(acc_var)
+      end
+    end
+  end
+
+  defp do_foldr_with_value(
+         fun_name,
+         tail_fun_name,
+         trie_left_fun_name,
+         acc_value,
+         rest_args
+       ) do
+    quote do
+      def unquote(fun_name)(vector, unquote_splicing(rest_args))
+
+      def unquote(fun_name)(
+            {size, tail_offset, level, trie, tail},
+            unquote_splicing(rest_args)
+          ) do
+        new_acc =
+          unquote(tail_fun_name)(
+            tail,
+            size - tail_offset,
+            unquote(acc_value),
+            unquote_splicing(rest_args)
+          )
+
+        unquote(trie_left_fun_name)(
+          trie,
+          level,
+          new_acc,
+          unquote_splicing(rest_args)
+        )
+      end
+
+      def unquote(fun_name)({size, tail}, unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(tail, size, unquote(acc_value), unquote_splicing(rest_args))
+      end
+
+      def unquote(fun_name)(
+            {_},
+            unquote_splicing(for _ <- rest_args, do: @wildcard)
+          ) do
+        unquote(acc_value)
+      end
+    end
+  end
+
+  defp do_def_foldr_tail(fun_name, arg_name, acc_var, rest_args, expanded_body) do
+    value_var = Macro.var(:value, nil)
+
+    quote do
+      def unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args))
+
+      def unquote(fun_name)(
+            _tail,
+            _i = 0,
+            unquote(acc_var),
+            unquote_splicing(for _ <- rest_args, do: @wildcard)
+          ) do
+        unquote(acc_var)
+      end
+
+      def unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args)) do
+        unquote(value_var) = :erlang.element(i, tail)
+
+        new_acc =
+          unquote(
+            inject_reducer_variables(
+              expanded_body,
+              arg_name,
+              value_var,
+              acc_var,
+              acc_var
+            )
+          )
+
+        unquote(fun_name)(tail, i - 1, new_acc, unquote_splicing(rest_args))
+      end
+    end
+  end
+
+  defp do_def_foldr_trie(fun_name, arg_name, acc_var, rest_args, expanded_body) do
+    quote do
+      def unquote(fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
+
+      def unquote(fun_name)(
+            unquote(array()),
+            _level = 0,
+            unquote(acc_var),
+            unquote_splicing(rest_args)
+          ) do
+        unquote(
+          reversed_arguments()
+          |> Enum.reduce(acc_var, fn arg_ast, acc_ast ->
+            inject_reducer_variables(expanded_body, arg_name, arg_ast, acc_var, acc_ast)
+          end)
+        )
+      end
+
+      def unquote(fun_name)(
+            unquote(array()),
+            level,
+            unquote(acc_var),
+            unquote_splicing(rest_args)
+          ) do
+        child_level = level - unquote(@bits)
+
+        unquote(
+          reversed_arguments()
+          |> Enum.reduce(acc_var, fn arg, acc ->
+            quote do
+              acc = unquote(acc)
+
+              case unquote(arg) do
+                nil -> acc
+                value -> unquote(fun_name)(value, child_level, acc, unquote_splicing(rest_args))
+              end
+            end
+          end)
+        )
+      end
+    end
+  end
+
+  defp parse_acc_params({acc_name, _, nil}) do
+    {:acc_var, Macro.var(acc_name, nil)}
+  end
+
+  defp parse_acc_params({:\\, _, [{acc_name, _, nil}, acc_value]}) do
+    case acc_value do
+      {:first, _, []} ->
+        {:acc_first, Macro.var(acc_name, nil)}
+
+      _ ->
+        {:acc_value, Macro.var(acc_name, nil), acc_value}
     end
   end
 

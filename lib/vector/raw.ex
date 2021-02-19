@@ -428,22 +428,9 @@ defmodule A.Vector.Raw do
   end
 
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  def foldr(vector, acc, fun)
-
-  def foldr(large(size, tail_offset, level, trie, tail), acc, fun) do
-    new_acc =
-      Tail.partial_to_list(tail, size - tail_offset)
-      |> List.foldr(acc, fun)
-
-    Trie.foldr(trie, level, new_acc, fun)
+  C.def_foldr foldr(arg, acc, fun) do
+    fun.(arg, acc)
   end
-
-  def foldr(small(size, tail), acc, fun) do
-    Tail.partial_to_list(tail, size)
-    |> List.foldr(acc, fun)
-  end
-
-  def foldr(empty_pattern(), acc, _fun), do: acc
 
   @spec each(t(val), (val -> term)) :: :ok when val: value
   C.def_foldl each(arg, fun) do
@@ -461,35 +448,62 @@ defmodule A.Vector.Raw do
     acc * arg
   end
 
-  @spec intersperse(t(val), sep) :: [val | sep] when val: value, sep: value
-  def intersperse(vector, separator)
-
-  def intersperse(large(size, tail_offset, level, trie, tail), separator) do
-    acc = Tail.partial_intersperse(tail, size - tail_offset, separator)
-
-    Trie.intersperse(trie, level, separator, acc)
+  @spec intersperse_list(t(val), sep) :: [val | sep] when val: value, sep: value
+  def intersperse_list(vector, separator) do
+    case do_intersperse_list(vector, separator) do
+      [] -> []
+      [_ | rest] -> rest
+    end
   end
 
-  def intersperse(small(size, tail), separator) do
-    Tail.partial_intersperse(tail, size, separator)
+  C.def_foldr do_intersperse_list(arg, acc \\ [], separator) do
+    [separator, arg | acc]
   end
 
-  def intersperse(empty_pattern(), _separator), do: []
+  def map_intersperse_list(vector, separator, mapper) do
+    case do_intersperse_list(vector, separator, mapper) do
+      [] -> []
+      [_ | rest] -> :lists.reverse(rest)
+    end
+  end
+
+  C.def_foldl do_intersperse_list(arg, acc \\ [], separator, mapper) do
+    [separator, mapper.(arg) | acc]
+  end
 
   @spec join_as_iodata(t(val), String.t()) :: iodata when val: String.Chars.t()
-  def join_as_iodata(vector, joiner)
+  def join_as_iodata(vector, joiner) do
+    case joiner do
+      "" ->
+        do_join(vector)
 
-  def join_as_iodata(large(size, tail_offset, level, trie, tail), joiner) do
-    acc = Tail.partial_join_as_iodata(tail, size - tail_offset, joiner)
-
-    Trie.join(trie, level, joiner, acc)
+      _ ->
+        case do_join(vector, joiner) do
+          [] -> []
+          [_ | rest] -> rest
+        end
+    end
   end
 
-  def join_as_iodata(small(size, tail), joiner) do
-    Tail.partial_join_as_iodata(tail, size, joiner)
+  C.def_foldr do_join(arg, acc \\ []) do
+    value =
+      case arg do
+        iodata when is_binary(iodata) -> iodata
+        other -> to_string(other)
+      end
+
+    [value | acc]
   end
 
-  def join_as_iodata(empty_pattern(), _separator), do: []
+  C.def_foldr do_join(arg, acc \\ [], joiner) do
+    value =
+      case arg do
+        iodata when is_binary(iodata) -> iodata
+        other -> to_string(other)
+      end
+
+    [joiner, value | acc]
+  end
 
   @spec max(t(val)) :: val when val: value
   C.def_foldl max(arg, acc \\ first()) do

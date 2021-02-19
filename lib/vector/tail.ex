@@ -169,34 +169,6 @@ defmodule A.Vector.Tail do
     end
   end
 
-  def partial_intersperse(tail, size, separator) do
-    value = :erlang.element(size, tail)
-    do_partial_intersperse(tail, size - 1, separator, [value])
-  end
-
-  @compile {:inline, do_partial_intersperse: 4}
-  defp do_partial_intersperse(_tail, _erl_index = 0, _separator, acc), do: acc
-
-  defp do_partial_intersperse(tail, erl_index, separator, acc) do
-    value = :erlang.element(erl_index, tail)
-    new_acc = [value, separator | acc]
-    do_partial_intersperse(tail, erl_index - 1, separator, new_acc)
-  end
-
-  def partial_join_as_iodata(tail, size, separator) do
-    value = :erlang.element(size, tail) |> to_string()
-    do_partial_join_as_iodata(tail, size - 1, separator, [value])
-  end
-
-  @compile {:inline, do_partial_join_as_iodata: 4}
-  defp do_partial_join_as_iodata(_tail, _erl_index = 0, _separator, acc), do: acc
-
-  defp do_partial_join_as_iodata(tail, erl_index, separator, acc) do
-    value = :erlang.element(erl_index, tail) |> to_string()
-    new_acc = [value, separator | acc]
-    do_partial_join_as_iodata(tail, erl_index - 1, separator, new_acc)
-  end
-
   def complete_tail(tail, tail_size, values)
 
   def complete_tail(tail, _tail_size, []) do

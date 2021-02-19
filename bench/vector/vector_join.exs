@@ -1,4 +1,3 @@
-# TODO bench bigger numbers
 list = Enum.to_list(1..100)
 vector = A.Vector.new(list)
 
