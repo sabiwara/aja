@@ -564,6 +564,34 @@ defmodule A.Vector.Raw do
     end
   end
 
+  def uniq_list(vector) do
+    vector |> do_uniq() |> elem(0) |> :lists.reverse()
+  end
+
+  C.def_foldl do_uniq(arg, acc \\ {[], %{}}) do
+    key = arg
+    {list, set} = acc
+
+    case set do
+      %{^key => _} -> acc
+      _ -> {[arg | list], Map.put(set, key, true)}
+    end
+  end
+
+  def uniq_by_list(vector, fun) do
+    vector |> do_uniq_by(fun) |> elem(0) |> :lists.reverse()
+  end
+
+  C.def_foldl do_uniq_by(arg, acc \\ {[], %{}}, fun) do
+    key = fun.(arg)
+    {list, set} = acc
+
+    case set do
+      %{^key => _} -> acc
+      _ -> {[arg | list], Map.put(set, key, true)}
+    end
+  end
+
   # FIND
 
   def member?(large(size, tail_offset, level, trie, tail), value) do

@@ -17,9 +17,9 @@ Benchmarking A.Vector.uniq/1...
 Benchmarking Enum.uniq/2 (list)...
 
 Name                         ips        average  deviation         median         99th %
-Enum.uniq/2 (list)      108.87 K        9.19 μs    ±97.35%        8.70 μs       19.56 μs
-A.Vector.uniq/1         102.06 K        9.80 μs    ±93.89%        9.17 μs       25.04 μs
+A.Vector.uniq/1         113.07 K        8.84 μs   ±103.16%        8.25 μs       16.82 μs
+Enum.uniq/2 (list)      102.49 K        9.76 μs   ±109.46%        9.28 μs       16.69 μs
 
 Comparison: 
-Enum.uniq/2 (list)      108.87 K
-A.Vector.uniq/1         102.06 K - 1.07x slower +0.61 μs
+A.Vector.uniq/1         113.07 K
+Enum.uniq/2 (list)      102.49 K - 1.10x slower +0.91 μs

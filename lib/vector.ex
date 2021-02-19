@@ -1272,11 +1272,9 @@ defmodule A.Vector do
   """
   @spec uniq(t(val)) :: t(val) when val: value
   def uniq(%__MODULE__{__vector__: internal}) do
-    # TODO optimize (take until found a dupe, and concat the rest)
     new_internal =
       internal
-      |> Raw.to_list()
-      |> Enum.uniq()
+      |> Raw.uniq_list()
       |> Raw.from_list()
 
     %__MODULE__{__vector__: new_internal}
@@ -1301,8 +1299,7 @@ defmodule A.Vector do
   def uniq_by(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     new_internal =
       internal
-      |> Raw.to_list()
-      |> Enum.uniq_by(fun)
+      |> Raw.uniq_by_list(fun)
       |> Raw.from_list()
 
     %__MODULE__{__vector__: new_internal}
