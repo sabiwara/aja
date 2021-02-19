@@ -527,6 +527,32 @@ defmodule A.Vector.Raw do
     end
   end
 
+  @spec custom_min_max_by(t(val), (val -> mapped_val), (mapped_val, mapped_val -> boolean)) :: val
+        when val: value, mapped_val: value
+  def custom_min_max_by(vector, fun, sorter) do
+    do_custom_min_max_by(vector, fun, sorter) |> elem(0)
+  end
+
+  C.def_foldl do_custom_min_max_by(arg, acc \\ nil, fun, sorter) do
+    do_min_max_by_step(arg, acc, fun, sorter)
+  end
+
+  defp do_min_max_by_step(arg, acc, fun, sorter) do
+    case acc do
+      nil ->
+        {arg, fun.(arg)}
+
+      {_, prev_value} ->
+        arg_value = fun.(arg)
+
+        if sorter.(prev_value, arg_value) do
+          acc
+        else
+          {arg, arg_value}
+        end
+    end
+  end
+
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
   C.def_foldl frequencies(arg, acc \\ %{}) do
     # note: without this assignment, there is a weird bug, not sure why

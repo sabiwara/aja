@@ -1719,6 +1719,96 @@ defmodule A.Vector do
   defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
 
   @doc """
+  Returns the minimal element in the `vector` as calculated by the given `fun`.
+
+  By default, the comparison is done with the `<=` sorter function.
+  If multiple elements are considered minimal, the first one that
+  was found is returned. If you want the last element considered
+  minimal to be returned, the sorter function should not return `true`
+  for equal elements.
+
+  Raises a `A.Vector.EmptyError` if empty.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(["a", "aa", "aaa"]) |> A.Vector.min_by(&String.length/1)
+      "a"
+      iex> A.Vector.new(["a", "aa", "aaa", "b", "bbb"]) |> A.Vector.min_by(&String.length/1)
+      "a"
+      iex> A.Vector.new([]) |> A.Vector.min_by(&String.length/1)
+      ** (ArgumentError) argument error
+
+  The fact this function uses Erlang's term ordering means that the
+  comparison is structural and not semantic. Therefore, if you want
+  to compare structs, most structs provide a "compare" function, such as
+  `Date.compare/2`, which receives two structs and returns `:lt` (less-than),
+  `:eq` (equal to), and `:gt` (greater-than). If you pass a module as the
+  sorting function, Elixir will automatically use the `compare/2` function
+  of said module:
+
+      iex> users = A.Vector.new([
+      ...>   %{name: "Ellis", birthday: ~D[1943-05-11]},
+      ...>   %{name: "Lovelace", birthday: ~D[1815-12-10]},
+      ...>   %{name: "Turing", birthday: ~D[1912-06-23]}
+      ...> ])
+      iex> A.Vector.min_by(users, &(&1.birthday), Date)
+      %{name: "Lovelace", birthday: ~D[1815-12-10]}
+
+  """
+  @spec min_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
+        when val: value, key: term
+  def min_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &<=/2) when is_function(fun, 1) do
+    Raw.custom_min_max_by(internal, fun, min_sort_fun(sorter))
+  end
+
+  @doc """
+  Returns the maximal element in the `vector` as calculated by the given `fun`.
+
+  By default, the comparison is done with the `>=` sorter function.
+  If multiple elements are considered maximal, the first one that
+  was found is returned. If you want the last element considered
+  maximal to be returned, the sorter function should not return `true`
+  for equal elements.
+
+  Raises a `A.Vector.EmptyError` if empty.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(["a", "aa", "aaa"]) |> A.Vector.max_by(&String.length/1)
+      "aaa"
+      iex> A.Vector.new(["a", "aa", "aaa", "b", "bbb"]) |> A.Vector.max_by(&String.length/1)
+      "aaa"
+      iex> A.Vector.new([]) |> A.Vector.max_by(&String.length/1)
+      ** (ArgumentError) argument error
+
+  The fact this function uses Erlang's term ordering means that the
+  comparison is structural and not semantic. Therefore, if you want
+  to compare structs, most structs provide a "compare" function, such as
+  `Date.compare/2`, which receives two structs and returns `:lt` (less-than),
+  `:eq` (equal to), and `:gt` (greater-than). If you pass a module as the
+  sorting function, Elixir will automatically use the `compare/2` function
+  of said module:
+
+      iex> users = A.Vector.new([
+      ...>   %{name: "Ellis", birthday: ~D[1943-05-11]},
+      ...>   %{name: "Lovelace", birthday: ~D[1815-12-10]},
+      ...>   %{name: "Turing", birthday: ~D[1912-06-23]}
+      ...> ])
+      iex> A.Vector.max_by(users, &(&1.birthday), Date)
+      %{name: "Ellis", birthday: ~D[1943-05-11]}
+
+  """
+  @spec max_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
+        when val: value, key: term
+  def max_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &>=/2) when is_function(fun, 1) do
+    Raw.custom_min_max_by(internal, fun, max_sort_fun(sorter))
+  end
+
+  @doc """
   Returns a map with keys as unique elements of `vector` and values
   as the count of every element.
 

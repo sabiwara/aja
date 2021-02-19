@@ -181,6 +181,18 @@ defmodule A.Vector.PropTest do
       assert capture_error(Enum.min(list)) === capture_error(A.Vector.max(vector, &<=/2))
       assert capture_error(Enum.max(list)) === capture_error(A.Vector.min(vector, &>=/2))
 
+      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Vector.min_by(vector, &:erlang.phash2/1))
+
+      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Vector.max_by(vector, &:erlang.phash2/1))
+
+      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Vector.max_by(vector, &:erlang.phash2/1, &<=/2))
+
+      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Vector.min_by(vector, &:erlang.phash2/1, &>=/2))
+
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1) === vector[i1]
 
