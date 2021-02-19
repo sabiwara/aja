@@ -1306,6 +1306,33 @@ defmodule A.Vector do
   end
 
   @doc """
+  Returns a copy of the vector where all consecutive duplicated elements are collapsed to a single element.
+
+  Elements are compared using `===/2`.
+
+  If you want to remove all duplicated elements, regardless of order, see `uniq/1`.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new([1, 2, 3, 3, 2, 1]) |> A.Vector.dedup()
+      #A<vec([1, 2, 3, 2, 1])>
+      iex> A.Vector.new([1, 1, 2, 2.0, :three, :three]) |> A.Vector.dedup()
+      #A<vec([1, 2, 2.0, :three])>
+
+  """
+  @spec dedup(t(val)) :: t(val) when val: value
+  def dedup(%__MODULE__{__vector__: internal}) do
+    new_internal =
+      internal
+      |> Raw.dedup_list()
+      |> Raw.from_list()
+
+    %__MODULE__{__vector__: new_internal}
+  end
+
+  @doc """
   Intersperses `separator` between each element of the `vector`.
 
   Runs in linear time.

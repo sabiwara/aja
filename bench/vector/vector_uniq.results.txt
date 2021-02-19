@@ -11,15 +11,21 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 14 s
+Estimated total run time: 28 s
 
+Benchmarking A.Vector.dedup/1...
 Benchmarking A.Vector.uniq/1...
+Benchmarking Enum.dedup/2 (list)...
 Benchmarking Enum.uniq/2 (list)...
 
-Name                         ips        average  deviation         median         99th %
-A.Vector.uniq/1         113.07 K        8.84 μs   ±103.16%        8.25 μs       16.82 μs
-Enum.uniq/2 (list)      102.49 K        9.76 μs   ±109.46%        9.28 μs       16.69 μs
+Name                          ips        average  deviation         median         99th %
+A.Vector.dedup/1         667.48 K        1.50 μs  ±1533.04%        1.27 μs        4.94 μs
+Enum.dedup/2 (list)      214.56 K        4.66 μs   ±326.31%        4.09 μs       10.67 μs
+Enum.uniq/2 (list)       102.00 K        9.80 μs   ±114.24%        9.07 μs       19.62 μs
+A.Vector.uniq/1           93.82 K       10.66 μs   ±110.32%        8.83 μs       27.32 μs
 
 Comparison: 
-A.Vector.uniq/1         113.07 K
-Enum.uniq/2 (list)      102.49 K - 1.10x slower +0.91 μs
+A.Vector.dedup/1         667.48 K
+Enum.dedup/2 (list)      214.56 K - 3.11x slower +3.16 μs
+Enum.uniq/2 (list)       102.00 K - 6.54x slower +8.31 μs
+A.Vector.uniq/1           93.82 K - 7.11x slower +9.16 μs

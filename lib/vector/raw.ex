@@ -592,6 +592,13 @@ defmodule A.Vector.Raw do
     end
   end
 
+  C.def_foldr dedup_list(arg, acc \\ []) do
+    case acc do
+      [^arg | _] -> acc
+      _ -> [arg | acc]
+    end
+  end
+
   # FIND
 
   def member?(large(size, tail_offset, level, trie, tail), value) do

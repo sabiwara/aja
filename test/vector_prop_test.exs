@@ -289,6 +289,12 @@ defmodule A.Vector.PropTest do
       assert Enum.group_by(list, &hash_multiple_of_2/1, &inspect/1) ===
                A.Vector.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
 
+      assert Enum.uniq(list) |> A.Vector.new() === A.Vector.uniq(vector)
+      assert Enum.dedup(list) |> A.Vector.new() === A.Vector.dedup(vector)
+
+      assert Enum.uniq_by(list, &hash_multiple_of_2/1) |> A.Vector.new() ===
+               A.Vector.uniq_by(vector, &hash_multiple_of_2/1)
+
       shuffled = A.Vector.shuffle(vector)
       assert ^list_length = A.Vector.size(shuffled)
 
