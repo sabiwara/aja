@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.7 (2021-02-19)
+
 ### Enhancements
 
 * Add `A.Vector.reduce/2` and `A.Vector.reduce/3`
