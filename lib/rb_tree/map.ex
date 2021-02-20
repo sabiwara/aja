@@ -1,11 +1,6 @@
 defmodule A.RBTree.Map do
   @moduledoc false
 
-  # TODO: inline what is relevant
-  # WARNING: be careful with non-tail recursive functions looping on the full tree!
-  @compile {:inline,
-            balance_left: 1, balance_right: 1, fetch: 2, insert: 3, do_insert: 3, max: 1, min: 1}
-
   @type color :: :R | :B
   @type tree(key, value) :: :E | {color, tree(key, value), key, value, tree(key, value)}
   @type iterator(key, value) :: [tree(key, value)]

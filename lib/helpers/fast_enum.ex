@@ -11,7 +11,7 @@ defmodule A.FastEnum do
   # TODO: see if can speedup ranges
   # TODO: investigate a Listable protocol instead
 
-  for module <- [MapSet, A.Vector, A.RBSet, A.RBMap, A.OrdMap] do
+  for module <- [MapSet, A.Vector, A.OrdMap] do
     def to_list(%unquote(module){} = instance) do
       unquote(module).to_list(instance)
     end

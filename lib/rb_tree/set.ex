@@ -1,10 +1,6 @@
 defmodule A.RBTree.Set do
   @moduledoc false
 
-  # TODO: inline what is relevant
-  # WARNING: be careful with non-tail recursive functions looping on the full tree!
-  @compile {:inline, balance_left: 1, balance_right: 1, member?: 2, insert: 2, max: 1, min: 1}
-
   @type color :: :R | :B
   @type tree(elem) :: :E | {color, tree(elem), elem, tree(elem)}
   @type iterator(elem) :: [tree(elem)]

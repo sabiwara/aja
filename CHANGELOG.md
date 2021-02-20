@@ -6,6 +6,10 @@
 
 * Add `A.Vector.scan/2` and `A.Vector.scan/3`
 
+### Breaking changes
+
+  * Deprecate A.RBMap and A.RBSet
+
 ### Bug fixes
 
 * Fix `A.Vector.join/2` bug when working with chardata
@@ -121,23 +125,23 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Bug fixes
 
-  * `A.RBMap.Enumerable.member?/2` returns `false` instead of crashing for values
+  * A.RBMap.Enumerable.member?/2 returns `false` instead of crashing for values
     other than size-2 tuples
 
 ## v0.3.0 (2020-10-31)
 
 ### Enhancements
 
-  * Rework all internals, improved peformance for `A.OrdMap`, `A.RBMap`, `A.RBSet`
+  * Rework all internals, improved peformance for `A.OrdMap`, A.RBMap, A.RBSet
   * Add `default` parameter to `A.OrdMap.first/1`, `A.OrdMap.last/1`,
-   `A.RBMap.first/1`, `A.RBMap.last/1`, `A.RBSet.first/1`, `A.RBSet.last/1`
+   A.RBMap.first/1, A.RBMap.last/1, A.RBSet.first/1, A.RBSet.last/1
 
 ### Breaking changes
 
   * Changed signature of `A.OrdMap.foldl/3`, `A.OrdMap.foldr/3`,
-    `A.RBMap.foldl/3`, `A.RBMap.foldr/3`
+    A.RBMap.foldl/3, A.RBMap.foldr/3
   * Internals of all data structures have been changed
-  * Split `A.RBTree` as A.RBTree.Map and A.RBTree.Set
+  * Split A.RBTree as A.RBTree.Map and A.RBTree.Set
 
 ## v0.2.0 (2020-10-25)
 
@@ -153,12 +157,12 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
 
-  * Add `pop_first/1` and `pop_last/1` to `A.RBMap`, `A.RBSet` and `A.OrdMap`
+  * Add `pop_first/1` and `pop_last/1` to A.RBMap, A.RBSet and `A.OrdMap`
   * Add some guards to functions
 
 ### Bug fixes
 
-  * `A.RBSet.disjoint?/2` was not returning the expected value
+  * A.RBSet.disjoint?/2 was not returning the expected value
 
 ## v0.1.1 (2020-10-21)
 

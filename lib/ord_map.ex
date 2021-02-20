@@ -152,34 +152,9 @@ defmodule A.OrdMap do
       iex> div(100 * ord_map_size, map_size)
       253
 
-  ## Difference with `A.RBMap`
-
-  - `A.OrdMap` keeps track of key insertion order
-  - `A.RBMap` keeps keys sorted in ascending order whatever the insertion order is
-
   """
 
   @behaviour Access
-
-  # TODO: inline what is relevant
-  @compile {:inline,
-            new: 1,
-            new_loop: 2,
-            fetch: 2,
-            fetch!: 2,
-            has_key?: 2,
-            get: 2,
-            put: 3,
-            delete: 2,
-            replace: 3,
-            replace!: 3,
-            insert_new: 4,
-            do_put: 5,
-            delete_existing: 3,
-            equal?: 2,
-            equal_loop: 2,
-            next_index: 1,
-            replace_many!: 2}
 
   @type key :: term
   @type value :: term

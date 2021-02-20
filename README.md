@@ -93,21 +93,6 @@ iex> {one, three}
 {1, 3}
 ```
 
-#### Red-Black Trees: `A.RBMap` and `A.RBSet`
-
-Trees are useful when map keys or set elements need to be kept sorted.
-
-```elixir
-iex> A.RBMap.new([b: "Bat", a: "Ant", c: "Cat", b: "Buffalo"])
-#A.RBMap<%{a: "Ant", b: "Buffalo", c: "Cat"}>
-iex> A.RBSet.new([5, 3, 4, 1, 2, 3, 1, 5])
-#A.RBSet<[1, 2, 3, 4, 5]>
-```
-
-They offer similar functionalities as general balanced trees ([`:gb_trees`](https://erlang.org/doc/man/gb_trees.html)
-and [`:gb_sets`](https://erlang.org/doc/man/gb_sets.html)) included in the Erlang standard library.
-`A.RBMap` and `A.RBSet` should however be safer and more convenient to use while offering similar performance.
-
 All data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library
@@ -215,20 +200,19 @@ slows it down)
 - Chris Okasaki's [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
 - Jean Niklas L'orange's [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
   and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB trees
-- [Deletion: The curse of the red-black tree](http://matt.might.net/papers/germane2014deletion.pdf)
-  by German and Might.
 
 ## FAQ
 
 ### How stable is it?
 
-Aja is still pretty early stage. Some breaking changes are still to be expected.
+Aja is still pretty early stage and the high-level organisation is still in flux.
+Expect some breaking changes until it reaches maturity.
 
 However, many of its APIs are based on the standard library and should therefore remain fairly stable.
 
 Besides, Aja is tested quite thoroughly both with unit tests and property-based testing (especially for
 data structures).
-This effort is far from perfect, but increases our confidence in the overall stability.
+This effort is far from perfect, but increases our confidence in the overall reliability.
 
 ### How is the performance?
 
@@ -256,55 +240,6 @@ typically ETS if mutable state is acceptable.
 
 Benchmarking is still a work in progress, but you can check the
 [`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more detailed figures.
-
-### Why is there a convenience macro for `A.OrdMap` but not for other structures?
-
-There are actually two reasons for this:
-1. ordered maps would be unconvenient to initialize otherwise
-2. ordered maps can be pattern-matched upon due to their internal representation, tree-based structures cannot
-
-#### 1. Initialization with `new/1`:
-
-Ordered maps are tricky to initialize, and `A.OrdMap.new/1` is not convenient to do so.
-We cannot simply pass it a map, because the map will reorder the keys.
-We have to pass it a list of tuples, which is fine if keys are atoms, but feels messy and not readable otherwise.
-
-Being a macro, `A.ord/1` is able to read the code and preserve the order, without ever
-instanciating a map that would lose the order:
-
-```elixir
-iex> A.OrdMap.new(%{"one" => 1, "two" => 2, "three" => 3})
-#A<ord(%{"one" => 1, "three" => 3, "two" => 2})>
-iex> ord(%{"one" => 1, "two" => 2, "three" => 3})
-#A<ord(%{"one" => 1, "two" => 2, "three" => 3})>
-```
-
-`A.RBMap.new/1`, `A.RBSet.new/1` ... do not face any similar constraints and wouldn't benefit from a macro.
-
-#### 2. Pattern-matching
-
-Short answer: because the internal representation of ordered maps happens to use a map, it is possible
-to make `A.ord/1` work as it does. Tree-based `A.RBMap`s cannot enjoy this treatment.
-
-Longer answer: Elixir (Erlang) is limited in what can be pattern-matched upon, because it does not offer
-[active patterns](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/active-patterns).
-While this is a fine decision that helps keeping the language simpler, it has the drawback of being tied
-to the internal representation of data structures.
-
-Quoting [Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf) again, describing what might be
-called pattern-matching induced damage:
-
-> "Ironically, pattern matching — one of the most popular features in functional programming languages —
-  is also one of the biggest obstacles to the widespread use of efficient functional data structures.
-  The problem is that pattern matching can only be performed on data structures whose representation is
-  known, yet the basic software-engineering principle of abstraction tells us that the representation
-  of non-trivial data structures should be hidden. The seductive allure of pattern matching leads many
-  functional programmers to abandon sophisticated data structures in favor of simple, known
-  representations such as lists, even when doing so causes an otherwise linear algorithm to explode to
-  quadratic or even exponential time."
-
-Making pattern-matching work for trees would probably need to implement some kind of active pattern,
-that would imply to redefine alternative versions of `def`, `case` and `=/2`.
 
 ### Does Aja try to do too much?
 
@@ -334,7 +269,6 @@ Finally, data structures can work more efficiently together than if they were se
 Nothing is set in stone, but the next steps will probably be:
 - complete the API for `A.Vector` and improve its ergonomics
 - more benchmarks and performance optimizations
-- evaluate Kahrs algorithm as an alternative for red-black tree deletion
 
 ## Copyright and License
 
