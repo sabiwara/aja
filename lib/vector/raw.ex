@@ -72,20 +72,6 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @spec new(Enumerable.t()) :: t()
-  def new(enumerable) do
-    enumerable
-    |> A.FastEnum.to_list()
-    |> from_list()
-  end
-
-  @spec new(Enumerable.t(), (v1 -> v2)) :: t(v2) when v1: value, v2: value
-  def new(enumerable, fun) do
-    enumerable
-    |> A.FastEnum.to_list()
-    |> from_mapped_list(fun)
-  end
-
   @spec from_list([val]) :: t(val) when val: value
   def from_list([]), do: @empty
 

@@ -381,7 +381,7 @@ defmodule A.Vector do
 
   def new(enumerable) do
     %__MODULE__{
-      __vector__: Raw.new(enumerable)
+      __vector__: enumerable |> A.FastEnum.to_list() |> Raw.from_list()
     }
   end
 
@@ -402,7 +402,7 @@ defmodule A.Vector do
 
       _ ->
         %__MODULE__{
-          __vector__: Raw.new(enumerable, fun)
+          __vector__: enumerable |> A.FastEnum.to_list() |> Raw.from_mapped_list(fun)
         }
     end
   end
