@@ -872,6 +872,32 @@ defmodule A.Vector.Raw do
     vector |> to_list() |> Enum.take_random(amount) |> from_list()
   end
 
+  def scan(vector, fun) do
+    ref = make_ref()
+
+    scan(vector, ref, fn
+      value, ^ref -> value
+      value, acc -> fun.(value, acc)
+    end)
+  end
+
+  def scan(
+        large(size, tail_offset, level, trie, tail),
+        acc,
+        fun
+      ) do
+    {new_trie, acc} = Trie.scan(trie, level, acc, fun)
+    new_tail = Tail.partial_scan(tail, size - tail_offset, acc, fun)
+    large(size, tail_offset, level, new_trie, new_tail)
+  end
+
+  def scan(small(size, tail), acc, fun) do
+    new_tail = Tail.partial_scan(tail, size, acc, fun)
+    small(size, new_tail)
+  end
+
+  def scan(empty_pattern(), _acc, _fun), do: @empty
+
   @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
   def zip(vector1, vector2) do
     size1 = size(vector1)

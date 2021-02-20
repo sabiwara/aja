@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+* Add `A.Vector.scan/2` and `A.Vector.scan/3`
+
 ### Bug fixes
 
 * Fix `A.Vector.join/2` bug when working with chardata

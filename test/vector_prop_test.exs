@@ -228,6 +228,14 @@ defmodule A.Vector.PropTest do
       assert list === A.Vector.foldr(vector, [], &[&1 | &2])
       assert Enum.reverse(list) === A.Vector.foldl(vector, [], &[&1 | &2])
 
+      assert capture_error(Enum.reduce(list, &[&1 | &2])) ===
+               capture_error(A.Vector.reduce(vector, &[&1 | &2]))
+
+      assert Enum.scan(list, &[&1 | &2]) |> A.Vector.new() === A.Vector.scan(vector, &[&1 | &2])
+
+      assert Enum.scan(list, [], &[&1 | &2]) |> A.Vector.new() ===
+               A.Vector.scan(vector, [], &[&1 | &2])
+
       inspected_list = Enum.map(list, &inspect/1)
       assert A.Vector.new(inspected_list) === A.Vector.map(vector, &inspect/1)
       assert A.Vector.new(inspected_list) === A.Vector.new(list, &inspect/1)

@@ -866,6 +866,70 @@ defmodule A.Vector.Trie do
     end
   end
 
+  # def scan({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
+  #   arg1 = fun.(arg1, acc)
+  #   arg2 = fun.(arg2, arg1)
+  #   arg3 = fun.(arg3, arg2)
+  #   arg4 = fun.(arg4, arg3)
+  #   {{arg1, arg2, arg3, arg4}, arg4}
+  # end
+  def scan(unquote(C.array()), _level = 0, acc, fun) do
+    unquote(
+      Enum.zip(C.arguments(), [C.var(acc) | C.arguments()])
+      |> Enum.map(fn {arg, acc} ->
+        quote do
+          unquote(arg) = var!(fun).(unquote(arg), unquote(acc))
+        end
+      end)
+      |> C.block()
+    )
+
+    {unquote(C.array()), unquote(C.argument_at(C.branch_factor() - 1))}
+  end
+
+  # def scan({arg1, arg2, arg3, arg4}, level, acc, fun) do
+  #   child_level = level - bits
+  #
+  #   {arg1, acc} = case arg1 do
+  #     nil -> {nil, acc}
+  #     child -> scan(child, child_level, acc, fun)
+  #   end
+  #   {arg2, acc} = case arg2 do
+  #     nil -> {nil, acc}
+  #     child -> scan(child, child_level, acc, fun)
+  #   end
+  #   # ...
+  #
+  #   {{arg1, arg2, arg3, arg4}, acc}
+  # end
+  def scan(unquote(C.array()), level, acc, fun) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.map(fn arg ->
+        quote do
+          {unquote(arg), var!(acc)} =
+            case unquote(arg) do
+              nil ->
+                {nil, var!(acc)}
+
+              child ->
+                scan(
+                  child,
+                  var!(child_level),
+                  var!(acc),
+                  var!(fun)
+                )
+            end
+        end
+      end)
+      |> C.block()
+    )
+
+    {unquote(C.array()), acc}
+  end
+
   def with_index(trie, level, fun)
 
   # def with_index({arg1, arg2, arg3, arg4}, _level = 0, offset) do

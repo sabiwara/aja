@@ -1452,6 +1452,44 @@ defmodule A.Vector do
   defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
 
   @doc """
+  Applies the given function to each element in the `vector`, storing the result
+  in a vector and passing it as the accumulator for the next computation.
+
+  Uses the first element in the `vector` as the starting value.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..10) |> A.Vector.scan(&+/2)
+      #A<vec([1, 3, 6, 10, 15, 21, 28, 36, 45, 55])>
+
+  """
+  @spec scan(t(val), (val, val -> val)) :: val when val: value
+  def scan(from_internal(internal), fun) when is_function(fun, 2) do
+    internal |> Raw.scan(fun) |> from_internal()
+  end
+
+  @doc """
+  Applies the given function to each element in the `vector`, storing the result
+  in a vector and passing it as the accumulator for the next computation.
+
+  Uses the given `acc` as the starting value.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..10) |> A.Vector.scan(100, &+/2)
+      #A<vec([101, 103, 106, 110, 115, 121, 128, 136, 145, 155])>
+
+  """
+  @spec scan(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
+  def scan(from_internal(internal), acc, fun) when is_function(fun, 2) do
+    internal |> Raw.scan(acc, fun) |> from_internal()
+  end
+
+  @doc """
   Invokes the given `fun` for each element in the `vector`.
 
   Returns `:ok`.

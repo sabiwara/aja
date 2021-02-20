@@ -223,6 +223,20 @@ defmodule A.Vector.Tail do
     do_slice(tail, start, i - 1, new_acc)
   end
 
+  def partial_scan(tail, tail_size, acc, fun) do
+    do_partial_scan(tail, tail_size, 0, acc, fun)
+  end
+
+  defp do_partial_scan(tail, tail_size, _i = tail_size, _acc, _fun), do: tail
+
+  defp do_partial_scan(tail, tail_size, i, acc, fun) do
+    i = i + 1
+    value = :erlang.element(i, tail)
+    new_acc = fun.(value, acc)
+    new_tail = :erlang.setelement(i, tail, new_acc)
+    do_partial_scan(new_tail, tail_size, i, new_acc, fun)
+  end
+
   def partial_with_index(tail, tail_size, offset)
 
   def partial_with_index(tail, _i = 0, _offset), do: tail
