@@ -18,6 +18,12 @@ defmodule A.VectorTest do
     {callback, pop_args}
   end
 
+  test "new/0 and new/1 return a constant when empty" do
+    assert :erts_debug.same(A.Vector.new(), A.Vector.new())
+    assert :erts_debug.same(A.Vector.new([]), A.Vector.new())
+    assert :erts_debug.same(A.Vector.new([]), A.Vector.new([]))
+  end
+
   test "at/2" do
     range = 0..500
     vector = A.Vector.new(range)

@@ -329,6 +329,12 @@ defmodule A.Vector do
 
   @empty_raw Raw.empty()
 
+  defmacrop from_internal(internal) do
+    quote do
+      %__MODULE__{__vector__: unquote(internal)}
+    end
+  end
+
   @doc """
   Returns the number of elements in `vector`.
 
@@ -344,7 +350,7 @@ defmodule A.Vector do
   """
   @compile {:inline, size: 1}
   @spec size(t()) :: non_neg_integer
-  def size(%__MODULE__{__vector__: internal}) do
+  def size(from_internal(internal)) do
     Raw.size(internal)
   end
 
@@ -360,7 +366,7 @@ defmodule A.Vector do
   @compile {:inline, new: 0}
   @spec new :: t()
   def new() do
-    %__MODULE__{__vector__: @empty_raw}
+    from_internal(@empty_raw)
   end
 
   @doc """
@@ -380,9 +386,9 @@ defmodule A.Vector do
   end
 
   def new(enumerable) do
-    %__MODULE__{
-      __vector__: enumerable |> A.FastEnum.to_list() |> Raw.from_list()
-    }
+    enumerable
+    |> A.FastEnum.to_list()
+    |> from_list()
   end
 
   @doc """
@@ -401,9 +407,7 @@ defmodule A.Vector do
         map(enumerable, fun)
 
       _ ->
-        %__MODULE__{
-          __vector__: enumerable |> A.FastEnum.to_list() |> Raw.from_mapped_list(fun)
-        }
+        enumerable |> A.FastEnum.to_list() |> Raw.from_mapped_list(fun) |> from_internal()
     end
   end
 
@@ -426,9 +430,7 @@ defmodule A.Vector do
   """
   @spec duplicate(val, non_neg_integer) :: t(val) when val: value
   def duplicate(value, n) when is_integer(n) and n >= 0 do
-    %__MODULE__{
-      __vector__: Raw.duplicate(value, n)
-    }
+    Raw.duplicate(value, n) |> from_internal()
   end
 
   @doc """
@@ -444,9 +446,7 @@ defmodule A.Vector do
   """
   def repeatedly(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
-    %__MODULE__{
-      __vector__: A.List.repeatedly(generator_fun, n) |> Raw.from_list()
-    }
+    A.List.repeatedly(generator_fun, n) |> from_list()
   end
 
   @doc """
@@ -463,10 +463,8 @@ defmodule A.Vector do
 
   """
   @spec append(t(val), val) :: t(val) when val: value
-  def append(%__MODULE__{__vector__: internal}, value) do
-    %__MODULE__{
-      __vector__: Raw.append(internal, value)
-    }
+  def append(from_internal(internal), value) do
+    Raw.append(internal, value) |> from_internal()
   end
 
   @doc """
@@ -484,12 +482,10 @@ defmodule A.Vector do
 
   """
   @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
-  def concat(%__MODULE__{__vector__: internal}, enumerable) do
+  def concat(from_internal(internal), enumerable) do
     list = A.FastEnum.to_list(enumerable)
 
-    %__MODULE__{
-      __vector__: Raw.concat(internal, list)
-    }
+    Raw.concat(internal, list) |> from_internal()
   end
 
   @deprecated "Use A.Vector.concat/2 instead"
@@ -510,10 +506,8 @@ defmodule A.Vector do
 
   """
   @spec prepend(t(val), val) :: t(val) when val: value
-  def prepend(%__MODULE__{__vector__: internal}, value) do
-    %__MODULE__{
-      __vector__: Raw.prepend(internal, value)
-    }
+  def prepend(from_internal(internal), value) do
+    Raw.prepend(internal, value) |> from_internal()
   end
 
   @doc """
@@ -532,7 +526,7 @@ defmodule A.Vector do
   @spec first(t(val), default) :: val | default when val: value, default: term
   def first(vector, default \\ nil)
 
-  def first(%__MODULE__{__vector__: internal}, default) do
+  def first(from_internal(internal), default) do
     Raw.first(internal, default)
   end
 
@@ -552,7 +546,7 @@ defmodule A.Vector do
   @spec last(t(val), default) :: val | default when val: value, default: term
   def last(vector, default \\ nil)
 
-  def last(%__MODULE__{__vector__: internal}, default) do
+  def last(from_internal(internal), default) do
     Raw.last(internal, default)
   end
 
@@ -578,7 +572,7 @@ defmodule A.Vector do
   @spec fetch(t(val), index) :: {:ok, val} | :error when val: value
   def fetch(vector, index)
 
-  def fetch(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+  def fetch(from_internal(internal), index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -610,7 +604,7 @@ defmodule A.Vector do
 
   """
   @spec at(t(val), index) :: val | nil when val: value
-  def at(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+  def at(from_internal(internal), index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -620,7 +614,7 @@ defmodule A.Vector do
   end
 
   @spec at(t(val), index, default) :: val | default when val: value, default: term
-  def at(%__MODULE__{__vector__: internal}, index, default) when is_integer(index) do
+  def at(from_internal(internal), index, default) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -648,7 +642,7 @@ defmodule A.Vector do
 
   """
   @spec at!(t(val), index) :: val when val: value
-  def at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+  def at!(from_internal(internal), index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -676,7 +670,7 @@ defmodule A.Vector do
 
   """
   @spec replace_at(t(val), index, val) :: t(val) when val: value
-  def replace_at(%__MODULE__{__vector__: internal} = vector, index, value)
+  def replace_at(from_internal(internal) = vector, index, value)
       when is_integer(index) do
     size = Raw.size(internal)
 
@@ -685,8 +679,7 @@ defmodule A.Vector do
         vector
 
       actual_index ->
-        new_internal = Raw.replace_positive!(internal, actual_index, value)
-        %__MODULE__{__vector__: new_internal}
+        Raw.replace_positive!(internal, actual_index, value) |> from_internal()
     end
   end
 
@@ -709,7 +702,7 @@ defmodule A.Vector do
 
   """
   @spec replace_at!(t(val), index, val) :: t(val) when val: value
-  def replace_at!(%__MODULE__{__vector__: internal}, index, value)
+  def replace_at!(from_internal(internal), index, value)
       when is_integer(index) do
     size = Raw.size(internal)
 
@@ -718,8 +711,7 @@ defmodule A.Vector do
         raise IndexError, index: index, size: size
 
       actual_index ->
-        new_internal = Raw.replace_positive!(internal, actual_index, value)
-        %__MODULE__{__vector__: new_internal}
+        Raw.replace_positive!(internal, actual_index, value) |> from_internal()
     end
   end
 
@@ -742,7 +734,7 @@ defmodule A.Vector do
 
   """
   @spec update_at(t(val), index, (val -> val)) :: t(val) when val: value
-  def update_at(%__MODULE__{__vector__: internal} = vector, index, fun)
+  def update_at(from_internal(internal) = vector, index, fun)
       when is_integer(index) and is_function(fun) do
     size = Raw.size(internal)
 
@@ -751,8 +743,7 @@ defmodule A.Vector do
         vector
 
       actual_index ->
-        new_internal = Raw.update_positive!(internal, actual_index, fun)
-        %__MODULE__{__vector__: new_internal}
+        Raw.update_positive!(internal, actual_index, fun) |> from_internal()
     end
   end
 
@@ -775,7 +766,7 @@ defmodule A.Vector do
 
   """
   @spec update_at!(t(val), index, (val -> val)) :: t(val) when val: value
-  def update_at!(%__MODULE__{__vector__: internal}, index, fun)
+  def update_at!(from_internal(internal), index, fun)
       when is_integer(index) and is_function(fun) do
     size = Raw.size(internal)
 
@@ -784,8 +775,7 @@ defmodule A.Vector do
         raise IndexError, index: index, size: size
 
       actual_index ->
-        new_internal = Raw.update_positive!(internal, actual_index, fun)
-        %__MODULE__{__vector__: new_internal}
+        Raw.update_positive!(internal, actual_index, fun) |> from_internal()
     end
   end
 
@@ -808,9 +798,9 @@ defmodule A.Vector do
   @spec pop_last(t(val), default) :: {val | default, t(val)} when val: value, default: term
   def pop_last(vector, default \\ nil)
 
-  def pop_last(%__MODULE__{__vector__: internal} = vector, default) do
+  def pop_last(from_internal(internal) = vector, default) do
     case Raw.pop_last(internal) do
-      {value, new_internal} -> {value, %__MODULE__{__vector__: new_internal}}
+      {value, new_internal} -> {value, from_internal(new_internal)}
       :error -> {default, vector}
     end
   end
@@ -834,9 +824,9 @@ defmodule A.Vector do
   @spec pop_last!(t(val)) :: {val, t(val)} when val: value
   def pop_last!(vector)
 
-  def pop_last!(%__MODULE__{__vector__: internal}) do
+  def pop_last!(from_internal(internal)) do
     case Raw.pop_last(internal) do
-      {value, new_internal} -> {value, %__MODULE__{__vector__: new_internal}}
+      {value, new_internal} -> {value, from_internal(new_internal)}
       :error -> raise EmptyError
     end
   end
@@ -860,9 +850,9 @@ defmodule A.Vector do
   @spec delete_last(t(val)) :: t(val) when val: value
   def delete_last(vector)
 
-  def delete_last(%__MODULE__{__vector__: internal} = vector) do
+  def delete_last(from_internal(internal) = vector) do
     case Raw.pop_last(internal) do
-      {_value, new_internal} -> %__MODULE__{__vector__: new_internal}
+      {_value, new_internal} -> from_internal(new_internal)
       :error -> vector
     end
   end
@@ -886,9 +876,9 @@ defmodule A.Vector do
   @spec delete_last!(t(val)) :: t(val) when val: value
   def delete_last!(vector)
 
-  def delete_last!(%__MODULE__{__vector__: internal}) do
+  def delete_last!(from_internal(internal)) do
     case Raw.pop_last(internal) do
-      {_value, new_internal} -> %__MODULE__{__vector__: new_internal}
+      {_value, new_internal} -> from_internal(new_internal)
       :error -> raise EmptyError
     end
   end
@@ -914,7 +904,7 @@ defmodule A.Vector do
   @spec pop_at(t(val), index, default) :: {val | default, t(val)} when val: value, default: term
   def pop_at(vector, index, default \\ nil)
 
-  def pop_at(%__MODULE__{__vector__: internal} = vector, index, default) when is_integer(index) do
+  def pop_at(from_internal(internal) = vector, index, default) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -923,7 +913,7 @@ defmodule A.Vector do
 
       actual_index ->
         {value, new_internal} = Raw.pop_positive!(internal, actual_index, size)
-        {value, %__MODULE__{__vector__: new_internal}}
+        {value, from_internal(new_internal)}
     end
   end
 
@@ -948,7 +938,7 @@ defmodule A.Vector do
   @spec pop_at!(t(val), index) :: {val, t(val)} when val: value
   def pop_at!(vector, index)
 
-  def pop_at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+  def pop_at!(from_internal(internal), index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -957,7 +947,7 @@ defmodule A.Vector do
 
       actual_index ->
         {value, new_internal} = Raw.pop_positive!(internal, actual_index, size)
-        {value, %__MODULE__{__vector__: new_internal}}
+        {value, from_internal(new_internal)}
     end
   end
 
@@ -985,7 +975,7 @@ defmodule A.Vector do
 
   """
   @spec delete_at(t(val), index) :: t(val) when val: value
-  def delete_at(%__MODULE__{__vector__: internal} = vector, index) when is_integer(index) do
+  def delete_at(from_internal(internal) = vector, index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -993,8 +983,7 @@ defmodule A.Vector do
         vector
 
       actual_index ->
-        new_internal = Raw.delete_positive!(internal, actual_index, size)
-        %__MODULE__{__vector__: new_internal}
+        Raw.delete_positive!(internal, actual_index, size) |> from_internal()
     end
   end
 
@@ -1019,7 +1008,7 @@ defmodule A.Vector do
   @spec delete_at!(t(val), index) :: t(val) when val: value
   def delete_at!(vector, index)
 
-  def delete_at!(%__MODULE__{__vector__: internal}, index) when is_integer(index) do
+  def delete_at!(from_internal(internal), index) when is_integer(index) do
     size = Raw.size(internal)
 
     case Raw.actual_index(index, size) do
@@ -1027,8 +1016,7 @@ defmodule A.Vector do
         raise IndexError, index: index, size: size
 
       actual_index ->
-        new_internal = Raw.delete_positive!(internal, actual_index, size)
-        %__MODULE__{__vector__: new_internal}
+        Raw.delete_positive!(internal, actual_index, size) |> from_internal()
     end
   end
 
@@ -1057,10 +1045,10 @@ defmodule A.Vector do
   @impl Access
   @spec get_and_update(t(v), index, (v -> {returned, v} | :pop)) :: {returned, t(v)}
         when v: value, returned: term
-  def get_and_update(%__MODULE__{__vector__: internal}, index, fun)
+  def get_and_update(from_internal(internal), index, fun)
       when is_integer(index) and is_function(fun, 1) do
     {returned, new_internal} = Raw.get_and_update(internal, index, fun)
-    {returned, %__MODULE__{__vector__: new_internal}}
+    {returned, from_internal(new_internal)}
   end
 
   @doc """
@@ -1077,7 +1065,7 @@ defmodule A.Vector do
 
   """
   @spec to_list(t(val)) :: [val] when val: value
-  def to_list(%__MODULE__{__vector__: internal}) do
+  def to_list(from_internal(internal)) do
     Raw.to_list(internal)
   end
 
@@ -1094,10 +1082,8 @@ defmodule A.Vector do
 
   """
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value
-  def map(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    %__MODULE__{
-      __vector__: Raw.map(internal, fun)
-    }
+  def map(from_internal(internal), fun) when is_function(fun, 1) do
+    Raw.map(internal, fun) |> from_internal()
   end
 
   @doc """
@@ -1114,10 +1100,8 @@ defmodule A.Vector do
 
   """
   @spec filter(t(val), (val -> boolean)) :: t(val) when val: value
-  def filter(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    %__MODULE__{
-      __vector__: Raw.filter(internal, fun)
-    }
+  def filter(from_internal(internal), fun) when is_function(fun, 1) do
+    Raw.filter(internal, fun) |> from_internal()
   end
 
   @doc """
@@ -1134,10 +1118,8 @@ defmodule A.Vector do
 
   """
   @spec reject(t(val), (val -> boolean)) :: t(val) when val: value
-  def reject(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    %__MODULE__{
-      __vector__: Raw.reject(internal, fun)
-    }
+  def reject(from_internal(internal), fun) when is_function(fun, 1) do
+    Raw.reject(internal, fun) |> from_internal()
   end
 
   @doc """
@@ -1163,14 +1145,11 @@ defmodule A.Vector do
 
   """
   @spec split_with(t(val), (val -> boolean)) :: {t(val), t(val)} when val: value
-  def split_with(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+  def split_with(from_internal(internal), fun) when is_function(fun, 1) do
     # note: unlike filter/2, optimization does not bring much benefit
     {filtered, rejected} = internal |> Raw.to_list() |> Enum.split_with(fun)
 
-    {
-      %__MODULE__{__vector__: Raw.from_list(filtered)},
-      %__MODULE__{__vector__: Raw.from_list(rejected)}
-    }
+    {from_list(filtered), from_list(rejected)}
   end
 
   @doc """
@@ -1183,14 +1162,11 @@ defmodule A.Vector do
 
   """
   @spec sort(t(val)) :: t(val) when val: value
-  def sort(%__MODULE__{__vector__: internal}) do
-    new_internal =
-      internal
-      |> Raw.to_list()
-      |> Enum.sort()
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def sort(from_internal(internal)) do
+    internal
+    |> Raw.to_list()
+    |> Enum.sort()
+    |> from_list()
   end
 
   @doc """
@@ -1213,14 +1189,11 @@ defmodule A.Vector do
           | {:asc | :desc, module}
         ) :: t(val)
         when val: value
-  def sort(%__MODULE__{__vector__: internal}, fun) do
-    new_internal =
-      internal
-      |> Raw.to_list()
-      |> Enum.sort(fun)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def sort(from_internal(internal), fun) do
+    internal
+    |> Raw.to_list()
+    |> Enum.sort(fun)
+    |> from_list()
   end
 
   @doc """
@@ -1247,14 +1220,11 @@ defmodule A.Vector do
           | {:asc | :desc, module}
         ) :: t(val)
         when val: value, mapped_val: value
-  def sort_by(%__MODULE__{__vector__: internal}, mapper, sorter \\ &<=/2) do
-    new_internal =
-      internal
-      |> Raw.to_list()
-      |> Enum.sort_by(mapper, sorter)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def sort_by(from_internal(internal), mapper, sorter \\ &<=/2) do
+    internal
+    |> Raw.to_list()
+    |> Enum.sort_by(mapper, sorter)
+    |> from_list()
   end
 
   @doc """
@@ -1269,13 +1239,10 @@ defmodule A.Vector do
 
   """
   @spec uniq(t(val)) :: t(val) when val: value
-  def uniq(%__MODULE__{__vector__: internal}) do
-    new_internal =
-      internal
-      |> Raw.uniq_list()
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def uniq(from_internal(internal)) do
+    internal
+    |> Raw.uniq_list()
+    |> from_list()
   end
 
   @doc """
@@ -1292,13 +1259,10 @@ defmodule A.Vector do
 
   """
   @spec uniq_by(t(val), (val -> term)) :: t(val) when val: value
-  def uniq_by(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    new_internal =
-      internal
-      |> Raw.uniq_by_list(fun)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def uniq_by(from_internal(internal), fun) when is_function(fun, 1) do
+    internal
+    |> Raw.uniq_by_list(fun)
+    |> from_list()
   end
 
   @doc """
@@ -1317,13 +1281,10 @@ defmodule A.Vector do
 
   """
   @spec dedup(t(val)) :: t(val) when val: value
-  def dedup(%__MODULE__{__vector__: internal}) do
-    new_internal =
-      internal
-      |> Raw.dedup_list()
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def dedup(from_internal(internal)) do
+    internal
+    |> Raw.dedup_list()
+    |> from_list()
   end
 
   @doc """
@@ -1344,14 +1305,11 @@ defmodule A.Vector do
 
   """
   @spec dedup_by(t(val), (val -> term)) :: t(val) when val: value
-  def dedup_by(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    new_internal =
-      internal
-      |> Raw.to_list()
-      |> Enum.dedup_by(fun)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def dedup_by(from_internal(internal), fun) when is_function(fun, 1) do
+    internal
+    |> Raw.to_list()
+    |> Enum.dedup_by(fun)
+    |> from_list()
   end
 
   @doc """
@@ -1370,13 +1328,10 @@ defmodule A.Vector do
           separator
         ) :: t(val | separator)
         when val: value, separator: value
-  def intersperse(%__MODULE__{__vector__: internal}, separator) do
-    new_internal =
-      internal
-      |> Raw.intersperse_list(separator)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+  def intersperse(from_internal(internal), separator) do
+    internal
+    |> Raw.intersperse_list(separator)
+    |> from_list()
   end
 
   @doc """
@@ -1396,14 +1351,11 @@ defmodule A.Vector do
           (val -> mapped_val)
         ) :: t(mapped_val | separator)
         when val: value, separator: value, mapped_val: value
-  def map_intersperse(%__MODULE__{__vector__: internal}, separator, mapper)
+  def map_intersperse(from_internal(internal), separator, mapper)
       when is_function(mapper, 1) do
-    new_internal =
-      internal
-      |> Raw.map_intersperse_list(separator, mapper)
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+    internal
+    |> Raw.map_intersperse_list(separator, mapper)
+    |> from_list()
   end
 
   @doc """
@@ -1423,7 +1375,7 @@ defmodule A.Vector do
 
   """
   @spec foldl(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  def foldl(%__MODULE__{__vector__: internal}, acc, fun) when is_function(fun, 2) do
+  def foldl(from_internal(internal), acc, fun) when is_function(fun, 2) do
     Raw.foldl(internal, acc, fun)
   end
 
@@ -1445,7 +1397,7 @@ defmodule A.Vector do
 
   """
   @spec foldr(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
-  def foldr(%__MODULE__{__vector__: internal}, acc, fun) when is_function(fun, 2) do
+  def foldr(from_internal(internal), acc, fun) when is_function(fun, 2) do
     Raw.foldr(internal, acc, fun)
   end
 
@@ -1477,7 +1429,7 @@ defmodule A.Vector do
 
   """
   @spec reduce(t(val), (val, val -> val)) :: val when val: value
-  def reduce(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
+  def reduce(from_internal(internal), fun) when is_function(fun, 2) do
     Raw.reduce(internal, fun)
   end
 
@@ -1516,7 +1468,7 @@ defmodule A.Vector do
 
   """
   @spec each(t(val), (val -> term)) :: :ok when val: value
-  def each(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+  def each(from_internal(internal), fun) when is_function(fun, 1) do
     Raw.each(internal, fun)
     :ok
   end
@@ -1537,7 +1489,7 @@ defmodule A.Vector do
 
   """
   @spec sum(t(num)) :: num when num: number
-  def sum(%__MODULE__{__vector__: internal}) do
+  def sum(from_internal(internal)) do
     Raw.sum(internal)
   end
 
@@ -1557,7 +1509,7 @@ defmodule A.Vector do
 
   """
   @spec product(t(num)) :: num when num: number
-  def product(%__MODULE__{__vector__: internal}) do
+  def product(from_internal(internal)) do
     Raw.product(internal)
   end
 
@@ -1581,7 +1533,7 @@ defmodule A.Vector do
 
   """
   @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
-  def join(%__MODULE__{__vector__: internal}, joiner \\ "") when is_binary(joiner) do
+  def join(from_internal(internal), joiner \\ "") when is_binary(joiner) do
     Raw.join_as_iodata(internal, joiner) |> IO.iodata_to_binary()
   end
 
@@ -1606,7 +1558,7 @@ defmodule A.Vector do
   """
   @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
         when val: value
-  def map_join(%__MODULE__{__vector__: internal}, joiner \\ "", mapper)
+  def map_join(from_internal(internal), joiner \\ "", mapper)
       when is_binary(joiner) and is_function(mapper, 1) do
     internal
     |> Raw.map(mapper)
@@ -1632,7 +1584,7 @@ defmodule A.Vector do
 
   """
   @spec max(t(val)) :: val when val: value
-  def max(%__MODULE__{__vector__: internal}) do
+  def max(from_internal(internal)) do
     Raw.max(internal)
   end
 
@@ -1659,7 +1611,7 @@ defmodule A.Vector do
 
   """
   @spec max(t(val), (val, val -> boolean) | module) :: val when val: value
-  def max(%__MODULE__{__vector__: internal}, sorter) do
+  def max(from_internal(internal), sorter) do
     Raw.custom_min_max(internal, max_sort_fun(sorter))
   end
 
@@ -1684,7 +1636,7 @@ defmodule A.Vector do
 
   """
   @spec min(t(val)) :: val when val: value
-  def min(%__MODULE__{__vector__: internal}) do
+  def min(from_internal(internal)) do
     Raw.min(internal)
   end
 
@@ -1711,7 +1663,7 @@ defmodule A.Vector do
 
   """
   @spec min(t(val), (val, val -> boolean) | module) :: val when val: value
-  def min(%__MODULE__{__vector__: internal}, sorter) do
+  def min(from_internal(internal), sorter) do
     Raw.custom_min_max(internal, min_sort_fun(sorter))
   end
 
@@ -1759,7 +1711,7 @@ defmodule A.Vector do
   """
   @spec min_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
         when val: value, key: term
-  def min_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &<=/2) when is_function(fun, 1) do
+  def min_by(from_internal(internal), fun, sorter \\ &<=/2) when is_function(fun, 1) do
     Raw.custom_min_max_by(internal, fun, min_sort_fun(sorter))
   end
 
@@ -1804,7 +1756,7 @@ defmodule A.Vector do
   """
   @spec max_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
         when val: value, key: term
-  def max_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &>=/2) when is_function(fun, 1) do
+  def max_by(from_internal(internal), fun, sorter \\ &>=/2) when is_function(fun, 1) do
     Raw.custom_min_max_by(internal, fun, max_sort_fun(sorter))
   end
 
@@ -1820,7 +1772,7 @@ defmodule A.Vector do
 
   """
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
-  def frequencies(%__MODULE__{__vector__: internal}) do
+  def frequencies(from_internal(internal)) do
     Raw.frequencies(internal)
   end
 
@@ -1841,7 +1793,7 @@ defmodule A.Vector do
   """
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
-  def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun, 1) do
+  def frequencies_by(from_internal(internal), key_fun) when is_function(key_fun, 1) do
     Raw.frequencies_by(internal, key_fun)
   end
 
@@ -1865,7 +1817,7 @@ defmodule A.Vector do
   """
   @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
         when val: value, key: any, mapped_val: any
-  def group_by(%__MODULE__{__vector__: internal}, key_fun, value_fun \\ fn x -> x end)
+  def group_by(from_internal(internal), key_fun, value_fun \\ fn x -> x end)
       when is_function(key_fun, 1) and is_function(value_fun, 1) do
     Raw.group_by(internal, key_fun, value_fun)
   end
@@ -1890,7 +1842,7 @@ defmodule A.Vector do
 
   """
   @spec any?(t(val)) :: boolean when val: value
-  def any?(%__MODULE__{__vector__: internal}) do
+  def any?(from_internal(internal)) do
     Raw.any?(internal)
   end
 
@@ -1915,7 +1867,7 @@ defmodule A.Vector do
 
   """
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean when val: value
-  def any?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+  def any?(from_internal(internal), fun) when is_function(fun, 1) do
     Raw.any?(internal, fun)
   end
 
@@ -1938,7 +1890,7 @@ defmodule A.Vector do
 
   """
   @spec all?(t(val)) :: boolean when val: value
-  def all?(%__MODULE__{__vector__: internal}) do
+  def all?(from_internal(internal)) do
     Raw.all?(internal)
   end
 
@@ -1963,7 +1915,7 @@ defmodule A.Vector do
 
   """
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean when val: value
-  def all?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+  def all?(from_internal(internal), fun) when is_function(fun, 1) do
     Raw.all?(internal, fun)
   end
 
@@ -1985,7 +1937,7 @@ defmodule A.Vector do
   """
   @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
         when val: value, default: value
-  def find(%__MODULE__{__vector__: internal}, default \\ nil, fun) when is_function(fun, 1) do
+  def find(from_internal(internal), default \\ nil, fun) when is_function(fun, 1) do
     case Raw.find(internal, fun) do
       {:ok, value} -> value
       nil -> default
@@ -2010,7 +1962,7 @@ defmodule A.Vector do
   """
   @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
         when val: value, new_val: value, default: value
-  def find_value(%__MODULE__{__vector__: internal}, default \\ nil, fun)
+  def find_value(from_internal(internal), default \\ nil, fun)
       when is_function(fun, 1) do
     Raw.find_value(internal, fun) || default
   end
@@ -2032,7 +1984,7 @@ defmodule A.Vector do
 
   """
   @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
-  def find_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
+  def find_index(from_internal(internal), fun) when is_function(fun, 1) do
     Raw.find_index(internal, fun)
   end
 
@@ -2048,10 +2000,10 @@ defmodule A.Vector do
 
   """
   @spec reverse(t(val)) :: t(val) when val: value
-  def reverse(%__MODULE__{__vector__: internal}) do
+  def reverse(from_internal(internal)) do
     internal
     |> Raw.to_reverse_list()
-    |> new()
+    |> from_list()
   end
 
   @doc """
@@ -2086,7 +2038,7 @@ defmodule A.Vector do
       _ ->
         vector
         |> Enum.slice(index_range)
-        |> new()
+        |> from_list()
     end
   end
 
@@ -2109,15 +2061,14 @@ defmodule A.Vector do
 
   """
   @spec slice(t(val), index, non_neg_integer) :: t(val) when val: value
-  def slice(%__MODULE__{__vector__: internal} = vector, start_index, amount)
+  def slice(from_internal(internal) = vector, start_index, amount)
       when is_integer(start_index) and is_integer(amount) and amount >= 0 do
     if start_index == 0 or start_index == -Raw.size(internal) do
-      new_internal = Raw.take(internal, amount)
-      %__MODULE__{__vector__: new_internal}
+      Raw.take(internal, amount) |> from_internal()
     else
       vector
       |> Enum.slice(start_index, amount)
-      |> new()
+      |> from_list()
     end
   end
 
@@ -2145,9 +2096,8 @@ defmodule A.Vector do
 
   """
   @spec take(t(val), integer) :: t(val) when val: value
-  def take(%__MODULE__{__vector__: internal}, amount) when is_integer(amount) do
-    new_internal = do_take(internal, amount)
-    %__MODULE__{__vector__: new_internal}
+  def take(from_internal(internal), amount) when is_integer(amount) do
+    do_take(internal, amount) |> from_internal()
   end
 
   defp do_take(internal, amount) when amount < 0 do
@@ -2188,9 +2138,8 @@ defmodule A.Vector do
 
   """
   @spec drop(t(val), integer) :: t(val) when val: value
-  def drop(%__MODULE__{__vector__: internal}, amount) when is_integer(amount) do
-    new_internal = do_drop(internal, amount)
-    %__MODULE__{__vector__: new_internal}
+  def drop(from_internal(internal), amount) when is_integer(amount) do
+    do_drop(internal, amount) |> from_internal()
   end
 
   defp do_drop(internal, _amount = 0) do
@@ -2241,7 +2190,7 @@ defmodule A.Vector do
 
   """
   @spec split(t(val), integer) :: {t(val), t(val)} when val: value
-  def split(%__MODULE__{__vector__: internal} = vector, amount) when is_integer(amount) do
+  def split(from_internal(internal) = vector, amount) when is_integer(amount) do
     size = Raw.size(internal)
 
     case Raw.actual_index(amount, size) do
@@ -2254,7 +2203,7 @@ defmodule A.Vector do
       actual_amount ->
         taken = Raw.take(internal, actual_amount)
         dropped = do_drop(internal, actual_amount)
-        {%__MODULE__{__vector__: taken}, %__MODULE__{__vector__: dropped}}
+        {from_internal(taken), from_internal(dropped)}
     end
   end
 
@@ -2272,14 +2221,13 @@ defmodule A.Vector do
 
   """
   @spec take_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
-  def take_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+  def take_while(from_internal(internal) = vector, fun) when is_function(fun, 1) do
     case Raw.find_falsy_index(internal, fun) do
       nil ->
         vector
 
       index ->
-        new_internal = Raw.take(internal, index)
-        %__MODULE__{__vector__: new_internal}
+        Raw.take(internal, index) |> from_internal()
     end
   end
 
@@ -2297,10 +2245,10 @@ defmodule A.Vector do
 
   """
   @spec drop_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
-  def drop_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+  def drop_while(from_internal(internal) = vector, fun) when is_function(fun, 1) do
     case Raw.find_falsy_index(internal, fun) do
       nil ->
-        %__MODULE__{__vector__: @empty_raw}
+        new()
 
       0 ->
         vector
@@ -2308,12 +2256,9 @@ defmodule A.Vector do
       index ->
         size = Raw.size(internal)
 
-        new_internal =
-          internal
-          |> Raw.slice(index, size - 1)
-          |> Raw.from_list()
-
-        %__MODULE__{__vector__: new_internal}
+        internal
+        |> Raw.slice(index, size - 1)
+        |> from_list()
     end
   end
 
@@ -2338,25 +2283,25 @@ defmodule A.Vector do
 
   """
   @spec split_while(t(val), (val -> as_boolean(term()))) :: {t(val), t(val)} when val: value
-  def split_while(%__MODULE__{__vector__: internal} = vector, fun) when is_function(fun, 1) do
+  def split_while(from_internal(internal) = vector, fun) when is_function(fun, 1) do
     case Raw.find_falsy_index(internal, fun) do
       nil ->
-        {vector, %__MODULE__{__vector__: @empty_raw}}
+        {vector, new()}
 
       0 ->
-        {%__MODULE__{__vector__: @empty_raw}, vector}
+        {new(), vector}
 
       index ->
         size = Raw.size(internal)
 
-        taken = Raw.take(internal, index)
+        taken = Raw.take(internal, index) |> from_internal()
 
         dropped =
           internal
           |> Raw.slice(index, size - 1)
-          |> Raw.from_list()
+          |> from_list()
 
-        {%__MODULE__{__vector__: taken}, %__MODULE__{__vector__: dropped}}
+        {taken, dropped}
     end
   end
 
@@ -2378,9 +2323,8 @@ defmodule A.Vector do
 
   """
   @spec with_index(t(val), index) :: t({val, index}) when val: value
-  def with_index(%__MODULE__{__vector__: internal}, offset \\ 0) when is_integer(offset) do
-    new_internal = Raw.with_index(internal, offset)
-    %__MODULE__{__vector__: new_internal}
+  def with_index(from_internal(internal), offset \\ 0) when is_integer(offset) do
+    Raw.with_index(internal, offset) |> from_internal()
   end
 
   @doc """
@@ -2409,7 +2353,7 @@ defmodule A.Vector do
 
   """
   @spec random(t(val)) :: val when val: value
-  def random(%__MODULE__{__vector__: internal}) do
+  def random(from_internal(internal)) do
     Raw.random(internal)
   end
 
@@ -2437,10 +2381,9 @@ defmodule A.Vector do
 
   """
   @spec take_random(t(val), non_neg_integer) :: t(val) when val: value
-  def take_random(%__MODULE__{__vector__: internal}, amount)
+  def take_random(from_internal(internal), amount)
       when is_integer(amount) and amount >= 0 do
-    new_internal = Raw.take_random(internal, amount)
-    %__MODULE__{__vector__: new_internal}
+    Raw.take_random(internal, amount) |> from_internal()
   end
 
   @doc """
@@ -2459,15 +2402,12 @@ defmodule A.Vector do
 
   """
   @spec shuffle(t(val)) :: t(val) when val: value
-  def shuffle(%__MODULE__{__vector__: internal}) do
+  def shuffle(from_internal(internal)) do
     # Note: benchmarks suggest that this is already fast without further optimization
-    new_internal =
-      internal
-      |> Raw.to_list()
-      |> Enum.shuffle()
-      |> Raw.from_list()
-
-    %__MODULE__{__vector__: new_internal}
+    internal
+    |> Raw.to_list()
+    |> Enum.shuffle()
+    |> from_list()
   end
 
   @doc """
@@ -2484,10 +2424,8 @@ defmodule A.Vector do
 
   """
   @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
-  def zip(%__MODULE__{__vector__: internal1}, %__MODULE__{__vector__: internal2}) do
-    new_internal = Raw.zip(internal1, internal2)
-
-    %__MODULE__{__vector__: new_internal}
+  def zip(from_internal(internal1), from_internal(internal2)) do
+    Raw.zip(internal1, internal2) |> from_internal()
   end
 
   @doc """
@@ -2508,11 +2446,14 @@ defmodule A.Vector do
 
   """
   @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
-  def unzip(%__MODULE__{__vector__: internal}) do
+  def unzip(from_internal(internal)) do
     {internal1, internal2} = Raw.unzip(internal)
 
-    {%__MODULE__{__vector__: internal1}, %__MODULE__{__vector__: internal2}}
+    {from_internal(internal1), from_internal(internal2)}
   end
+
+  defp from_list([]), do: from_internal(@empty_raw)
+  defp from_list(list), do: Raw.from_list(list) |> from_internal()
 
   defimpl Inspect do
     import Inspect.Algebra

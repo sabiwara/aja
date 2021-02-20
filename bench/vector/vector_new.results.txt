@@ -14,15 +14,15 @@ inputs: none specified
 Estimated total run time: 21 s
 
 Benchmarking :array.from_list/1...
-Benchmarking A.Vector.Raw.new/1...
+Benchmarking A.Vector.Raw.from_list/1...
 Benchmarking A.Vector.new/1...
 
-Name                         ips        average  deviation         median         99th %
-A.Vector.Raw.new/1        1.61 M      619.94 ns  ±4279.71%         484 ns         820 ns
-A.Vector.new/1            1.57 M      637.66 ns  ±4151.28%         522 ns         890 ns
-:array.from_list/1        0.69 M     1451.07 ns  ±1330.37%        1257 ns        2429 ns
+Name                               ips        average  deviation         median         99th %
+A.Vector.Raw.from_list/1        1.58 M      634.86 ns  ±4518.07%         473 ns        1314 ns
+A.Vector.new/1                  1.54 M      647.86 ns  ±4296.01%         510 ns         949 ns
+:array.from_list/1              0.67 M     1483.79 ns  ±1383.98%        1262 ns     2965.56 ns
 
 Comparison: 
-A.Vector.Raw.new/1        1.61 M
-A.Vector.new/1            1.57 M - 1.03x slower +17.72 ns
-:array.from_list/1        0.69 M - 2.34x slower +831.13 ns
+A.Vector.Raw.from_list/1        1.58 M
+A.Vector.new/1                  1.54 M - 1.02x slower +13.00 ns
+:array.from_list/1              0.67 M - 2.34x slower +848.94 ns
