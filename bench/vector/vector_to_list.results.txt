@@ -11,21 +11,18 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 21 s
 
 Benchmarking :array.to_list/1...
-Benchmarking A.Vector.Raw.to_list/1...
 Benchmarking A.Vector.to_list/1...
 Benchmarking Enum.to_list/1...
 
-Name                             ips        average  deviation         median         99th %
-A.Vector.Raw.to_list/1        2.44 M        0.41 μs  ±9094.18%        0.27 μs        0.66 μs
-A.Vector.to_list/1            2.34 M        0.43 μs  ±8566.61%        0.29 μs        0.65 μs
-:array.to_list/1              0.83 M        1.20 μs  ±1810.09%        1.04 μs        2.07 μs
-Enum.to_list/1                0.26 M        3.92 μs   ±484.74%        3.42 μs       11.52 μs
+Name                         ips        average  deviation         median         99th %
+A.Vector.to_list/1     2203.88 K        0.45 μs  ±8267.70%        0.28 μs        0.86 μs
+:array.to_list/1        751.99 K        1.33 μs  ±1860.36%        1.10 μs        2.29 μs
+Enum.to_list/1          243.75 K        4.10 μs   ±483.15%        3.50 μs       18.01 μs
 
 Comparison: 
-A.Vector.Raw.to_list/1        2.44 M
-A.Vector.to_list/1            2.34 M - 1.04x slower +0.0176 μs
-:array.to_list/1              0.83 M - 2.93x slower +0.79 μs
-Enum.to_list/1                0.26 M - 9.56x slower +3.51 μs
+A.Vector.to_list/1     2203.88 K
+:array.to_list/1        751.99 K - 2.93x slower +0.88 μs
+Enum.to_list/1          243.75 K - 9.04x slower +3.65 μs

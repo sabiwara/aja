@@ -11,21 +11,18 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 21 s
 
-Benchmarking A.Vector.Raw.slice/3...
 Benchmarking A.Vector.slice/3 (vector)...
 Benchmarking Enum.slice/3 (list)...
 Benchmarking Enum.slice/3 (vector)...
 
 Name                                ips        average  deviation         median         99th %
-A.Vector.Raw.slice/3             1.63 M      615.13 ns  ±4107.63%         498 ns         834 ns
-Enum.slice/3 (vector)            1.25 M      796.90 ns  ±3594.86%         639 ns        1293 ns
-Enum.slice/3 (list)              1.21 M      827.64 ns  ±3344.69%         705 ns        1110 ns
-A.Vector.slice/3 (vector)        0.76 M     1320.96 ns  ±1273.60%        1146 ns        2306 ns
+Enum.slice/3 (vector)            1.16 M      863.56 ns  ±3592.47%         643 ns        1731 ns
+Enum.slice/3 (list)              1.12 M      894.36 ns  ±2721.06%         722 ns        1545 ns
+A.Vector.slice/3 (vector)        0.68 M     1460.05 ns  ±1761.88%        1180 ns        2944 ns
 
 Comparison: 
-A.Vector.Raw.slice/3             1.63 M
-Enum.slice/3 (vector)            1.25 M - 1.30x slower +181.76 ns
-Enum.slice/3 (list)              1.21 M - 1.35x slower +212.50 ns
-A.Vector.slice/3 (vector)        0.76 M - 2.15x slower +705.83 ns
+Enum.slice/3 (vector)            1.16 M
+Enum.slice/3 (list)              1.12 M - 1.04x slower +30.80 ns
+A.Vector.slice/3 (vector)        0.68 M - 1.69x slower +596.49 ns

@@ -11,21 +11,18 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 21 s
 
 Benchmarking :array.map/2...
-Benchmarking A.Vector.Raw.map/2...
 Benchmarking A.Vector.map/2...
 Benchmarking Enum.map/2...
 
-Name                         ips        average  deviation         median         99th %
-A.Vector.Raw.map/2      668.40 K        1.50 μs  ±1624.68%        1.35 μs        2.15 μs
-A.Vector.map/2          645.26 K        1.55 μs  ±1589.01%        1.39 μs        2.47 μs
-Enum.map/2              600.32 K        1.67 μs  ±1092.31%        1.51 μs        2.86 μs
-:array.map/2            275.48 K        3.63 μs   ±375.01%        3.38 μs        5.74 μs
+Name                     ips        average  deviation         median         99th %
+A.Vector.map/2      603.36 K        1.66 μs  ±1121.79%        1.43 μs        2.84 μs
+Enum.map/2          562.07 K        1.78 μs   ±914.94%        1.55 μs        2.94 μs
+:array.map/2        255.41 K        3.92 μs   ±384.64%        3.49 μs        8.93 μs
 
 Comparison: 
-A.Vector.Raw.map/2      668.40 K
-A.Vector.map/2          645.26 K - 1.04x slower +0.0537 μs
-Enum.map/2              600.32 K - 1.11x slower +0.170 μs
-:array.map/2            275.48 K - 2.43x slower +2.13 μs
+A.Vector.map/2      603.36 K
+Enum.map/2          562.07 K - 1.07x slower +0.122 μs
+:array.map/2        255.41 K - 2.36x slower +2.26 μs
