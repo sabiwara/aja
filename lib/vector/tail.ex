@@ -225,68 +225,40 @@ defmodule A.Vector.Tail do
 
   def partial_with_index(tail, tail_size, offset)
 
-  for i <- C.range() do
-    # def partial_with_index({arg1, arg2, _arg3, _arg4}, 2, offset) do
-    #   {{arg1, offset + 0}, {arg2, offset + 1}, nil, nil}
-    # end
-    def partial_with_index(unquote(C.array_with_wildcards(i)), unquote(i), offset) do
-      unquote(
-        C.arguments_with_nils(i)
-        |> Enum.with_index()
-        |> Enum.map(fn
-          {nil, _} ->
-            nil
+  def partial_with_index(tail, _i = 0, _offset), do: tail
 
-          {arg, i} ->
-            quote do
-              {unquote(arg), var!(offset) + unquote(i)}
-            end
-        end)
-        |> C.array()
-      )
-    end
+  def partial_with_index(tail, i, offset) do
+    value = :erlang.element(i, tail)
+    new_i = i - 1
+    new_tail = :erlang.setelement(i, tail, {value, offset + new_i})
+    partial_with_index(new_tail, new_i, offset)
   end
 
   def partial_zip(tail1, tail2, tail_size)
 
-  for i <- C.range() do
-    # def partial_zip(tail1, tail2, 2) do
-    #   {{elem(tail1, 0), elem(tail2, 0)}, {elem(tail1, 1), elem(tail2, 1)}, nil, nil}
-    # end
-    def partial_zip(tail1, tail2, unquote(i)) do
-      unquote(
-        Enum.map(C.range(), fn
-          j when j <= i ->
-            quote do
-              {:erlang.element(unquote(j), var!(tail1)), :erlang.element(unquote(j), var!(tail2))}
-            end
+  def partial_zip(tail1, _tail2, _i = 0), do: tail1
 
-          _ ->
-            nil
-        end)
-        |> C.array()
-      )
-    end
+  def partial_zip(tail1, tail2, i) do
+    value1 = :erlang.element(i, tail1)
+    value2 = :erlang.element(i, tail2)
+    new_i = i - 1
+    new_tail = :erlang.setelement(i, tail1, {value1, value2})
+    partial_zip(new_tail, tail2, new_i)
   end
 
-  def partial_unzip(tail, tail_size)
+  def partial_unzip(tail, tail_size) do
+    do_partial_unzip(tail, tail, tail_size)
+  end
 
-  for i <- C.range() do
-    # def partial_zip({{arg1, arg5}, {arg2, arg6}, _, _}, 2) do
-    #   {{arg1, arg2, nil, nil}, {arg5, arg6, nil, nil}}
-    # end
-    def partial_unzip(
-          unquote(
-            Enum.zip(C.arguments(i), C.other_arguments(i))
-            |> C.fill_with(nil)
-            |> C.array()
-          ),
-          unquote(i)
-        ) do
-      {
-        unquote(C.arguments(i) |> C.fill_with(nil) |> C.array()),
-        unquote(C.other_arguments(i) |> C.fill_with(nil) |> C.array())
-      }
-    end
+  defp do_partial_unzip(left, right, _i = 0) do
+    {left, right}
+  end
+
+  defp do_partial_unzip(left, right, i) do
+    {value1, value2} = :erlang.element(i, left)
+    new_i = i - 1
+    new_left = :erlang.setelement(i, left, value1)
+    new_right = :erlang.setelement(i, right, value2)
+    do_partial_unzip(new_left, new_right, new_i)
   end
 end
