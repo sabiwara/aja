@@ -2,6 +2,18 @@
 
 ## Dev
 
+### Enhancements
+
+* `A.OrdMap` new implemention, with highly improved performance ⚡️⚡️
+* Added `A.ord_size/1` macro
+* Added `A.OrdMap.is_dense/1` guard
+
+### Breaking changes
+
+* Reimplement `A.OrdMap`, changing its internals completely
+* Change signature of `A.OrdMap.foldl/3` and `A.OrdMap.foldr/3`
+* Remove A.OrdMap.pop_first/1 and A.OrdMap.pop_last/1
+
 ## v0.4.8 (2021-02-23)
 
 ### Enhancements

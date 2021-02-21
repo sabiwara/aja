@@ -5,8 +5,6 @@ defmodule A do
   Use `import A` to import everything, or import only the macros you need.
   """
 
-  @wildcard quote do: _
-
   @doc ~S"""
   A sigil to build [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and avoid string concatenation.
 
@@ -151,7 +149,7 @@ defmodule A do
         match_map = to_match_map(key_value_pairs, context)
 
         quote do
-          %A.OrdMap{map: unquote(match_map)}
+          %A.OrdMap{__ord_map__: unquote(match_map)}
         end
 
       :guard ->
@@ -184,11 +182,53 @@ defmodule A do
       for {key, value} <- key_value_pairs do
         {key,
          quote do
-           {unquote(@wildcard), unquote(@wildcard), unquote(value)}
+           {_, unquote(value)}
          end}
       end
 
     {:%{}, context, wildcard_pairs}
+  end
+
+  @doc """
+  Returns the size of an `ord_map`.
+
+  It is implemented as a macro so that it can be used in guards.
+
+  When used outside of a guard, it will just be replaced by a call to `A.OrdMap.size/1`.
+
+  When used in guards, it will fail if called on something else than an `A.OrdMap`.
+  It is recommended to verify the type first.
+
+  Runs in constant time.
+
+  ## Examples
+
+      iex> import A
+      iex> ord_map = A.OrdMap.new(a: 1, b: 2, c: 3)
+      iex> match?(v when ord_size(v) > 5, ord_map)
+      false
+      iex> match?(v when ord_size(v) < 5, ord_map)
+      true
+      iex> ord_size(ord_map)
+      3
+
+  """
+  defmacro ord_size(ord_map) do
+    case __CALLER__.context do
+      nil ->
+        quote do
+          A.OrdMap.size(unquote(ord_map))
+        end
+
+      :match ->
+        raise ArgumentError, "`A.ord_size/1` cannot be used in match"
+
+      :guard ->
+        quote do
+          # TODO simplify when stop supporting Elixir 1.10
+          :erlang.map_get(:__ord_map__, unquote(ord_map)) |> :erlang.map_size()
+        end
+    end
   end
 
   @doc """
@@ -320,6 +360,7 @@ defmodule A do
         quote do
           :erlang.element(
             1,
+            # TODO simplify when stop supporting Elixir 1.10
             :erlang.map_get(:__vector__, unquote(vector))
           )
         end

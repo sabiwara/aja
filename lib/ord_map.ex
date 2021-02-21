@@ -1,8 +1,8 @@
 defmodule A.OrdMap do
   @moduledoc ~S"""
-  A Map preserving key insertion order, with efficient lookups and updates.
+  A map preserving key insertion order, with efficient lookups, updates and enumeration.
 
-  Works just like regular maps, except that the insertion order is preserved:
+  It works like regular maps, except that the insertion order is preserved:
 
       iex> %{"one" => 1, "two" => 2, "three" => 3}
       %{"one" => 1, "three" => 3, "two" => 2}
@@ -32,17 +32,16 @@ defmodule A.OrdMap do
       iex> A.OrdMap.put(ord_map, :b, "Buffalo")
       #A<ord(%{b: "Buffalo", a: "Ant", c: "Cat"})>
       iex> A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
       iex> Enum.to_list(ord_map)
       [b: "Bat", a: "Ant", c: "Cat"]
       iex> [d: "Dinosaur", b: "Buffalo", e: "Eel"] |> Enum.into(ord_map)
       #A<ord(%{b: "Buffalo", a: "Ant", c: "Cat", d: "Dinosaur", e: "Eel"})>
 
-  ## Tree-specific functions
+  ## Specific functions
 
-  Due to its sorted nature, `A.OrdMap` also offers some extra methods not present in `Map`, like:
+  Due to its ordered nature, `A.OrdMap` also offers some extra methods not present in `Map`, like:
   - `first/1` and `last/1` to efficiently retrieve the first / last key-value pair
-  - `pop_first/1` and `pop_last/1` to efficiently pop the first / last key-value pair
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
@@ -50,10 +49,9 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
       iex> A.OrdMap.first(ord_map)
       {:b, "Bat"}
-      iex> {:c, "Cat", updated} = A.OrdMap.pop_last(ord_map)
-      iex> updated
-      #A<ord(%{b: "Bat", a: "Ant"})>
-      iex> A.OrdMap.foldr(ord_map, [], fn _key, value, acc -> [value <> "man" | acc] end)
+      iex> A.OrdMap.last(ord_map)
+      {:c, "Cat"}
+      iex> A.OrdMap.foldr(ord_map, [], fn {_key, value}, acc -> [value <> "man" | acc] end)
       ["Batman", "Antman", "Catman"]
 
   ## Access behaviour
@@ -70,9 +68,10 @@ defmodule A.OrdMap do
       iex> {"Cat", updated} = pop_in(ord_map[:c]); updated
       #A<ord(%{a: "Ant", b: "Bat"})>
 
-  ## Convenience [`ord/1`](`A.ord/1`) macro
+  ## Convenience [`ord/1`](`A.ord/1`) and [`ord_size/1`](`A.ord_size/1`) macros
 
   The `A.OrdMap` module can be used without any macro.
+
   The `A.ord/1` macro does however provide some syntactic sugar to make
   it more convenient to work with ordered maps, namely:
   - construct new ordered maps without the clutter of a entry list
@@ -90,43 +89,71 @@ defmodule A.OrdMap do
       iex> ord(%{ord_map | "二" => "NI!"})
       #A<ord(%{"一" => 1, "二" => "NI!", "三" => 3})>
 
-  Note: pattern-matching on keys doesn't care about the insertion order.
+  Note: pattern-matching on keys is not affected by insertion order.
+
+  The `A.ord_size/1` macro can be used in guards:
+
+      iex> import A
+      iex> match?(v when ord_size(v) > 2, ord%{"一" => 1, "二" => 2, "三" => 3})
+      true
+
 
   ## With `Jason`
 
       iex> A.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
       "{\"un\":1,\"deux\":2,\"trois\":3}"
 
-  It also preserves the insertion order. Comparing with a regular map:
+  JSON encoding preserves the insertion order. Comparing with a regular map:
 
       iex> Map.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
       "{\"deux\":2,\"trois\":3,\"un\":1}"
 
   There is no way as of now to decode JSON using `A.OrdMap`.
 
-  ## Limitations: equality
+  ## Key deletion and sparse maps
 
-  `A.OrdMap` comparisons based on `==/2`, `===/2` or the pin operator `^` are **UNRELIABLE**.
+  Due to the underlying structures being used, efficient key deletion implies keeping around some
+  "holes" to avoid rebuilding the whole structure.
 
-  In Elixir, pattern-matching and equality for structs work based on their internal representation.
-  While this is a pragmatic design choice that simplifies the language, it means that we cannot
-  rededine how they work for custom data structures.
+  Such an ord map will be called **sparse**, while an ord map that never had a key deleted will be
+  referred as **dense**.
 
-  Two ordered maps that are semantically equal (same key-value pairs in the same order) might be considered
-  non-equal when comparing their internals, because there is not a unique way of representing one same map.
+  The implications of sparse structures are multiple:
+  - unlike dense structures, they cannot be compared as erlang terms
+    (using either `==/2`, `===/2` or the pin operator `^`)
+  - `A.OrdMap.equal?/2` can safely compare both sparse and dense structures, but is slower for sparse
+  - enumerating sparse structures is less efficient than dense ones
 
-  `A.OrdMap.equal?/2` should be used instead:
+  Calling `A.OrdMap.new/1` on a sparse ord map will rebuild a new dense one from scratch (which can be expensive).
 
-      iex> ord_map1 = A.OrdMap.new(a: "Ant", b: "Bat")
+      iex> dense = A.OrdMap.new(a: "Ant", b: "Bat")
       #A<ord(%{a: "Ant", b: "Bat"})>
-      iex> ord_map2 = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A<ord(%{a: "Ant", b: "Bat"})>
-      iex> ord_map1 == ord_map2
+      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
+      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      iex> dense == sparse
       false
-      iex> A.OrdMap.equal?(ord_map1, ord_map2)
+      iex> match?(^dense, sparse)
+      false
+      iex> A.OrdMap.equal?(dense, sparse)  # works with sparse maps, but less efficient
       true
-      iex> match?(^ord_map1, ord_map2)
-      false
+      iex> new_dense = A.OrdMap.new(sparse)  # rebuild a dense map from a sparse one
+      #A<ord(%{a: "Ant", b: "Bat"})>
+      iex> new_dense === dense
+      true
+
+  Note: Deleting the last key does not make a dense ord map sparse. This is not a bug,
+  but an expected behavior due to how data is stored.
+
+      iex> A.OrdMap.new([one: 1, two: 2, three: 3]) |> A.OrdMap.delete(:three)
+      #A<ord(%{one: 1, two: 2})>
+
+  The `is_dense/1` guard is provided to ensure an `A.OrdMap` is dense and not sparse.
+
+  While this design puts some burden on the developer, the idea behind it is:
+  - to keep it as convenient and performant as possible unless deletion is necessary
+  - to be transparent about sparse structures and their limitation
+  - instead of constantly rebuild new dense structures, let users decide the best timing to do it
+  - still work fine with sparse structures, but in a degraded mode
 
   ## Pattern-matching and opaque type
 
@@ -138,19 +165,19 @@ defmodule A.OrdMap do
   Note, however, than `A.OrdMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
   its struct internal fields must not be accessed directly.
 
-  As discussed in the previous section, [`ord/1`](`A.ord/1`) makes it
-  possible to pattern match on keys as well as checking the type.
+  As discussed in the previous section, [`ord/1`](`A.ord/1`) and [`ord_size/1`](`A.ord_size/1`) makes it
+  possible to pattern match on keys as well as check the type and size.
 
   ## Memory overhead
 
-  `A.OrdMap` takes roughly more memory 2.5~3x than a regular map depending on the type of data:
+  `A.OrdMap` takes roughly 2~3x more memory than a regular map depending on the type of data:
 
-      iex> map_size = 1..100 |> Map.new(fn i -> {i, <<i>>} end) |> :erts_debug.size()
-      658
-      iex> ord_map_size = 1..100 |> A.OrdMap.new(fn i -> {i, <<i>>} end) |> :erts_debug.size()
-      1668
-      iex> div(100 * ord_map_size, map_size)
-      253
+      iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
+      358
+      iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
+      1112
+      iex> ord_map_size / map_size
+      3.106145251396648
 
   """
 
@@ -159,13 +186,36 @@ defmodule A.OrdMap do
   @type key :: term
   @type value :: term
   @typep index :: non_neg_integer
-  @typep entry(key, value) :: {index, key, value}
   @opaque t(key, value) :: %__MODULE__{
-            map: %{optional(key) => entry(key, value)},
-            tree: A.RBTree.Map.tree(index, entry(key, value))
+            __ord_map__: %{optional(key) => {index, value}},
+            __ord_vector__: A.Vector.Raw.t({key, value}),
+            __ord_next__: index
           }
   @opaque t :: t(key, value)
-  defstruct map: %{}, tree: A.RBTree.Map.empty()
+  defstruct __ord_map__: %{}, __ord_vector__: A.Vector.Raw.empty(), __ord_next__: 0
+
+  @doc """
+  A guard returning `true` if `ord_map` is dense; otherwise returns `false`.
+
+  See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
+
+  ## Examples
+
+      iex> import A.OrdMap, only: [is_dense: 1]
+      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      iex> is_dense(ord_map)
+      true
+      iex> sparse = A.OrdMap.delete(ord_map, :b)
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      iex> is_dense(sparse)
+      false
+
+  """
+  # TODO simplify when stop supporting Elixir 1.10
+  defguard is_dense(ord_map)
+           when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
+                  :erlang.map_get(:__ord_next__, ord_map)
 
   @doc """
   Returns the number of keys in `ord_map`.
@@ -182,7 +232,7 @@ defmodule A.OrdMap do
   @spec size(t) :: non_neg_integer
   def size(ord_map)
 
-  def size(%__MODULE__{map: map}) do
+  def size(%__MODULE__{__ord_map__: map}) do
     map_size(map)
   end
 
@@ -199,9 +249,10 @@ defmodule A.OrdMap do
   @spec keys(t(k, value)) :: [k] when k: key
   def keys(ord_map)
 
-  def keys(%__MODULE__{tree: tree}) do
-    A.RBTree.Map.foldr(tree, [], fn _i, {_index, key, _value}, acc ->
-      [key | acc]
+  def keys(%__MODULE__{__ord_vector__: vector}) do
+    A.Vector.Raw.foldr(vector, [], fn
+      {key, _value}, acc -> [key | acc]
+      nil, acc -> acc
     end)
   end
 
@@ -218,14 +269,15 @@ defmodule A.OrdMap do
   @spec values(t(key, v)) :: [v] when v: value
   def values(ord_map)
 
-  def values(%__MODULE__{tree: tree}) do
-    A.RBTree.Map.foldr(tree, [], fn _i, {_index, _key, value}, acc ->
-      [value | acc]
+  def values(%__MODULE__{__ord_vector__: vector}) do
+    A.Vector.Raw.foldr(vector, [], fn
+      {_key, value}, acc -> [value | acc]
+      nil, acc -> acc
     end)
   end
 
   @doc """
-  Returns all values from `ord_map`.
+  Returns all key-values pairs from `ord_map` as a list.
 
   ## Examples
 
@@ -237,10 +289,33 @@ defmodule A.OrdMap do
   @spec to_list(t(k, v)) :: [{k, v}] when k: key, v: value
   def to_list(ord_map)
 
-  def to_list(%__MODULE__{tree: tree}) do
-    A.RBTree.Map.foldr(tree, [], fn __i, {_index, key, value}, acc ->
-      [{key, value} | acc]
-    end)
+  def to_list(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
+    A.Vector.Raw.to_list(vector)
+  end
+
+  def to_list(%__MODULE__{__ord_vector__: vector}) do
+    A.Vector.Raw.sparse_to_list(vector)
+  end
+
+  @doc """
+  Returns  all key-values pairs from `ord_map` as a vector.
+
+  ## Examples
+
+      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
+      iex> A.OrdMap.to_vector(ord_map)
+      #A<vec([b: "Bat", c: "Cat", a: "Ant"])>
+
+  """
+  @spec to_vector(t(k, v)) :: A.Vector.t({k, v}) when k: key, v: value
+  def to_vector(ord_map)
+
+  def to_vector(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
+    %A.Vector{__vector__: vector}
+  end
+
+  def to_vector(%__MODULE__{__ord_vector__: vector}) do
+    A.Vector.Raw.sparse_to_list(vector) |> A.Vector.new()
   end
 
   @doc """
@@ -270,14 +345,24 @@ defmodule A.OrdMap do
       iex> A.OrdMap.new(b: "Bat", a: "Ant", b: "Buffalo", a: "Antelope")
       #A<ord(%{b: "Buffalo", a: "Antelope"})>
 
+  `new/1` will return dense ord maps untouched, but will rebuild sparse ord maps from scratch.
+  This can be used to build a dense ord map from from a sparse one.
+  See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
+
+      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
+      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      iex> A.OrdMap.new(sparse)
+      #A<ord(%{a: "Ant", b: "Bat"})>
+
   """
   @spec new(Enumerable.t()) :: t(key, value)
-  def new(%__MODULE__{} = ord_map), do: ord_map
+  def new(%__MODULE__{} = ord_map) when is_dense(ord_map), do: ord_map
 
   def new(enumerable) do
-    acc = {0, %{}, A.RBTree.Map.empty()}
-    {_i, map, tree} = Enum.reduce(enumerable, acc, &new_loop/2)
-    %__MODULE__{map: map, tree: tree}
+    # TODO add from_vector
+    enumerable
+    |> A.FastEnum.to_list()
+    |> from_list()
   end
 
   @doc """
@@ -314,7 +399,7 @@ defmodule A.OrdMap do
   @spec has_key?(t(k, value), k) :: boolean when k: key
   def has_key?(ord_map, key)
 
-  def has_key?(%__MODULE__{map: map}, key) do
+  def has_key?(%__MODULE__{__ord_map__: map}, key) do
     Map.has_key?(map, key)
   end
 
@@ -335,9 +420,9 @@ defmodule A.OrdMap do
   @spec fetch(t(k, v), k) :: {:ok, v} | :error when k: key, v: value
   def fetch(ord_map, key)
 
-  def fetch(%__MODULE__{map: map}, key) do
+  def fetch(%__MODULE__{__ord_map__: map}, key) do
     case map do
-      %{^key => {_index, _key, value}} ->
+      %{^key => {_index, value}} ->
         {:ok, value}
 
       _ ->
@@ -361,9 +446,9 @@ defmodule A.OrdMap do
 
   """
   @spec fetch!(t(k, v), k) :: v when k: key, v: value
-  def fetch!(%__MODULE__{map: map} = ord_map, key) do
+  def fetch!(%__MODULE__{__ord_map__: map} = ord_map, key) do
     case map do
-      %{^key => {_index, _key, value}} ->
+      %{^key => {_index, value}} ->
         value
 
       _ ->
@@ -385,13 +470,17 @@ defmodule A.OrdMap do
 
   """
   @spec put_new(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def put_new(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
+  def put_new(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        value
+      ) do
     case map do
       %{^key => _value} ->
         ord_map
 
       _ ->
-        insert_new(map, tree, key, value)
+        do_add_new(map, vector, next_index, key, value)
     end
   end
 
@@ -408,10 +497,14 @@ defmodule A.OrdMap do
 
   """
   @spec replace(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def replace(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
+  def replace(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        value
+      ) do
     case map do
-      %{^key => {index, _key, _value}} ->
-        do_put(map, tree, index, key, value)
+      %{^key => {index, _value}} ->
+        do_add_existing(map, vector, index, key, value, next_index)
 
       _ ->
         ord_map
@@ -433,10 +526,14 @@ defmodule A.OrdMap do
 
   """
   @spec replace!(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def replace!(%__MODULE__{map: map, tree: tree} = ord_map, key, value) do
+  def replace!(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        value
+      ) do
     case map do
-      %{^key => {index, _key, _value}} ->
-        do_put(map, tree, index, key, value)
+      %{^key => {index, _value}} ->
+        do_add_existing(map, vector, index, key, value, next_index)
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -462,12 +559,16 @@ defmodule A.OrdMap do
 
   """
   @spec put_new_lazy(t(k, v), k, (() -> v)) :: t(k, v) when k: key, v: value
-  def put_new_lazy(%__MODULE__{map: map, tree: tree} = ord_map, key, fun)
+  def put_new_lazy(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        fun
+      )
       when is_function(fun, 0) do
     if has_key?(ord_map, key) do
       ord_map
     else
-      insert_new(map, tree, key, fun.())
+      do_add_new(map, vector, next_index, key, fun.())
     end
   end
 
@@ -488,19 +589,25 @@ defmodule A.OrdMap do
   @spec get(t(k, v), [k]) :: t(k, v) when k: key, v: value
   def take(ord_map, keys)
 
-  def take(%__MODULE__{map: map}, keys) when is_list(keys) do
-    keys
-    |> List.foldl([], fn key, acc ->
-      case map do
-        %{^key => {_index, _key, value}} ->
-          [{key, value} | acc]
+  def take(%__MODULE__{__ord_map__: map}, keys) when is_list(keys) do
+    do_take(map, keys, [], %{}, 0)
+  end
 
-        _ ->
-          acc
-      end
-    end)
-    |> :lists.reverse()
-    |> new()
+  defp do_take(_map, _keys = [], kvs, map_acc, index) do
+    vector = kvs |> :lists.reverse() |> A.Vector.Raw.from_list()
+    %__MODULE__{__ord_map__: map_acc, __ord_vector__: vector, __ord_next__: index}
+  end
+
+  defp do_take(map, [key | keys], kvs, map_acc, index) do
+    case map do
+      %{^key => {_index, value}} ->
+        new_kvs = [{key, value} | kvs]
+        new_map_acc = Map.put(map_acc, key, {index, value})
+        do_take(map, keys, new_kvs, new_map_acc, index + 1)
+
+      _ ->
+        do_take(map, keys, kvs, map_acc, index)
+    end
   end
 
   @doc """
@@ -525,9 +632,9 @@ defmodule A.OrdMap do
   @spec get(t(k, v), k, v) :: v | nil when k: key, v: value
   def get(ord_map, key, default \\ nil)
 
-  def get(%__MODULE__{map: map}, key, default) do
+  def get(%__MODULE__{__ord_map__: map}, key, default) do
     case map do
-      %{^key => {_index, _key, value}} ->
+      %{^key => {_index, value}} ->
         value
 
       _ ->
@@ -557,9 +664,9 @@ defmodule A.OrdMap do
   @spec get_lazy(t(k, v), k, v) :: v | nil when k: key, v: value
   def get_lazy(ord_map, key, fun)
 
-  def get_lazy(%__MODULE__{map: map}, key, fun) when is_function(fun, 0) do
+  def get_lazy(%__MODULE__{__ord_map__: map}, key, fun) when is_function(fun, 0) do
     case map do
-      %{^key => {_index, _key, value}} ->
+      %{^key => {_index, value}} ->
         value
 
       _ ->
@@ -585,13 +692,17 @@ defmodule A.OrdMap do
   @spec put(t(k, v), k, v) :: t(k, v) when k: key, v: value
   def put(ord_map, key, value)
 
-  def put(%__MODULE__{map: map, tree: tree}, key, value) do
+  def put(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+        key,
+        value
+      ) do
     case map do
-      %{^key => {index, _key, _value}} ->
-        do_put(map, tree, index, key, value)
+      %{^key => {index, _value}} ->
+        do_add_existing(map, vector, index, key, value, next_index)
 
       _ ->
-        insert_new(map, tree, key, value)
+        do_add_new(map, vector, next_index, key, value)
     end
   end
 
@@ -604,16 +715,19 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
       iex> A.OrdMap.delete(ord_map, :z)
       #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
 
   """
   @spec delete(t(k, v), k) :: t(k, v) when k: key, v: value
-  def delete(%__MODULE__{map: map, tree: tree} = ord_map, key) do
+  def delete(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key
+      ) do
     case :maps.take(key, map) do
-      {{index, _key, _value}, new_map} ->
-        delete_existing(new_map, tree, index)
+      {{index, _value}, new_map} ->
+        do_delete_existing(new_map, vector, index, next_index)
 
       :error ->
         ord_map
@@ -621,20 +735,47 @@ defmodule A.OrdMap do
   end
 
   @doc """
-  Merges two ordered maps into one.
+  Merges a map or an ordered map into an `ord_map`.
 
-  All keys in `ord_map2` will be added to `ord_map1`, overriding any existing one
-  (i.e., the keys in `ord_map2` "have precedence" over the ones in `ord_map1`).
+  All keys in `map_or_ord_map` will be added to `ord_map`, overriding any existing one
+  (i.e., the keys in `map_or_ord_map` "have precedence" over the ones in `ord_map`).
 
   ## Examples
 
       iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), A.OrdMap.new(%{a: 3, d: 4}))
       #A<ord(%{a: 3, b: 2, d: 4})>
+      iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), %{a: 3, d: 4})
+      #A<ord(%{a: 3, b: 2, d: 4})>
 
   """
-  @spec merge(t(k, v), t(k, v)) :: t(k, v) when k: key, v: value
+  @spec merge(t(k, v), t(k, v) | %{optional(k) => v}) :: t(k, v) when k: key, v: value
+  def merge(ord_map, map_or_ord_map)
+
   def merge(%__MODULE__{} = ord_map1, %__MODULE__{} = ord_map2) do
-    foldl(ord_map2, ord_map1, fn key, value, acc -> put(acc, key, value) end)
+    do_merge(ord_map1, to_list(ord_map2))
+  end
+
+  def merge(%__MODULE__{}, %_{}) do
+    raise ArgumentError, "Cannot merge arbitrary structs"
+  end
+
+  def merge(%__MODULE__{} = ord_map1, %{} = map2) do
+    do_merge(ord_map1, Map.to_list(map2))
+  end
+
+  defp do_merge(
+         %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+         new_kvs
+       ) do
+    {new_map, reversed_kvs, new_next, duplicates} =
+      do_add_optimistic(new_kvs, map, [], next_index)
+
+    new_vector =
+      vector
+      |> A.Vector.Raw.concat(:lists.reverse(reversed_kvs))
+      |> do_fix_vector_duplicates(map, duplicates)
+
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: new_next}
   end
 
   @doc """
@@ -652,13 +793,19 @@ defmodule A.OrdMap do
   @spec update(t(k, v), k, v, (k -> v)) :: t(k, v) when k: key, v: value
   def update(ord_map, key, default, fun)
 
-  def update(%__MODULE__{map: map, tree: tree}, key, default, fun) when is_function(fun, 1) do
+  def update(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+        key,
+        default,
+        fun
+      )
+      when is_function(fun, 1) do
     case map do
-      %{^key => {index, _key, value}} ->
-        do_put(map, tree, index, key, fun.(value))
+      %{^key => {index, value}} ->
+        do_add_existing(map, vector, index, key, fun.(value), next_index)
 
       _ ->
-        insert_new(map, tree, key, default)
+        do_add_new(map, vector, next_index, key, default)
     end
   end
 
@@ -674,7 +821,7 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> {"Bat", updated} = A.OrdMap.pop(ord_map, :b)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
       iex> {nil, updated} = A.OrdMap.pop(ord_map, :z)
       iex> updated
       #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
@@ -684,10 +831,14 @@ defmodule A.OrdMap do
   """
   @impl Access
   @spec pop(t(k, v), k, v) :: {v, t(k, v)} when k: key, v: value
-  def pop(%__MODULE__{map: map, tree: tree} = ord_map, key, default \\ nil) do
+  def pop(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        default \\ nil
+      ) do
     case :maps.take(key, map) do
-      {{index, _key, value}, new_map} ->
-        {value, delete_existing(new_map, tree, index)}
+      {{index, value}, new_map} ->
+        {value, do_delete_existing(new_map, vector, index, next_index)}
 
       :error ->
         {default, ord_map}
@@ -704,15 +855,18 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> {"Bat", updated} = A.OrdMap.pop!(ord_map, :b)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
       iex> A.OrdMap.pop!(ord_map, :z)
       ** (KeyError) key :z not found in: #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
-  def pop!(%__MODULE__{map: map, tree: tree} = ord_map, key) do
+  def pop!(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key
+      ) do
     case :maps.take(key, map) do
-      {{index, _key, value}, new_map} ->
-        {value, delete_existing(new_map, tree, index)}
+      {{index, value}, new_map} ->
+        {value, do_delete_existing(new_map, vector, index, next_index)}
 
       :error ->
         raise KeyError, key: key, term: ord_map
@@ -736,17 +890,22 @@ defmodule A.OrdMap do
       iex> expensive_fun = fn -> "Zebra" end
       iex> {"Ant", updated} = A.OrdMap.pop_lazy(ord_map, :a, expensive_fun)
       iex> updated
-      #A<ord(%{b: "Bat", c: "Cat"})>
+      #A<ord(%{b: "Bat", c: "Cat"}, sparse?: true)>
       iex> {"Zebra", not_updated} = A.OrdMap.pop_lazy(ord_map, :z, expensive_fun)
       iex> not_updated
       #A<ord(%{b: "Bat", a: "Ant", c: "Cat"})>
 
   """
   @spec pop_lazy(t(k, v), k, (() -> v)) :: {v, t(k, v)} when k: key, v: value
-  def pop_lazy(%__MODULE__{map: map, tree: tree} = ord_map, key, fun) when is_function(fun, 0) do
+  def pop_lazy(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        fun
+      )
+      when is_function(fun, 0) do
     case :maps.take(key, map) do
-      {{index, _key, value}, new_map} ->
-        {value, delete_existing(new_map, tree, index)}
+      {{index, value}, new_map} ->
+        {value, do_delete_existing(new_map, vector, index, next_index)}
 
       :error ->
         {fun.(), ord_map}
@@ -762,7 +921,7 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.drop(ord_map, [:b, :d])
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
 
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
@@ -787,10 +946,15 @@ defmodule A.OrdMap do
 
   """
   @spec update!(t(k, v), k, v) :: t(k, v) when k: key, v: value
-  def update!(%__MODULE__{map: map, tree: tree} = ord_map, key, fun) when is_function(fun, 1) do
+  def update!(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key,
+        fun
+      )
+      when is_function(fun, 1) do
     case map do
-      %{^key => {index, _key, value}} ->
-        do_put(map, tree, index, key, fun.(value))
+      %{^key => {index, value}} ->
+        do_add_existing(map, vector, index, key, fun.(value), next_index)
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -817,7 +981,7 @@ defmodule A.OrdMap do
       #A<ord(%{a: "Ant", b: "Bat", c: "Cat", z: "Zebra"})>
       iex> {"Bat", updated} = A.OrdMap.get_and_update(ord_map, :b, fn _ -> :pop end)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"})>
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
       iex> {nil, updated} = A.OrdMap.get_and_update(ord_map, :z, fn _ -> :pop end)
       iex> updated
       #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
@@ -826,7 +990,9 @@ defmodule A.OrdMap do
   @spec get_and_update(t(k, v), k, (v -> {returned, v} | :pop)) :: {returned, t(k, v)}
         when k: key, v: value, returned: term
   def get_and_update(%__MODULE__{} = ord_map, key, fun) when is_function(fun, 1) do
-    A.Helpers.CustomMaps.get_and_update(ord_map, key, fun)
+    current = get(ord_map, key)
+
+    do_get_and_update(ord_map, key, fun, current)
   end
 
   @doc ~S"""
@@ -850,7 +1016,22 @@ defmodule A.OrdMap do
   @spec get_and_update!(t(k, v), k, (v -> {returned, v} | :pop)) :: {returned, t(k, v)}
         when k: key, v: value, returned: term
   def get_and_update!(%__MODULE__{} = ord_map, key, fun) when is_function(fun, 1) do
-    A.Helpers.CustomMaps.get_and_update!(ord_map, key, fun)
+    current = fetch!(ord_map, key)
+
+    do_get_and_update(ord_map, key, fun, current)
+  end
+
+  defp do_get_and_update(ord_map, key, fun, current) do
+    case fun.(current) do
+      {get, update} ->
+        {get, put(ord_map, key, update)}
+
+      :pop ->
+        {current, delete(ord_map, key)}
+
+      other ->
+        raise "the given function must return a two-element tuple or :pop, got: #{inspect(other)}"
+    end
   end
 
   @doc """
@@ -893,19 +1074,24 @@ defmodule A.OrdMap do
 
   """
   @spec equal?(t, t) :: boolean
-  def equal?(%A.OrdMap{} = ord_map1, %A.OrdMap{} = ord_map2) do
-    size(ord_map1) == size(ord_map2) && equal_loop(iterator(ord_map1), iterator(ord_map2))
-  end
+  def equal?(ord_map1, ord_map2)
 
-  defp equal_loop(iterator1, iterator2) do
-    case {next(iterator1), next(iterator2)} do
-      {nil, nil} ->
-        true
+  def equal?(%A.OrdMap{__ord_map__: map1} = ord_map1, %A.OrdMap{__ord_map__: map2} = ord_map2) do
+    case {map_size(map1), map_size(map2)} do
+      {size, size} ->
+        case {ord_map1.__ord_next__, ord_map2.__ord_next__} do
+          {^size, ^size} ->
+            # both are dense, maps can be compared safely
+            map1 === map2
 
-      {{same_key, same_value, new_iterator1}, {same_key, same_value, new_iterator2}} ->
-        equal_loop(new_iterator1, new_iterator2)
+          {_, _} ->
+            # one of them is sparse, inefficient comparison
+            A.Vector.Raw.sparse_to_list(ord_map1.__ord_vector__) ===
+              A.Vector.Raw.sparse_to_list(ord_map2.__ord_vector__)
+        end
 
-      _ ->
+      {_, _} ->
+        # size mismatch: cannot be equal
         false
     end
   end
@@ -930,13 +1116,14 @@ defmodule A.OrdMap do
   @spec first(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
   def first(ord_map, default \\ nil)
 
-  def first(%A.OrdMap{tree: tree}, default) do
-    case A.RBTree.Map.min(tree) do
-      {_i, {_index, key, value}} ->
-        {key, value}
+  def first(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
+    A.Vector.Raw.first(vector, default)
+  end
 
-      nil ->
-        default
+  def first(%A.OrdMap{__ord_vector__: vector}, default) do
+    case A.Vector.Raw.find(vector, fn value -> value end) do
+      {:ok, found} -> found
+      _ -> default
     end
   end
 
@@ -944,7 +1131,7 @@ defmodule A.OrdMap do
   Finds the last `{key, value}` pair in `ord_map`.
 
   Returns a `{key, value}` entry if `ord_map` is non-empty, or `nil` else.
-  Can be accessed efficiently due to the underlying tree.
+  Can be accessed efficiently due to the underlying vector.
 
   ## Examples
 
@@ -959,75 +1146,20 @@ defmodule A.OrdMap do
   @spec last(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
   def last(ord_map, default \\ nil)
 
-  def last(%A.OrdMap{tree: tree}, default) do
-    case A.RBTree.Map.max(tree) do
-      {_i, {_index, key, value}} ->
-        {key, value}
-
-      nil ->
-        default
-    end
+  def last(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
+    A.Vector.Raw.last(vector, default)
   end
 
-  @doc """
-  Finds and pops the first `{key, value}` pair in `ord_map`.
+  def last(%A.OrdMap{__ord_vector__: vector}, default) do
+    try do
+      A.Vector.Raw.foldr(vector, nil, fn value, _acc ->
+        if value, do: throw(value)
+      end)
 
-  Returns a `{key, value, new_tree}` entry for non-empty maps, `nil` for empty maps
-
-  ## Examples
-
-      iex> ord_map = A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"])
-      #A<ord(%{b: "B", d: "D", a: "A", c: "C"})>
-      iex> {:b, "B", updated} = A.OrdMap.pop_first(ord_map)
-      iex> updated
-      #A<ord(%{d: "D", a: "A", c: "C"})>
-      iex> A.OrdMap.new() |> A.OrdMap.pop_first()
-      nil
-
-  """
-  @spec pop_first(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-  def pop_first(ord_map)
-
-  def pop_first(%__MODULE__{map: map, tree: tree}) do
-    case A.RBTree.Map.pop_min(tree) do
-      {_i, {_index, key, value}, new_tree} ->
-        {_index_value, new_map} = Map.pop!(map, key)
-        new_ord_map = %__MODULE__{map: new_map, tree: new_tree}
-        {key, value, new_ord_map}
-
-      :error ->
-        nil
-    end
-  end
-
-  @doc """
-  Finds and pops the last `{key, value}` pair in `ord_map`.
-
-  Returns a `{key, value, new_tree}` entry for non-empty maps, `nil` for empty maps
-
-  ## Examples
-
-      iex> ord_map = A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"])
-      #A<ord(%{b: "B", d: "D", a: "A", c: "C"})>
-      iex> {:c, "C", updated} = A.OrdMap.pop_last(ord_map)
-      iex> updated
-      #A<ord(%{b: "B", d: "D", a: "A"})>
-      iex> A.OrdMap.new() |> A.OrdMap.pop_last()
-      nil
-
-  """
-  @spec pop_last(t(k, v)) :: {k, v, t(k, v)} | nil when k: key, v: value
-  def pop_last(ord_map)
-
-  def pop_last(%__MODULE__{map: map, tree: tree}) do
-    case A.RBTree.Map.pop_max(tree) do
-      {_i, {_index, key, value}, new_tree} ->
-        {_index_value, new_map} = Map.pop!(map, key)
-        new_ord_map = %__MODULE__{map: new_map, tree: new_tree}
-        {key, value, new_ord_map}
-
-      :error ->
-        nil
+      default
+    catch
+      value ->
+        value
     end
   end
 
@@ -1038,18 +1170,19 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldl(ord_map, "", fn _key, value, acc -> value <> acc end)
+      iex> A.OrdMap.foldl(ord_map, "", fn {_key, value}, acc -> value <> acc end)
       "AntCatBat"
-      iex> A.OrdMap.foldl(ord_map, [], fn key, value, acc -> [{key, value <> "man"} | acc] end)
+      iex> A.OrdMap.foldl(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
       [a: "Antman", c: "Catman", b: "Batman"]
 
   """
   def foldl(ord_map, acc, fun)
 
-  def foldl(%__MODULE__{tree: tree}, acc, fun) when is_function(fun, 3) do
-    A.RBTree.Map.foldl(tree, acc, fn _i, {_index, key, value}, loop_acc ->
-      fun.(key, value, loop_acc)
-    end)
+  def foldl(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
+    case ord_map do
+      dense when is_dense(dense) -> A.Vector.Raw.foldl(vector, acc, fun)
+      _sparse -> A.Vector.Raw.sparse_to_list(vector) |> List.foldl(acc, fun)
+    end
   end
 
   @doc """
@@ -1062,111 +1195,169 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldr(ord_map, "", fn _key, value, acc -> value <> acc end)
+      iex> A.OrdMap.foldr(ord_map, "", fn {_key, value}, acc -> value <> acc end)
       "BatCatAnt"
-      iex> A.OrdMap.foldr(ord_map, [], fn key, value, acc -> [{key, value <> "man"} | acc] end)
+      iex> A.OrdMap.foldr(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
       [b: "Batman", c: "Catman", a: "Antman"]
 
   """
   def foldr(ord_map, acc, fun)
 
-  def foldr(%__MODULE__{tree: tree}, acc, fun) when is_function(fun, 3) do
-    A.RBTree.Map.foldr(tree, acc, fn _i, {_index, key, value}, loop_acc ->
-      fun.(key, value, loop_acc)
-    end)
+  def foldr(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
+    case ord_map do
+      dense when is_dense(dense) -> A.Vector.Raw.foldr(vector, acc, fun)
+      _sparse -> A.Vector.Raw.sparse_to_list(vector) |> List.foldr(acc, fun)
+    end
+  end
+
+  def dense?(%__MODULE__{} = ord_map) do
+    is_dense(ord_map)
+  end
+
+  def sparse?(%__MODULE__{} = ord_map) do
+    !is_dense(ord_map)
+  end
+
+  # Exposed "private" functions
+
+  @doc false
+  def replace_many!(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        key_values
+      ) do
+    case do_replace_many(key_values, map, vector) do
+      {:error, key} ->
+        raise KeyError, key: key, term: ord_map
+
+      {:ok, map, vector} ->
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index}
+    end
   end
 
   # Private functions
 
-  defp insert_new(map, tree, key, value) do
-    new_index = next_index(tree)
+  defp do_add_new(map, vector, index, key, value) do
+    new_vector = A.Vector.Raw.append(vector, {key, value})
+    new_map = Map.put(map, key, {index, value})
 
-    do_put(map, tree, new_index, key, value)
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: index + 1}
   end
 
-  defp next_index(tree) do
-    case A.RBTree.Map.max(tree) do
-      {last_index, _} -> last_index + 1
-      nil -> 0
-    end
+  defp do_add_existing(map, vector, index, key, value, next_index) do
+    new_vector = A.Vector.Raw.replace_positive!(vector, index, {key, value})
+    new_map = Map.put(map, key, {index, value})
+
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: next_index}
   end
 
-  defp do_put(map, tree, index, key, value) do
-    entry = {index, key, value}
-    {_, new_tree} = A.RBTree.Map.insert(tree, index, entry)
-    new_map = Map.put(map, key, entry)
-
-    %__MODULE__{map: new_map, tree: new_tree}
+  defp do_delete_existing(new_map, _vector, _index, _next_index) when map_size(new_map) === 0 do
+    # always return the same empty ord map, and reset the index to avoid considering it as sparse
+    %__MODULE__{}
   end
 
-  defp delete_existing(new_map, tree, index) do
-    {_, new_tree} = A.RBTree.Map.pop(tree, index)
-
-    %__MODULE__{map: new_map, tree: new_tree}
+  defp do_delete_existing(new_map, vector, index, next_index) when index == next_index - 1 do
+    {_lat, new_vector} = A.Vector.Raw.pop_last(vector)
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: index}
   end
 
-  defp new_loop({key, value}, _acc = {i, map, tree}) do
+  defp do_delete_existing(new_map, vector, index, next_index) do
+    new_vector = A.Vector.Raw.replace_positive!(vector, index, nil)
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: next_index}
+  end
+
+  defp do_fix_vector_duplicates(vector, _map, _duplicates = nil) do
+    vector
+  end
+
+  defp do_fix_vector_duplicates(vector, map, duplicates) do
+    Enum.reduce(duplicates, vector, fn {key, value}, acc ->
+      %{^key => {index, _value}} = map
+      A.Vector.Raw.replace_positive!(acc, index, {key, value})
+    end)
+  end
+
+  defp do_replace_many([], map, vector) do
+    {:ok, map, vector}
+  end
+
+  defp do_replace_many([{key, value} | rest], map, vector) do
     case map do
-      %{^key => {index, _key, _value}} ->
-        entry = {index, key, value}
-        new_map = Map.replace!(map, key, entry)
-        {_result, new_tree} = A.RBTree.Map.insert(tree, index, entry)
-        {i, new_map, new_tree}
-
-      _ ->
-        entry = {i, key, value}
-        new_map = Map.put_new(map, key, entry)
-        {_result, new_tree} = A.RBTree.Map.insert(tree, i, entry)
-        {i + 1, new_map, new_tree}
-    end
-  end
-
-  defp replace_many_loop(_i, map, tree, []) do
-    %__MODULE__{map: map, tree: tree}
-  end
-
-  defp replace_many_loop(i, map, tree, [{key, value} | rest]) do
-    case map do
-      %{^key => {index, _key, _value}} ->
-        entry = {index, key, value}
-        new_map = Map.replace!(map, key, entry)
-        {_result, new_tree} = A.RBTree.Map.insert(tree, index, entry)
-        replace_many_loop(i, new_map, new_tree, rest)
+      %{^key => {index, _value}} ->
+        new_map = Map.replace!(map, key, {index, value})
+        new_vector = A.Vector.Raw.replace_positive!(vector, index, {key, value})
+        do_replace_many(rest, new_map, new_vector)
 
       _ ->
         {:error, key}
     end
   end
 
-  @doc false
-  def iterator(%__MODULE__{tree: tree}) do
-    A.RBTree.Map.iterator(tree)
+  defp from_list([]) do
+    new()
   end
 
-  @doc false
-  def next(iterator) do
-    case A.RBTree.Map.next(iterator) do
-      {_i, {_index, key, value}, new_iterator} ->
-        {key, value, new_iterator}
+  defp from_list(list) do
+    {map, key_values, index} =
+      case do_add_optimistic(list, %{}, [], 0) do
+        {map, reversed_kvs, index, nil} ->
+          {map, :lists.reverse(reversed_kvs), index}
 
-      nil ->
-        nil
+        {map, reversed_kvs, index, duplicates} ->
+          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, []), index}
+      end
+
+    vector = A.Vector.Raw.from_list(key_values)
+    %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: index}
+  end
+
+  @compile {:inline, do_add_optimistic: 4}
+
+  defp do_add_optimistic([], map, key_values, next_index) do
+    {map, key_values, next_index, nil}
+  end
+
+  defp do_add_optimistic([{key, value} | rest], map, key_values, next_index) do
+    case map do
+      %{^key => {index, _value}} ->
+        duplicates = %{key => value}
+        new_map = Map.put(map, key, {index, value})
+        do_add_with_duplicates(rest, new_map, key_values, duplicates, next_index)
+
+      _ ->
+        new_map = Map.put(map, key, {next_index, value})
+        new_kvs = [{key, value} | key_values]
+        do_add_optimistic(rest, new_map, new_kvs, next_index + 1)
     end
   end
 
-  @doc false
-  def replace_many!(%__MODULE__{map: map, tree: tree} = ord_map, key_values) do
-    case replace_many_loop(next_index(tree), map, tree, key_values) do
-      {:error, key} -> raise KeyError, key: key, term: ord_map
-      new_ord_map -> new_ord_map
+  defp do_add_with_duplicates([], map, key_values, duplicates, next_index) do
+    {map, key_values, next_index, duplicates}
+  end
+
+  defp do_add_with_duplicates([{key, value} | rest], map, key_values, duplicates, next_index) do
+    case map do
+      %{^key => {index, _value}} ->
+        new_duplicates = Map.put(duplicates, key, value)
+        new_map = Map.put(map, key, {index, value})
+        do_add_with_duplicates(rest, new_map, key_values, new_duplicates, next_index)
+
+      _ ->
+        new_map = Map.put(map, key, {next_index, value})
+        new_kvs = [{key, value} | key_values]
+        do_add_with_duplicates(rest, new_map, new_kvs, duplicates, next_index + 1)
     end
   end
 
-  @doc false
-  def reduce(%__MODULE__{tree: tree}, acc, fun) do
-    A.RBTree.Map.reduce(tree, acc, fn {_i, {_index, key, value}}, acc ->
-      fun.({key, value}, acc)
-    end)
+  defp do_reverse_and_update_duplicates([], _duplicates, acc), do: acc
+
+  defp do_reverse_and_update_duplicates([{key, value} | rest], duplicates, acc) do
+    value =
+      case duplicates do
+        %{^key => new_value} -> new_value
+        _ -> value
+      end
+
+    do_reverse_and_update_duplicates(rest, duplicates, [{key, value} | acc])
   end
 
   defimpl Enumerable do
@@ -1183,9 +1374,17 @@ defmodule A.OrdMap do
       end
     end
 
-    def slice(_ord_map), do: {:error, __MODULE__}
+    def slice(ord_map) do
+      ord_map
+      |> A.OrdMap.to_vector()
+      |> Enumerable.slice()
+    end
 
-    defdelegate reduce(ord_map, acc, fun), to: A.OrdMap
+    def reduce(ord_map, acc, fun) do
+      ord_map
+      |> A.OrdMap.to_list()
+      |> Enumerable.List.reduce(acc, fun)
+    end
   end
 
   defimpl Collectable do
@@ -1206,9 +1405,42 @@ defmodule A.OrdMap do
   end
 
   defimpl Inspect do
-    import A.Helpers.CustomMaps, only: [implement_inspect: 3]
+    import Inspect.Algebra
 
-    implement_inspect(A.OrdMap, "#A<ord(", ")>")
+    def inspect(ord_map, opts) do
+      open = color("#A<ord(%{", :map, opts)
+      sep = color(",", :map, opts)
+
+      close = color(close_mark(ord_map), :map, opts)
+
+      as_list = A.OrdMap.to_list(ord_map)
+
+      container_doc(open, as_list, close, opts, traverse_fun(as_list, opts),
+        separator: sep,
+        break: :strict
+      )
+    end
+
+    defp traverse_fun(list, opts) do
+      if Inspect.List.keyword?(list) do
+        &Inspect.List.keyword/2
+      else
+        sep = color(" => ", :map, opts)
+        &to_map(&1, &2, sep)
+      end
+    end
+
+    defp to_map({key, value}, opts, sep) do
+      concat(concat(to_doc(key, opts), sep), to_doc(value, opts))
+    end
+
+    defp close_mark(ord_map) do
+      if A.OrdMap.sparse?(ord_map) do
+        "}, sparse?: true)>"
+      else
+        "})>"
+      end
+    end
   end
 
   if Code.ensure_loaded?(Jason.Encoder) do

@@ -2,6 +2,8 @@ defmodule A.OrdMap.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
+  import A
+
   # Property-based testing:
 
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
@@ -42,13 +44,11 @@ defmodule A.OrdMap.PropTest do
     new_map
   end
 
-  def apply_operation(%A.OrdMap{map: map} = ord_map, {:replace_existing, _value})
-      when map_size(map) == 0,
-      do: ord_map
+  def apply_operation(ord_map, {:replace_existing, _value}) when ord_size(ord_map) == 0 do
+    ord_map
+  end
 
   def apply_operation(%A.OrdMap{} = ord_map, {:replace_existing, value}) do
-    import A
-
     key = ord_map |> A.OrdMap.keys() |> Enum.random()
 
     # all of those are equivalent
@@ -67,9 +67,9 @@ defmodule A.OrdMap.PropTest do
     new_map
   end
 
-  def apply_operation(%A.OrdMap{map: map} = ord_map, :delete_existing)
-      when map_size(map) == 0,
-      do: ord_map
+  def apply_operation(ord_map, :delete_existing) when ord_size(ord_map) == 0 do
+    ord_map
+  end
 
   def apply_operation(%A.OrdMap{} = ord_map, :delete_existing) do
     {key, value} = ord_map |> Enum.random()
@@ -81,7 +81,6 @@ defmodule A.OrdMap.PropTest do
     assert {^value, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> :pop end)
 
     assert A.OrdMap.size(new_map) == A.OrdMap.size(ord_map) - 1
-
     new_map
   end
 
@@ -100,7 +99,6 @@ defmodule A.OrdMap.PropTest do
     assert ^as_list = A.OrdMap.to_list(ord_map)
 
     assert A.OrdMap.size(ord_map) == length(as_list)
-    assert {:ok, _} = A.RBTree.Map.check_invariant(ord_map.tree)
 
     assert A.OrdMap.first(ord_map) == List.first(as_list)
     assert A.OrdMap.last(ord_map) == List.last(as_list)

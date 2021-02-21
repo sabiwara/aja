@@ -63,19 +63,6 @@ defmodule A.OrdMapTest do
              A.OrdMap.new([{:foo, :atom}, {5, :integer}]) |> inspect()
   end
 
-  test "iterator/1" do
-    ord_map = A.OrdMap.new([{"一", 1}, {"二", 2}])
-    iterator = A.OrdMap.iterator(ord_map)
-
-    assert {"一", 1, iterator} = A.OrdMap.next(iterator)
-    assert {"二", 2, iterator} = A.OrdMap.next(iterator)
-    assert nil == A.OrdMap.next(iterator)
-
-    ord_map = A.OrdMap.new([])
-    iterator = A.OrdMap.iterator(ord_map)
-    assert nil == A.OrdMap.next(iterator)
-  end
-
   test "from_struct/1" do
     ord_map = %User{name: "John", age: 44} |> A.OrdMap.from_struct()
     expected = A.OrdMap.new(age: 44, name: "John")

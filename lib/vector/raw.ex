@@ -399,6 +399,14 @@ defmodule A.Vector.Raw do
     [arg | acc]
   end
 
+  @spec sparse_to_list(t(val)) :: [val] when val: value
+  C.def_foldr sparse_to_list(arg, acc \\ []) do
+    case arg do
+      nil -> acc
+      value -> [value | acc]
+    end
+  end
+
   @spec foldl(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   C.def_foldl foldl(arg, acc, fun) do
     fun.(arg, acc)
