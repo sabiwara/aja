@@ -97,7 +97,7 @@ All data structures offer:
 - good performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library
 - implementation of `Inspect`, `Enumerable` and `Collectable` protocols
-- (except for sets) implementation of the `Access` behaviour
+- implementation of the `Access` behaviour
 - (optional if `Jason` is installed) implemention of the `Jason.Encoder` protocol
 
 
@@ -224,19 +224,14 @@ slightly faster than equivalent list operations (map, folds, join, sum...).
 There is one exception where `A.Vector` can be slightly slower than `:array`: random access for small collections.
 For bigger collections however, the higher branching factor for vectors (16 vs 10) should close this gap.
 
-#### Maps / sets
+#### Maps
 
-Performance for alternative maps/sets cannot match native maps or ETS (mutable state) which are written in native code.
+Performance for ordered maps cannot match native maps and has an important overhead.
 
-However:
-- it is similar to other non-native structures like `:gb_trees` / `:gb_sets`
-- the performance gap is consistent and doesn't degrade with the size (logarithmic time complexity)
-- with the [JIT compilation](https://github.com/erlang/otp/pull/2745) coming to the BEAM,
-  we can expect the gap with native code to be reduced in the upcoming months.
+#### Benchmarks
 
 Aja data structures should work fine in most cases, but if you're considering them for
-performance-critical sections of your code, make sure to benchmark them and also consider alternatives,
-typically ETS if mutable state is acceptable.
+performance-critical sections of your code, make sure to benchmark them.
 
 Benchmarking is still a work in progress, but you can check the
 [`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more detailed figures.
