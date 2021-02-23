@@ -86,6 +86,6 @@ defmodule A.IO do
   end
 
   def to_iodata(data) do
-    to_string(data)
+    String.Chars.to_string(data)
   end
 end
