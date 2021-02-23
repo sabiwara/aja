@@ -914,6 +914,25 @@ defmodule A.Vector.Raw do
 
   def scan(empty_pattern(), _acc, _fun), do: @empty
 
+  def map_reduce(
+        large(size, tail_offset, level, trie, tail),
+        acc,
+        fun
+      ) do
+    {new_trie, acc} = Trie.map_reduce(trie, level, acc, fun)
+    {new_tail, acc} = Tail.partial_map_reduce(tail, size - tail_offset, acc, fun)
+    new_raw = large(size, tail_offset, level, new_trie, new_tail)
+    {new_raw, acc}
+  end
+
+  def map_reduce(small(size, tail), acc, fun) do
+    {new_tail, acc} = Tail.partial_map_reduce(tail, size, acc, fun)
+    new_raw = small(size, new_tail)
+    {new_raw, acc}
+  end
+
+  def map_reduce(empty_pattern(), acc, _fun), do: {@empty, acc}
+
   @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
   def zip(vector1, vector2) do
     size1 = size(vector1)

@@ -246,14 +246,17 @@ defmodule A.Vector.PropTest do
       assert A.Vector.new(filtered_list) === filtered_vector
 
       index_list = Enum.with_index(list, i1)
-      assert A.Vector.new(index_list) === A.Vector.with_index(vector, i1)
-      assert A.Vector.new(index_list) === A.Vector.with_index(vector, fn x, i -> {x, i + i1} end)
+      index_vector = A.Vector.new(index_list)
+      assert index_vector === A.Vector.with_index(vector, i1)
+      assert index_vector === A.Vector.with_index(vector, fn x, i -> {x, i + i1} end)
 
-      assert A.Vector.new(index_list) ===
-               A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
+      assert {index_vector, list_length + i1} ===
+               A.Vector.map_reduce(vector, i1, fn x, i -> {{x, i}, i + 1} end)
+
+      assert index_vector === A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
 
       assert {vector, A.Vector.new(A.ExRange.new(i1, list_length + i1))} ==
-               A.Vector.new(index_list) |> A.Vector.unzip()
+               A.Vector.unzip(index_vector)
 
       assert Enum.any?(list) === A.Vector.any?(vector)
       assert Enum.all?(list) === A.Vector.all?(vector)

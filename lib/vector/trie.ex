@@ -866,6 +866,70 @@ defmodule A.Vector.Trie do
     end
   end
 
+  # def map_reduce({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
+  #   {arg1, acc} = fun.(arg1, acc)
+  #   {arg2, acc} = fun.(arg2, acc)
+  #   {arg3, acc} = fun.(arg3, acc)
+  #   {arg4, acc} = fun.(arg4, acc)
+  #   {{arg1, arg2, arg3, arg4}, acc}
+  # end
+  def map_reduce(unquote(C.array()), _level = 0, acc, fun) do
+    unquote(
+      C.arguments()
+      |> Enum.map(fn arg ->
+        quote do
+          {unquote(arg), unquote(C.var(acc))} = var!(fun).(unquote(arg), unquote(C.var(acc)))
+        end
+      end)
+      |> C.block()
+    )
+
+    {unquote(C.array()), unquote(C.var(acc))}
+  end
+
+  # def map_reduce({arg1, arg2, arg3, arg4}, level, acc, fun) do
+  #   child_level = level - bits
+  #
+  #   {arg1, acc} = case arg1 do
+  #     nil -> {nil, acc}
+  #     child -> map_reduce(child, child_level, acc, fun)
+  #   end
+  #   {arg2, acc} = case arg2 do
+  #     nil -> {nil, acc}
+  #     child -> map_reduce(child, child_level, acc, fun)
+  #   end
+  #   # ...
+  #
+  #   {{arg1, arg2, arg3, arg4}, acc}
+  # end
+  def map_reduce(unquote(C.array()), level, acc, fun) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.map(fn arg ->
+        quote do
+          {unquote(arg), var!(acc)} =
+            case unquote(arg) do
+              nil ->
+                {nil, var!(acc)}
+
+              child ->
+                map_reduce(
+                  child,
+                  var!(child_level),
+                  var!(acc),
+                  var!(fun)
+                )
+            end
+        end
+      end)
+      |> C.block()
+    )
+
+    {unquote(C.array()), acc}
+  end
+
   # def scan({arg1, arg2, arg3, arg4}, _level = 0, acc, fun) do
   #   arg1 = fun.(arg1, acc)
   #   arg2 = fun.(arg2, arg1)

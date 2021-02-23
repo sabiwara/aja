@@ -1452,6 +1452,38 @@ defmodule A.Vector do
   defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
 
   @doc """
+  Invokes the given `fun` to each element in the `vector` to reduce
+  it to a single element, while keeping an accumulator.
+
+  Returns a tuple where the first element is the mapped vector and
+  the second one is the final accumulator.
+
+  The function, `fun`, receives two arguments: the first one is the
+  element, and the second one is the accumulator. `fun` must return
+  a tuple with two elements in the form of `{result, accumulator}`.
+
+  ## Examples
+
+      iex> vector = A.Vector.new([1, 2, 3])
+      iex> {new_vec, 6} = A.Vector.map_reduce(vector, 0, fn x, acc -> {x * 2, x + acc} end)
+      iex> new_vec
+      #A<vec([2, 4, 6])>
+
+  For example, if `with_index/2` was not implemented, you could implement it as follows:
+
+      iex> vector = A.Vector.new([1, 2, 3])
+      iex> {new_vec, _} = A.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end); new_vec
+      #A<vec([{1, 0}, {2, 1}, {3, 2}])>
+
+  """
+  @spec map_reduce(t(val), acc, (val, acc -> {mapped_val, acc})) :: {t(mapped_val), acc}
+        when val: value, mapped_val: value, acc: any
+  def map_reduce(%__MODULE__{__vector__: internal}, acc, fun) when is_function(fun, 2) do
+    {new_raw, new_acc} = Raw.map_reduce(internal, acc, fun)
+    {from_internal(new_raw), new_acc}
+  end
+
+  @doc """
   Applies the given function to each element in the `vector`, storing the result
   in a vector and passing it as the accumulator for the next computation.
 
