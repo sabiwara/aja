@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.4.8 (2021-02-23)
+
 ### Enhancements
 
 * Add `A.Vector.map_reduce/3`
