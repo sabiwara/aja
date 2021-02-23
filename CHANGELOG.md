@@ -5,6 +5,7 @@
 ### Enhancements
 
 * Add `A.Vector.scan/2` and `A.Vector.scan/3`
+* `A.Vector.with_index/2` accepts a function parameter
 
 ### Breaking changes
 

@@ -844,7 +844,23 @@ defmodule A.Vector.Raw do
     small(size, new_tail)
   end
 
-  def with_index(empty_pattern(), _fun), do: @empty
+  def with_index(empty_pattern(), _offset), do: @empty
+
+  def with_index(vector, offset, fun)
+
+  def with_index(large(size, tail_offset, level, trie, tail), offset, fun) do
+    new_trie = Trie.with_index(trie, level, offset, fun)
+    new_tail = Tail.partial_with_index(tail, size - tail_offset, offset + tail_offset, fun)
+
+    large(size, tail_offset, level, new_trie, new_tail)
+  end
+
+  def with_index(small(size, tail), offset, fun) do
+    new_tail = Tail.partial_with_index(tail, size, offset, fun)
+    small(size, new_tail)
+  end
+
+  def with_index(empty_pattern(), _offset, _fun), do: @empty
 
   @compile {:inline, random: 1}
   def random(empty_pattern()) do

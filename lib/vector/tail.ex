@@ -248,6 +248,17 @@ defmodule A.Vector.Tail do
     partial_with_index(new_tail, new_i, offset)
   end
 
+  def partial_with_index(tail, tail_size, offset, fun)
+
+  def partial_with_index(tail, _i = 0, _offset, _fun), do: tail
+
+  def partial_with_index(tail, i, offset, fun) do
+    value = :erlang.element(i, tail)
+    new_i = i - 1
+    new_tail = :erlang.setelement(i, tail, fun.(value, offset + new_i))
+    partial_with_index(new_tail, new_i, offset, fun)
+  end
+
   def partial_zip(tail1, tail2, tail_size)
 
   def partial_zip(tail1, _tail2, _i = 0), do: tail1

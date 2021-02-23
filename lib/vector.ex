@@ -2343,26 +2343,36 @@ defmodule A.Vector do
     end
   end
 
-  @doc """
+  @doc ~S"""
   Returns the `vector` with each element wrapped in a tuple alongside its index.
 
-  If an `offset` is given, we will index from the given `offset` instead of from zero.
+  If an integer `offset` is given, it will index from the given `offset` instead of from zero.
+
+  If a `function` is given, it will index by invoking the function for each
+  element and index (zero-based) of the `vector`.
 
   Runs in linear time.
 
   ## Examples
 
-      iex> A.Vector.new(["foo", "bar", "baz"]) |> A.Vector.with_index()
+      iex> vector = A.Vector.new(["foo", "bar", "baz"])
+      iex> A.Vector.with_index(vector)
       #A<vec([{"foo", 0}, {"bar", 1}, {"baz", 2}])>
-      iex> A.Vector.new() |> A.Vector.with_index()
-      #A<vec([])>
-      iex> A.Vector.new(["foo", "bar", "baz"]) |> A.Vector.with_index(100)
+      iex> A.Vector.with_index(vector, 100)
       #A<vec([{"foo", 100}, {"bar", 101}, {"baz", 102}])>
+      iex> A.Vector.with_index(vector, fn element, index -> {index, element} end)
+      #A<vec([{0, "foo"}, {1, "bar"}, {2, "baz"}])>
 
   """
   @spec with_index(t(val), index) :: t({val, index}) when val: value
-  def with_index(%__MODULE__{__vector__: internal}, offset \\ 0) when is_integer(offset) do
+  def with_index(vector, fun_or_offset \\ 0)
+
+  def with_index(%__MODULE__{__vector__: internal}, offset) when is_integer(offset) do
     Raw.with_index(internal, offset) |> from_internal()
+  end
+
+  def with_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
+    Raw.with_index(internal, 0, fun) |> from_internal()
   end
 
   @doc """

@@ -930,7 +930,7 @@ defmodule A.Vector.Trie do
     {unquote(C.array()), acc}
   end
 
-  def with_index(trie, level, fun)
+  def with_index(trie, level, offset)
 
   # def with_index({arg1, arg2, arg3, arg4}, _level = 0, offset) do
   #   {{arg1, offset + 0, {arg2, offset + 1}, {arg3, offset + 2}, {arg4, offset + 3}}
@@ -970,6 +970,42 @@ defmodule A.Vector.Trie do
               unquote(arg),
               var!(child_level),
               var!(offset) + (unquote(index) <<< var!(level))
+            )
+        end
+      end)
+      |> C.array()
+    )
+  end
+
+  def with_index(trie, level, offset, fun)
+
+  def with_index(unquote(C.array()), _level = 0, offset, fun) do
+    unquote(
+      C.arguments()
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} ->
+        quote do
+          var!(fun).(unquote(arg), var!(offset) + unquote(index))
+        end
+      end)
+      |> C.array()
+    )
+  end
+
+  def with_index(unquote(C.array()), level, offset, fun) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.arguments()
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} ->
+        quote do
+          unquote(arg) &&
+            with_index(
+              unquote(arg),
+              var!(child_level),
+              var!(offset) + (unquote(index) <<< var!(level)),
+              var!(fun)
             )
         end
       end)

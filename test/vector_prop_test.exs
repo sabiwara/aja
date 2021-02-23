@@ -247,6 +247,7 @@ defmodule A.Vector.PropTest do
 
       index_list = Enum.with_index(list, i1)
       assert A.Vector.new(index_list) === A.Vector.with_index(vector, i1)
+      assert A.Vector.new(index_list) === A.Vector.with_index(vector, fn x, i -> {x, i + i1} end)
 
       assert A.Vector.new(index_list) ===
                A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
