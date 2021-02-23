@@ -36,27 +36,20 @@ defmodule A.IO do
   - loops within HTML templates
 
   """
-  @compile {:inline, iodata_empty?: 1}
   @spec iodata_empty?(iodata) :: boolean
-  def iodata_empty?(iodata) when is_binary(iodata) or is_list(iodata) do
-    iodata_empty?(iodata, [])
-  end
+  def iodata_empty?(iodata)
 
-  @compile {:inline, iodata_empty?: 2}
-  # empty-case: depends what is left to check
-  defp iodata_empty?(iodata, to_check) when iodata in ["", []] do
-    case to_check do
-      [] -> true
-      [head | tail] -> iodata_empty?(head, tail)
+  def iodata_empty?(binary) when is_binary(binary), do: binary === ""
+  def iodata_empty?([]), do: true
+  def iodata_empty?([head | _]) when is_integer(head), do: false
+
+  def iodata_empty?([head | rest]) do
+    # optimized `and`
+    case iodata_empty?(head) do
+      false -> false
+      _ -> iodata_empty?(rest)
     end
   end
-
-  # non-empty binary or
-  defp iodata_empty?(binary, _) when is_binary(binary), do: false
-  defp iodata_empty?([head | _], _) when is_integer(head), do: false
-
-  # the head is neither a binary nor a string: it must be an iolist. check the head now, the tail later
-  defp iodata_empty?([head | tail], acc), do: iodata_empty?(head, [tail | acc])
 
   @doc """
   Converts the argument to IO data according to the `String.Chars` protocol.
