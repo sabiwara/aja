@@ -247,7 +247,7 @@ defmodule A.Vector.Raw do
     default
   end
 
-  @spec replace_positive!(t(val), non_neg_integer, val) :: val when val: value
+  @spec replace_positive!(t(val), non_neg_integer, val) :: t(val) when val: value
   def replace_positive!(vector, index, value)
 
   def replace_positive!(large(size, tail_offset, level, trie, tail), index, value) do
