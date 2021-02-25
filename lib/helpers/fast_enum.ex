@@ -1,9 +1,8 @@
 defmodule A.FastEnum do
   @moduledoc false
 
-  # dialyzer([{nowarn_function, [to_list/1]}, call_without_opaque]).
+  @dialyzer :no_opaque
 
-  @dialyzer {:nowarn_function, [to_list: 1]}
   @compile {:inline, to_list: 1}
   @spec to_list(Enumerable.t()) :: list()
   def to_list(list) when is_list(list), do: list
