@@ -13,6 +13,7 @@
 * Reimplement `A.OrdMap`, changing its internals completely
 * Change signature of `A.OrdMap.foldl/3` and `A.OrdMap.foldr/3`
 * Remove A.OrdMap.pop_first/1 and A.OrdMap.pop_last/1
+* Remove A.RBMap and A.RBSet
 
 ## v0.4.8 (2021-02-23)
 
