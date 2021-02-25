@@ -40,6 +40,7 @@ defmodule A.OrdMap.PropTest do
     assert value == new_map[key]
     assert value == A.OrdMap.fetch!(new_map, key)
     assert A.OrdMap.has_key?(new_map, key)
+    assert {key, value} in new_map
 
     new_map
   end
@@ -59,8 +60,12 @@ defmodule A.OrdMap.PropTest do
     assert ^new_map = Enum.into([{key, value}], ord_map)
     assert ^new_map = A.OrdMap.merge(ord_map, A.OrdMap.new([{key, value}]))
     assert ^new_map = A.OrdMap.update(ord_map, key, nil, fn _ -> value end)
+    assert ^new_map = A.OrdMap.update!(ord_map, key, fn _ -> value end)
     assert {_, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> {nil, value} end)
     assert ^new_map = ord(%{ord_map | key => value})
+
+    assert ^ord_map = A.OrdMap.put_new(ord_map, key, make_ref())
+    assert ^ord_map = A.OrdMap.put_new_lazy(ord_map, key, &make_ref/0)
 
     assert A.OrdMap.size(new_map) == A.OrdMap.size(ord_map)
 
@@ -80,6 +85,11 @@ defmodule A.OrdMap.PropTest do
     assert {^value, ^new_map} = pop_in(ord_map, [key])
     assert {^value, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> :pop end)
 
+    assert A.OrdMap.has_key?(ord_map, key)
+    refute A.OrdMap.has_key?(new_map, key)
+    assert nil === new_map[key]
+    refute {key, value} in new_map
+
     assert A.OrdMap.size(new_map) == A.OrdMap.size(ord_map) - 1
     new_map
   end
@@ -89,7 +99,7 @@ defmodule A.OrdMap.PropTest do
     assert {returned, new_map} = A.OrdMap.pop(ord_map, key, nil)
     assert ^new_map = A.OrdMap.delete(ord_map, key)
     assert {^returned, ^new_map} = pop_in(ord_map, [key])
-    new_map = A.OrdMap.drop(ord_map, [key])
+    assert ^new_map = A.OrdMap.drop(ord_map, [key])
 
     new_map
   end
@@ -97,11 +107,40 @@ defmodule A.OrdMap.PropTest do
   def assert_properties(%A.OrdMap{} = ord_map) do
     as_list = Enum.to_list(ord_map)
     assert ^as_list = A.OrdMap.to_list(ord_map)
+    assert ^as_list = A.OrdMap.foldr(ord_map, [], &[&1 | &2])
+    assert ^as_list = A.OrdMap.foldl(ord_map, [], &[&1 | &2]) |> Enum.reverse()
+    assert A.Vector.new(as_list) == A.OrdMap.to_vector(ord_map)
 
-    assert A.OrdMap.size(ord_map) == length(as_list)
+    length_list = length(as_list)
+    assert A.OrdMap.size(ord_map) == length_list
+    assert Enum.count(ord_map) == length_list
+    assert match?(o when ord_size(o) == length_list, ord_map)
+
+    for kv <- as_list do
+      assert {key, value} = kv
+      assert kv in ord_map
+      assert value == ord_map[key]
+      assert A.OrdMap.has_key?(ord_map, key)
+      assert value == A.OrdMap.fetch!(ord_map, key)
+      assert {:ok, ^value} = A.OrdMap.fetch(ord_map, key)
+      assert ord(%{^key => ^value}) = ord_map
+    end
+
+    assert Enum.map(as_list, fn {k, _v} -> k end) === A.OrdMap.keys(ord_map)
+    assert Enum.map(as_list, fn {_k, v} -> v end) === A.OrdMap.values(ord_map)
+
+    refute A.OrdMap.has_key?(ord_map, make_ref())
 
     assert A.OrdMap.first(ord_map) == List.first(as_list)
     assert A.OrdMap.last(ord_map) == List.last(as_list)
+
+    dense = A.OrdMap.new(as_list)
+    assert ^dense = A.OrdMap.new(ord_map)
+    assert ^dense = A.OrdMap.new(ord_map, fn {k, v} -> {k, v} end)
+    assert A.OrdMap.size(dense) == A.OrdMap.size(ord_map)
+    assert A.OrdMap.equal?(dense, ord_map)
+
+    assert inspect(ord_map) =~ "#A<ord(%{"
   end
 
   @tag :property
