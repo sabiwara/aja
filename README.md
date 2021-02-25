@@ -4,7 +4,7 @@
 [![docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/aja/)
 [![CI](https://github.com/sabiwara/aja/workflows/CI/badge.svg)](https://github.com/sabiwara/aja/actions?query=workflow%3ACI)
 
-Extension of the Elixir standard library focused on data stuctures and data manipulation.
+Extension of the Elixir standard library focused on data stuctures, data manipulation and performance.
 
 - [Data structures](#data-structures)
 - [Utility functions](#utility-functions)
@@ -219,14 +219,21 @@ This effort is far from perfect, but increases our confidence in the overall rel
 #### Vectors
 
 Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
-slightly faster than equivalent list operations (map, folds, join, sum...).
+noticeably faster than equivalent list operations (map, folds, join, sum...).
 
-There is one exception where `A.Vector` can be slightly slower than `:array`: random access for small collections.
-For bigger collections however, the higher branching factor for vectors (16 vs 10) should close this gap.
+#### Ordered maps
 
-#### Maps
+Performance for ordered maps has an inevitable though decent overhead over plain maps in terms of creation and
+update time (write operations), as well as memory usage, since some extra work is needed to keep track of the order.
+It has however very good read performance, with a very minimal overhead in terms of key access, and can be
+enumerated much faster than maps.
 
-Performance for ordered maps cannot match native maps and has an important overhead.
+#### Aja + JIT = 💖️
+
+Aja's data structures (vectors and ordered maps) are already pretty fast on pre-JIT versions of OTP (`<= 23`).
+Benchmarks on OTP 24 suggest however that they are taking great advantage of the
+[JIT](https://blog.erlang.org/a-first-look-at-the-jit/), relative to lists/maps, making them
+even more interesting performance-wise.
 
 #### Benchmarks
 

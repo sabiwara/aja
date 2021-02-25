@@ -23,7 +23,7 @@ defmodule Aja.MixProject do
 
       # Hex
       description:
-        "Extension of the Elixir standard library focused on data stuctures and data manipulation",
+        "Extension of the Elixir standard library focused on data stuctures, data manipulation and performance",
       package: package(),
 
       # Docs
