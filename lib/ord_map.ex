@@ -290,27 +290,6 @@ defmodule A.OrdMap do
   end
 
   @doc """
-  Returns  all key-values pairs from `ord_map` as a vector.
-
-  ## Examples
-
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
-      iex> A.OrdMap.to_vector(ord_map)
-      #A<vec([b: "Bat", c: "Cat", a: "Ant"])>
-
-  """
-  @spec to_vector(t(k, v)) :: A.Vector.t({k, v}) when k: key, v: value
-  def to_vector(ord_map)
-
-  def to_vector(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
-    %A.Vector{__vector__: vector}
-  end
-
-  def to_vector(%__MODULE__{__ord_vector__: vector}) do
-    A.Vector.Raw.sparse_to_list(vector) |> A.Vector.new()
-  end
-
-  @doc """
   Returns a new empty ordered map.
 
   ## Examples
@@ -370,11 +349,12 @@ defmodule A.OrdMap do
 
   """
   @spec new(Enumerable.t(), (term -> {k, v})) :: t(k, v) when k: key, v: value
-  def new(enumerable, fun) do
-    # TODO optimize
-    enumerable
-    |> Enum.map(fun)
-    |> new()
+  def new(enumerable, fun) when is_function(fun, 1) do
+    case enumerable do
+      %__MODULE__{} -> map_to_list(enumerable, fun) |> from_list()
+      %A.Vector{} -> A.Vector.map_to_list(enumerable, fun) |> from_list()
+      _ -> Enum.map(enumerable, fun) |> from_list()
+    end
   end
 
   @doc """
@@ -1247,6 +1227,42 @@ defmodule A.OrdMap do
   end
 
   # Exposed "private" functions
+
+  @doc false
+  @spec to_vector(t(k, v)) :: A.Vector.t({k, v}) when k: key, v: value
+  def to_vector(ord_map)
+
+  def to_vector(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
+    %A.Vector{__vector__: vector}
+  end
+
+  def to_vector(%__MODULE__{__ord_vector__: vector}) do
+    A.Vector.Raw.sparse_to_list(vector) |> A.Vector.new()
+  end
+
+  @doc false
+  def map_to_list(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_dense(ord_map) do
+    A.Vector.Raw.map_to_list(vector, fun)
+  end
+
+  def map_to_list(%__MODULE__{__ord_vector__: vector}, fun) do
+    A.Vector.Raw.foldl(vector, [], fn
+      nil, acc -> acc
+      key_value, acc -> [fun.(key_value) | acc]
+    end)
+    |> :lists.reverse()
+  end
+
+  @doc false
+  def map_to_vector(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_dense(ord_map) do
+    %A.Vector{__vector__: A.Vector.Raw.map(vector, fun)}
+  end
+
+  def map_to_vector(%__MODULE__{} = ord_map, fun) do
+    ord_map
+    |> map_to_list(fun)
+    |> A.Vector.new()
+  end
 
   @doc false
   def replace_many!(

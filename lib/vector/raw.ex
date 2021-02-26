@@ -450,6 +450,14 @@ defmodule A.Vector.Raw do
     [separator, arg | acc]
   end
 
+  def map_to_list(vector, fun) do
+    do_map_to_list(vector, fun) |> :lists.reverse()
+  end
+
+  C.def_foldl do_map_to_list(arg, acc \\ [], fun) do
+    [fun.(arg) | acc]
+  end
+
   def map_intersperse_list(vector, separator, mapper) do
     case do_map_intersperse_list(vector, separator, mapper) do
       [] -> []

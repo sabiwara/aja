@@ -109,7 +109,11 @@ defmodule A.OrdMap.PropTest do
     assert ^as_list = A.OrdMap.to_list(ord_map)
     assert ^as_list = A.OrdMap.foldr(ord_map, [], &[&1 | &2])
     assert ^as_list = A.OrdMap.foldl(ord_map, [], &[&1 | &2]) |> Enum.reverse()
-    assert A.Vector.new(as_list) == A.OrdMap.to_vector(ord_map)
+
+    as_vector = A.Vector.new(as_list)
+    assert ^as_vector = A.OrdMap.to_vector(ord_map)
+    assert ^as_vector = A.Vector.new(ord_map)
+    assert ^as_vector = A.Vector.new(ord_map, fn {k, v} -> {k, v} end)
 
     length_list = length(as_list)
     assert A.OrdMap.size(ord_map) == length_list
@@ -135,8 +139,11 @@ defmodule A.OrdMap.PropTest do
     assert A.OrdMap.last(ord_map) == List.last(as_list)
 
     dense = A.OrdMap.new(as_list)
+    assert ^dense = A.OrdMap.new(as_list, fn {k, v} -> {k, v} end)
     assert ^dense = A.OrdMap.new(ord_map)
     assert ^dense = A.OrdMap.new(ord_map, fn {k, v} -> {k, v} end)
+    assert ^dense = A.OrdMap.new(as_vector)
+    assert ^dense = A.OrdMap.new(as_vector, fn {k, v} -> {k, v} end)
     assert A.OrdMap.size(dense) == A.OrdMap.size(ord_map)
     assert A.OrdMap.equal?(dense, ord_map)
 

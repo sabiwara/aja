@@ -12,6 +12,16 @@ defmodule A.OrdMapTest do
     assert ^ord_map = A.OrdMap.new(ord_map)
   end
 
+  test "new/2" do
+    list = [b: 2, a: 1, c: 3]
+    vector = A.Vector.new(list)
+    ord_map = A.OrdMap.new(list)
+
+    assert ^ord_map = A.OrdMap.new(ord_map, fn x -> x end)
+    assert ^ord_map = A.OrdMap.new(vector, fn x -> x end)
+    assert ^ord_map = A.OrdMap.new(list, fn x -> x end)
+  end
+
   test "put" do
     assert [{"一", 1}, {"二", 2}, {"三", 3}] =
              A.OrdMap.new()

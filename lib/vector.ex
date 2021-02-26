@@ -385,6 +385,10 @@ defmodule A.Vector do
     vector
   end
 
+  def new(%A.OrdMap{} = ord_map) do
+    A.OrdMap.to_vector(ord_map)
+  end
+
   def new(enumerable) do
     enumerable
     |> A.FastEnum.to_list()
@@ -2533,6 +2537,15 @@ defmodule A.Vector do
 
     {from_internal(internal1), from_internal(internal2)}
   end
+
+  # Exposed "private" functions
+
+  @doc false
+  def map_to_list(%__MODULE__{__vector__: internal}, fun) do
+    Raw.map_to_list(internal, fun)
+  end
+
+  # Private functions
 
   defp from_list([]), do: from_internal(@empty_raw)
   defp from_list(list), do: Raw.from_list(list) |> from_internal()
