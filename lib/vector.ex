@@ -1,6 +1,6 @@
 defmodule A.Vector do
   # TODO remove doc hack when stop supporting 1.10
-  @plusplusplus_doc ~S"""
+  plusplusplus_doc = ~S"""
   ## Convenience [`+++/2`](`A.+++/2`) operator
 
   The `A.+++/2` operator can make appending to a vector more compact by aliasing `A.Vector.concat/2`:
@@ -89,7 +89,7 @@ defmodule A.Vector do
 
   #{
     if Version.compare(System.version(), "1.11.0") != :lt do
-      @plusplusplus_doc
+      plusplusplus_doc
     end
   }
 
