@@ -394,8 +394,8 @@ defmodule A.Vector.Raw do
     []
   end
 
-  @spec to_reverse_list(t(val)) :: [val] when val: value
-  C.def_foldl to_reverse_list(arg, acc \\ []) do
+  @spec reverse_to_list(t(val)) :: [val] when val: value
+  C.def_foldl reverse_to_list(arg, acc \\ []) do
     [arg | acc]
   end
 
@@ -591,12 +591,11 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-  def filter(vector, fun) do
+  @spec filter_to_list(t(val), (val -> as_boolean(term))) :: [val] when val: value
+  def filter_to_list(vector, fun) do
     vector
     |> do_filter(fun)
     |> :lists.reverse()
-    |> from_list()
   end
 
   C.def_foldl do_filter(arg, acc \\ [], fun) do
@@ -607,12 +606,11 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
-  def reject(vector, fun) do
+  @spec reject_to_list(t(val), (val -> as_boolean(term))) :: [val] when val: value
+  def reject_to_list(vector, fun) do
     vector
     |> do_reject(fun)
     |> :lists.reverse()
-    |> from_list()
   end
 
   C.def_foldl do_reject(arg, acc \\ [], fun) do

@@ -1101,7 +1101,7 @@ defmodule A.Vector do
   """
   @spec filter(t(val), (val -> boolean)) :: t(val) when val: value
   def filter(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.filter(internal, fun) |> from_internal()
+    Raw.filter_to_list(internal, fun) |> from_list()
   end
 
   @doc """
@@ -1119,7 +1119,7 @@ defmodule A.Vector do
   """
   @spec reject(t(val), (val -> boolean)) :: t(val) when val: value
   def reject(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.reject(internal, fun) |> from_internal()
+    Raw.reject_to_list(internal, fun) |> from_list()
   end
 
   @doc """
@@ -2072,7 +2072,7 @@ defmodule A.Vector do
   @spec reverse(t(val)) :: t(val) when val: value
   def reverse(%__MODULE__{__vector__: internal}) do
     internal
-    |> Raw.to_reverse_list()
+    |> Raw.reverse_to_list()
     |> from_list()
   end
 
