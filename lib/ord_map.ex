@@ -147,7 +147,7 @@ defmodule A.OrdMap do
       iex> A.OrdMap.new([one: 1, two: 2, three: 3]) |> A.OrdMap.delete(:three)
       #A<ord(%{one: 1, two: 2})>
 
-  The `is_dense/1` guard is provided to ensure an `A.OrdMap` is dense and not sparse.
+  The `dense?/1` and `sparse?/1` can be used to check if a `A.OrdMap` is dense or sparse.
 
   While this design puts some burden on the developer, the idea behind it is:
   - to keep it as convenient and performant as possible unless deletion is necessary
@@ -187,36 +187,18 @@ defmodule A.OrdMap do
   @type value :: term
   @typep index :: non_neg_integer
   @typep internals(key, value) :: %__MODULE__{
-            __ord_map__: %{optional(key) => {index, value}},
-            __ord_vector__: A.Vector.Raw.t({key, value}),
-            __ord_next__: index
-          }
+           __ord_map__: %{optional(key) => {index, value}},
+           __ord_vector__: A.Vector.Raw.t({key, value}),
+           __ord_next__: index
+         }
   @type t(key, value) :: internals(key, value)
   @type t :: t(key, value)
   defstruct __ord_map__: %{}, __ord_vector__: A.Vector.Raw.empty(), __ord_next__: 0
 
-  @doc """
-  A guard returning `true` if `ord_map` is dense; otherwise returns `false`.
-
-  See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
-
-  ## Examples
-
-      iex> import A.OrdMap, only: [is_dense: 1]
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
-      iex> is_dense(ord_map)
-      true
-      iex> sparse = A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
-      iex> is_dense(sparse)
-      false
-
-  """
   # TODO simplify when stop supporting Elixir 1.10
-  defguard is_dense(ord_map)
-           when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
-                  :erlang.map_get(:__ord_next__, ord_map)
+  defguardp is_dense(ord_map)
+            when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
+                   :erlang.map_get(:__ord_next__, ord_map)
 
   @doc """
   Returns the number of keys in `ord_map`.
@@ -1211,10 +1193,44 @@ defmodule A.OrdMap do
     end
   end
 
+  @doc """
+  Returns `true` if `ord_map` is dense; otherwise returns `false`.
+
+  See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
+
+  ## Examples
+
+      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      iex> A.OrdMap.dense?(ord_map)
+      true
+      iex> sparse = A.OrdMap.delete(ord_map, :b)
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      iex> A.OrdMap.dense?(sparse)
+      false
+
+  """
   def dense?(%__MODULE__{} = ord_map) do
     is_dense(ord_map)
   end
 
+  @doc """
+  Returns `true` if `ord_map` is sparse; otherwise returns `false`.
+
+  See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
+
+  ## Examples
+
+      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      iex> A.OrdMap.sparse?(ord_map)
+      false
+      iex> sparse = A.OrdMap.delete(ord_map, :b)
+      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      iex> A.OrdMap.sparse?(sparse)
+      true
+
+  """
   def sparse?(%__MODULE__{} = ord_map) do
     !is_dense(ord_map)
   end

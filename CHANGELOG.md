@@ -6,7 +6,6 @@
 
 * `A.OrdMap` new implemention, with highly improved performance ⚡️⚡️
 * Added `A.ord_size/1` macro
-* Added `A.OrdMap.is_dense/1` guard
 
 ### Breaking changes
 
