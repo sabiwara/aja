@@ -141,19 +141,28 @@ defmodule A.OrdMap do
       iex> new_dense === dense
       true
 
+  In order to avoid having to worry about memory issues when adding and deleting keys successively,
+  ord maps cannot be more than half sparse, and are periodically rebuilt as dense upon deletion.
+
+      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
+      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      iex> A.OrdMap.delete(sparse, :a)
+      #A<ord(%{b: "Bat"})>
+
   Note: Deleting the last key does not make a dense ord map sparse. This is not a bug,
   but an expected behavior due to how data is stored.
 
       iex> A.OrdMap.new([one: 1, two: 2, three: 3]) |> A.OrdMap.delete(:three)
       #A<ord(%{one: 1, two: 2})>
 
-  The `dense?/1` and `sparse?/1` can be used to check if a `A.OrdMap` is dense or sparse.
+  The `dense?/1` and `sparse?/1` functions can be used to check if a `A.OrdMap` is dense or sparse.
 
   While this design puts some burden on the developer, the idea behind it is:
   - to keep it as convenient and performant as possible unless deletion is necessary
   - to be transparent about sparse structures and their limitation
   - instead of constantly rebuild new dense structures, let users decide the best timing to do it
   - still work fine with sparse structures, but in a degraded mode
+  - protect users about potential memory leaks and performance issues
 
   ## Pattern-matching and opaque type
 
@@ -362,6 +371,7 @@ defmodule A.OrdMap do
   """
   @spec new(Enumerable.t(), (term -> {k, v})) :: t(k, v) when k: key, v: value
   def new(enumerable, fun) do
+    # TODO optimize
     enumerable
     |> Enum.map(fun)
     |> new()
@@ -909,6 +919,7 @@ defmodule A.OrdMap do
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
   def drop(%__MODULE__{} = ord_map, keys) when is_list(keys) do
+    # TODO optimize
     Enum.reduce(keys, ord_map, fn key, acc ->
       delete(acc, key)
     end)
@@ -1267,7 +1278,7 @@ defmodule A.OrdMap do
     %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: next_index}
   end
 
-  defp do_delete_existing(new_map, _vector, _index, _next_index) when map_size(new_map) === 0 do
+  defp do_delete_existing(new_map, _vector, _index, _next_index) when new_map === %{} do
     # always return the same empty ord map, and reset the index to avoid considering it as sparse
     %__MODULE__{}
   end
@@ -1279,7 +1290,7 @@ defmodule A.OrdMap do
 
   defp do_delete_existing(new_map, vector, index, next_index) do
     new_vector = A.Vector.Raw.replace_positive!(vector, index, nil)
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: next_index}
+    periodic_rebuild(new_map, new_vector, next_index)
   end
 
   defp do_fix_vector_duplicates(vector, _map, _duplicates = nil) do
@@ -1375,6 +1386,16 @@ defmodule A.OrdMap do
       end
 
     do_reverse_and_update_duplicates(rest, duplicates, [{key, value} | acc])
+  end
+
+  defp periodic_rebuild(map, vector, next_index) when next_index >= 2 * map_size(map) do
+    vector
+    |> A.Vector.Raw.sparse_to_list()
+    |> from_list()
+  end
+
+  defp periodic_rebuild(map, vector, next_index) do
+    %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index}
   end
 
   defimpl Enumerable do

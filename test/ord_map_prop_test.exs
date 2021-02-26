@@ -140,6 +140,8 @@ defmodule A.OrdMap.PropTest do
     assert A.OrdMap.size(dense) == A.OrdMap.size(ord_map)
     assert A.OrdMap.equal?(dense, ord_map)
 
+    assert 2 * map_size(ord_map.__ord_map__) >= ord_map.__ord_next__
+
     assert inspect(ord_map) =~ "#A<ord(%{"
   end
 
