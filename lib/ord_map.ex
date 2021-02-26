@@ -186,12 +186,13 @@ defmodule A.OrdMap do
   @type key :: term
   @type value :: term
   @typep index :: non_neg_integer
-  @opaque t(key, value) :: %__MODULE__{
+  @typep internals(key, value) :: %__MODULE__{
             __ord_map__: %{optional(key) => {index, value}},
             __ord_vector__: A.Vector.Raw.t({key, value}),
             __ord_next__: index
           }
-  @opaque t :: t(key, value)
+  @type t(key, value) :: internals(key, value)
+  @type t :: t(key, value)
   defstruct __ord_map__: %{}, __ord_vector__: A.Vector.Raw.empty(), __ord_next__: 0
 
   @doc """
