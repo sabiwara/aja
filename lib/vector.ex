@@ -1295,12 +1295,12 @@ defmodule A.Vector do
   ## Examples
 
       iex> vector = A.Vector.new([{1, :a}, {2, :b}, {2, :c}, {1, :a}])
-      iex> Enum.dedup_by(vector, fn {x, _} -> x end)
-      [{1, :a}, {2, :b}, {1, :a}]
+      iex> A.Vector.dedup_by(vector, fn {x, _} -> x end)
+      #A<vec([{1, :a}, {2, :b}, {1, :a}])>
 
       iex> vector = A.Vector.new([5, 1, 2, 3, 2, 1])
-      iex> Enum.dedup_by(vector, fn x -> x > 2 end)
-      [5, 1, 3, 2]
+      iex> A.Vector.dedup_by(vector, fn x -> x > 2 end)
+      #A<vec([5, 1, 3, 2])>
 
 
   """
