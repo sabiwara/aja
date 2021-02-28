@@ -1,0 +1,31 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.1
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking :array.get/2...
+Benchmarking A.Vector.at/2...
+Benchmarking Access (vector)...
+Benchmarking List.at/2...
+
+Name                      ips        average  deviation         median         99th %
+:array.get/2          21.44 M       46.64 ns   ±451.52%          39 ns         145 ns
+A.Vector.at/2         19.52 M       51.24 ns   ±509.19%          43 ns         156 ns
+Access (vector)        7.41 M      135.01 ns ±19739.51%          80 ns         294 ns
+List.at/2              3.60 M      277.54 ns  ±7160.94%         239 ns         565 ns
+
+Comparison: 
+:array.get/2          21.44 M
+A.Vector.at/2         19.52 M - 1.10x slower +4.60 ns
+Access (vector)        7.41 M - 2.89x slower +88.37 ns
+List.at/2              3.60 M - 5.95x slower +230.89 ns
