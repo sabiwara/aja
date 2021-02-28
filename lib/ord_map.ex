@@ -204,10 +204,11 @@ defmodule A.OrdMap do
   @type t :: t(key, value)
   defstruct __ord_map__: %{}, __ord_vector__: A.Vector.Raw.empty(), __ord_next__: 0
 
-  # TODO simplify when stop supporting Elixir 1.10
-  defguardp is_dense(ord_map)
-            when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
-                   :erlang.map_get(:__ord_next__, ord_map)
+  @doc false
+  defguard is_dense(ord_map)
+           # TODO simplify when stop supporting Elixir 1.10
+           when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
+                  :erlang.map_get(:__ord_next__, ord_map)
 
   @doc """
   Returns the number of keys in `ord_map`.
@@ -330,9 +331,9 @@ defmodule A.OrdMap do
   def new(%__MODULE__{} = ord_map) when is_dense(ord_map), do: ord_map
 
   def new(enumerable) do
-    # TODO add from_vector
+    # TODO add from_vector to avoid intermediate list?
     enumerable
-    |> A.FastEnum.to_list()
+    |> A.EnumHelper.to_list()
     |> from_list()
   end
 
@@ -350,11 +351,9 @@ defmodule A.OrdMap do
   """
   @spec new(Enumerable.t(), (term -> {k, v})) :: t(k, v) when k: key, v: value
   def new(enumerable, fun) when is_function(fun, 1) do
-    case enumerable do
-      %__MODULE__{} -> map_to_list(enumerable, fun) |> from_list()
-      %A.Vector{} -> A.Vector.map_to_list(enumerable, fun) |> from_list()
-      _ -> Enum.map(enumerable, fun) |> from_list()
-    end
+    enumerable
+    |> A.EnumHelper.map(fun)
+    |> from_list()
   end
 
   @doc """
@@ -725,7 +724,7 @@ defmodule A.OrdMap do
   def merge(ord_map, map_or_ord_map)
 
   def merge(%__MODULE__{} = ord_map1, %__MODULE__{} = ord_map2) do
-    do_merge(ord_map1, to_list(ord_map2))
+    merge_list(ord_map1, to_list(ord_map2))
   end
 
   def merge(%__MODULE__{}, %_{}) do
@@ -733,22 +732,7 @@ defmodule A.OrdMap do
   end
 
   def merge(%__MODULE__{} = ord_map1, %{} = map2) do
-    do_merge(ord_map1, Map.to_list(map2))
-  end
-
-  defp do_merge(
-         %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
-         new_kvs
-       ) do
-    {new_map, reversed_kvs, new_next, duplicates} =
-      do_add_optimistic(new_kvs, map, [], next_index)
-
-    new_vector =
-      vector
-      |> A.Vector.Raw.concat(:lists.reverse(reversed_kvs))
-      |> do_fix_vector_duplicates(map, duplicates)
-
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: new_next}
+    merge_list(ord_map1, Map.to_list(map2))
   end
 
   @doc """
@@ -1095,10 +1079,7 @@ defmodule A.OrdMap do
   end
 
   def first(%A.OrdMap{__ord_vector__: vector}, default) do
-    case A.Vector.Raw.find(vector, fn value -> value end) do
-      {:ok, found} -> found
-      _ -> default
-    end
+    A.Vector.Raw.find(vector, default, fn value -> value end)
   end
 
   @doc """
@@ -1229,39 +1210,19 @@ defmodule A.OrdMap do
   # Exposed "private" functions
 
   @doc false
-  @spec to_vector(t(k, v)) :: A.Vector.t({k, v}) when k: key, v: value
-  def to_vector(ord_map)
+  def merge_list(
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+        new_kvs
+      ) do
+    {new_map, reversed_kvs, new_next, duplicates} =
+      do_add_optimistic(new_kvs, map, [], next_index)
 
-  def to_vector(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
-    %A.Vector{__vector__: vector}
-  end
+    new_vector =
+      vector
+      |> A.Vector.Raw.concat(:lists.reverse(reversed_kvs))
+      |> do_fix_vector_duplicates(map, duplicates)
 
-  def to_vector(%__MODULE__{__ord_vector__: vector}) do
-    A.Vector.Raw.sparse_to_list(vector) |> A.Vector.new()
-  end
-
-  @doc false
-  def map_to_list(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_dense(ord_map) do
-    A.Vector.Raw.map_to_list(vector, fun)
-  end
-
-  def map_to_list(%__MODULE__{__ord_vector__: vector}, fun) do
-    A.Vector.Raw.foldl(vector, [], fn
-      nil, acc -> acc
-      key_value, acc -> [fun.(key_value) | acc]
-    end)
-    |> :lists.reverse()
-  end
-
-  @doc false
-  def map_to_vector(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_dense(ord_map) do
-    %A.Vector{__vector__: A.Vector.Raw.map(vector, fun)}
-  end
-
-  def map_to_vector(%__MODULE__{} = ord_map, fun) do
-    ord_map
-    |> map_to_list(fun)
-    |> A.Vector.new()
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: new_next}
   end
 
   @doc false
@@ -1430,7 +1391,7 @@ defmodule A.OrdMap do
 
     def slice(ord_map) do
       ord_map
-      |> A.OrdMap.to_vector()
+      |> A.EnumHelper.to_vec_or_list()
       |> Enumerable.slice()
     end
 

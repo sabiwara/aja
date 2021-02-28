@@ -1,6 +1,8 @@
 defmodule A.VectorTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureIO
+
   doctest A.Vector
 
   defp spy_callback(fun) do
@@ -113,159 +115,6 @@ defmodule A.VectorTest do
     assert A.Vector.new(500..1) == A.Vector.new(1..500) |> A.Vector.reverse()
   end
 
-  test "all?/1" do
-    assert true == A.Vector.new() |> A.Vector.all?()
-
-    assert true == A.Vector.new([1, true, "string", :atom, %{}, []]) |> A.Vector.all?()
-    assert true == A.Vector.new(1..50) |> A.Vector.all?()
-    assert true == A.Vector.new(1..500) |> A.Vector.all?()
-
-    assert false == A.Vector.duplicate(true, 5) |> A.Vector.append(false) |> A.Vector.all?()
-    assert false == A.Vector.new(1..50) |> A.Vector.append(nil) |> A.Vector.all?()
-    assert false == A.Vector.new(1..500) |> A.Vector.append(nil) |> A.Vector.all?()
-  end
-
-  test "all?/2" do
-    {gt_zero?, pop_args} = spy_callback(&(&1 > 0))
-
-    assert true == A.Vector.new() |> A.Vector.all?(gt_zero?)
-    assert [] == pop_args.()
-
-    assert true == A.Vector.new(5..1) |> A.Vector.all?(gt_zero?)
-    assert [5, 4, 3, 2, 1] == pop_args.()
-
-    assert true == A.Vector.new(50..1) |> A.Vector.all?(gt_zero?)
-    assert Enum.to_list(50..1) == pop_args.()
-
-    assert true == A.Vector.new(500..1) |> A.Vector.all?(gt_zero?)
-    assert Enum.to_list(500..1) == pop_args.()
-
-    assert false == A.Vector.new(5..0) |> A.Vector.all?(gt_zero?)
-    assert [5, 4, 3, 2, 1, 0] == pop_args.()
-
-    assert false == A.Vector.new(50..0) |> A.Vector.all?(gt_zero?)
-    assert Enum.to_list(50..0) == pop_args.()
-
-    assert false == A.Vector.new(500..0) |> A.Vector.all?(gt_zero?)
-    assert Enum.to_list(500..0) == pop_args.()
-  end
-
-  test "any?/1" do
-    assert false == A.Vector.new() |> A.Vector.any?()
-
-    assert false == A.Vector.duplicate(false, 5) |> A.Vector.any?()
-    assert false == A.Vector.duplicate(nil, 50) |> A.Vector.any?()
-    assert false == A.Vector.duplicate(false, 500) |> A.Vector.any?()
-
-    assert true == A.Vector.duplicate(false, 5) |> A.Vector.append(true) |> A.Vector.any?()
-    assert true == A.Vector.duplicate(nil, 50) |> A.Vector.append(55) |> A.Vector.any?()
-    assert true == A.Vector.duplicate(false, 500) |> A.Vector.append(%{}) |> A.Vector.any?()
-  end
-
-  test "any?/2" do
-    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
-
-    assert false == A.Vector.new() |> A.Vector.any?(lt_zero?)
-    assert [] == pop_args.()
-
-    assert false == A.Vector.new(5..0) |> A.Vector.any?(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0] == pop_args.()
-
-    assert false == A.Vector.new(50..0) |> A.Vector.any?(lt_zero?)
-    assert Enum.to_list(50..0) == pop_args.()
-
-    assert false == A.Vector.new(500..0) |> A.Vector.any?(lt_zero?)
-    assert Enum.to_list(500..0) == pop_args.()
-
-    assert true == A.Vector.new(5..-5) |> A.Vector.any?(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
-
-    assert true == A.Vector.new(50..-50) |> A.Vector.any?(lt_zero?)
-    assert Enum.to_list(50..-1) == pop_args.()
-
-    assert true == A.Vector.new(500..-500) |> A.Vector.any?(lt_zero?)
-    assert Enum.to_list(500..-1) == pop_args.()
-  end
-
-  test "find/2" do
-    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
-
-    assert nil == A.Vector.new() |> A.Vector.find(lt_zero?)
-    assert [] == pop_args.()
-
-    assert nil == A.Vector.new(5..0) |> A.Vector.find(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0] == pop_args.()
-
-    assert nil == A.Vector.new(50..0) |> A.Vector.find(lt_zero?)
-    assert Enum.to_list(50..0) == pop_args.()
-
-    assert nil == A.Vector.new(500..0) |> A.Vector.find(lt_zero?)
-    assert Enum.to_list(500..0) == pop_args.()
-
-    assert -1 == A.Vector.new(5..-5) |> A.Vector.find(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
-
-    assert -1 == A.Vector.new(50..-50) |> A.Vector.find(lt_zero?)
-    assert Enum.to_list(50..-1) == pop_args.()
-
-    assert -1 == A.Vector.new(500..-500) |> A.Vector.find(lt_zero?)
-    assert Enum.to_list(500..-1) == pop_args.()
-  end
-
-  test "find_value/2" do
-    {spy, pop_args} =
-      spy_callback(fn
-        x when x < 0 -> -x
-        _ -> nil
-      end)
-
-    assert nil == A.Vector.new() |> A.Vector.find_value(spy)
-    assert [] == pop_args.()
-
-    assert nil == A.Vector.new(5..0) |> A.Vector.find_value(spy)
-    assert [5, 4, 3, 2, 1, 0] == pop_args.()
-
-    assert nil == A.Vector.new(50..0) |> A.Vector.find_value(spy)
-    assert Enum.to_list(50..0) == pop_args.()
-
-    assert nil == A.Vector.new(500..0) |> A.Vector.find_value(spy)
-    assert Enum.to_list(500..0) == pop_args.()
-
-    assert 1 == A.Vector.new(5..-5) |> A.Vector.find_value(spy)
-    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
-
-    assert 1 == A.Vector.new(50..-50) |> A.Vector.find_value(spy)
-    assert Enum.to_list(50..-1) == pop_args.()
-
-    assert 1 == A.Vector.new(500..-500) |> A.Vector.find_value(spy)
-    assert Enum.to_list(500..-1) == pop_args.()
-  end
-
-  test "find_index/2" do
-    {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
-
-    assert nil == A.Vector.new() |> A.Vector.find_index(lt_zero?)
-    assert [] == pop_args.()
-
-    assert nil == A.Vector.new(5..0) |> A.Vector.find_index(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0] == pop_args.()
-
-    assert nil == A.Vector.new(50..0) |> A.Vector.find_index(lt_zero?)
-    assert Enum.to_list(50..0) == pop_args.()
-
-    assert nil == A.Vector.new(500..0) |> A.Vector.find_index(lt_zero?)
-    assert Enum.to_list(500..0) == pop_args.()
-
-    assert 6 == A.Vector.new(5..-5) |> A.Vector.find_index(lt_zero?)
-    assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
-
-    assert 51 == A.Vector.new(50..-50) |> A.Vector.find_index(lt_zero?)
-    assert Enum.to_list(50..-1) == pop_args.()
-
-    assert 501 == A.Vector.new(500..-500) |> A.Vector.find_index(lt_zero?)
-    assert Enum.to_list(500..-1) == pop_args.()
-  end
-
   test "take_while/2" do
     {gte_zero?, pop_args} = spy_callback(&(&1 >= 0))
 
@@ -368,50 +217,6 @@ defmodule A.VectorTest do
     assert Enum.to_list([-1]) == pop_args.()
   end
 
-  test "sum/1" do
-    assert 0 = A.Vector.new() |> A.Vector.sum()
-    assert 15 = A.Vector.new(1..5) |> A.Vector.sum()
-    assert 1275 = A.Vector.new(1..50) |> A.Vector.sum()
-    assert 125_250 = A.Vector.new(1..500) |> A.Vector.sum()
-
-    # floats are added in the same order as Enum.sum/1
-    floats = 1..50 |> Enum.map(&(&1 * 0.001))
-    assert Enum.sum(floats) === A.Vector.new(floats) |> A.Vector.sum()
-  end
-
-  test "product/1" do
-    assert 1 = A.Vector.new() |> A.Vector.product()
-    assert 120 = A.Vector.new(1..5) |> A.Vector.product()
-    assert Enum.reduce(1..50, &(&2 * &1)) == A.Vector.new(1..50) |> A.Vector.product()
-    assert Enum.reduce(1..500, &(&2 * &1)) == A.Vector.new(1..500) |> A.Vector.product()
-  end
-
-  test "join/2" do
-    assert "" == A.Vector.new() |> A.Vector.join(",")
-    assert "1" == A.Vector.new([1]) |> A.Vector.join(",")
-    assert "1,2,3,4,5" == A.Vector.new(1..5) |> A.Vector.join(",")
-    assert Enum.join(1..50, ",") == A.Vector.new(1..50) |> A.Vector.join(",")
-    assert Enum.join(1..500, ",") == A.Vector.new(1..500) |> A.Vector.join(",")
-
-    assert Enum.join(1..50) == A.Vector.new(1..50) |> A.Vector.join()
-  end
-
-  test "map_join/3" do
-    {add_one, pop_args} = spy_callback(&(&1 + 1))
-
-    assert "" == A.Vector.new() |> A.Vector.map_join(",", add_one)
-    assert [] == pop_args.()
-
-    assert "2,3,4,5,6" == A.Vector.new(1..5) |> A.Vector.map_join(",", add_one)
-    assert [1, 2, 3, 4, 5] == pop_args.()
-
-    assert Enum.join(2..51, ",") == A.Vector.new(1..50) |> A.Vector.map_join(",", add_one)
-    assert Enum.to_list(1..50) == pop_args.()
-
-    assert Enum.join(2..501, ",") == A.Vector.new(1..500) |> A.Vector.map_join(",", add_one)
-    assert Enum.to_list(1..500) == pop_args.()
-  end
-
   test "intersperse/2" do
     assert A.Vector.new() == A.Vector.new() |> A.Vector.intersperse(0)
 
@@ -447,26 +252,6 @@ defmodule A.VectorTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
-  test "min/1" do
-    assert 1 = A.Vector.new(1..5) |> A.Vector.min()
-    assert 1 = A.Vector.new(1..50) |> A.Vector.min()
-    assert 1 = A.Vector.new(1..500) |> A.Vector.min()
-
-    assert 1 = A.Vector.new(5..1) |> A.Vector.min()
-    assert 1 = A.Vector.new(50..1) |> A.Vector.min()
-    assert 1 = A.Vector.new(500..1) |> A.Vector.min()
-  end
-
-  test "max/1" do
-    assert 5 = A.Vector.new(1..5) |> A.Vector.max()
-    assert 50 = A.Vector.new(1..50) |> A.Vector.max()
-    assert 500 = A.Vector.new(1..500) |> A.Vector.max()
-
-    assert 5 = A.Vector.new(5..1) |> A.Vector.max()
-    assert 50 = A.Vector.new(50..1) |> A.Vector.max()
-    assert 500 = A.Vector.new(500..1) |> A.Vector.max()
-  end
-
   test "map/2" do
     {add_one, pop_args} = spy_callback(&(&1 + 1))
 
@@ -480,22 +265,6 @@ defmodule A.VectorTest do
     assert Enum.to_list(1..50) == pop_args.()
 
     assert A.Vector.new(2..501) == A.Vector.new(1..500) |> A.Vector.map(add_one)
-    assert Enum.to_list(1..500) == pop_args.()
-  end
-
-  test "each/2" do
-    {spy, pop_args} = spy_callback(fn _ -> nil end)
-
-    assert :ok = A.Vector.new() |> A.Vector.each(spy)
-    assert [] == pop_args.()
-
-    assert :ok = A.Vector.new(1..5) |> A.Vector.each(spy)
-    assert [1, 2, 3, 4, 5] == pop_args.()
-
-    assert :ok = A.Vector.new(1..50) |> A.Vector.each(spy)
-    assert Enum.to_list(1..50) == pop_args.()
-
-    assert :ok = A.Vector.new(1..500) |> A.Vector.each(spy)
     assert Enum.to_list(1..500) == pop_args.()
   end
 
@@ -687,10 +456,16 @@ defmodule A.VectorTest do
   end
 
   test "Enum.to_list/1" do
-    assert [] == A.Vector.new() |> Enum.to_list()
-    assert [1, 2, 3, 4, 5] == A.Vector.new(1..5) |> Enum.to_list()
-    assert Enum.to_list(1..50) == A.Vector.new(1..50) |> Enum.to_list()
-    assert Enum.to_list(1..500) == A.Vector.new(1..500) |> Enum.to_list()
+    captured =
+      capture_io(:stderr, fn ->
+        assert [] == A.Vector.new() |> Enum.to_list()
+        assert [1, 2, 3, 4, 5] == A.Vector.new(1..5) |> Enum.to_list()
+        assert Enum.to_list(1..50) == A.Vector.new(1..50) |> Enum.to_list()
+        assert Enum.to_list(1..500) == A.Vector.new(1..500) |> Enum.to_list()
+      end)
+
+    assert captured =~ "warning"
+    assert captured =~ "Enum has sub-optimal performance"
   end
 
   test "Enum.member?/2" do

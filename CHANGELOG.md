@@ -5,6 +5,7 @@
 ### Enhancements
 
 * `A.OrdMap` new implemention, with highly improved performance ⚡️⚡️
+* `A.Enum` as a faster `Enum` module optimized for Aja structures (vectors, ord maps)
 * Added `A.ord_size/1` macro
 
 ### Breaking changes
@@ -13,6 +14,7 @@
 * Change signature of `A.OrdMap.foldl/3` and `A.OrdMap.foldr/3`
 * Remove A.OrdMap.pop_first/1 and A.OrdMap.pop_last/1
 * Remove A.RBMap and A.RBSet
+* Deprecate methods from `A.Vector` that have been moved to `A.Enum`
 
 ## v0.4.8 (2021-02-23)
 
@@ -28,25 +30,25 @@
 
 ### Bug fixes
 
-* Fix `A.Vector.join/2` bug when working with chardata
+* Fix A.Vector.join/2 bug when working with chardata
 
 ## v0.4.7 (2021-02-19)
 
 ### Enhancements
 
-* Add `A.Vector.reduce/2` and `A.Vector.reduce/3`
+* Add A.Vector.reduce/2 and A.Vector.reduce/3
 * Add `A.Vector.split/2` and `A.Vector.split_with/2`
-* Add `A.Vector.frequencies/1` and `A.Vector.frequencies_by/2`
-* Add `A.Vector.group_by/3`
+* Add A.Vector.frequencies/1 and A.Vector.frequencies_by/2
+* Add A.Vector.group_by/3
 * Add `A.Vector.dedup/1` and `A.Vector.dedup_by/2`
-* Add `A.Vector.min/2`, `A.Vector.max/2`, `A.Vector.min_by/3`, `A.Vector.max_by/3`
-* Improve performance for  `A.Vector.min/1`, `A.Vector.max/1` and `A.Vector.uniq/1`
+* Add A.Vector.min/2, A.Vector.max/2, A.Vector.min_by/3, A.Vector.max_by/3
+* Improve performance for  A.Vector.min/1, A.Vector.max/1 and `A.Vector.uniq/1`
 
 ## v0.4.6 (2021-02-10)
 
 ### Enhancements
 
-* Add `A.Vector.find_index/2`
+* Add A.Vector.find_index/2
 * Add `A.Vector.take_while/2`, `A.Vector.drop_while/2` and `A.Vector.split_while/2`
 * Add `A.Vector.zip/2` and `A.Vector.unzip/1`
 * Add `A.Vector.fetch!/2` alias
@@ -55,7 +57,7 @@
 
 ### Enhancements
 
-* Add `A.Vector.find/3` and `A.Vector.find_value/3`
+* Add A.Vector.find/3 and A.Vector.find_value/3
 * Add `A.+++/2` convenience operator
 * Improve efficiency of vector access functions: `A.Vector.at/2`,
   `A.Vector.fetch/2`, `A.Vector.replace_at/3`,  `A.Vector.delete_at/2`...  ⚡️
@@ -72,14 +74,14 @@
 
 * Add `A.vec_size/1` macro
 * Add `A.Vector.with_index/2`
-* Add `A.Vector.random/1`, `A.Vector.take_random/2` and `A.Vector.shuffle/1`
+* Add A.Vector.random/1, `A.Vector.take_random/2` and `A.Vector.shuffle/1`
 * Drastically improve efficiency of `A.Vector.duplicate/2` ⚡️⚡️⚡️
 
 ### Breaking changes
 
   * Changed internal representation of `A.Vector` (only breaking if persisted)
   * Stop documenting and exposing internal trees (A.RBTree)
-  * Rename and deprecate `A.Vector.append_many/2` to `A.Vector.concat/2`
+  * Rename and deprecate A.Vector.append_many/2 to `A.Vector.concat/2`
 
 ## v0.4.3 (2021-01-12)
 
@@ -87,7 +89,7 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
 
-* Add `A.Vector.each/2`
+* Add A.Vector.each/2
 * Add `A.Vector.slice/2`, `A.Vector.slice/3`, `A.Vector.take/2` and `A.Vector.drop/2`
 * `A.Vector` efficiently implements `Enumerable.slice/1`
 * Reimplement `A.Vector.delete_at/2`, `A.Vector.pop_at/2` efficiently
@@ -96,24 +98,24 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
 
-* Implement `A.Vector.product/1`
+* Implement A.Vector.product/1
 
 ### Bug fixes
 
 * Invoke callbacks in the right order for: `A.Vector.map/2`,
-  `A.Vector.map_intersperse/3`, `A.Vector.map_join/3`,
-  `A.Vector.any?/2`, `A.Vector.all?/2`
+  `A.Vector.map_intersperse/3`, A.Vector.map_join/3,
+  A.Vector.any?/2, A.Vector.all?/2
 
 ## v0.4.1 (2020-12-05)
 
 ### Enhancements
 
-* Add `A.Vector.map_join/3` and `A.Vector.map_intersperse/3`
+* Add A.Vector.map_join/3 and `A.Vector.map_intersperse/3`
 * Implement `A.Vector.intersperse/2` more efficiently
 
 ### Bug fixes
 
-* `A.Vector.sum/1` adds using the same order as `Enum.sum/1`,
+* A.Vector.sum/1 adds using the same order as `Enum.sum/1`,
   avoiding slight inconsistencies for floats
 
 ## v0.4.0 (2020-12-02)

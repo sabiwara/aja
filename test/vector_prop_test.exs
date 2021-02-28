@@ -2,6 +2,8 @@ defmodule A.Vector.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
+  import ExUnit.CaptureIO
+
   import A, only: [vec: 1, vec_size: 1]
 
   # Property-based testing:
@@ -90,13 +92,20 @@ defmodule A.Vector.PropTest do
   def assert_properties(vec([]) = vector) do
     assert 0 = A.Vector.size(vector)
     assert [] = A.Vector.to_list(vector)
-    assert [] = Enum.to_list(vector)
+    assert [] = A.Enum.to_list(vector)
+
+    capture_io(:stderr, fn ->
+      assert [] = Enum.to_list(vector)
+    end)
   end
 
   def assert_properties(%A.Vector{} = vector) do
     as_list = A.Vector.to_list(vector)
 
-    assert ^as_list = Enum.to_list(vector)
+    capture_io(:stderr, fn ->
+      assert ^as_list = Enum.to_list(vector)
+    end)
+
     assert A.Vector.size(vector) === length(as_list)
     assert Enum.count(vector) === length(as_list)
 
@@ -138,8 +147,13 @@ defmodule A.Vector.PropTest do
 
       assert vz === A.Vector.concat(vx, y)
       assert vz === A.Vector.concat(vx, vy)
+      assert vz === A.Enum.into(y, vx)
+      assert vz === A.Enum.into(vy, vx)
       assert vz === Enum.into(y, vx)
-      assert vz === Enum.into(vy, vx)
+
+      capture_io(:stderr, fn ->
+        assert vz === Enum.into(vy, vx)
+      end)
 
       assert A.Vector.size(vz) === A.Vector.size(vx) + A.Vector.size(vy)
     end
@@ -175,23 +189,23 @@ defmodule A.Vector.PropTest do
       assert match?(v when vec_size(v) >= list_length, vector)
       refute match?(v when vec_size(v) < list_length, vector)
 
-      assert capture_error(Enum.min(list)) === capture_error(A.Vector.min(vector))
-      assert capture_error(Enum.max(list)) === capture_error(A.Vector.max(vector))
+      assert capture_error(Enum.min(list)) === capture_error(A.Enum.min(vector))
+      assert capture_error(Enum.max(list)) === capture_error(A.Enum.max(vector))
 
-      assert capture_error(Enum.min(list)) === capture_error(A.Vector.max(vector, &<=/2))
-      assert capture_error(Enum.max(list)) === capture_error(A.Vector.min(vector, &>=/2))
-
-      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Vector.min_by(vector, &:erlang.phash2/1))
-
-      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Vector.max_by(vector, &:erlang.phash2/1))
+      assert capture_error(Enum.min(list)) === capture_error(A.Enum.max(vector, &<=/2))
+      assert capture_error(Enum.max(list)) === capture_error(A.Enum.min(vector, &>=/2))
 
       assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Vector.max_by(vector, &:erlang.phash2/1, &<=/2))
+               capture_error(A.Enum.min_by(vector, &:erlang.phash2/1))
 
       assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Vector.min_by(vector, &:erlang.phash2/1, &>=/2))
+               capture_error(A.Enum.max_by(vector, &:erlang.phash2/1))
+
+      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Enum.max_by(vector, &:erlang.phash2/1, &<=/2))
+
+      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error(A.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1) === vector[i1]
@@ -229,7 +243,7 @@ defmodule A.Vector.PropTest do
       assert Enum.reverse(list) === A.Vector.foldl(vector, [], &[&1 | &2])
 
       assert capture_error(Enum.reduce(list, &[&1 | &2])) ===
-               capture_error(A.Vector.reduce(vector, &[&1 | &2]))
+               capture_error(A.Enum.reduce(vector, &[&1 | &2]))
 
       assert Enum.scan(list, &[&1 | &2]) |> A.Vector.new() === A.Vector.scan(vector, &[&1 | &2])
 
@@ -258,28 +272,28 @@ defmodule A.Vector.PropTest do
       assert {vector, A.Vector.new(A.ExRange.new(i1, list_length + i1))} ==
                A.Vector.unzip(index_vector)
 
-      assert Enum.any?(list) === A.Vector.any?(vector)
-      assert Enum.all?(list) === A.Vector.all?(vector)
+      assert Enum.any?(list) === A.Enum.any?(vector)
+      assert Enum.all?(list) === A.Enum.all?(vector)
 
       assert Enum.any?(list, &hash_multiple_of_2/1) ===
-               A.Vector.any?(vector, &hash_multiple_of_2/1)
+               A.Enum.any?(vector, &hash_multiple_of_2/1)
 
       assert Enum.all?(list, &hash_multiple_of_2/1) ===
-               A.Vector.all?(vector, &hash_multiple_of_2/1)
+               A.Enum.all?(vector, &hash_multiple_of_2/1)
 
-      assert true === A.Vector.all?(A.Vector.new(filtered_list), &hash_multiple_of_2/1)
+      assert true === A.Enum.all?(A.Vector.new(filtered_list), &hash_multiple_of_2/1)
 
       assert false ===
-               A.Vector.any?(A.Vector.new(filtered_list), fn x -> !hash_multiple_of_2(x) end)
+               A.Enum.any?(A.Vector.new(filtered_list), fn x -> !hash_multiple_of_2(x) end)
 
       assert Enum.find(list, &hash_multiple_of_2/1) ===
-               A.Vector.find(vector, &hash_multiple_of_2/1)
+               A.Enum.find(vector, &hash_multiple_of_2/1)
 
       assert Enum.find_value(list, &hash_multiple_of_2/1) ===
-               A.Vector.find_value(vector, &hash_multiple_of_2/1)
+               A.Enum.find_value(vector, &hash_multiple_of_2/1)
 
       assert Enum.find_index(list, &hash_multiple_of_2/1) ===
-               A.Vector.find_index(vector, &hash_multiple_of_2/1)
+               A.Enum.find_index(vector, &hash_multiple_of_2/1)
 
       assert Enum.take_while(list, &hash_multiple_of_2/1) |> A.Vector.new() ===
                A.Vector.take_while(vector, &hash_multiple_of_2/1)
@@ -292,32 +306,44 @@ defmodule A.Vector.PropTest do
       assert {A.Vector.new(taken), A.Vector.new(dropped)} ===
                A.Vector.split_while(vector, &hash_multiple_of_2/1)
 
-      assert capture_error(Enum.sum(list)) === capture_error(A.Vector.sum(vector))
+      assert capture_error(Enum.sum(list)) === capture_error(A.Enum.sum(vector))
 
       assert capture_error(Enum.reduce(list, 1, &(&2 * &1))) ===
-               capture_error(A.Vector.product(vector))
+               capture_error(A.Enum.product(vector))
 
-      assert capture_error(Enum.join(list, ",")) === capture_error(A.Vector.join(vector, ","))
-      assert Enum.map_join(list, ",", &inspect/1) === A.Vector.map_join(vector, ",", &inspect/1)
+      assert capture_error(Enum.join(list, ",")) === capture_error(A.Enum.join(vector, ","))
+      assert Enum.map_join(list, ",", &inspect/1) === A.Enum.map_join(vector, ",", &inspect/1)
 
+      assert Enum.intersperse(list, nil) === A.Enum.intersperse(vector, nil)
       assert Enum.intersperse(list, nil) |> A.Vector.new() === A.Vector.intersperse(vector, nil)
 
       assert Enum.map_intersperse(list, nil, &inspect/1) |> A.Vector.new() ===
                A.Vector.map_intersperse(vector, nil, &inspect/1)
 
-      assert Enum.frequencies(list) === A.Vector.frequencies(vector)
+      assert Enum.map_intersperse(list, nil, &inspect/1) ===
+               A.Enum.map_intersperse(vector, nil, &inspect/1)
+
+      assert Enum.frequencies(list) === A.Enum.frequencies(vector)
 
       assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===
-               A.Vector.frequencies_by(vector, &hash_multiple_of_2/1)
+               A.Enum.frequencies_by(vector, &hash_multiple_of_2/1)
 
       assert Enum.group_by(list, &hash_multiple_of_2/1) ===
-               A.Vector.group_by(vector, &hash_multiple_of_2/1)
+               A.Enum.group_by(vector, &hash_multiple_of_2/1)
 
       assert Enum.group_by(list, &hash_multiple_of_2/1, &inspect/1) ===
-               A.Vector.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
+               A.Enum.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
 
+      assert Enum.uniq(list) === A.Enum.uniq(vector)
+      assert Enum.dedup(list) === A.Enum.dedup(vector)
       assert Enum.uniq(list) |> A.Vector.new() === A.Vector.uniq(vector)
       assert Enum.dedup(list) |> A.Vector.new() === A.Vector.dedup(vector)
+
+      assert Enum.uniq_by(list, &hash_multiple_of_2/1) ===
+               A.Enum.uniq_by(vector, &hash_multiple_of_2/1)
+
+      assert Enum.dedup_by(list, &hash_multiple_of_2/1) ===
+               A.Enum.dedup_by(vector, &hash_multiple_of_2/1)
 
       assert Enum.uniq_by(list, &hash_multiple_of_2/1) |> A.Vector.new() ===
                A.Vector.uniq_by(vector, &hash_multiple_of_2/1)
@@ -333,7 +359,7 @@ defmodule A.Vector.PropTest do
       assert A.Vector.new() == A.Vector.take_random(vector, 0)
 
       if list_length != 0 do
-        rand = A.Vector.random(vector)
+        rand = A.Enum.random(vector)
         assert rand in vector
         assert rand in shuffled
 
@@ -347,11 +373,11 @@ defmodule A.Vector.PropTest do
   end
 
   @tag :property
-  property "A.Vector.sum/1 should return the same as Enum.sum/1 for numbers" do
+  property "A.Enum.sum/1 should return the same as Enum.sum/1 for numbers" do
     check all(list <- list_of(one_of([integer(), float()]))) do
       vector = A.Vector.new(list)
 
-      assert Enum.sum(list) === A.Vector.sum(vector)
+      assert Enum.sum(list) === A.Enum.sum(vector)
     end
   end
 
@@ -377,19 +403,19 @@ defmodule A.Vector.PropTest do
 
       replaced_vector = A.Vector.update_at(vector, i1, negate)
 
-      assert !!value === A.Vector.any?(vector)
-      assert !!value === A.Vector.any?(vector, id)
-      assert !value === A.Vector.any?(vector, negate)
-      assert !!value === A.Vector.all?(vector)
-      assert !!value === A.Vector.all?(vector, id)
-      assert !value === A.Vector.all?(vector, negate)
+      assert !!value === A.Enum.any?(vector)
+      assert !!value === A.Enum.any?(vector, id)
+      assert !value === A.Enum.any?(vector, negate)
+      assert !!value === A.Enum.all?(vector)
+      assert !!value === A.Enum.all?(vector, id)
+      assert !value === A.Enum.all?(vector, negate)
 
-      assert true === A.Vector.any?(replaced_vector)
-      assert true === A.Vector.any?(replaced_vector, id)
-      assert true === A.Vector.any?(replaced_vector, negate)
-      assert false === A.Vector.all?(replaced_vector)
-      assert false === A.Vector.all?(replaced_vector, id)
-      assert false === A.Vector.all?(replaced_vector, negate)
+      assert true === A.Enum.any?(replaced_vector)
+      assert true === A.Enum.any?(replaced_vector, id)
+      assert true === A.Enum.any?(replaced_vector, negate)
+      assert false === A.Enum.all?(replaced_vector)
+      assert false === A.Enum.all?(replaced_vector, id)
+      assert false === A.Enum.all?(replaced_vector, negate)
     end
   end
 end

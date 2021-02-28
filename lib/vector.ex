@@ -211,11 +211,11 @@ defmodule A.Vector do
     end
   }
 
-  ### Prefer `A.Vector` to `Enum` for vectors
+  ### Prefer `A.Enum` and `A.Vector` to `Enum` for vectors
 
-  Many functions provided in this module are very efficient and should be
-  used over `Enum` functions whenever possible, even if `A.Vector` implements
-  the `Enumerable` and `Collectable` protocols for convienience:
+  Many functions provided in the `A.Enum` module or this module are very efficient when operating
+  on vectors, and should be used over `Enum` functions whenever possible (even if `A.Vector`
+  implements the `Enumerable` and `Collectable` protocols for convienience):
 
   **DON'T**
 
@@ -227,11 +227,13 @@ defmodule A.Vector do
 
   **DO**
 
-      A.Vector.sum(vector)
-      A.Vector.to_list(vector)
-      A.Vector.foldl(vector, [], fun)
+      A.Enum.sum(vector)
+      A.Enum.to_list(vector)  # or A.Vector.to_list(vector)
+      A.Enum.reduce(vector, [], fun)  # or A.Vector.foldl(vector, [], fun)
       A.Vector.new(enumerable)
-      A.Vector.concat(vector, enumerable)
+      A.Enum.into(enumerable, vector)
+      # or A.Vector.concat(vector, enumerable)
+      # or vector +++ enumerable
 
   `for` comprehensions are actually using `Enumerable` as well, so
   the same advice holds:
@@ -242,7 +244,7 @@ defmodule A.Vector do
         do_stuff()
       end
 
-  **DO**
+  If using it in EEx templates, you might want to cast it to a list:
 
       for value <- A.Vector.to_list(vector) do
         do_stuff()
@@ -282,22 +284,20 @@ defmodule A.Vector do
       A.Vector.slice(vector, 0, 10)  # slicing from 0
       A.Vector.slice(vector, 0..-5)  # slicing from 0
 
-  ### `A.Vector` and `Enum` APIs
+  ### `A.Vector` and `A.Enum`
 
-  Not all `Enum` functions have been mirrored in `A.Vector`, but
-  you can try either to:
-  - use `A.Vector.foldl/3` or `A.Vector.foldr/3` to implement it
-    (the latter is better to build lists)
-  - call `A.Vector.to_list/1` before using `Enum`
-
-  Also, it is worth noting that several `A.Vector` functions return vectors,
-  not lists like their `Enum` counterpart:
+  - `A.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
+  - `A.Vector` mirrors `Enum` functions returning lists, but return vectors instead
 
       iex> vector = A.Vector.new(1..10)
       iex> A.Vector.map(vector, & (&1 * 7))
       #A<vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])>
+      iex> A.Enum.reverse(vector)
+      [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
       iex> A.Vector.reverse(vector)
       #A<vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])>
+      iex> A.Enum.map(vector, & (&1 * 7))
+      [7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
 
   ### Additional notes
 
@@ -385,14 +385,11 @@ defmodule A.Vector do
     vector
   end
 
-  def new(%A.OrdMap{} = ord_map) do
-    A.OrdMap.to_vector(ord_map)
-  end
-
   def new(enumerable) do
-    enumerable
-    |> A.FastEnum.to_list()
-    |> from_list()
+    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+      list when is_list(list) -> from_list(list)
+      raw -> from_internal(raw)
+    end
   end
 
   @doc """
@@ -406,12 +403,9 @@ defmodule A.Vector do
   """
   @spec new(Enumerable.t(), (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def new(enumerable, fun) when is_function(fun, 1) do
-    case enumerable do
-      %__MODULE__{} ->
-        map(enumerable, fun)
-
-      _ ->
-        enumerable |> A.FastEnum.to_list() |> Raw.from_mapped_list(fun) |> from_internal()
+    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+      list when is_list(list) -> Raw.from_mapped_list(list, fun) |> from_internal()
+      raw -> Raw.map(raw, fun) |> from_internal()
     end
   end
 
@@ -487,11 +481,12 @@ defmodule A.Vector do
   """
   @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
   def concat(%__MODULE__{__vector__: internal}, enumerable) do
-    list = A.FastEnum.to_list(enumerable)
+    list = A.EnumHelper.to_list(enumerable)
 
     Raw.concat(internal, list) |> from_internal()
   end
 
+  @doc false
   @deprecated "Use A.Vector.concat/2 instead"
   defdelegate append_many(vector, enumerable), to: __MODULE__, as: :concat
 
@@ -1334,7 +1329,7 @@ defmodule A.Vector do
         when val: value, separator: value
   def intersperse(%__MODULE__{__vector__: internal}, separator) do
     internal
-    |> Raw.intersperse_list(separator)
+    |> Raw.intersperse_to_list(separator)
     |> from_list()
   end
 
@@ -1358,7 +1353,7 @@ defmodule A.Vector do
   def map_intersperse(%__MODULE__{__vector__: internal}, separator, mapper)
       when is_function(mapper, 1) do
     internal
-    |> Raw.map_intersperse_list(separator, mapper)
+    |> Raw.map_intersperse_to_list(separator, mapper)
     |> from_list()
   end
 
@@ -1405,54 +1400,15 @@ defmodule A.Vector do
     Raw.foldr(internal, acc, fun)
   end
 
-  @doc """
-  Invokes `fun` for each element in the `vector` with the accumulator.
-
-  Raises `A.Vector.EmptyError` if `vector` is empty.
-
-  The first element of the `vector` is used as the initial value
-  of the accumulator. Then the function is invoked with the next
-  element and the accumulator. The result returned by the function
-  is used as the accumulator for the next iteration, recursively.
-
-  Since the first element of the `vector` is used as the initial
-  value of the accumulator, `fun` will only be executed `n - 1` times
-  where `n` is the size of the `vector`. This function won't call
-  the specified function if `vector` only has one element.
-
-  If you wish to use another value for the accumulator, use `reduce/3`.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new([1, 2, 3, 4, 5]) |> A.Vector.reduce(fn x, acc -> x * acc end)
-      120
-      iex> A.Vector.new([]) |> A.Vector.reduce(fn x, acc -> x * acc end)
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.reduce/2 instead"
   @spec reduce(t(val), (val, val -> val)) :: val when val: value
   def reduce(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
     Raw.reduce(internal, fun)
   end
 
-  @doc """
-  Folds (reduces) the given `vector` from the left with the function `fun`.
-  Requires an accumulator `acc`.
-
-  Same as `foldl/3`.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..10) |> A.Vector.reduce(0, &+/2)
-      55
-      iex> A.Vector.new(1..10) |> A.Vector.reduce([], & [&1 | &2])
-      [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.reduce/3 instead"
   defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
 
   @doc """
@@ -1525,111 +1481,36 @@ defmodule A.Vector do
     internal |> Raw.scan(acc, fun) |> from_internal()
   end
 
-  @doc """
-  Invokes the given `fun` for each element in the `vector`.
-
-  Returns `:ok`.
-
-  Runs in linear time.
-
-  ## Examples
-
-      A.Vector.new(1..3) |> A.Vector.each(&IO.inspect/1)
-      1
-      2
-      3
-      :ok
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.each/2 instead"
   @spec each(t(val), (val -> term)) :: :ok when val: value
   def each(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.each(internal, fun)
-    :ok
   end
 
-  @doc """
-  Returns the sum of all elements in the `vector`.
-
-  Raises `ArithmeticError` if `vector` contains a non-numeric value.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..10) |> A.Vector.sum()
-      55
-      iex> A.Vector.new() |> A.Vector.sum()
-      0
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.sum/1 instead"
   @spec sum(t(num)) :: num when num: number
   def sum(%__MODULE__{__vector__: internal}) do
     Raw.sum(internal)
   end
 
-  @doc """
-  Returns the product of all elements in the `vector`.
-
-  Raises `ArithmeticError` if `vector` contains a non-numeric value.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..5) |> A.Vector.product()
-      120
-      iex> A.Vector.new() |> A.Vector.product()
-      1
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.product/1 instead"
   @spec product(t(num)) :: num when num: number
   def product(%__MODULE__{__vector__: internal}) do
     Raw.product(internal)
   end
 
-  @doc """
-  Joins the given `vector` into a string using `joiner` as a separator.
-
-  If `joiner` is not passed at all, it defaults to an empty string.
-
-  All elements in the `vector` must be convertible to a string, otherwise an error is raised.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..6) |> A.Vector.join()
-      "123456"
-      iex> A.Vector.new(1..6) |> A.Vector.join(" + ")
-      "1 + 2 + 3 + 4 + 5 + 6"
-      iex> A.Vector.new() |> A.Vector.join(" + ")
-      ""
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.join/2 instead"
   @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
   def join(%__MODULE__{__vector__: internal}, joiner \\ "") when is_binary(joiner) do
     Raw.join_as_iodata(internal, joiner) |> IO.iodata_to_binary()
   end
 
-  @doc """
-  Maps and joins the given `vector` into a string using `joiner` as a separator.
-
-  If `joiner` is not passed at all, it defaults to an empty string.
-
-  `mapper` should only return values that are convertible to a string, otherwise an error is raised.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..6) |> A.Vector.map_join(fn x -> x * 10 end)
-      "102030405060"
-      iex> A.Vector.new(1..6) |> A.Vector.map_join(" + ", fn x -> x * 10 end)
-      "10 + 20 + 30 + 40 + 50 + 60"
-      iex> A.Vector.new() |> A.Vector.map_join(" + ", fn x -> x * 10 end)
-      ""
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.map_join/3 instead"
   @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
         when val: value
   def map_join(%__MODULE__{__vector__: internal}, joiner \\ "", mapper)
@@ -1640,50 +1521,15 @@ defmodule A.Vector do
     |> IO.iodata_to_binary()
   end
 
-  @doc """
-  Returns the maximal element in the `vector` according to Erlang's term ordering.
-
-  If multiple elements are considered maximal, the first one that was found is returned.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..10) |> A.Vector.max()
-      10
-      iex> A.Vector.new() |> A.Vector.max()
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.max/3 instead"
   @spec max(t(val)) :: val when val: value
   def max(%__MODULE__{__vector__: internal}) do
     Raw.max(internal)
   end
 
-  @doc """
-  Returns the maximal element in the `vector` using `sorter` to compare elements.
-
-  `sorter` can either be an arity-2 function returning a boolean or a module
-  implementing a `compare/2` function, such as `Date.compare/2`.
-
-  See documentation for `Enum.max/3` for more explanations.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.max()
-      ~D[2017-03-31]
-      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.max(Date)
-      ~D[2017-04-01]
-      iex> A.Vector.new() |> A.Vector.max(Date)
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.max/3 instead"
   @spec max(t(val), (val, val -> boolean) | module) :: val when val: value
   def max(%__MODULE__{__vector__: internal}, sorter) do
     Raw.custom_min_max(internal, max_sort_fun(sorter))
@@ -1692,50 +1538,15 @@ defmodule A.Vector do
   defp max_sort_fun(sorter) when is_function(sorter, 2), do: sorter
   defp max_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :lt)
 
-  @doc """
-  Returns the minimal element in the `vector` according to Erlang's term ordering.
-
-  If multiple elements are considered minimal, the first one that was found is returned.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(1..10) |> A.Vector.min()
-      1
-      iex> A.Vector.new() |> A.Vector.min()
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.min/3 instead"
   @spec min(t(val)) :: val when val: value
   def min(%__MODULE__{__vector__: internal}) do
     Raw.min(internal)
   end
 
-  @doc """
-  Returns the minimal element in the `vector` using `sorter` to compare elements.
-
-  `sorter` can either be an arity-2 function returning a boolean or a module
-  implementing a `compare/2` function, such as `Date.compare/2`.
-
-  See documentation for `Enum.min/3` for more explanations.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.min()
-      ~D[2017-04-01]
-      iex> A.Vector.new([~D[2017-03-31], ~D[2017-04-01]]) |> A.Vector.min(Date)
-      ~D[2017-03-31]
-      iex> A.Vector.new() |> A.Vector.min(Date)
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.min/3 instead"
   @spec min(t(val), (val, val -> boolean) | module) :: val when val: value
   def min(%__MODULE__{__vector__: internal}, sorter) do
     Raw.custom_min_max(internal, min_sort_fun(sorter))
@@ -1744,151 +1555,37 @@ defmodule A.Vector do
   defp min_sort_fun(sorter) when is_function(sorter, 2), do: sorter
   defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
 
-  @doc """
-  Returns the minimal element in the `vector` as calculated by the given `fun`.
-
-  By default, the comparison is done with the `<=` sorter function.
-  If multiple elements are considered minimal, the first one that
-  was found is returned. If you want the last element considered
-  minimal to be returned, the sorter function should not return `true`
-  for equal elements.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(["a", "aa", "aaa"]) |> A.Vector.min_by(&String.length/1)
-      "a"
-      iex> A.Vector.new(["a", "aa", "aaa", "b", "bbb"]) |> A.Vector.min_by(&String.length/1)
-      "a"
-      iex> A.Vector.new([]) |> A.Vector.min_by(&String.length/1)
-      ** (ArgumentError) argument error
-
-  The fact this function uses Erlang's term ordering means that the
-  comparison is structural and not semantic. Therefore, if you want
-  to compare structs, most structs provide a "compare" function, such as
-  `Date.compare/2`, which receives two structs and returns `:lt` (less-than),
-  `:eq` (equal to), and `:gt` (greater-than). If you pass a module as the
-  sorting function, Elixir will automatically use the `compare/2` function
-  of said module:
-
-      iex> users = A.Vector.new([
-      ...>   %{name: "Ellis", birthday: ~D[1943-05-11]},
-      ...>   %{name: "Lovelace", birthday: ~D[1815-12-10]},
-      ...>   %{name: "Turing", birthday: ~D[1912-06-23]}
-      ...> ])
-      iex> A.Vector.min_by(users, &(&1.birthday), Date)
-      %{name: "Lovelace", birthday: ~D[1815-12-10]}
-
-  """
-  @spec min_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
-        when val: value, key: term
+  @doc false
+  @deprecated "Use A.Enum.min_by/4 instead"
   def min_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &<=/2) when is_function(fun, 1) do
     Raw.custom_min_max_by(internal, fun, min_sort_fun(sorter))
   end
 
-  @doc """
-  Returns the maximal element in the `vector` as calculated by the given `fun`.
-
-  By default, the comparison is done with the `>=` sorter function.
-  If multiple elements are considered maximal, the first one that
-  was found is returned. If you want the last element considered
-  maximal to be returned, the sorter function should not return `true`
-  for equal elements.
-
-  Raises a `A.Vector.EmptyError` if empty.
-
-  Runs in linear time.
-
-  ## Examples
-
-      iex> A.Vector.new(["a", "aa", "aaa"]) |> A.Vector.max_by(&String.length/1)
-      "aaa"
-      iex> A.Vector.new(["a", "aa", "aaa", "b", "bbb"]) |> A.Vector.max_by(&String.length/1)
-      "aaa"
-      iex> A.Vector.new([]) |> A.Vector.max_by(&String.length/1)
-      ** (ArgumentError) argument error
-
-  The fact this function uses Erlang's term ordering means that the
-  comparison is structural and not semantic. Therefore, if you want
-  to compare structs, most structs provide a "compare" function, such as
-  `Date.compare/2`, which receives two structs and returns `:lt` (less-than),
-  `:eq` (equal to), and `:gt` (greater-than). If you pass a module as the
-  sorting function, Elixir will automatically use the `compare/2` function
-  of said module:
-
-      iex> users = A.Vector.new([
-      ...>   %{name: "Ellis", birthday: ~D[1943-05-11]},
-      ...>   %{name: "Lovelace", birthday: ~D[1815-12-10]},
-      ...>   %{name: "Turing", birthday: ~D[1912-06-23]}
-      ...> ])
-      iex> A.Vector.max_by(users, &(&1.birthday), Date)
-      %{name: "Ellis", birthday: ~D[1943-05-11]}
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.max_by/4 instead"
   @spec max_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
         when val: value, key: term
   def max_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &>=/2) when is_function(fun, 1) do
     Raw.custom_min_max_by(internal, fun, max_sort_fun(sorter))
   end
 
-  @doc """
-  Returns a map with keys as unique elements of `vector` and values
-  as the count of every element.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(~w{ant buffalo ant ant buffalo dingo})
-      iex> A.Vector.frequencies(vector)
-      %{"ant" => 3, "buffalo" => 2, "dingo" => 1}
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.frequencies/1 instead"
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
   def frequencies(%__MODULE__{__vector__: internal}) do
     Raw.frequencies(internal)
   end
 
-  @doc """
-  Returns a map with keys as unique elements given by `key_fun` and values
-  as the count of every element from the `vector`.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(~w{aa aA bb cc})
-      iex> A.Vector.frequencies_by(vector, &String.downcase/1)
-      %{"aa" => 2, "bb" => 1, "cc" => 1}
-
-      iex> vector = A.Vector.new(~w{aaa aA bbb cc c})
-      iex> A.Vector.frequencies_by(vector, &String.length/1)
-      %{3 => 2, 2 => 2, 1 => 1}
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.frequencies_by/2 instead"
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
   def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun, 1) do
     Raw.frequencies_by(internal, key_fun)
   end
 
-  @doc """
-  Splits the `vector` into groups based on `key_fun`.
-
-  The result is a map where each key is given by `key_fun`
-  and each value is a list of elements given by `value_fun`.
-
-  The order of elements within each list is preserved from the `vector`.
-  However, like all maps, the resulting map is unordered.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(~w{ant buffalo cat dingo})
-      iex> A.Vector.group_by(vector, &String.length/1)
-      %{3 => ["ant", "cat"], 5 => ["dingo"], 7 => ["buffalo"]}
-      iex> A.Vector.group_by(vector, &String.length/1, &String.first/1)
-      %{3 => ["a", "c"], 5 => ["d"], 7 => ["b"]}
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.group_by/3 instead"
   @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
         when val: value, key: any, mapped_val: any
   def group_by(%__MODULE__{__vector__: internal}, key_fun, value_fun \\ fn x -> x end)
@@ -1896,144 +1593,44 @@ defmodule A.Vector do
     Raw.group_by(internal, key_fun, value_fun)
   end
 
-  @doc """
-  Returns `true` if at least one element in `enumerable` is truthy.
-
-  Runs in linear time, but stops evaluating when finds the first truthy value.
-
-  Iterates over the `enumerable`, and when it finds a truthy value
-  (neither `false` nor `nil`), `true` is returned.
-  In all other cases `false` is returned.
-
-  ## Examples
-
-      iex> A.Vector.new([false, false, true]) |> A.Vector.any?()
-      true
-      iex> A.Vector.new([false, nil]) |> A.Vector.any?()
-      false
-      iex> A.Vector.new() |> A.Vector.any?()
-      false
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.any?/1 instead"
   @spec any?(t(val)) :: boolean when val: value
   def any?(%__MODULE__{__vector__: internal}) do
     Raw.any?(internal)
   end
 
-  @doc """
-  Returns `true` if `fun.(element)` is truthy for at least one element in `enumerable`.
-
-  Runs in linear time, but stops evaluating when finds the first truthy value.
-
-  Iterates over the `enumerable` and invokes `fun` on each element. When an invocation
-  of `fun` returns a truthy value (neither `false` nor `nil`) iteration stops immediately
-  and `true` is returned. In all other cases `false` is returned.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(1..10)
-      iex> A.Vector.any?(vector, fn i -> rem(i, 7) == 0 end)
-      true
-      iex> A.Vector.any?(vector, fn i -> rem(i, 13) == 0 end)
-      false
-      iex> A.Vector.new() |> A.Vector.any?(fn i -> rem(i, 7) == 0 end)
-      false
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.any?/2 instead"
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean when val: value
   def any?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.any?(internal, fun)
   end
 
-  @doc """
-  Returns `true` if all elements in `enumerable` are truthy.
-
-  Runs in linear time, but stops evaluating when finds the first falsy value.
-
-  Iterates over the `enumerable`, and when it finds a falsy value (`false` or `nil`),
-  `false` is returned. In all other cases `true` is returned.
-
-  ## Examples
-
-      iex> A.Vector.new([true, true, false]) |> A.Vector.all?()
-      false
-      iex> A.Vector.new([true, [], %{}, 5]) |> A.Vector.all?()
-      true
-      iex> A.Vector.new() |> A.Vector.all?()
-      true
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.all?/1 instead"
   @spec all?(t(val)) :: boolean when val: value
   def all?(%__MODULE__{__vector__: internal}) do
     Raw.all?(internal)
   end
 
-  @doc """
-  Returns `true` if `fun.(element)` is truthy for all elements in `enumerable`.
-
-  Runs in linear time, but stops evaluating when finds the first falsy value.
-
-  Iterates over the `enumerable` and invokes `fun` on each element. When an invocation
-  of `fun` returns a falsy value (`false` or `nil`) iteration stops immediately and
-  `false` is returned. In all other cases `true` is returned.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(1..10)
-      iex> A.Vector.all?(vector, fn i -> rem(i, 13) != 0 end)
-      true
-      iex> A.Vector.all?(vector, fn i -> rem(i, 7) != 0 end)
-      false
-      iex> A.Vector.new() |> A.Vector.all?(fn i -> rem(i, 7) != 0 end)
-      true
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.all?/2 instead"
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean when val: value
   def all?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.all?(internal, fun)
   end
 
-  @doc """
-  Returns the first element of `vector` for which `fun` returns a truthy value (neither `nil` nor `false`).
-
-  If no such element is found, returns `default`.
-
-  Runs in linear time, but stops evaluating when finds the first truthy value.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(2..10)
-      iex> A.Vector.find(vector, fn i -> rem(49, i) == 0 end)
-      7
-      iex> A.Vector.find(vector, fn i -> rem(13, i) == 0 end)
-      nil
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.find/3 instead"
   @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
         when val: value, default: value
   def find(%__MODULE__{__vector__: internal}, default \\ nil, fun) when is_function(fun, 1) do
-    case Raw.find(internal, fun) do
-      {:ok, value} -> value
-      nil -> default
-    end
+    Raw.find(internal, default, fun)
   end
 
-  @doc """
-  Similar to `find/3`, but returns the value of the function invocation instead of the element itself.
-
-  The return value is considered to be found when the result is truthy (neither `nil` nor `false`).
-
-  Runs in linear time, but stops evaluating when finds the first truthy value.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(["Ant", "Bat", "Cat", "Dinosaur"])
-      iex> A.Vector.find_value(vector, fn s -> String.at(s, 4) end)
-      "s"
-      iex> A.Vector.find_value(vector, fn s -> String.at(s, 10) end)
-      nil
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.find_value/3 instead"
   @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
         when val: value, new_val: value, default: value
   def find_value(%__MODULE__{__vector__: internal}, default \\ nil, fun)
@@ -2041,22 +1638,8 @@ defmodule A.Vector do
     Raw.find_value(internal, fun) || default
   end
 
-  @doc """
-  Similar to `find/3`, but returns the index (zero-based) of the element instead of the element itself.
-
-  If no such element is found, returns `nil`.
-
-  Runs in linear time, but stops evaluating when finds the first truthy value.
-
-  ## Examples
-
-      iex> vector = A.Vector.new(["Ant", "Bat", "Cat", "Dinosaur"])
-      iex> A.Vector.find_index(vector, fn s -> String.first(s) == "C" end)
-      2
-      iex> A.Vector.find_index(vector, fn s -> String.first(s) == "Z" end)
-      nil
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.find_index/2 instead"
   @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
   def find_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.find_index(internal, fun)
@@ -2411,31 +1994,8 @@ defmodule A.Vector do
     Raw.with_index(internal, 0, fun) |> from_internal()
   end
 
-  @doc """
-  Returns a random element of a `vector`.
-
-  Raises `Vector.EmptyError` if `vector` is empty.
-
-  Like `Enum.random/1`, this function uses Erlang's [`:rand` module](http://www.erlang.org/doc/man/rand.html)
-  to calculate the random value.
-  Check its documentation for setting a different random algorithm or a different seed.
-
-  Runs in effective constant time, and is therefore more efficient than `Enum.random/1` on lists.
-
-  ## Examples
-
-      # Although not necessary, let's seed the random algorithm
-      iex>:rand.seed(:exrop, {101, 102, 103})
-      iex> A.Vector.new([1, 2, 3]) |> A.Vector.random()
-      3
-      iex> A.Vector.new([1, 2, 3]) |> A.Vector.random()
-      2
-      iex> A.Vector.new(1..1_000) |> A.Vector.random()
-      846
-      iex> A.Vector.new([]) |> A.Vector.random()
-      ** (A.Vector.EmptyError) empty vector error
-
-  """
+  @doc false
+  @deprecated "Use A.Enum.random/1 instead"
   @spec random(t(val)) :: val when val: value
   def random(%__MODULE__{__vector__: internal}) do
     Raw.random(internal)
@@ -2538,13 +2098,6 @@ defmodule A.Vector do
     {from_internal(internal1), from_internal(internal2)}
   end
 
-  # Exposed "private" functions
-
-  @doc false
-  def map_to_list(%__MODULE__{__vector__: internal}, fun) do
-    Raw.map_to_list(internal, fun)
-  end
-
   # Private functions
 
   defp from_list([]), do: from_internal(@empty_raw)
@@ -2575,6 +2128,12 @@ defmodule A.Vector do
     end
 
     def reduce(%A.Vector{__vector__: internal}, acc, fun) do
+      # TODO investigate best way to warn
+      # flag it?
+      IO.warn(
+        "Enum has sub-optimal performance for A.Vector, use A.Enum (see https://hexdocs.pm/aja/A.Enum.html)"
+      )
+
       internal
       |> A.Vector.Raw.to_list()
       |> Enumerable.List.reduce(acc, fun)

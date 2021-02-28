@@ -111,7 +111,6 @@ defmodule A.OrdMap.PropTest do
     assert ^as_list = A.OrdMap.foldl(ord_map, [], &[&1 | &2]) |> Enum.reverse()
 
     as_vector = A.Vector.new(as_list)
-    assert ^as_vector = A.OrdMap.to_vector(ord_map)
     assert ^as_vector = A.Vector.new(ord_map)
     assert ^as_vector = A.Vector.new(ord_map, fn {k, v} -> {k, v} end)
 

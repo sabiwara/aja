@@ -423,7 +423,12 @@ defmodule A.Vector.Raw do
   end
 
   @spec each(t(val), (val -> term)) :: :ok when val: value
-  C.def_foldl each(arg, fun) do
+  def each(vector, fun) do
+    do_each(vector, fun)
+    :ok
+  end
+
+  C.def_foldl do_each(arg, fun) do
     fun.(arg)
     fun
   end
@@ -438,15 +443,15 @@ defmodule A.Vector.Raw do
     acc * arg
   end
 
-  @spec intersperse_list(t(val), sep) :: [val | sep] when val: value, sep: value
-  def intersperse_list(vector, separator) do
-    case do_intersperse_list(vector, separator) do
+  @spec intersperse_to_list(t(val), sep) :: [val | sep] when val: value, sep: value
+  def intersperse_to_list(vector, separator) do
+    case do_intersperse_to_list(vector, separator) do
       [] -> []
       [_ | rest] -> rest
     end
   end
 
-  C.def_foldr do_intersperse_list(arg, acc \\ [], separator) do
+  C.def_foldr do_intersperse_to_list(arg, acc \\ [], separator) do
     [separator, arg | acc]
   end
 
@@ -458,14 +463,14 @@ defmodule A.Vector.Raw do
     [fun.(arg) | acc]
   end
 
-  def map_intersperse_list(vector, separator, mapper) do
-    case do_map_intersperse_list(vector, separator, mapper) do
+  def map_intersperse_to_list(vector, separator, mapper) do
+    case do_map_intersperse_to_list(vector, separator, mapper) do
       [] -> []
       [_ | rest] -> :lists.reverse(rest)
     end
   end
 
-  C.def_foldl do_map_intersperse_list(arg, acc \\ [], separator, mapper) do
+  C.def_foldl do_map_intersperse_to_list(arg, acc \\ [], separator, mapper) do
     [separator, mapper.(arg) | acc]
   end
 
@@ -696,17 +701,24 @@ defmodule A.Vector.Raw do
 
   def all?(empty_pattern(), _fun), do: true
 
-  @spec find(t(val), (val -> as_boolean(term))) :: {:ok, val} | nil when val: value
+  @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
+        when val: value, default: any
+  def find(vector, default, fun) do
+    case do_find(vector, fun) do
+      {:ok, value} -> value
+      nil -> default
+    end
+  end
 
-  def find(large(size, tail_offset, level, trie, tail), fun) do
+  defp do_find(large(size, tail_offset, level, trie, tail), fun) do
     Trie.find(trie, level, fun) || Tail.partial_find(tail, size - tail_offset, fun)
   end
 
-  def find(small(size, tail), fun) do
+  defp do_find(small(size, tail), fun) do
     Tail.partial_find(tail, size, fun)
   end
 
-  def find(empty_pattern(), _fun), do: nil
+  defp do_find(empty_pattern(), _fun), do: nil
 
   @spec find_value(t(val), (val -> new_val)) :: new_val | nil when val: value, new_val: value
 
