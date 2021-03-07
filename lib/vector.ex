@@ -2144,18 +2144,18 @@ defmodule A.Vector do
     alias A.Vector.Raw
 
     def into(%A.Vector{__vector__: internal}) do
-      {{[], internal}, &collector_fun/2}
+      {[],
+       fn
+         acc, {:cont, value} -> [value | acc]
+         acc, :done -> done(internal, acc)
+         _acc, :halt -> :ok
+       end}
     end
 
-    @compile {:inline, collector_fun: 2}
-    defp collector_fun({acc, internal}, {:cont, value}), do: {[value | acc], internal}
-
-    defp collector_fun({acc, internal}, :done) do
+    defp done(internal, acc) do
       new_internal = Raw.concat(internal, :lists.reverse(acc))
       %A.Vector{__vector__: new_internal}
     end
-
-    defp collector_fun(_acc, :halt), do: :ok
   end
 
   if Code.ensure_loaded?(Jason.Encoder) do

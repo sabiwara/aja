@@ -21,17 +21,17 @@ Benchmarking Enum.concat/2 (lists)...
 Benchmarking Enum.into/2 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-A.Vector.concat/2                731.71 K        1.37 μs  ±1503.62%        1.11 μs        4.01 μs
-A.Enum.into/2 (vector)           727.77 K        1.37 μs  ±1480.12%        1.13 μs        3.54 μs
-Enum.concat/2 (lists)            403.29 K        2.48 μs   ±680.16%        2.13 μs       11.65 μs
-Enum.into/2 (vector)             188.76 K        5.30 μs   ±368.76%        4.55 μs       23.15 μs
-A.Vector.append/2 in reduce      103.44 K        9.67 μs    ±92.33%        9.02 μs       26.15 μs
-:array.set/3 in reduce            50.35 K       19.86 μs    ±32.65%       18.33 μs       50.41 μs
+A.Vector.concat/2                787.61 K        1.27 μs  ±1560.77%        1.08 μs        2.41 μs
+A.Enum.into/2 (vector)           781.50 K        1.28 μs  ±2210.01%        1.09 μs        2.31 μs
+Enum.concat/2 (lists)            399.67 K        2.50 μs   ±721.63%        2.11 μs       10.69 μs
+Enum.into/2 (vector)             209.39 K        4.78 μs   ±375.05%        4.16 μs       11.03 μs
+A.Vector.append/2 in reduce      106.53 K        9.39 μs    ±94.24%        8.82 μs       25.02 μs
+:array.set/3 in reduce            49.47 K       20.22 μs    ±30.54%       18.66 μs       46.61 μs
 
 Comparison: 
-A.Vector.concat/2                731.71 K
-A.Enum.into/2 (vector)           727.77 K - 1.01x slower +0.00740 μs
-Enum.concat/2 (lists)            403.29 K - 1.81x slower +1.11 μs
-Enum.into/2 (vector)             188.76 K - 3.88x slower +3.93 μs
-A.Vector.append/2 in reduce      103.44 K - 7.07x slower +8.30 μs
-:array.set/3 in reduce            50.35 K - 14.53x slower +18.50 μs
+A.Vector.concat/2                787.61 K
+A.Enum.into/2 (vector)           781.50 K - 1.01x slower +0.00992 μs
+Enum.concat/2 (lists)            399.67 K - 1.97x slower +1.23 μs
+Enum.into/2 (vector)             209.39 K - 3.76x slower +3.51 μs
+A.Vector.append/2 in reduce      106.53 K - 7.39x slower +8.12 μs
+:array.set/3 in reduce            49.47 K - 15.92x slower +18.95 μs
