@@ -459,19 +459,19 @@ defmodule A.Vector.CodeGen do
     value_var = Macro.var(:value, nil)
 
     quote do
-      def unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args))
 
-      def unquote(fun_name)(
-            _tail,
-            _i = size,
-            size,
-            unquote(acc_var),
-            unquote_splicing(for _ <- rest_args, do: @wildcard)
-          ) do
+      defp unquote(fun_name)(
+             _tail,
+             _i = size,
+             size,
+             unquote(acc_var),
+             unquote_splicing(for _ <- rest_args, do: @wildcard)
+           ) do
         unquote(acc_var)
       end
 
-      def unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args)) do
+      defp unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args)) do
         i = i + 1
         unquote(value_var) = :erlang.element(i, tail)
 
@@ -493,14 +493,14 @@ defmodule A.Vector.CodeGen do
 
   defp do_def_foldl_trie(fun_name, arg_name, acc_var, rest_args, expanded_body) do
     quote do
-      def unquote(fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
 
-      def unquote(fun_name)(
-            unquote(array()),
-            _level = 0,
-            unquote(acc_var),
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(fun_name)(
+             unquote(array()),
+             _level = 0,
+             unquote(acc_var),
+             unquote_splicing(rest_args)
+           ) do
         unquote(
           arguments()
           |> Enum.reduce(acc_var, fn arg_ast, acc_ast ->
@@ -509,12 +509,12 @@ defmodule A.Vector.CodeGen do
         )
       end
 
-      def unquote(fun_name)(
-            unquote(array()),
-            level,
-            unquote(acc_var),
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(fun_name)(
+             unquote(array()),
+             level,
+             unquote(acc_var),
+             unquote_splicing(rest_args)
+           ) do
         child_level = level - unquote(@bits)
 
         unquote(
@@ -550,13 +550,13 @@ defmodule A.Vector.CodeGen do
       end
 
     quote do
-      def unquote(left_fun_name)(trie, level, unquote_splicing(rest_args))
+      defp unquote(left_fun_name)(trie, level, unquote_splicing(rest_args))
 
-      def unquote(left_fun_name)(
-            unquote(array()),
-            _level = 0,
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(left_fun_name)(
+             unquote(array()),
+             _level = 0,
+             unquote_splicing(rest_args)
+           ) do
         unquote(
           arguments()
           |> Enum.reduce(fn arg_ast, acc_ast ->
@@ -565,11 +565,11 @@ defmodule A.Vector.CodeGen do
         )
       end
 
-      def unquote(left_fun_name)(
-            unquote(array()),
-            level,
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(left_fun_name)(
+             unquote(array()),
+             level,
+             unquote_splicing(rest_args)
+           ) do
         child_level = level - unquote(@bits)
 
         unquote(
@@ -703,18 +703,18 @@ defmodule A.Vector.CodeGen do
     value_var = Macro.var(:value, nil)
 
     quote do
-      def unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args))
 
-      def unquote(fun_name)(
-            _tail,
-            _i = 0,
-            unquote(acc_var),
-            unquote_splicing(for _ <- rest_args, do: @wildcard)
-          ) do
+      defp unquote(fun_name)(
+             _tail,
+             _i = 0,
+             unquote(acc_var),
+             unquote_splicing(for _ <- rest_args, do: @wildcard)
+           ) do
         unquote(acc_var)
       end
 
-      def unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args)) do
+      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args)) do
         unquote(value_var) = :erlang.element(i, tail)
 
         new_acc =
@@ -735,14 +735,14 @@ defmodule A.Vector.CodeGen do
 
   defp do_def_foldr_trie(fun_name, arg_name, acc_var, rest_args, expanded_body) do
     quote do
-      def unquote(fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
 
-      def unquote(fun_name)(
-            unquote(array()),
-            _level = 0,
-            unquote(acc_var),
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(fun_name)(
+             unquote(array()),
+             _level = 0,
+             unquote(acc_var),
+             unquote_splicing(rest_args)
+           ) do
         unquote(
           reversed_arguments()
           |> Enum.reduce(acc_var, fn arg_ast, acc_ast ->
@@ -751,12 +751,12 @@ defmodule A.Vector.CodeGen do
         )
       end
 
-      def unquote(fun_name)(
-            unquote(array()),
-            level,
-            unquote(acc_var),
-            unquote_splicing(rest_args)
-          ) do
+      defp unquote(fun_name)(
+             unquote(array()),
+             level,
+             unquote(acc_var),
+             unquote_splicing(rest_args)
+           ) do
         child_level = level - unquote(@bits)
 
         unquote(
