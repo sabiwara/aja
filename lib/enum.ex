@@ -34,6 +34,8 @@ defmodule A.Enum do
   alias A.Vector.Raw, as: RawVector
   alias A.EnumHelper, as: H
 
+  require RawVector
+
   @dialyzer :no_opaque
 
   @type index :: integer
@@ -90,6 +92,26 @@ defmodule A.Enum do
       nil -> Enum.into(enumerable, collectable)
       list when is_list(list) -> Enum.into(list, collectable)
       vector -> RawVector.to_list(vector) |> Enum.into(collectable)
+    end
+  end
+
+  @doc copy_doc_for.(:at, 3)
+  @spec at(t(val), integer, default) :: val | default when val: value, default: any
+  def at(enumerable, index, default \\ nil) when is_integer(index) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.at(enumerable, index, default)
+
+      list when is_list(list) ->
+        Enum.at(list, index, default)
+
+      vector ->
+        size = RawVector.size(vector)
+
+        case RawVector.actual_index(index, size) do
+          nil -> default
+          actual_index -> RawVector.fetch_positive!(vector, actual_index)
+        end
     end
   end
 

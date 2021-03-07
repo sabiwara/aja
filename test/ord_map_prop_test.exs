@@ -58,6 +58,7 @@ defmodule A.OrdMap.PropTest do
     assert ^new_map = A.OrdMap.put(ord_map, key, value)
     assert ^new_map = put_in(ord_map, [key], value)
     assert ^new_map = Enum.into([{key, value}], ord_map)
+    assert ^new_map = A.Enum.into([{key, value}], ord_map)
     assert ^new_map = A.OrdMap.merge(ord_map, A.OrdMap.new([{key, value}]))
     assert ^new_map = A.OrdMap.update(ord_map, key, nil, fn _ -> value end)
     assert ^new_map = A.OrdMap.update!(ord_map, key, fn _ -> value end)
@@ -143,6 +144,8 @@ defmodule A.OrdMap.PropTest do
     assert ^dense = A.OrdMap.new(ord_map, fn {k, v} -> {k, v} end)
     assert ^dense = A.OrdMap.new(as_vector)
     assert ^dense = A.OrdMap.new(as_vector, fn {k, v} -> {k, v} end)
+    assert ^dense = Enum.into(as_list, A.OrdMap.new())
+    assert ^dense = A.Enum.into(as_vector, A.OrdMap.new())
     assert A.OrdMap.size(dense) == A.OrdMap.size(ord_map)
     assert A.OrdMap.equal?(dense, ord_map)
 

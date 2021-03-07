@@ -208,7 +208,10 @@ defmodule A.Vector.PropTest do
                capture_error(A.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
+      assert Enum.at(list, i1, :default) === A.Vector.at(vector, i1, :default)
       assert Enum.at(list, i1) === vector[i1]
+      assert Enum.fetch(list, i1) === A.Vector.fetch(vector, i1)
+      assert capture_error(Enum.fetch!(list, i1)) === capture_error(A.Vector.fetch!(vector, i1))
 
       # amount must be >=0
       amount = abs(i2)
