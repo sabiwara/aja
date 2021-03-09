@@ -572,20 +572,14 @@ defmodule A.Enum do
   end
 
   @doc false
-  def max(enumerable, empty_fallback)
-      when is_list_or_struct(enumerable) and is_function(empty_fallback, 0) do
+  @spec max(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
+  def max(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.max(enumerable, empty_fallback)
       empty when is_empty_list_or_vec(empty) -> empty_fallback.()
       list when is_list(list) -> :lists.max(list)
       vector -> RawVector.max(vector)
     end
-  end
-
-  @doc false
-  @spec max(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
-  def max(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
-    max(enumerable, &>=/2, empty_fallback)
   end
 
   @doc copy_doc_for.(:max, 3)
@@ -612,20 +606,14 @@ defmodule A.Enum do
   end
 
   @doc false
-  def min(enumerable, empty_fallback)
-      when is_list_or_struct(enumerable) and is_function(empty_fallback, 0) do
+  @spec min(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
+  def min(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.min(enumerable, empty_fallback)
       empty when is_empty_list_or_vec(empty) -> empty_fallback.()
       list when is_list(list) -> :lists.min(list)
       vector -> RawVector.min(vector)
     end
-  end
-
-  @doc false
-  @spec min(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
-  def min(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
-    min(enumerable, &>=/2, empty_fallback)
   end
 
   @doc copy_doc_for.(:min, 3)
