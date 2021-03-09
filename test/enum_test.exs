@@ -19,7 +19,7 @@ defmodule A.EnumTest do
     {callback, pop_args}
   end
 
-  test "all?/1" do
+  test "all?/1 (vector)" do
     assert true == A.Vector.new() |> A.Enum.all?()
 
     assert true == A.Vector.new([1, true, "string", :atom, %{}, []]) |> A.Enum.all?()
@@ -31,7 +31,7 @@ defmodule A.EnumTest do
     assert false == A.Vector.new(1..500) |> A.Vector.append(nil) |> A.Enum.all?()
   end
 
-  test "all?/2" do
+  test "all?/2 (vector)" do
     {gt_zero?, pop_args} = spy_callback(&(&1 > 0))
 
     assert true == A.Vector.new() |> A.Enum.all?(gt_zero?)
@@ -56,7 +56,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(500..0) == pop_args.()
   end
 
-  test "any?/1" do
+  test "any?/1 (vector)" do
     assert false == A.Vector.new() |> A.Enum.any?()
 
     assert false == A.Vector.duplicate(false, 5) |> A.Enum.any?()
@@ -68,7 +68,7 @@ defmodule A.EnumTest do
     assert true == A.Vector.duplicate(false, 500) |> A.Vector.append(%{}) |> A.Enum.any?()
   end
 
-  test "any?/2" do
+  test "any?/2 (vector)" do
     {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
 
     assert false == A.Vector.new() |> A.Enum.any?(lt_zero?)
@@ -93,7 +93,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
-  test "find/2" do
+  test "find/2 (vector)" do
     {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
 
     assert nil == A.Vector.new() |> A.Enum.find(lt_zero?)
@@ -118,7 +118,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
-  test "find_value/2" do
+  test "find_value/2 (vector)" do
     {spy, pop_args} =
       spy_callback(fn
         x when x < 0 -> -x
@@ -147,7 +147,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
-  test "find_index/2" do
+  test "find_index/2 (vector)" do
     {lt_zero?, pop_args} = spy_callback(&(&1 < 0))
 
     assert nil == A.Vector.new() |> A.Enum.find_index(lt_zero?)
@@ -172,7 +172,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(500..-1) == pop_args.()
   end
 
-  test "sum/1" do
+  test "sum/1 (vector)" do
     assert 0 = A.Vector.new() |> A.Enum.sum()
     assert 15 = A.Vector.new(1..5) |> A.Enum.sum()
     assert 1275 = A.Vector.new(1..50) |> A.Enum.sum()
@@ -183,14 +183,14 @@ defmodule A.EnumTest do
     assert Enum.sum(floats) === A.Vector.new(floats) |> A.Enum.sum()
   end
 
-  test "product/1" do
+  test "product/1 (vector)" do
     assert 1 = A.Vector.new() |> A.Enum.product()
     assert 120 = A.Vector.new(1..5) |> A.Enum.product()
     assert Enum.reduce(1..50, &(&2 * &1)) == A.Vector.new(1..50) |> A.Enum.product()
     assert Enum.reduce(1..500, &(&2 * &1)) == A.Vector.new(1..500) |> A.Enum.product()
   end
 
-  test "join/2" do
+  test "join/2 (vector)" do
     assert "" == A.Vector.new() |> A.Enum.join(",")
     assert "1" == A.Vector.new([1]) |> A.Enum.join(",")
     assert "1,2,3,4,5" == A.Vector.new(1..5) |> A.Enum.join(",")
@@ -200,7 +200,7 @@ defmodule A.EnumTest do
     assert Enum.join(1..50) == A.Vector.new(1..50) |> A.Enum.join()
   end
 
-  test "map_join/3" do
+  test "map_join/3 (vector)" do
     {add_one, pop_args} = spy_callback(&(&1 + 1))
 
     assert "" == A.Vector.new() |> A.Enum.map_join(",", add_one)
@@ -216,7 +216,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
-  test "intersperse/2" do
+  test "intersperse/2 (vector)" do
     assert [] == A.Vector.new() |> A.Enum.intersperse(0)
 
     assert [1, 0, 2, 0, 3, 0, 4, 0, 5] ==
@@ -229,7 +229,7 @@ defmodule A.EnumTest do
              A.Vector.new(1..500) |> A.Enum.intersperse(0)
   end
 
-  test "map_intersperse/3" do
+  test "map_intersperse/3 (vector)" do
     {add_one, pop_args} = spy_callback(&(&1 + 1))
 
     assert [] == A.Vector.new() |> A.Enum.map_intersperse(0, add_one)
@@ -251,7 +251,23 @@ defmodule A.EnumTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
-  test "each/2" do
+  test "each/2 (all types)" do
+    {spy, pop_args} = spy_callback(fn _ -> nil end)
+
+    assert :ok = 1..5 |> A.Enum.each(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert :ok = [1, 2, 3, 4, 5] |> A.Enum.each(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert :ok = A.Vector.new(1..5) |> A.Enum.each(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+
+    assert :ok = MapSet.new(1..5) |> A.Enum.each(spy)
+    assert [1, 2, 3, 4, 5] == pop_args.()
+  end
+
+  test "each/2 (vector)" do
     {spy, pop_args} = spy_callback(fn _ -> nil end)
 
     assert :ok = A.Vector.new() |> A.Enum.each(spy)
@@ -267,7 +283,7 @@ defmodule A.EnumTest do
     assert Enum.to_list(1..500) == pop_args.()
   end
 
-  test "min/1" do
+  test "min/1 (vector)" do
     assert 1 = A.Vector.new(1..5) |> A.Enum.min()
     assert 1 = A.Vector.new(1..50) |> A.Enum.min()
     assert 1 = A.Vector.new(1..500) |> A.Enum.min()
@@ -277,7 +293,7 @@ defmodule A.EnumTest do
     assert 1 = A.Vector.new(500..1) |> A.Enum.min()
   end
 
-  test "max/1" do
+  test "max/1 (vector)" do
     assert 5 = A.Vector.new(1..5) |> A.Enum.max()
     assert 50 = A.Vector.new(1..50) |> A.Enum.max()
     assert 500 = A.Vector.new(1..500) |> A.Enum.max()
@@ -285,6 +301,74 @@ defmodule A.EnumTest do
     assert 5 = A.Vector.new(5..1) |> A.Enum.max()
     assert 50 = A.Vector.new(50..1) |> A.Enum.max()
     assert 500 = A.Vector.new(500..1) |> A.Enum.max()
+  end
+
+  test "min/3" do
+    numbers = [4, 2, 5, 1, 3]
+    assert 1 = numbers |> A.Enum.min()
+    assert 1 = A.Vector.new(numbers) |> A.Enum.min()
+    assert 1 = MapSet.new(numbers) |> A.Enum.min()
+    assert 1 = 1..5 |> A.Enum.min()
+
+    dates = [~D[2017-03-31], ~D[2017-04-01]]
+    assert ~D[2017-03-31] = dates |> A.Enum.min(Date)
+    assert ~D[2017-03-31] = A.Vector.new(dates) |> A.Enum.min(Date)
+    assert ~D[2017-03-31] = MapSet.new(dates) |> A.Enum.min(Date)
+
+    assert_raise Enum.EmptyError, fn -> [] |> A.Enum.min() end
+    assert_raise Enum.EmptyError, fn -> A.Vector.new() |> A.Enum.min() end
+    assert_raise Enum.EmptyError, fn -> MapSet.new() |> A.Enum.min() end
+
+    assert_raise Enum.EmptyError, fn -> [] |> A.Enum.min(&>=/2) end
+    assert_raise Enum.EmptyError, fn -> A.Vector.new() |> A.Enum.min(&>=/2) end
+    assert_raise Enum.EmptyError, fn -> MapSet.new() |> A.Enum.min(&>=/2) end
+
+    assert 1 = numbers |> A.Enum.min(fn -> :empty end)
+    assert 1 = A.Vector.new(numbers) |> A.Enum.min(fn -> :empty end)
+    assert 1 = MapSet.new(numbers) |> A.Enum.min(fn -> :empty end)
+    assert 1 = 1..5 |> A.Enum.min(fn -> :empty end)
+
+    assert :empty = [] |> A.Enum.min(fn -> :empty end)
+    assert :empty = A.Vector.new() |> A.Enum.min(fn -> :empty end)
+    assert :empty = MapSet.new() |> A.Enum.min(fn -> :empty end)
+
+    assert 0 = [] |> A.Enum.min(&>=/2, fn -> 0 end)
+    assert 0 = A.Vector.new() |> A.Enum.min(&>=/2, fn -> 0 end)
+    assert 0 = MapSet.new() |> A.Enum.min(&>=/2, fn -> 0 end)
+  end
+
+  test "max/3" do
+    numbers = [4, 2, 5, 1, 3]
+    assert 5 = numbers |> A.Enum.max()
+    assert 5 = A.Vector.new(numbers) |> A.Enum.max()
+    assert 5 = MapSet.new(numbers) |> A.Enum.max()
+    assert 5 = 1..5 |> A.Enum.max()
+
+    dates = [~D[2017-03-31], ~D[2017-04-01]]
+    assert ~D[2017-04-01] = dates |> A.Enum.max(Date)
+    assert ~D[2017-04-01] = A.Vector.new(dates) |> A.Enum.max(Date)
+    assert ~D[2017-04-01] = MapSet.new(dates) |> A.Enum.max(Date)
+
+    assert_raise Enum.EmptyError, fn -> [] |> A.Enum.max() end
+    assert_raise Enum.EmptyError, fn -> A.Vector.new() |> A.Enum.max() end
+    assert_raise Enum.EmptyError, fn -> MapSet.new() |> A.Enum.max() end
+
+    assert_raise Enum.EmptyError, fn -> [] |> A.Enum.max(&>=/2) end
+    assert_raise Enum.EmptyError, fn -> A.Vector.new() |> A.Enum.max(&>=/2) end
+    assert_raise Enum.EmptyError, fn -> MapSet.new() |> A.Enum.max(&>=/2) end
+
+    assert 5 = numbers |> A.Enum.max(fn -> :empty end)
+    assert 5 = A.Vector.new(numbers) |> A.Enum.max(fn -> :empty end)
+    assert 5 = MapSet.new(numbers) |> A.Enum.max(fn -> :empty end)
+    assert 5 = 1..5 |> A.Enum.max(fn -> :empty end)
+
+    assert :empty = [] |> A.Enum.max(fn -> :empty end)
+    assert :empty = A.Vector.new() |> A.Enum.max(fn -> :empty end)
+    assert :empty = MapSet.new() |> A.Enum.max(fn -> :empty end)
+
+    assert 0 = [] |> A.Enum.max(&>=/2, fn -> 0 end)
+    assert 0 = A.Vector.new() |> A.Enum.max(&>=/2, fn -> 0 end)
+    assert 0 = MapSet.new() |> A.Enum.max(&>=/2, fn -> 0 end)
   end
 
   test "A.Enum.sort_uniq/1" do
