@@ -1,5 +1,5 @@
 defmodule A.Enum do
-  @moduledoc ~S"""
+  @moduledoc """
   Drop-in replacement for the `Enum` module, optimized to work with Aja's data structures such as `A.Vector`.
 
   It currently only covers a subset of `Enum`, but `A.Enum` aims to completely mirror the API of `Enum`,
@@ -44,40 +44,58 @@ defmodule A.Enum do
 
   @empty_vector RawVector.empty()
 
-  copy_doc_for = fn fun_name, arity ->
-    Code.fetch_docs(Enum)
-    |> elem(6)
-    |> Enum.find_value(fn
-      {{:function, ^fun_name, ^arity}, _, _, %{"en" => text}, _} -> text
-      _ -> nil
-    end)
-    |> String.replace("Enum.", "A.Enum.")
-  end
-
   # defmacrop def_mirror(call, header) do
   # end
 
-  @doc copy_doc_for.(:to_list, 1)
+  @doc """
+  Converts `enumerable` to a list.
+
+  Mirrors `Enum.to_list/1` with higher performance for Aja structures.
+  """
   @spec to_list(t(val)) :: [val] when val: value
   defdelegate to_list(enumerable), to: H
 
-  @doc copy_doc_for.(:count, 1)
+  # TODO optimize for vector
+  @doc """
+  Returns the size of the `enumerable`.
+
+  Mirrors `Enum.count/1` with higher performance for Aja structures.
+  """
   @spec count(t(any)) :: non_neg_integer
   defdelegate count(enumerable), to: Enum
 
-  @doc copy_doc_for.(:member?, 2)
+  # TODO optimize for vector
+  @doc """
+  Checks if `element` exists within the `enumerable`.
+
+  Mirrors `Enum.member?/2` with higher performance for Aja structures.
+  """
   @spec member?(t(val), val) :: boolean when val: value
   defdelegate member?(enumerable, value), to: Enum
 
-  @doc copy_doc_for.(:slice, 2)
+  # TODO optimize for vector
+  @doc """
+  Returns a subset list of the given `enumerable` by `index_range`.
+
+  Mirrors `Enum.slice/2` with higher performance for Aja structures.
+  """
   @spec slice(t(val), Range.t()) :: [val] when val: value
   defdelegate slice(enumerable, index_range), to: Enum
 
-  @doc copy_doc_for.(:slice, 3)
+  @doc """
+  Returns a subset list of the given `enumerable`, from `start_index` (zero-based)
+  with `amount` number of elements if available.
+
+  Mirrors `Enum.slice/3`.
+  """
   @spec slice(t(val), index, non_neg_integer) :: [val] when val: value
   defdelegate slice(enumerable, start_index, amount), to: Enum
 
-  @doc copy_doc_for.(:into, 2)
+  @doc """
+  Inserts the given `enumerable` into a `collectable`.
+
+  Mirrors `Enum.into/2` with higher performance for Aja structures.
+  """
   @spec into(t(val), Collectable.t()) :: Collectable.t() when val: value
   def into(enumerable, %A.Vector{} = vector) do
     A.Vector.concat(vector, enumerable)
@@ -95,7 +113,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:at, 3)
+  @doc """
+  Finds the element at the given `index` (zero-based).
+
+  Mirrors `Enum.at/3` with higher performance for Aja structures.
+  """
   @spec at(t(val), integer, default) :: val | default when val: value, default: any
   def at(enumerable, index, default \\ nil) when is_integer(index) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -115,7 +137,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:reverse, 1)
+  @doc """
+  Returns a list of elements in `enumerable` in reverse order.
+
+  Mirrors `Enum.reverse/1` with higher performance for Aja structures.
+  """
   @spec reverse(t(val)) :: [val] when val: value
   def reverse(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -125,11 +151,21 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:map, 2)
+  @doc """
+  Returns a list where each element is the result of invoking
+  `fun` on each corresponding element of `enumerable`.
+
+  Mirrors `Enum.map/2` with higher performance for Aja structures.
+  """
   @spec map(t(v1), (v1 -> v2)) :: [v2] when v1: value, v2: value
   defdelegate map(enumerable, fun), to: H
 
-  @doc copy_doc_for.(:filter, 2)
+  @doc """
+  Filters the `enumerable`, i.e. returns only those elements
+  for which `fun` returns a truthy value.
+
+  Mirrors `Enum.filter/2` with higher performance for Aja structures.
+  """
   @spec filter(t(val), (val -> boolean)) :: [val] when val: value
   def filter(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -139,7 +175,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:reject, 2)
+  @doc """
+  Returns a list of elements in `enumerable` excluding those for which the function `fun` returns
+  a truthy value.
+
+  Mirrors `Enum.reject/2` with higher performance for Aja structures.
+  """
   @spec reject(t(val), (val -> boolean)) :: [val] when val: value
   def reject(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -149,7 +190,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:reduce, 2)
+  @doc """
+  Invokes `fun` for each element in the `enumerable` with the
+  accumulator.
+
+  Mirrors `Enum.reduce/2` with higher performance for Aja structures.
+  """
   @spec reduce(t(val), (val, val -> val)) :: val when val: value
   def reduce(enumerable, fun) when is_function(fun, 2) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -159,7 +205,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:reduce, 3)
+  @doc """
+  Invokes `fun` for each element in the `enumerable` with the accumulator.
+
+  Mirrors `Enum.reduce/3` with higher performance for Aja structures.
+  """
   @spec reduce(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   def reduce(enumerable, acc, fun) when is_function(fun, 2) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -283,7 +333,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:find, 3)
+  @doc """
+  Returns the first element for which `fun` returns a truthy value.
+  If no such element is found, returns `default`.
+
+  Mirrors `Enum.find/3` with higher performance for Aja structures.
+  """
   @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
         when val: value, default: value
   def find(enumerable, default \\ nil, fun) when is_function(fun, 1) do
@@ -294,7 +349,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:find_value, 3)
+  @doc """
+  Similar to `find/3`, but returns the value of the function
+  invocation instead of the element itself.
+
+  Mirrors `Enum.find_value/3` with higher performance for Aja structures.
+  """
   @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
         when val: value, new_val: value, default: value
   def find_value(enumerable, default \\ nil, fun) when is_function(fun, 1) do
@@ -305,7 +365,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:find_index, 2)
+  @doc """
+  Similar to `find/3`, but returns the index (zero-based)
+  of the element instead of the element itself.
+
+  Mirrors `Enum.find_index/2` with higher performance for Aja structures.
+  """
   @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
   def find_index(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -317,7 +382,11 @@ defmodule A.Enum do
 
   ## FOLDS
 
-  @doc copy_doc_for.(:sum, 1)
+  @doc """
+  Returns the sum of all elements.
+
+  Mirrors `Enum.sum/1` with higher performance for Aja structures.
+  """
   @spec sum(t(num)) :: num when num: number
   def sum(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -334,6 +403,8 @@ defmodule A.Enum do
 
   @doc """
   Returns the product of all elements in the `enumerable`.
+
+  Mirrors Enum.product/1 from Elixir 1.12.
 
   Raises `ArithmeticError` if `enumerable` contains a non-numeric value.
 
@@ -366,7 +437,12 @@ defmodule A.Enum do
     product_list(rest, head * acc)
   end
 
-  @doc copy_doc_for.(:join, 2)
+  @doc """
+  Joins the given `enumerable` into a string using `joiner` as a
+  separator.
+
+  Mirrors `Enum.join/2` with higher performance for Aja structures.
+  """
   @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
   def join(enumerable, joiner \\ "") when is_binary(joiner) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -382,7 +458,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:map_join, 3)
+  @doc """
+  Maps and joins the given `enumerable` in one pass.
+
+  Mirrors `Enum.map_join/3` with higher performance for Aja structures.
+  """
   @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
         when val: value
   def map_join(enumerable, joiner \\ "", mapper)
@@ -403,7 +483,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:intersperse, 2)
+  @doc """
+  Intersperses `separator` between each element of the given `enumerable`.
+
+  Mirrors `Enum.intersperse/2` with higher performance for Aja structures.
+  """
   @spec intersperse(t(val), separator) :: [val | separator] when val: value, separator: value
   def intersperse(enumerable, separator) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -413,7 +497,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:map_intersperse, 3)
+  @doc """
+  Maps and intersperses the given `enumerable` in one pass.
+
+  Mirrors `Enum.map_intersperse/3` with higher performance for Aja structures.
+  """
   @spec map_intersperse(t(val), separator, (val -> mapped_val)) :: [mapped_val | separator]
         when val: value, separator: value, mapped_val: value
   def map_intersperse(enumerable, separator, mapper)
@@ -425,7 +513,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:frequencies, 1)
+  @doc """
+  Returns a map with keys as unique elements of `enumerable` and values
+  as the count of every element.
+
+  Mirrors `Enum.frequencies/1` with higher performance for Aja structures.
+  """
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
   def frequencies(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -435,7 +528,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:frequencies_by, 2)
+  @doc """
+  Returns a map with keys as unique elements given by `key_fun` and values
+  as the count of every element.
+
+  Mirrors `Enum.frequencies_by/2` with higher performance for Aja structures.
+  """
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
   def frequencies_by(enumerable, key_fun) when is_function(key_fun, 1) do
@@ -446,7 +544,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:group_by, 3)
+  @doc """
+  Splits the `enumerable` into groups based on `key_fun`.
+
+  Mirrors `Enum.group_by/3` with higher performance for Aja structures.
+  """
   @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
         when val: value, key: any, mapped_val: any
   def group_by(enumerable, key_fun, value_fun \\ fn x -> x end)
@@ -458,7 +560,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:each, 2)
+  @doc """
+  Invokes the given `fun` for each element in the `enumerable`.
+
+  Mirrors `Enum.each/2` with higher performance for Aja structures.
+  """
   @spec each(t(val), (val -> term)) :: :ok when val: value
   def each(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -470,7 +576,11 @@ defmodule A.Enum do
 
   ## RANDOM
 
-  @doc copy_doc_for.(:random, 1)
+  @doc """
+  Returns a random element of an `enumerable`.
+
+  Mirrors `Enum.random/1` with higher performance for Aja structures.
+  """
   @spec random(t(val)) :: val when val: value
   def random(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -480,7 +590,11 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:take_random, 2)
+  @doc """
+  Takes `count` random elements from `enumerable`.
+
+  Mirrors `Enum.take_random/2` with higher performance for Aja structures.
+  """
   @spec take_random(t(val), non_neg_integer) :: [val] when val: value
   def take_random(enumerable, count)
   def take_random(_enumerable, 0), do: []
@@ -493,7 +607,11 @@ defmodule A.Enum do
     |> Enum.take_random(count)
   end
 
-  @doc copy_doc_for.(:shuffle, 1)
+  @doc """
+  Returns a list with the elements of `enumerable` shuffled.
+
+  Mirrors `Enum.shuffle/1` with higher performance for Aja structures.
+  """
   @spec shuffle(t(val)) :: [val] when val: value
   def shuffle(enumerable) do
     enumerable
@@ -503,7 +621,12 @@ defmodule A.Enum do
 
   # UNIQ
 
-  @doc copy_doc_for.(:dedup, 1)
+  @doc """
+  Enumerates the `enumerable`, returning a list where all consecutive
+  duplicated elements are collapsed to a single element.
+
+  Mirrors `Enum.dedup/1` with higher performance for Aja structures.
+  """
   @spec dedup(t(val)) :: [val] when val: value
   def dedup(enumerable)
 
@@ -519,7 +642,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:dedup_by, 2)
+  @doc """
+  Enumerates the `enumerable`, returning a list where all consecutive
+  duplicated elements are collapsed to a single element.
+
+  Mirrors `Enum.dedup_by/2` with higher performance for Aja structures.
+  """
   @spec dedup_by(t(val), (val -> term)) :: [val] when val: value
   def dedup_by(enumerable, fun) when is_function(fun, 1) do
     enumerable
@@ -527,7 +655,11 @@ defmodule A.Enum do
     |> Enum.dedup_by(fun)
   end
 
-  @doc copy_doc_for.(:uniq, 1)
+  @doc """
+  Enumerates the `enumerable`, removing all duplicated elements.
+
+  Mirrors `Enum.uniq/1` with higher performance for Aja structures.
+  """
   @spec uniq(t(val)) :: [val] when val: value
   def uniq(enumerable)
 
@@ -543,7 +675,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:uniq_by, 2)
+  @doc """
+  Enumerates the `enumerable`, by removing the elements for which
+  function `fun` returned duplicate elements.
+
+  Mirrors `Enum.uniq_by/2` with higher performance for Aja structures.
+  """
   @spec uniq_by(t(val), (val -> term)) :: [val] when val: value
   def uniq_by(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
@@ -560,40 +697,6 @@ defmodule A.Enum do
 
   defguardp is_empty_list_or_vec(list_or_vec)
             when list_or_vec === [] or list_or_vec === @empty_vector
-
-  @doc false
-  def max(enumerable) when is_list_or_struct(enumerable) do
-    case H.try_get_raw_vec_or_list(enumerable) do
-      nil -> Enum.max(enumerable)
-      empty when is_empty_list_or_vec(empty) -> raise Enum.EmptyError
-      list when is_list(list) -> :lists.max(list)
-      vector -> RawVector.max(vector)
-    end
-  end
-
-  @doc false
-  @spec max(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
-  def max(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
-    case H.try_get_raw_vec_or_list(enumerable) do
-      nil -> Enum.max(enumerable, empty_fallback)
-      empty when is_empty_list_or_vec(empty) -> empty_fallback.()
-      list when is_list(list) -> :lists.max(list)
-      vector -> RawVector.max(vector)
-    end
-  end
-
-  @doc copy_doc_for.(:max, 3)
-  @spec max(t(val), (val, val -> boolean) | module, (() -> empty_result)) :: val | empty_result
-        when val: value, empty_result: any
-  def max(enumerable, sorter \\ &>=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
-      when is_function(empty_fallback, 0) do
-    case H.try_get_raw_vec_or_list(enumerable) do
-      nil -> Enum.max(enumerable, sorter, empty_fallback)
-      @empty_vector -> empty_fallback.()
-      list when is_list(list) -> Enum.max(list, sorter, empty_fallback)
-      vector -> RawVector.custom_min_max(vector, max_sort_fun(sorter))
-    end
-  end
 
   @doc false
   def min(enumerable) when is_list_or_struct(enumerable) do
@@ -616,7 +719,12 @@ defmodule A.Enum do
     end
   end
 
-  @doc copy_doc_for.(:min, 3)
+  @doc """
+  Returns the minimal element in the `enumerable` according
+  to Erlang's term ordering.
+
+  Mirrors `Enum.min/3` with higher performance for Aja structures.
+  """
   @spec min(t(val), (val, val -> boolean) | module, (() -> empty_result)) :: val | empty_result
         when val: value, empty_result: any
   def min(enumerable, sorter \\ &<=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
@@ -630,12 +738,56 @@ defmodule A.Enum do
   end
 
   @doc false
+  def max(enumerable) when is_list_or_struct(enumerable) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.max(enumerable)
+      empty when is_empty_list_or_vec(empty) -> raise Enum.EmptyError
+      list when is_list(list) -> :lists.max(list)
+      vector -> RawVector.max(vector)
+    end
+  end
+
+  @doc false
+  @spec max(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
+  def max(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.max(enumerable, empty_fallback)
+      empty when is_empty_list_or_vec(empty) -> empty_fallback.()
+      list when is_list(list) -> :lists.max(list)
+      vector -> RawVector.max(vector)
+    end
+  end
+
+  @doc """
+  Returns the maximal element in the `enumerable` according
+  to Erlang's term ordering.
+
+  Mirrors `Enum.max/3` with higher performance for Aja structures.
+  """
+  @spec max(t(val), (val, val -> boolean) | module, (() -> empty_result)) :: val | empty_result
+        when val: value, empty_result: any
+  def max(enumerable, sorter \\ &>=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
+      when is_function(empty_fallback, 0) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.max(enumerable, sorter, empty_fallback)
+      @empty_vector -> empty_fallback.()
+      list when is_list(list) -> Enum.max(list, sorter, empty_fallback)
+      vector -> RawVector.custom_min_max(vector, max_sort_fun(sorter))
+    end
+  end
+
+  @doc false
   def min_by(enumerable, fun, empty_fallback)
       when is_function(fun, 1) and is_function(empty_fallback, 0) do
     min_by(enumerable, fun, &<=/2, empty_fallback)
   end
 
-  @doc copy_doc_for.(:min_by, 4)
+  @doc """
+  Returns the minimal element in the `enumerable` as calculated
+  by the given `fun`.
+
+  Mirrors `Enum.min_by/4` with higher performance for Aja structures.
+  """
   @spec min_by(t(val), (val -> key), (key, key -> boolean) | module, (() -> empty_result)) ::
           val | empty_result
         when val: value, key: term, empty_result: any
@@ -655,7 +807,12 @@ defmodule A.Enum do
     max_by(enumerable, fun, &>=/2, empty_fallback)
   end
 
-  @doc copy_doc_for.(:max_by, 4)
+  @doc """
+  Returns the maximal element in the `enumerable` as calculated
+  by the given `fun`.
+
+  Mirrors `Enum.max_by/4` with higher performance for Aja structures.
+  """
   @spec max_by(t(val), (val -> key), (key, key -> boolean) | module, (() -> empty_result)) ::
           val | empty_result
         when val: value, key: term, empty_result: any
@@ -677,7 +834,11 @@ defmodule A.Enum do
 
   ## SORT
 
-  @doc copy_doc_for.(:sort, 1)
+  @doc """
+  Sorts the `enumerable` according to Erlang's term ordering.
+
+  Mirrors `Enum.sort/1` with higher performance for Aja structures.
+  """
   @spec sort(t(val)) :: [val] when val: value
   def sort(enumerable) do
     enumerable
@@ -685,7 +846,11 @@ defmodule A.Enum do
     |> Enum.sort()
   end
 
-  @doc copy_doc_for.(:sort, 2)
+  @doc """
+  Sorts the `enumerable` by the given function.
+
+  Mirrors `Enum.sort/2` with higher performance for Aja structures.
+  """
   @spec sort(
           t(val),
           (val, val -> boolean)
@@ -701,7 +866,12 @@ defmodule A.Enum do
     |> Enum.sort(fun)
   end
 
-  @doc copy_doc_for.(:sort_by, 3)
+  @doc """
+  Sorts the mapped results of the `enumerable` according to the provided `sorter`
+  function.
+
+  Mirrors `Enum.sort_by/3` with higher performance for Aja structures.
+  """
   @spec sort_by(
           t(val),
           (val -> mapped_val),
