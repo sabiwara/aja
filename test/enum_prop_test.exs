@@ -100,6 +100,19 @@ defmodule A.Enum.PropTest do
       assert Enum.at(list, i1) === A.Enum.at(stream, i1)
       assert Enum.at(map_set, i1) === A.Enum.at(map_set, i1)
 
+      assert Enum.fetch(list, i1) === A.Enum.fetch(list, i1)
+      assert Enum.fetch(list, i1) === A.Enum.fetch(vector, i1)
+      assert Enum.fetch(list, i1) === A.Enum.fetch(stream, i1)
+      assert Enum.fetch(map_set, i1) === A.Enum.fetch(map_set, i1)
+
+      fetch_result = Enum.fetch!(list, i1) |> capture_error()
+      assert fetch_result === A.Enum.fetch!(list, i1) |> capture_error()
+      assert fetch_result === A.Enum.fetch!(vector, i1) |> capture_error()
+      assert fetch_result === A.Enum.fetch!(stream, i1) |> capture_error()
+
+      assert Enum.fetch!(map_set, i1) |> capture_error() ===
+               A.Enum.fetch!(map_set, i1) |> capture_error()
+
       # amount must be >=0
       amount = abs(i2)
       slice_1 = Enum.slice(list, i1, amount)

@@ -138,6 +138,54 @@ defmodule A.Enum do
   end
 
   @doc """
+  Finds the element at the given `index` (zero-based).
+
+  Mirrors `Enum.fetch/2` with higher performance for Aja structures.
+  """
+  @spec fetch(t(val), integer) :: {:ok, val} | :error when val: value
+  def fetch(enumerable, index) when is_integer(index) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.fetch(enumerable, index)
+
+      list when is_list(list) ->
+        Enum.fetch(list, index)
+
+      vector ->
+        size = RawVector.size(vector)
+
+        case RawVector.actual_index(index, size) do
+          nil -> :error
+          actual_index -> {:ok, RawVector.fetch_positive!(vector, actual_index)}
+        end
+    end
+  end
+
+  @doc """
+  Finds the element at the given `index` (zero-based).
+
+  Mirrors `Enum.fetch!/2` with higher performance for Aja structures.
+  """
+  @spec fetch!(t(val), integer) :: val when val: value
+  def fetch!(enumerable, index) when is_integer(index) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.fetch!(enumerable, index)
+
+      list when is_list(list) ->
+        Enum.fetch!(list, index)
+
+      vector ->
+        size = RawVector.size(vector)
+
+        case RawVector.actual_index(index, size) do
+          nil -> raise Enum.OutOfBoundsError
+          actual_index -> RawVector.fetch_positive!(vector, actual_index)
+        end
+    end
+  end
+
+  @doc """
   Returns a list of elements in `enumerable` in reverse order.
 
   Mirrors `Enum.reverse/1` with higher performance for Aja structures.
