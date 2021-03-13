@@ -311,6 +311,12 @@ defmodule A.Enum.PropTest do
       assert ^index_list = A.Enum.with_index(stream, fun)
       assert Enum.with_index(map_set, i1) === A.Enum.with_index(map_set, fun)
 
+      fun = fn x, i -> {{x, i}, i + 1} end
+      assert {index_list, list_length + i1} === A.Enum.map_reduce(list, i1, fun)
+      assert {index_list, list_length + i1} === A.Enum.map_reduce(vector, i1, fun)
+      assert {index_list, list_length + i1} === A.Enum.map_reduce(stream, i1, fun)
+      assert Enum.map_reduce(map_set, i1, fun) === A.Enum.map_reduce(map_set, i1, fun)
+
       sorted = Enum.sort(list)
       assert ^sorted = A.Enum.sort(list)
       assert ^sorted = A.Enum.sort(vector)

@@ -1432,7 +1432,7 @@ defmodule A.Vector do
   For example, if `with_index/2` was not implemented, you could implement it as follows:
 
       iex> vector = A.Vector.new([1, 2, 3])
-      iex> {new_vec, _} = A.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end); new_vec
+      iex> A.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end) |> elem(0)
       #A<vec([{1, 0}, {2, 1}, {3, 2}])>
 
   """

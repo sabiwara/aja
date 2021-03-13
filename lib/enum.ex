@@ -982,6 +982,28 @@ defmodule A.Enum do
     with_index_list_fun(tail, offset + 1, fun, [fun.(head, offset) | acc])
   end
 
+  @doc """
+  Invokes the given function to each element in the `enumerable` to reduce
+  it to a single element, while keeping an accumulator.
+
+  Mirrors `Enum.map_reduce/3` with higher performance for Aja structures.
+  """
+  @spec map_reduce(t(val), acc, (val, acc -> {mapped_val, acc})) :: {t(mapped_val), acc}
+        when val: value, mapped_val: value, acc: any
+  def map_reduce(enumerable, acc, fun) when is_function(fun, 2) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.map_reduce(enumerable, acc, fun)
+
+      list when is_list(list) ->
+        :lists.mapfoldl(fun, acc, list)
+
+      vector ->
+        {new_vector, new_acc} = RawVector.map_reduce(vector, acc, fun)
+        {RawVector.to_list(new_vector), new_acc}
+    end
+  end
+
   ## SORT
 
   @doc """
