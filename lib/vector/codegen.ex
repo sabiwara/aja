@@ -450,7 +450,7 @@ defmodule A.Vector.CodeGen do
             {_},
             unquote_splicing(for _ <- rest_args, do: @wildcard)
           ) do
-        raise A.Vector.EmptyError
+        raise Enum.EmptyError
       end
     end
   end

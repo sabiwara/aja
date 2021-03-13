@@ -9,7 +9,8 @@ defmodule A.Enum.PropTest do
         {:ok, unquote(expr)}
       rescue
         error ->
-          :error
+          %error_type{} = error
+          {:error, error_type}
       end
     end
   end
@@ -247,9 +248,18 @@ defmodule A.Enum.PropTest do
 
       join_result = Enum.join(list, ",") |> capture_error()
       assert ^join_result = A.Enum.join(list, ",") |> capture_error()
-      assert ^join_result = A.Enum.join(vector, ",") |> capture_error()
       assert ^join_result = A.Enum.join(stream, ",") |> capture_error()
       assert capture_error(Enum.join(map_set, ",")) === capture_error(A.Enum.join(map_set, ","))
+
+      # foldr VS foldl, the first argument to fail won't be the same
+      case join_result do
+        {:ok, ok_result} ->
+          assert ^ok_result = A.Enum.join(vector, ",")
+
+        _error ->
+          reverse_error = list |> Enum.reverse() |> Enum.join(", ") |> capture_error()
+          assert ^reverse_error = A.Enum.join(vector, ",") |> capture_error()
+      end
 
       map_join_result = Enum.map_join(list, ",", &inspect/1)
       assert ^map_join_result = A.Enum.map_join(list, ",", &inspect/1)

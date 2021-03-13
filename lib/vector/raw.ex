@@ -899,7 +899,7 @@ defmodule A.Vector.Raw do
 
   @compile {:inline, random: 1}
   def random(empty_pattern()) do
-    raise A.Vector.EmptyError
+    raise Enum.EmptyError
   end
 
   def random(vector) do
