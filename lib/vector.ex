@@ -1965,6 +1965,8 @@ defmodule A.Vector do
   @doc ~S"""
   Returns the `vector` with each element wrapped in a tuple alongside its index.
 
+  May receive a function or an integer offset.
+
   If an integer `offset` is given, it will index from the given `offset` instead of from zero.
 
   If a `function` is given, it will index by invoking the function for each
@@ -1984,6 +1986,8 @@ defmodule A.Vector do
 
   """
   @spec with_index(t(val), index) :: t({val, index}) when val: value
+  @spec with_index(t(val), (val, index -> mapped_val)) :: t(mapped_val)
+        when val: value, mapped_val: value
   def with_index(vector, fun_or_offset \\ 0)
 
   def with_index(%__MODULE__{__vector__: internal}, offset) when is_integer(offset) do

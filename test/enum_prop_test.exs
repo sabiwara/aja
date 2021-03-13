@@ -299,6 +299,18 @@ defmodule A.Enum.PropTest do
       assert Enum.dedup_by(list, fun) === A.Enum.dedup_by(stream, fun)
       assert Enum.dedup_by(map_set, fun) === A.Enum.dedup_by(map_set, fun)
 
+      index_list = Enum.with_index(list, i1)
+      assert ^index_list = A.Enum.with_index(list, i1)
+      assert ^index_list = A.Enum.with_index(vector, i1)
+      assert ^index_list = A.Enum.with_index(stream, i1)
+      assert Enum.with_index(map_set, i1) === A.Enum.with_index(map_set, i1)
+
+      fun = fn x, i -> {x, i + i1} end
+      assert ^index_list = A.Enum.with_index(list, fun)
+      assert ^index_list = A.Enum.with_index(vector, fun)
+      assert ^index_list = A.Enum.with_index(stream, fun)
+      assert Enum.with_index(map_set, i1) === A.Enum.with_index(map_set, fun)
+
       sorted = Enum.sort(list)
       assert ^sorted = A.Enum.sort(list)
       assert ^sorted = A.Enum.sort(vector)

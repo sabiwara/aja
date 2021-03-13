@@ -918,6 +918,70 @@ defmodule A.Enum do
   defp min_sort_fun(sorter) when is_function(sorter, 2), do: sorter
   defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
 
+  ## MAP-REDUCE
+
+  @doc ~S"""
+  Returns a list with with each element of `enumerable` wrapped in a tuple alongside its index.
+
+  Mirrors `Enum.with_index/2` (Elixir 1.12 version): may receive a function or an integer offset.
+
+  If an integer `offset` is given, it will index from the given `offset` instead of from zero.
+
+  If a `function` is given, it will index by invoking the function for each
+  element and index (zero-based) of the `enumerable`.
+
+  ## Examples
+
+      iex> A.Enum.with_index([:a, :b, :c])
+      [a: 0, b: 1, c: 2]
+
+      iex> A.Enum.with_index([:a, :b, :c], 3)
+      [a: 3, b: 4, c: 5]
+
+      iex> A.Enum.with_index([:a, :b, :c], fn element, index -> {index, element} end)
+      [{0, :a}, {1, :b}, {2, :c}]
+
+  """
+  @spec with_index(t(val), index) :: t({val, index}) when val: value
+  @spec with_index(t(val), (val, index -> mapped_val)) :: t(mapped_val)
+        when val: value, mapped_val: value
+  def with_index(enumerable, offset_or_fun \\ 0)
+
+  def with_index(enumerable, offset) when is_integer(offset) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.with_index(enumerable, offset)
+      list when is_list(list) -> with_index_list_offset(list, offset, [])
+      vector -> RawVector.with_index(vector, offset) |> RawVector.to_list()
+    end
+  end
+
+  def with_index(enumerable, fun) when is_function(fun, 2) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        enumerable
+        |> Enum.map_reduce(0, fn x, i -> {fun.(x, i), i + 1} end)
+        |> elem(0)
+
+      list when is_list(list) ->
+        with_index_list_fun(list, 0, fun, [])
+
+      vector ->
+        RawVector.with_index(vector, 0, fun) |> RawVector.to_list()
+    end
+  end
+
+  defp with_index_list_offset([], _offset, acc), do: :lists.reverse(acc)
+
+  defp with_index_list_offset([head | tail], offset, acc) do
+    with_index_list_offset(tail, offset + 1, [{head, offset} | acc])
+  end
+
+  defp with_index_list_fun([], _offset, _fun, acc), do: :lists.reverse(acc)
+
+  defp with_index_list_fun([head | tail], offset, fun, acc) do
+    with_index_list_fun(tail, offset + 1, fun, [fun.(head, offset) | acc])
+  end
+
   ## SORT
 
   @doc """
