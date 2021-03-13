@@ -317,6 +317,18 @@ defmodule A.Enum.PropTest do
       assert {index_list, list_length + i1} === A.Enum.map_reduce(stream, i1, fun)
       assert Enum.map_reduce(map_set, i1, fun) === A.Enum.map_reduce(map_set, i1, fun)
 
+      scanned_result = Enum.scan(list, &max/2)
+      assert ^scanned_result = A.Enum.scan(list, &max/2)
+      assert ^scanned_result = A.Enum.scan(vector, &max/2)
+      assert ^scanned_result = A.Enum.scan(stream, &max/2)
+      assert Enum.scan(map_set, &max/2) === A.Enum.scan(map_set, &max/2)
+
+      scanned_result = Enum.scan(list, 42, &max/2)
+      assert ^scanned_result = A.Enum.scan(list, 42, &max/2)
+      assert ^scanned_result = A.Enum.scan(vector, 42, &max/2)
+      assert ^scanned_result = A.Enum.scan(stream, 42, &max/2)
+      assert Enum.scan(map_set, 42, &max/2) === A.Enum.scan(map_set, 42, &max/2)
+
       sorted = Enum.sort(list)
       assert ^sorted = A.Enum.sort(list)
       assert ^sorted = A.Enum.sort(vector)

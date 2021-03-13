@@ -1004,6 +1004,39 @@ defmodule A.Enum do
     end
   end
 
+  @doc """
+  Applies the given function to each element in the `enumerable`,
+  storing the result in a list and passing it as the accumulator
+  for the next computation. Uses the first element in the `enumerable`
+  as the starting value.
+
+  Mirrors `Enum.scan/2` with higher performance for Aja structures.
+  """
+  @spec scan(t(val), (val, val -> val)) :: val when val: value
+  def scan(enumerable, fun) when is_function(fun, 2) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.scan(enumerable, fun)
+      list when is_list(list) -> Enum.scan(list, fun)
+      vector -> RawVector.scan(vector, fun) |> RawVector.to_list()
+    end
+  end
+
+  @doc """
+  Applies the given function to each element in the `enumerable`,
+  storing the result in a list and passing it as the accumulator
+  for the next computation. Uses the given `acc` as the starting value.
+
+  Mirrors `Enum.scan/3` with higher performance for Aja structures.
+  """
+  @spec scan(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
+  def scan(enumerable, acc, fun) when is_function(fun, 2) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.scan(enumerable, acc, fun)
+      list when is_list(list) -> Enum.scan(list, acc, fun)
+      vector -> RawVector.scan(vector, acc, fun) |> RawVector.to_list()
+    end
+  end
+
   ## SORT
 
   @doc """
