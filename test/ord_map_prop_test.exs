@@ -118,6 +118,7 @@ defmodule A.OrdMap.PropTest do
     length_list = length(as_list)
     assert A.OrdMap.size(ord_map) == length_list
     assert Enum.count(ord_map) == length_list
+    assert A.Enum.count(ord_map) == length_list
     assert match?(o when ord_size(o) == length_list, ord_map)
 
     for kv <- as_list do

@@ -16,7 +16,12 @@ defmodule A.ExRange.PropTest do
       expected_length = abs(stop - start)
       list = Enum.to_list(range)
       assert expected_length == Enum.count(range)
+      assert expected_length == A.Enum.count(range)
       assert expected_length == length(list)
+
+      expected_empty = expected_length == 0
+      assert expected_empty === Enum.empty?(range)
+      assert expected_empty === A.Enum.empty?(range)
 
       refute (max(start, stop) + 1) in range
       refute (min(start, stop) - 1) in range

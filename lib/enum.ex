@@ -44,8 +44,7 @@ defmodule A.Enum do
 
   @empty_vector RawVector.empty()
 
-  # defmacrop def_mirror(call, header) do
-  # end
+  # TODO optimize ranges (sum, random...)
 
   @doc """
   Converts `enumerable` to a list.
@@ -55,20 +54,47 @@ defmodule A.Enum do
   @spec to_list(t(val)) :: [val] when val: value
   defdelegate to_list(enumerable), to: H
 
-  # TODO optimize for vector
   @doc """
   Returns the size of the `enumerable`.
 
   Mirrors `Enum.count/1` with higher performance for Aja structures.
   """
   @spec count(t(any)) :: non_neg_integer
-  defdelegate count(enumerable), to: Enum
+  def count(enumerable) do
+    case enumerable do
+      list when is_list(list) -> length(list)
+      %A.Vector{__vector__: vector} -> RawVector.size(vector)
+      %A.OrdMap{__ord_map__: map} -> map_size(map)
+      %MapSet{} -> MapSet.size(enumerable)
+      start..stop -> abs(start - stop) + 1
+      %A.ExRange{start: start, stop: stop} -> abs(start - stop)
+      _ -> Enum.count(enumerable)
+    end
+  end
 
-  # TODO optimize for vector
+  @doc """
+  Returns `true` if `enumerable` is empty, otherwise `false`.
+
+  Mirrors `Enum.empty?/1` with higher performance for Aja structures.
+  """
+  @spec empty?(t(any)) :: boolean
+  def empty?(enumerable) do
+    case enumerable do
+      list when is_list(list) -> list == []
+      %A.Vector{__vector__: vector} -> vector === @empty_vector
+      %A.OrdMap{__ord_map__: map} -> map == %{}
+      %MapSet{} -> MapSet.size(enumerable) == 0
+      %Range{} -> false
+      %A.ExRange{start: start, stop: stop} -> start == stop
+      _ -> Enum.empty?(enumerable)
+    end
+  end
+
+  # Note: Could not optimize it noticeably for vectors
   @doc """
   Checks if `element` exists within the `enumerable`.
 
-  Mirrors `Enum.member?/2` with higher performance for Aja structures.
+  Just an alias for `Enum.member?/2`, does not improve performance.
   """
   @spec member?(t(val), val) :: boolean when val: value
   defdelegate member?(enumerable, value), to: Enum

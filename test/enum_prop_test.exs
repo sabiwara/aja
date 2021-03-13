@@ -39,19 +39,37 @@ defmodule A.Enum.PropTest do
     check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
       vector = A.Vector.new(list)
       stream = Stream.map(list, & &1)
+      ord_map = A.OrdMap.new(list, &{&1, &1})
       map_set = MapSet.new(list)
 
       assert(^list = A.Enum.to_list(list))
       assert ^list = A.Enum.to_list(vector)
       assert ^list = A.Enum.to_list(stream)
+      assert Enum.to_list(ord_map) === A.Enum.to_list(ord_map)
       assert Enum.to_list(map_set) === A.Enum.to_list(map_set)
 
       list_length = length(list)
+      unique_length = MapSet.size(map_set)
 
-      assert list_length === A.Enum.count(vector)
       assert list_length === A.Enum.count(list)
+      assert list_length === A.Enum.count(vector)
       assert list_length === A.Enum.count(stream)
-      assert MapSet.size(map_set) === A.Enum.count(map_set)
+      assert unique_length === A.Enum.count(ord_map)
+      assert unique_length === A.Enum.count(map_set)
+
+      assert Enum.count(i1..i2) == A.Enum.count(i1..i2)
+      assert Enum.count(A.ExRange.new(i1, i2)) == A.Enum.count(A.ExRange.new(i1, i2))
+      assert Enum.count(i1..i2) - 1 == A.Enum.count(A.ExRange.new(i1, i2))
+
+      expected_empty = Enum.empty?(list)
+      assert expected_empty == A.Enum.empty?(list)
+      assert expected_empty == A.Enum.empty?(vector)
+      assert expected_empty == A.Enum.empty?(stream)
+      assert expected_empty == A.Enum.empty?(ord_map)
+      assert expected_empty == A.Enum.empty?(map_set)
+
+      assert Enum.empty?(i1..i2) == A.Enum.empty?(i1..i2)
+      assert Enum.empty?(A.ExRange.new(i1, i2)) == A.Enum.empty?(A.ExRange.new(i1, i2))
 
       min_result = Enum.min(list) |> capture_error()
       assert min_result === A.Enum.min(list) |> capture_error()

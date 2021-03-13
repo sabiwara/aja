@@ -48,6 +48,7 @@ defmodule A.OrdMapTest do
   test "Enum.count/1" do
     ord_map = A.OrdMap.new(b: 2, a: 1, c: 3)
     assert 3 = Enum.count(ord_map)
+    assert 3 = A.Enum.count(ord_map)
   end
 
   test "in/2" do
