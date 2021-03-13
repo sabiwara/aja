@@ -13,12 +13,11 @@ defmodule A.Enum do
   limited in terms of performance.
 
   On the other hand, `A.Enum` provides hand-crafted highly-optimized functions that fully take advantage of
-  immutable vectors. The speedup can easily reach more than a factor 10 compared to the `Enum` used for non-list
+  immutable vectors. The speedup can easily reach more than a factor 10 compared to `Enum` used on non-list
   structures, and sometimes even be noticeably faster than `Enum` used over lists.
 
   One of the main reasons to adopt a specific data structure is the performance.
-  Using vectors with `Enum` would defeat the purpose.
-  The `A.Enum` module has been introduced for this.
+  Using vectors with `Enum` would defeat the purpose, hence the introduction of `A.Enum`.
 
       vector = A.Vector.new(1..10000)
 

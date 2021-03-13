@@ -11,10 +11,9 @@ defmodule A.Vector do
   """
 
   @moduledoc ~s"""
-  A Clojure-like persistent vector with efficient appends and random access.
+  Fast persistent vector with efficient appends and random access.
 
-  [Persistent vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
-  are an efficient alternative to lists.
+  Persistent vectors have been introduced by Clojure as an efficient alternative to lists.
   Many operations for `A.Vector` run in effective constant time (length, random access, appends...),
   unlike linked lists for which most operations run in linear time.
   Functions that need to go through the whole collection like `map/2` or `foldl/3` are as often fast as
@@ -28,14 +27,14 @@ defmodule A.Vector do
   Erlang's [`:array`](http://erlang.org/doc/man/array.html) module offer similar functionalities.
   However `A.Vector`:
   - is a better Elixir citizen: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
-  - should have higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
-  - mirrors the `Enum` module API, with highly optimized versions for vectors (`join/1`, `sum/1`, `random/1`...)
+  - is heavily optimized and should offer higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
+  - mirrors most of the `Enum` module API (together with `A.Enum`) with highly optimized versions for vectors (`A.Enum.join/1`, `A.Enum.sum/1`, `A.Enum.random/1`...)
   - supports negative indexing (e.g. `-1` corresponds to the last element)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   Note: most of the design is inspired by
-  [this series of blog posts](https://hypirion.com/musings/understanding-persistent-vector-pt-1),
-  but a branching factor of `16 = 2 ^ 4` has been picked instead of `32 = 2 ^ 5`.
+  [this series of blog posts](https://hypirion.com/musings/understanding-persistent-vector-pt-1) describing
+  the Clojure implementation, but a branching factor of `16 = 2 ^ 4` has been picked instead of `32 = 2 ^ 5`.
   This choice was made following performance benchmarking that showed better overall performance
   for this particular implementation.
 
@@ -213,9 +212,9 @@ defmodule A.Vector do
 
   ### Prefer `A.Enum` and `A.Vector` to `Enum` for vectors
 
-  Many functions provided in the `A.Enum` module or this module are very efficient when operating
-  on vectors, and should be used over `Enum` functions whenever possible (even if `A.Vector`
-  implements the `Enumerable` and `Collectable` protocols for convienience):
+  The `A.Enum` module reimplements (nearly) all functions from the `Enum` module to offer
+  optimal performance when operating on vectors, and should be used over `Enum` functions whenever possible
+  (even if `A.Vector` implements the `Enumerable` and `Collectable` protocols for convienience):
 
   **DON'T**
 
@@ -234,6 +233,8 @@ defmodule A.Vector do
       A.Enum.into(enumerable, vector)
       # or A.Vector.concat(vector, enumerable)
       # or vector +++ enumerable
+
+  Although it depends on the function, expect a factor ~10x speed difference.
 
   `for` comprehensions are actually using `Enumerable` as well, so
   the same advice holds:
@@ -258,20 +259,6 @@ defmodule A.Vector do
 
       33 in vector
 
-  `Enum.slice/2` and `Enum.slice/3` are optimized and their use is encouraged,
-  other "slicing" functions like `Enum.take/2` or `Enum.drop/2` however are inefficient:
-
-  **DON'T**
-
-      Enum.take(vector, 10)
-      Enum.drop(vector, 25)
-
-  **DO**
-
-      Enum.slice(vector, 0, 10)
-      Enum.slice(vector, 0..10)
-      Enum.slice(vector, 25..-1)
-
   ### Slicing optimization
 
   Slicing any subset on the left on the vector using methods from `A.Vector` is
@@ -287,17 +274,17 @@ defmodule A.Vector do
   ### `A.Vector` and `A.Enum`
 
   - `A.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
-  - `A.Vector` mirrors `Enum` functions returning lists, but return vectors instead
+  - `A.Vector` mirrors `Enum` functions returning lists, but returns vectors instead
 
       iex> vector = A.Vector.new(1..10)
-      iex> A.Vector.map(vector, & (&1 * 7))
-      #A<vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])>
       iex> A.Enum.reverse(vector)
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
       iex> A.Vector.reverse(vector)
       #A<vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])>
       iex> A.Enum.map(vector, & (&1 * 7))
       [7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
+      iex> A.Vector.map(vector, & (&1 * 7))
+      #A<vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])>
 
   ### Additional notes
 
@@ -308,8 +295,8 @@ defmodule A.Vector do
     the `A.vec/1` macro to defer the generation of the AST for the internal
     structure to compile time instead of runtime.
 
-        A.Vector.new([a, 1, 2, 3, 4])  # structure created at runtime
-        vec([a, 1, 2, 3, 4])  # structure AST defined at compile time
+        A.Vector.new([%{foo: a}, %{foo: b}])  # structure created at runtime
+        vec([%{foo: a}, %{foo: b}])  # structure AST defined at compile time
 
   """
 

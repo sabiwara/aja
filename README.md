@@ -20,9 +20,8 @@ Extension of the Elixir standard library focused on data stuctures, data manipul
 
 #### Persistent vectors: `A.Vector`
 
-Clojure-like [persistent vectors](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
-are an efficient alternative to lists, supporting many operations like appends and random access
-in effective constant time.
+A blazing fast, pure Elixir implementation of a persistent vector, meant to offer an efficient alternative to lists.
+Supports many operations like appends and random access in effective constant time.
 
 ```elixir
 iex> vector = A.Vector.new(1..10)
@@ -37,11 +36,9 @@ iex> 3 in vector
 true
 ```
 
-`A.Vector` is blazing fast and easier to use from Elixir than Erlang's
-[`:array`](http://erlang.org/doc/man/array.html) module.
-
 `A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,
-with efficiency in mind.
+with efficiency in mind. It should be significantly faster and easier to use from Elixir than Erlang's
+[`:array`](http://erlang.org/doc/man/array.html) module.
 
 The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make it easier to work with vectors
 and make pattern-matching possible:
@@ -56,7 +53,7 @@ iex> match?(v when vec_size(v) > 9, vec(1..10))
 true
 ```
 
-The `A.+++/2` operator can make appending to a vector more explicit:
+The `A.+++/2` operator provides synctactic sugar for concatenating vectors:
 
 ```elixir
 iex> vec([1, 2, 3]) +++ vec([4, 5])
@@ -82,7 +79,7 @@ iex> Enum.to_list(ord_map)
 
 Ordered maps behave pretty much like regular maps, and the `A.OrdMap` module
 offers the same API as `Map`.
-The convenience macro `A.ord/1` make them a breeze to instantiate or patter-match upon:
+The convenience macro `A.ord/1` make them a breeze to instantiate or pattern-match upon:
 
 ```elixir
 iex> import A
@@ -94,7 +91,7 @@ iex> {one, three}
 ```
 
 All data structures offer:
-- good performance characteristics at any size (see [FAQ](#faq))
+- great performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library
 - implementation of `Inspect`, `Enumerable` and `Collectable` protocols
 - implementation of the `Access` behaviour
@@ -187,8 +184,7 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 - performance-conscious (right algorithm, proper benchmarking, fast compile times*)
 - mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
 
-(\* while fast compile time is a target, `A.Vector`, which is optimized for fast runtime at the expense of compile time,
-slows it down)
+(\* while fast compile time is a target, vectors are optimized for fast runtime at the expense of compile time)
 
 ### Non-goals
 
@@ -208,7 +204,7 @@ slows it down)
 Aja is still pretty early stage and the high-level organisation is still in flux.
 Expect some breaking changes until it reaches maturity.
 
-However, many of its APIs are based on the standard library and should therefore remain fairly stable.
+However, most of its APIs are based on the standard library and should therefore remain fairly stable.
 
 Besides, Aja is tested quite thoroughly both with unit tests and property-based testing (especially for
 data structures).
@@ -219,7 +215,8 @@ This effort is far from perfect, but increases our confidence in the overall rel
 #### Vectors
 
 Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
-noticeably faster than equivalent list operations (map, folds, join, sum...).
+noticeably faster than equivalent list operations (map, folds, join, sum...). Make sure to read the performance
+guide from the doc.
 
 #### Ordered maps
 
@@ -228,7 +225,7 @@ update time (write operations), as well as memory usage, since some extra work i
 It has however very good read performance, with a very minimal overhead in terms of key access, and can be
 enumerated much faster than maps.
 
-#### Aja + JIT = 💖️
+#### Aja 💖️ JIT
 
 Aja's data structures (vectors and ordered maps) are already pretty fast on pre-JIT versions of OTP (`<= 23`).
 Benchmarks on OTP 24 suggest however that they are taking great advantage of the
@@ -269,8 +266,9 @@ Finally, data structures can work more efficiently together than if they were se
 ### What are the next steps?
 
 Nothing is set in stone, but the next steps will probably be:
-- complete the API for `A.Vector` and improve its ergonomics
+- complete the API for `A.Enum` and improve its ergonomics
 - more benchmarks and performance optimizations
+- investigate how to make a subset of Aja available on other BEAM languages
 
 ## Copyright and License
 
