@@ -7,6 +7,7 @@
 * `A.OrdMap` new implemention, with highly improved performance ⚡️⚡️
 * `A.Enum` as a faster `Enum` module optimized for Aja structures (vectors, ord maps)
 * Added `A.ord_size/1` macro
+* `A.ord/1` warns on duplicate errors and can generate the AST on compile time for constant keys
 
 ### Breaking changes
 

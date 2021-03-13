@@ -89,7 +89,9 @@ defmodule A.OrdMap do
       iex> ord(%{ord_map | "二" => "NI!"})
       #A<ord(%{"一" => 1, "二" => "NI!", "三" => 3})>
 
-  Note: pattern-matching on keys is not affected by insertion order.
+  Notes:
+  - pattern-matching on keys is not affected by insertion order.
+  - For expressions with constant keys, `A.ord/1` is able to generate the AST at compile time like the `A.vec/1` macro.
 
   The `A.ord_size/1` macro can be used in guards:
 
@@ -1313,6 +1315,59 @@ defmodule A.OrdMap do
 
     vector = A.Vector.Raw.from_list(key_values)
     %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: index}
+  end
+
+  @doc false
+  def from_list_ast([]) do
+    quote do
+      unquote(__MODULE__).new()
+    end
+  end
+
+  def from_list_ast(kvs_ast) do
+    if Enum.all?(kvs_ast, fn {key_ast, _} -> constant_key?(key_ast) end) do
+      from_list_ast_constant_keys(kvs_ast)
+    else
+      quote do
+        unquote(__MODULE__).new(unquote(kvs_ast))
+      end
+    end
+  end
+
+  defp constant_key?(ast) when is_atom(ast), do: true
+  defp constant_key?(ast) when is_binary(ast), do: true
+  defp constant_key?(ast) when is_number(ast), do: true
+
+  defp constant_key?(ast) when is_list(ast) do
+    Enum.all?(ast, &constant_key?/1)
+  end
+
+  defp constant_key?(_), do: false
+
+  defp from_list_ast_constant_keys(kvs_ast) do
+    {map, key_values, index} =
+      case do_add_optimistic(kvs_ast, %{}, [], 0) do
+        {map, reversed_kvs, index, nil} ->
+          {map, :lists.reverse(reversed_kvs), index}
+
+        {map, reversed_kvs, index, duplicates} ->
+          for {key, _} <- duplicates do
+            IO.warn("key #{inspect(key)} will be overridden in ord map")
+          end
+
+          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, []), index}
+      end
+
+    vector_ast = A.Vector.Raw.from_list_ast(key_values)
+    map_ast = {:%{}, [], Map.to_list(map)}
+
+    quote do
+      %unquote(__MODULE__){
+        __ord_map__: unquote(map_ast),
+        __ord_vector__: unquote(vector_ast),
+        __ord_next__: unquote(index)
+      }
+    end
   end
 
   @compile {:inline, do_add_optimistic: 4}

@@ -22,6 +22,17 @@ defmodule A.OrdMapTest do
     assert ^ord_map = A.OrdMap.new(list, fn x -> x end)
   end
 
+  test "new/0 and new/1 return a constant when empty" do
+    assert :erts_debug.same(A.OrdMap.new(), A.OrdMap.new())
+    assert :erts_debug.same(A.OrdMap.new([]), A.OrdMap.new())
+    assert :erts_debug.same(A.OrdMap.new([]), A.OrdMap.new([]))
+
+    import A
+
+    assert :erts_debug.same(ord(%{}), ord(%{}))
+    assert :erts_debug.same(ord(%{}), A.OrdMap.new())
+  end
+
   test "put" do
     assert [{"一", 1}, {"二", 2}, {"三", 3}] =
              A.OrdMap.new()
