@@ -13,13 +13,13 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 14 s
 
-Benchmarking A.Enum.join/1 (vector)...
+Benchmarking A.Enum.join/2 (vector)...
 Benchmarking Enum.join/2 (list)...
 
 Name                             ips        average  deviation         median         99th %
-A.Enum.join/1 (vector)      102.25 K        9.78 μs    ±85.02%        8.83 μs       27.90 μs
+A.Enum.join/2 (vector)      102.25 K        9.78 μs    ±85.02%        8.83 μs       27.90 μs
 Enum.join/2 (list)           88.35 K       11.32 μs    ±81.72%       10.20 μs       30.81 μs
 
-Comparison: 
-A.Enum.join/1 (vector)      102.25 K
+Comparison:
+A.Enum.join/2 (vector)      102.25 K
 Enum.join/2 (list)           88.35 K - 1.16x slower +1.54 μs

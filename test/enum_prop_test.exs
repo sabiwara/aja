@@ -245,6 +245,14 @@ defmodule A.Enum.PropTest do
       assert Enum.map_intersperse(map_set, :bar, &inspect/1) ===
                A.Enum.map_intersperse(map_set, :bar, &inspect/1)
 
+      fun = fn x -> [x, inspect(x)] end
+      flat_map_result = Enum.flat_map(list, fun)
+      assert ^flat_map_result = A.Enum.flat_map(list, fun)
+      assert ^flat_map_result = A.Enum.flat_map(vector, fun)
+      assert ^flat_map_result = A.Enum.flat_map(stream, fun)
+
+      assert Enum.flat_map(map_set, fun) === A.Enum.flat_map(map_set, fun)
+
       freqs = Enum.frequencies(list)
       assert ^freqs = A.Enum.frequencies(list)
       assert ^freqs = A.Enum.frequencies(vector)
