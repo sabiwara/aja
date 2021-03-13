@@ -4,7 +4,9 @@ defmodule A.ExRange.PropTest do
 
   import A, only: [~>: 2]
 
-  @tag :property
+  @moduletag timeout: :infinity
+  @moduletag :property
+
   property "should be consistent for any integer" do
     check all(
             start <- integer(),

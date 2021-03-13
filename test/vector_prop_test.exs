@@ -6,6 +6,9 @@ defmodule A.Vector.PropTest do
 
   import A, only: [vec: 1, vec_size: 1]
 
+  @moduletag timeout: :infinity
+  @moduletag :property
+
   # Property-based testing:
 
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
@@ -28,7 +31,7 @@ defmodule A.Vector.PropTest do
   end
 
   def simple_value, do: one_of([float(), string(:printable), atom(:alphanumeric)])
-  def big_positive_integer, do: positive_integer() |> resize(20_000)
+  def big_positive_integer, do: positive_integer() |> scale(&(&1 * 100))
 
   def value do
     # prefer simple values which will should be more representative of actual uses, but keep exploring
@@ -116,7 +119,6 @@ defmodule A.Vector.PropTest do
     assert vector === A.Vector.concat(vector, [])
   end
 
-  @tag :property
   property "any series of transformation should yield a valid vector" do
     check all(
             initial <- list_of(value()),
@@ -133,7 +135,6 @@ defmodule A.Vector.PropTest do
     end
   end
 
-  @tag :property
   property "concatenation should work as expected" do
     check all(
             x <- list_of(value()),
@@ -159,7 +160,6 @@ defmodule A.Vector.PropTest do
     end
   end
 
-  @tag :property
   property "duplicate/2 should work as expected" do
     check all(
             x <- value(),
@@ -175,7 +175,6 @@ defmodule A.Vector.PropTest do
     end
   end
 
-  @tag :property
   property "A.Vector functions should return the same as mirrored Enum functions" do
     check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
       vector = A.Vector.new(list)
@@ -377,7 +376,6 @@ defmodule A.Vector.PropTest do
     end
   end
 
-  @tag :property
   property "A.Enum.sum/1 should return the same as Enum.sum/1 for numbers" do
     check all(list <- list_of(one_of([integer(), float()]))) do
       vector = A.Vector.new(list)
@@ -386,7 +384,6 @@ defmodule A.Vector.PropTest do
     end
   end
 
-  @tag :property
   property "A.Vector any?/all?/find always return the same as Enum equivalents" do
     # use 33 as an arbitrary truthy value
     check all(

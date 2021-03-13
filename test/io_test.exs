@@ -4,6 +4,7 @@ defmodule A.IOTest do
 
   doctest A.IO
 
+  @tag timeout: :infinity
   @tag :property
   property "iodata_empty?/1 is always consistent with IO.iodata_length/1" do
     check all(data <- iodata()) do

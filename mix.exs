@@ -17,7 +17,7 @@ defmodule Aja.MixProject do
         "hex.publish": :docs,
         dialyzer: :dialyzer,
         cover: :test,
-        "test.all": :test,
+        "test.unit": :test,
         "test.prop": :test
       ],
 
@@ -71,7 +71,7 @@ defmodule Aja.MixProject do
   defp aliases do
     [
       "test.prop": ["test --only property:true"],
-      "test.all": ["test --include property:true"]
+      "test.unit": ["test --exclude property:true"]
     ]
   end
 

@@ -2,12 +2,14 @@ defmodule A.String.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
+  @moduletag timeout: :infinity
+  @moduletag :property
+
   def candidate_string do
     string(:printable)
     # |> resize(50)
   end
 
-  @tag :property
   property "slugify/2 works with any string (mode: :default)" do
     check all string <- candidate_string(), max_runs: 1000 do
       slug = A.String.slugify(string)
@@ -28,7 +30,6 @@ defmodule A.String.PropTest do
     end
   end
 
-  @tag :property
   property "slugify/2 works with any string (mode: :ascii)" do
     check all string <- candidate_string(), max_runs: 1000 do
       slug = A.String.slugify(string)

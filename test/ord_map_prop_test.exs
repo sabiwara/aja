@@ -4,6 +4,9 @@ defmodule A.OrdMap.PropTest do
 
   import A
 
+  @moduletag timeout: :infinity
+  @moduletag :property
+
   # Property-based testing:
 
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
@@ -155,7 +158,6 @@ defmodule A.OrdMap.PropTest do
     assert inspect(ord_map) =~ "#A<ord(%{"
   end
 
-  @tag :property
   property "any series of transformation should yield a valid ordered map" do
     check all(
             initial <- key_value_pairs(),

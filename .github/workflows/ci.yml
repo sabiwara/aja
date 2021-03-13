@@ -29,6 +29,6 @@ jobs:
         run: mix format --check-formatted
       # TODO add dialyzer?
       - name: Unit tests
-        run: mix test
+        run: mix test.unit
       - name: Property-based tests
-        run: mix test.prop
+        run: PROP_TEST_RUNTIME=30000 mix test.prop

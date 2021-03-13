@@ -2,6 +2,9 @@ defmodule A.Enum.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
+  @moduletag timeout: :infinity
+  @moduletag :property
+
   defmacrop capture_error(expr) do
     # Check if we fail in the same case than the equivalent Enum
     quote do
@@ -16,7 +19,7 @@ defmodule A.Enum.PropTest do
   end
 
   def simple_value, do: one_of([float(), string(:printable), atom(:alphanumeric)])
-  def big_positive_integer, do: positive_integer() |> resize(20_000)
+  def big_positive_integer, do: positive_integer() |> scale(&(&1 * 100))
 
   def value do
     # prefer simple values which will should be more representative of actual uses, but keep exploring
@@ -35,7 +38,6 @@ defmodule A.Enum.PropTest do
     |> Task.await()
   end
 
-  @tag :property
   property "A.Enum functions should return the same as mirrored Enum functions" do
     check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
       vector = A.Vector.new(list)
@@ -400,7 +402,6 @@ defmodule A.Enum.PropTest do
     end
   end
 
-  @tag :property
   property "A.Enum.sum/1 should return the same as Enum.sum/1 for numbers" do
     check all(list <- list_of(one_of([integer(), float()]))) do
       vector = A.Vector.new(list)
@@ -412,7 +413,6 @@ defmodule A.Enum.PropTest do
     end
   end
 
-  @tag :property
   property "A.Enum any?/all?/find always return the same as Enum equivalents" do
     # use 33 as an arbitrary truthy value
     check all(
