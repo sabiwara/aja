@@ -73,6 +73,39 @@ defmodule A.Enum do
   end
 
   @doc """
+  Returns the count of elements in the `enumerable` for which `fun` returns
+  a truthy value.
+
+  Mirrors `Enum.count/2` with higher performance for Aja structures.
+  """
+  @spec count(t(val), (val -> as_boolean(term))) :: non_neg_integer when val: value
+  def count(enumerable, fun) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.count(enumerable, fun)
+
+      list when is_list(list) ->
+        count_list(list, fun, 0)
+
+      vector ->
+        RawVector.count(vector, fun)
+    end
+  end
+
+  defp count_list([], _fun, acc), do: acc
+
+  defp count_list([head | tail], fun, acc) do
+    new_acc =
+      if fun.(head) do
+        acc + 1
+      else
+        acc
+      end
+
+    count_list(tail, fun, new_acc)
+  end
+
+  @doc """
   Returns `true` if `enumerable` is empty, otherwise `false`.
 
   Mirrors `Enum.empty?/1` with higher performance for Aja structures.

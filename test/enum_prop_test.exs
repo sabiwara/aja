@@ -61,6 +61,14 @@ defmodule A.Enum.PropTest do
       assert Enum.count(A.ExRange.new(i1, i2)) == A.Enum.count(A.ExRange.new(i1, i2))
       assert Enum.count(i1..i2) - 1 == A.Enum.count(A.ExRange.new(i1, i2))
 
+      fun = fn x -> :erlang.phash2(x, 7) == 0 end
+      count_result = Enum.count(list, fun)
+      assert ^count_result = A.Enum.count(list, fun)
+      assert ^count_result = A.Enum.count(vector, fun)
+      assert ^count_result = A.Enum.count(stream, fun)
+      assert Enum.count(ord_map, fun) === A.Enum.count(ord_map, fun)
+      assert Enum.count(map_set, fun) === A.Enum.count(map_set, fun)
+
       expected_empty = Enum.empty?(list)
       assert expected_empty == A.Enum.empty?(list)
       assert expected_empty == A.Enum.empty?(vector)

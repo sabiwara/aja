@@ -443,6 +443,15 @@ defmodule A.Vector.Raw do
     acc * arg
   end
 
+  @spec count(t(val), (val -> as_boolean(term))) :: non_neg_integer when val: value
+  C.def_foldl count(arg, acc \\ 0, fun) do
+    if fun.(arg) do
+      acc + 1
+    else
+      acc
+    end
+  end
+
   @spec intersperse_to_list(t(val), sep) :: [val | sep] when val: value, sep: value
   def intersperse_to_list(vector, separator) do
     case do_intersperse_to_list(vector, separator) do
