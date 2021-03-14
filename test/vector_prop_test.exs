@@ -30,7 +30,11 @@ defmodule A.Vector.PropTest do
     :erlang.phash2(value, 2) === 0
   end
 
-  def simple_value, do: one_of([float(), string(:printable), atom(:alphanumeric)])
+  def simple_value do
+    one_of([float(), string(:printable), atom(:alphanumeric)])
+    |> scale(&trunc(:math.log(&1)))
+  end
+
   def big_positive_integer, do: positive_integer() |> scale(&(&1 * 100))
 
   def value do

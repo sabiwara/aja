@@ -18,7 +18,11 @@ defmodule A.Enum.PropTest do
     end
   end
 
-  def simple_value, do: one_of([float(), string(:printable), atom(:alphanumeric)])
+  def simple_value do
+    one_of([float(), string(:printable), atom(:alphanumeric)])
+    |> scale(&trunc(:math.log(&1)))
+  end
+
   def big_positive_integer, do: positive_integer() |> scale(&(&1 * 100))
 
   def value do
@@ -86,23 +90,27 @@ defmodule A.Enum.PropTest do
       assert min_result === A.Enum.min(list) |> capture_error()
       assert min_result === A.Enum.min(vector) |> capture_error()
       assert min_result === A.Enum.min(stream) |> capture_error()
-      assert min_result === A.Enum.min(map_set) |> capture_error()
+      assert Enum.min(map_set) |> capture_error() === A.Enum.min(map_set) |> capture_error()
 
       max_result = Enum.max(list) |> capture_error()
       assert max_result === A.Enum.max(vector) |> capture_error()
       assert max_result === A.Enum.max(list) |> capture_error()
       assert max_result === A.Enum.max(stream) |> capture_error()
-      assert max_result === A.Enum.max(map_set) |> capture_error()
+      assert Enum.max(map_set) |> capture_error() === A.Enum.max(map_set) |> capture_error()
 
       assert max_result === A.Enum.min(list, &>=/2) |> capture_error()
       assert max_result === A.Enum.min(vector, &>=/2) |> capture_error()
       assert max_result === A.Enum.min(stream, &>=/2) |> capture_error()
-      assert max_result === A.Enum.min(map_set, &>=/2) |> capture_error()
+
+      assert Enum.min(map_set, &>=/2) |> capture_error() ===
+               A.Enum.min(map_set, &>=/2) |> capture_error()
 
       assert min_result === A.Enum.max(list, &<=/2) |> capture_error()
       assert min_result === A.Enum.max(vector, &<=/2) |> capture_error()
       assert min_result === A.Enum.max(stream, &<=/2) |> capture_error()
-      assert min_result === A.Enum.max(stream, &<=/2) |> capture_error()
+
+      assert Enum.max(map_set, &>=/2) |> capture_error() ===
+               A.Enum.max(map_set, &>=/2) |> capture_error()
 
       fun = &:erlang.phash2/1
 
@@ -371,7 +379,8 @@ defmodule A.Enum.PropTest do
       assert ^sorted = A.Enum.sort(list)
       assert ^sorted = A.Enum.sort(vector)
       assert ^sorted = A.Enum.sort(stream)
-      assert Enum.sort(map_set) === A.Enum.sort(map_set)
+      # floats / ints might not come in the same order
+      assert Enum.sort(map_set) == A.Enum.sort(map_set)
 
       fun = fn x -> :erlang.phash2(x) end
       sorted_by = Enum.sort_by(list, fun)
