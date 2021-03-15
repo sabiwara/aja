@@ -218,6 +218,11 @@ defmodule A.Enum.PropTest do
       assert ^rejected_list = A.Enum.reject(stream, fun)
       assert Enum.reject(map_set, fun) === A.Enum.reject(map_set, fun)
 
+      assert {^filtered_list, ^rejected_list} = A.Enum.split_with(list, fun)
+      assert {^filtered_list, ^rejected_list} = A.Enum.split_with(vector, fun)
+      assert {^filtered_list, ^rejected_list} = A.Enum.split_with(stream, fun)
+      assert Enum.split_with(map_set, fun) === A.Enum.split_with(map_set, fun)
+
       any_result = Enum.any?(list)
       assert any_result === A.Enum.any?(list)
       assert any_result === A.Enum.any?(vector)

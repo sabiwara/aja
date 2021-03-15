@@ -297,6 +297,20 @@ defmodule A.Enum do
   end
 
   @doc """
+  Splits the `enumerable` in two lists according to the given function `fun`.
+
+  Mirrors `Enum.split_with/2` with higher performance for Aja structures.
+  """
+  @spec split_with(t(val), (val -> as_boolean(term))) :: {[val], [val]} when val: value
+  def split_with(enumerable, fun) when is_function(fun, 1) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.split_with(enumerable, fun)
+      list when is_list(list) -> Enum.split_with(list, fun)
+      vector -> vector |> RawVector.to_list() |> Enum.split_with(fun)
+    end
+  end
+
+  @doc """
   Invokes `fun` for each element in the `enumerable` with the
   accumulator.
 
