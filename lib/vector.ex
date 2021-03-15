@@ -1085,7 +1085,7 @@ defmodule A.Vector do
       #A<vec([13, 26, 39, 52, 65, 78, 91])>
 
   """
-  @spec filter(t(val), (val -> boolean)) :: t(val) when val: value
+  @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
   def filter(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.filter_to_list(internal, fun) |> from_list()
   end
@@ -1103,7 +1103,7 @@ defmodule A.Vector do
       #A<vec([1, 2, 4, 5, 7, 8, 10, 11])>
 
   """
-  @spec reject(t(val), (val -> boolean)) :: t(val) when val: value
+  @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
   def reject(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.reject_to_list(internal, fun) |> from_list()
   end
@@ -1130,7 +1130,7 @@ defmodule A.Vector do
       #A<vec([1, 2, 4, 5, 7, 8, 10, 11])>
 
   """
-  @spec split_with(t(val), (val -> boolean)) :: {t(val), t(val)} when val: value
+  @spec split_with(t(val), (val -> as_boolean(term))) :: {t(val), t(val)} when val: value
   def split_with(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     # note: unlike filter/2, optimization does not bring much benefit
     {filtered, rejected} = internal |> Raw.to_list() |> Enum.split_with(fun)

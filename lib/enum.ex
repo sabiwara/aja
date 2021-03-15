@@ -272,7 +272,7 @@ defmodule A.Enum do
 
   Mirrors `Enum.filter/2` with higher performance for Aja structures.
   """
-  @spec filter(t(val), (val -> boolean)) :: [val] when val: value
+  @spec filter(t(val), (val -> as_boolean(term))) :: [val] when val: value
   def filter(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.filter(enumerable, fun)
@@ -287,7 +287,7 @@ defmodule A.Enum do
 
   Mirrors `Enum.reject/2` with higher performance for Aja structures.
   """
-  @spec reject(t(val), (val -> boolean)) :: [val] when val: value
+  @spec reject(t(val), (val -> as_boolean(term))) :: [val] when val: value
   def reject(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.reject(enumerable, fun)
@@ -1000,8 +1000,8 @@ defmodule A.Enum do
       [{0, :a}, {1, :b}, {2, :c}]
 
   """
-  @spec with_index(t(val), index) :: t({val, index}) when val: value
-  @spec with_index(t(val), (val, index -> mapped_val)) :: t(mapped_val)
+  @spec with_index(t(val), index) :: [{val, index}] when val: value
+  @spec with_index(t(val), (val, index -> mapped_val)) :: [mapped_val]
         when val: value, mapped_val: value
   def with_index(enumerable, offset_or_fun \\ 0)
 
@@ -1102,7 +1102,7 @@ defmodule A.Enum do
 
   Mirrors `Enum.take/2` with higher performance for Aja structures.
   """
-  @spec take(t(val), integer) :: t(val) when val: value
+  @spec take(t(val), integer) :: [val] when val: value
   def take(enumerable, amount) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.take(enumerable, amount)
@@ -1139,7 +1139,7 @@ defmodule A.Enum do
 
   Mirrors `Enum.drop/2` with higher performance for Aja structures.
   """
-  @spec drop(t(val), integer) :: t(val) when val: value
+  @spec drop(t(val), integer) :: [val] when val: value
   def drop(enumerable, amount) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.drop(enumerable, amount)
@@ -1176,7 +1176,7 @@ defmodule A.Enum do
 
   Mirrors `Enum.split/2` with higher performance for Aja structures.
   """
-  @spec split(t(val), integer) :: {t(val), t(val)} when val: value
+  @spec split(t(val), integer) :: {[val], [val]} when val: value
   def split(enumerable, amount) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil ->
