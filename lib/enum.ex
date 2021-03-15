@@ -1208,6 +1208,73 @@ defmodule A.Enum do
     end
   end
 
+  @doc """
+  Takes the elements from the beginning of the `enumerable` while `fun` returns a truthy value.
+
+  Mirrors `Enum.take_while/2` with higher performance for Aja structures.
+  """
+  @spec take_while(t(val), (val -> as_boolean(term()))) :: [val] when val: value
+  def take_while(enumerable, fun) when is_function(fun, 1) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.take_while(enumerable, fun)
+
+      list when is_list(list) ->
+        Enum.take_while(list, fun)
+
+      vector ->
+        case RawVector.find_falsy_index(vector, fun) do
+          nil -> RawVector.to_list(vector)
+          index -> do_take_vector(vector, index)
+        end
+    end
+  end
+
+  @doc """
+  Drops elements at the beginning of the `enumerable` while `fun` returns a truthy value.
+
+  Mirrors `Enum.drop_while/2` with higher performance for Aja structures.
+  """
+  @spec drop_while(t(val), (val -> as_boolean(term()))) :: [val] when val: value
+  def drop_while(enumerable, fun) when is_function(fun, 1) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.drop_while(enumerable, fun)
+
+      list when is_list(list) ->
+        Enum.drop_while(list, fun)
+
+      vector ->
+        case RawVector.find_falsy_index(vector, fun) do
+          nil -> []
+          index -> do_drop_vector(vector, index)
+        end
+    end
+  end
+
+  @doc """
+  Splits `enumerable` in two at the position of the element for which `fun` returns a falsy value
+  (`false` or `nil`) for the first time.
+
+  Mirrors `Enum.split_while/2` with higher performance for Aja structures.
+  """
+  @spec split_while(t(val), (val -> as_boolean(term()))) :: {[val], [val]} when val: value
+  def split_while(enumerable, fun) when is_function(fun, 1) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.split_while(enumerable, fun)
+
+      list when is_list(list) ->
+        Enum.split_while(list, fun)
+
+      vector ->
+        case RawVector.find_falsy_index(vector, fun) do
+          nil -> {RawVector.to_list(vector), []}
+          index -> {do_take_vector(vector, index), do_drop_vector(vector, index)}
+        end
+    end
+  end
+
   ## SORT
 
   @doc """

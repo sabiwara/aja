@@ -182,6 +182,26 @@ defmodule A.Enum.PropTest do
       assert split_result === A.Enum.split(stream, i1)
       assert Enum.split(map_set, i1) === A.Enum.split(map_set, i1)
 
+      fun = fn x -> :erlang.phash2(x, 7) != 0 end
+
+      take_while_result = Enum.take_while(list, fun)
+      assert take_while_result === A.Enum.take_while(list, fun)
+      assert take_while_result === A.Enum.take_while(vector, fun)
+      assert take_while_result === A.Enum.take_while(stream, fun)
+      assert Enum.take_while(map_set, fun) === A.Enum.take_while(map_set, fun)
+
+      drop_while_result = Enum.drop_while(list, fun)
+      assert drop_while_result === A.Enum.drop_while(list, fun)
+      assert drop_while_result === A.Enum.drop_while(vector, fun)
+      assert drop_while_result === A.Enum.drop_while(stream, fun)
+      assert Enum.drop_while(map_set, fun) === A.Enum.drop_while(map_set, fun)
+
+      split_while_result = Enum.split_while(list, fun)
+      assert split_while_result === A.Enum.split_while(list, fun)
+      assert split_while_result === A.Enum.split_while(vector, fun)
+      assert split_while_result === A.Enum.split_while(stream, fun)
+      assert Enum.split_while(map_set, fun) === A.Enum.split_while(map_set, fun)
+
       reversed_list = Enum.reverse(list)
       assert ^reversed_list = A.Enum.reverse(list)
       assert ^reversed_list = A.Enum.reverse(vector)
