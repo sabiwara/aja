@@ -1095,6 +1095,105 @@ defmodule A.Enum do
     end
   end
 
+  ## SLICING
+
+  @doc """
+  Takes an `amount` of elements from the beginning or the end of the `enumerable`.
+
+  Mirrors `Enum.take/2` with higher performance for Aja structures.
+  """
+  @spec take(t(val), integer) :: t(val) when val: value
+  def take(enumerable, amount) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.take(enumerable, amount)
+      list when is_list(list) -> Enum.take(list, amount)
+      vector -> do_take_vector(vector, amount)
+    end
+  end
+
+  defp do_take_vector(_vector, 0), do: []
+
+  defp do_take_vector(vector, amount) when amount > 0 do
+    size = RawVector.size(vector)
+
+    if amount < size do
+      RawVector.slice(vector, 0, amount - 1)
+    else
+      RawVector.to_list(vector)
+    end
+  end
+
+  defp do_take_vector(vector, amount) do
+    size = RawVector.size(vector)
+    start = amount + size
+
+    if start > 0 do
+      RawVector.slice(vector, start, size - 1)
+    else
+      RawVector.to_list(vector)
+    end
+  end
+
+  @doc """
+  Drops the `amount` of elements from the `enumerable`.
+
+  Mirrors `Enum.drop/2` with higher performance for Aja structures.
+  """
+  @spec drop(t(val), integer) :: t(val) when val: value
+  def drop(enumerable, amount) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.drop(enumerable, amount)
+      list when is_list(list) -> Enum.drop(list, amount)
+      vector -> do_drop_vector(vector, amount)
+    end
+  end
+
+  defp do_drop_vector(vector, 0), do: RawVector.to_list(vector)
+
+  defp do_drop_vector(vector, amount) when amount > 0 do
+    size = RawVector.size(vector)
+
+    if amount < size do
+      RawVector.slice(vector, amount, size - 1)
+    else
+      []
+    end
+  end
+
+  defp do_drop_vector(vector, amount) do
+    size = RawVector.size(vector)
+    last = amount + size
+
+    if last > 0 do
+      RawVector.slice(vector, 0, last - 1)
+    else
+      []
+    end
+  end
+
+  @doc """
+  Splits the `enumerable` into two enumerables, leaving `count` elements in the first one.
+
+  Mirrors `Enum.split/2` with higher performance for Aja structures.
+  """
+  @spec split(t(val), integer) :: {t(val), t(val)} when val: value
+  def split(enumerable, amount) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.split(enumerable, amount)
+
+      list when is_list(list) ->
+        Enum.split(list, amount)
+
+      vector ->
+        if amount >= 0 do
+          {do_take_vector(vector, amount), do_drop_vector(vector, amount)}
+        else
+          {do_drop_vector(vector, amount), do_take_vector(vector, amount)}
+        end
+    end
+  end
+
   ## SORT
 
   @doc """

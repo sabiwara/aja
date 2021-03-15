@@ -164,6 +164,24 @@ defmodule A.Enum.PropTest do
       assert slice_2 === A.Enum.slice(stream, i1..i2)
       assert Enum.slice(map_set, i1..i2) === A.Enum.slice(map_set, i1..i2)
 
+      taken = Enum.take(list, i1)
+      assert taken === A.Enum.take(list, i1)
+      assert taken === A.Enum.take(vector, i1)
+      assert taken === A.Enum.take(stream, i1)
+      assert Enum.take(map_set, i1) === A.Enum.take(map_set, i1)
+
+      dropped = Enum.drop(list, i1)
+      assert dropped === A.Enum.drop(list, i1)
+      assert dropped === A.Enum.drop(vector, i1)
+      assert dropped === A.Enum.drop(stream, i1)
+      assert Enum.drop(map_set, i1) === A.Enum.drop(map_set, i1)
+
+      split_result = Enum.split(list, i1)
+      assert split_result === A.Enum.split(list, i1)
+      assert split_result === A.Enum.split(vector, i1)
+      assert split_result === A.Enum.split(stream, i1)
+      assert Enum.split(map_set, i1) === A.Enum.split(map_set, i1)
+
       reversed_list = Enum.reverse(list)
       assert ^reversed_list = A.Enum.reverse(list)
       assert ^reversed_list = A.Enum.reverse(vector)
