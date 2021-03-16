@@ -186,11 +186,14 @@ defmodule A.OrdMap do
       iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
       358
       iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
-      1112
+      1110
       iex> ord_map_size / map_size
-      3.106145251396648
+      3.100558659217877
 
   """
+
+  alias A.Vector.Raw, as: RawVector
+  require RawVector
 
   @behaviour Access
 
@@ -199,18 +202,17 @@ defmodule A.OrdMap do
   @typep index :: non_neg_integer
   @typep internals(key, value) :: %__MODULE__{
            __ord_map__: %{optional(key) => {index, value}},
-           __ord_vector__: A.Vector.Raw.t({key, value}),
-           __ord_next__: index
+           __ord_vector__: RawVector.t({key, value})
          }
   @type t(key, value) :: internals(key, value)
   @type t :: t(key, value)
-  defstruct __ord_map__: %{}, __ord_vector__: A.Vector.Raw.empty(), __ord_next__: 0
+  defstruct __ord_map__: %{}, __ord_vector__: RawVector.empty()
 
   @doc false
   defguard is_dense(ord_map)
            # TODO simplify when stop supporting Elixir 1.10
            when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
-                  :erlang.map_get(:__ord_next__, ord_map)
+                  :erlang.map_get(:__ord_vector__, ord_map) |> RawVector.size()
 
   @doc """
   Returns the number of keys in `ord_map`.
@@ -245,7 +247,7 @@ defmodule A.OrdMap do
   def keys(ord_map)
 
   def keys(%__MODULE__{__ord_vector__: vector}) do
-    A.Vector.Raw.foldr(vector, [], fn
+    RawVector.foldr(vector, [], fn
       {key, _value}, acc -> [key | acc]
       nil, acc -> acc
     end)
@@ -265,7 +267,7 @@ defmodule A.OrdMap do
   def values(ord_map)
 
   def values(%__MODULE__{__ord_vector__: vector}) do
-    A.Vector.Raw.foldr(vector, [], fn
+    RawVector.foldr(vector, [], fn
       {_key, value}, acc -> [value | acc]
       nil, acc -> acc
     end)
@@ -285,11 +287,11 @@ defmodule A.OrdMap do
   def to_list(ord_map)
 
   def to_list(%__MODULE__{__ord_vector__: vector} = ord_map) when is_dense(ord_map) do
-    A.Vector.Raw.to_list(vector)
+    RawVector.to_list(vector)
   end
 
   def to_list(%__MODULE__{__ord_vector__: vector}) do
-    A.Vector.Raw.sparse_to_list(vector)
+    RawVector.sparse_to_list(vector)
   end
 
   @doc """
@@ -445,7 +447,7 @@ defmodule A.OrdMap do
   """
   @spec put_new(t(k, v), k, v) :: t(k, v) when k: key, v: value
   def put_new(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         value
       ) do
@@ -454,7 +456,7 @@ defmodule A.OrdMap do
         ord_map
 
       _ ->
-        do_add_new(map, vector, next_index, key, value)
+        do_add_new(map, vector, key, value)
     end
   end
 
@@ -472,13 +474,13 @@ defmodule A.OrdMap do
   """
   @spec replace(t(k, v), k, v) :: t(k, v) when k: key, v: value
   def replace(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         value
       ) do
     case map do
       %{^key => {index, _value}} ->
-        do_add_existing(map, vector, index, key, value, next_index)
+        do_add_existing(map, vector, index, key, value)
 
       _ ->
         ord_map
@@ -501,13 +503,13 @@ defmodule A.OrdMap do
   """
   @spec replace!(t(k, v), k, v) :: t(k, v) when k: key, v: value
   def replace!(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         value
       ) do
     case map do
       %{^key => {index, _value}} ->
-        do_add_existing(map, vector, index, key, value, next_index)
+        do_add_existing(map, vector, index, key, value)
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -534,7 +536,7 @@ defmodule A.OrdMap do
   """
   @spec put_new_lazy(t(k, v), k, (() -> v)) :: t(k, v) when k: key, v: value
   def put_new_lazy(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         fun
       )
@@ -542,7 +544,7 @@ defmodule A.OrdMap do
     if has_key?(ord_map, key) do
       ord_map
     else
-      do_add_new(map, vector, next_index, key, fun.())
+      do_add_new(map, vector, key, fun.())
     end
   end
 
@@ -567,9 +569,9 @@ defmodule A.OrdMap do
     do_take(map, keys, [], %{}, 0)
   end
 
-  defp do_take(_map, _keys = [], kvs, map_acc, index) do
-    vector = kvs |> :lists.reverse() |> A.Vector.Raw.from_list()
-    %__MODULE__{__ord_map__: map_acc, __ord_vector__: vector, __ord_next__: index}
+  defp do_take(_map, _keys = [], kvs, map_acc, _index) do
+    vector = kvs |> :lists.reverse() |> RawVector.from_list()
+    %__MODULE__{__ord_map__: map_acc, __ord_vector__: vector}
   end
 
   defp do_take(map, [key | keys], kvs, map_acc, index) do
@@ -667,16 +669,16 @@ defmodule A.OrdMap do
   def put(ord_map, key, value)
 
   def put(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector},
         key,
         value
       ) do
     case map do
       %{^key => {index, _value}} ->
-        do_add_existing(map, vector, index, key, value, next_index)
+        do_add_existing(map, vector, index, key, value)
 
       _ ->
-        do_add_new(map, vector, next_index, key, value)
+        do_add_new(map, vector, key, value)
     end
   end
 
@@ -696,12 +698,12 @@ defmodule A.OrdMap do
   """
   @spec delete(t(k, v), k) :: t(k, v) when k: key, v: value
   def delete(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key
       ) do
     case :maps.take(key, map) do
       {{index, _value}, new_map} ->
-        do_delete_existing(new_map, vector, index, next_index)
+        do_delete_existing(new_map, vector, index)
 
       :error ->
         ord_map
@@ -753,7 +755,7 @@ defmodule A.OrdMap do
   def update(ord_map, key, default, fun)
 
   def update(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector},
         key,
         default,
         fun
@@ -761,10 +763,10 @@ defmodule A.OrdMap do
       when is_function(fun, 1) do
     case map do
       %{^key => {index, value}} ->
-        do_add_existing(map, vector, index, key, fun.(value), next_index)
+        do_add_existing(map, vector, index, key, fun.(value))
 
       _ ->
-        do_add_new(map, vector, next_index, key, default)
+        do_add_new(map, vector, key, default)
     end
   end
 
@@ -791,13 +793,13 @@ defmodule A.OrdMap do
   @impl Access
   @spec pop(t(k, v), k, v) :: {v, t(k, v)} when k: key, v: value
   def pop(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         default \\ nil
       ) do
     case :maps.take(key, map) do
       {{index, value}, new_map} ->
-        {value, do_delete_existing(new_map, vector, index, next_index)}
+        {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
         {default, ord_map}
@@ -820,12 +822,12 @@ defmodule A.OrdMap do
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
   def pop!(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key
       ) do
     case :maps.take(key, map) do
       {{index, value}, new_map} ->
-        {value, do_delete_existing(new_map, vector, index, next_index)}
+        {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
         raise KeyError, key: key, term: ord_map
@@ -857,14 +859,14 @@ defmodule A.OrdMap do
   """
   @spec pop_lazy(t(k, v), k, (() -> v)) :: {v, t(k, v)} when k: key, v: value
   def pop_lazy(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         fun
       )
       when is_function(fun, 0) do
     case :maps.take(key, map) do
       {{index, value}, new_map} ->
-        {value, do_delete_existing(new_map, vector, index, next_index)}
+        {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
         {fun.(), ord_map}
@@ -907,14 +909,14 @@ defmodule A.OrdMap do
   """
   @spec update!(t(k, v), k, v) :: t(k, v) when k: key, v: value
   def update!(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key,
         fun
       )
       when is_function(fun, 1) do
     case map do
       %{^key => {index, value}} ->
-        do_add_existing(map, vector, index, key, fun.(value), next_index)
+        do_add_existing(map, vector, index, key, fun.(value))
 
       _ ->
         raise KeyError, key: key, term: ord_map
@@ -1039,15 +1041,15 @@ defmodule A.OrdMap do
   def equal?(%A.OrdMap{__ord_map__: map1} = ord_map1, %A.OrdMap{__ord_map__: map2} = ord_map2) do
     case {map_size(map1), map_size(map2)} do
       {size, size} ->
-        case {ord_map1.__ord_next__, ord_map2.__ord_next__} do
+        case {RawVector.size(ord_map1.__ord_vector__), RawVector.size(ord_map2.__ord_vector__)} do
           {^size, ^size} ->
             # both are dense, maps can be compared safely
             map1 === map2
 
           {_, _} ->
             # one of them is sparse, inefficient comparison
-            A.Vector.Raw.sparse_to_list(ord_map1.__ord_vector__) ===
-              A.Vector.Raw.sparse_to_list(ord_map2.__ord_vector__)
+            RawVector.sparse_to_list(ord_map1.__ord_vector__) ===
+              RawVector.sparse_to_list(ord_map2.__ord_vector__)
         end
 
       {_, _} ->
@@ -1077,11 +1079,11 @@ defmodule A.OrdMap do
   def first(ord_map, default \\ nil)
 
   def first(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
-    A.Vector.Raw.first(vector, default)
+    RawVector.first(vector, default)
   end
 
   def first(%A.OrdMap{__ord_vector__: vector}, default) do
-    A.Vector.Raw.find(vector, default, fn value -> value end)
+    RawVector.find(vector, default, fn value -> value end)
   end
 
   @doc """
@@ -1104,12 +1106,12 @@ defmodule A.OrdMap do
   def last(ord_map, default \\ nil)
 
   def last(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
-    A.Vector.Raw.last(vector, default)
+    RawVector.last(vector, default)
   end
 
   def last(%A.OrdMap{__ord_vector__: vector}, default) do
     try do
-      A.Vector.Raw.foldr(vector, nil, fn value, _acc ->
+      RawVector.foldr(vector, nil, fn value, _acc ->
         if value, do: throw(value)
       end)
 
@@ -1137,8 +1139,8 @@ defmodule A.OrdMap do
 
   def foldl(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
     case ord_map do
-      dense when is_dense(dense) -> A.Vector.Raw.foldl(vector, acc, fun)
-      _sparse -> A.Vector.Raw.sparse_to_list(vector) |> List.foldl(acc, fun)
+      dense when is_dense(dense) -> RawVector.foldl(vector, acc, fun)
+      _sparse -> RawVector.sparse_to_list(vector) |> List.foldl(acc, fun)
     end
   end
 
@@ -1162,8 +1164,8 @@ defmodule A.OrdMap do
 
   def foldr(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
     case ord_map do
-      dense when is_dense(dense) -> A.Vector.Raw.foldr(vector, acc, fun)
-      _sparse -> A.Vector.Raw.sparse_to_list(vector) |> List.foldr(acc, fun)
+      dense when is_dense(dense) -> RawVector.foldr(vector, acc, fun)
+      _sparse -> RawVector.sparse_to_list(vector) |> List.foldr(acc, fun)
     end
   end
 
@@ -1212,24 +1214,21 @@ defmodule A.OrdMap do
   # Exposed "private" functions
 
   @doc false
-  def merge_list(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index},
-        new_kvs
-      ) do
-    {new_map, reversed_kvs, new_next, duplicates} =
-      do_add_optimistic(new_kvs, map, [], next_index)
+  def merge_list(%__MODULE__{__ord_map__: map, __ord_vector__: vector}, new_kvs) do
+    {new_map, reversed_kvs, duplicates} =
+      do_add_optimistic(new_kvs, map, [], RawVector.size(vector))
 
     new_vector =
       vector
-      |> A.Vector.Raw.concat(:lists.reverse(reversed_kvs))
+      |> RawVector.concat(:lists.reverse(reversed_kvs))
       |> do_fix_vector_duplicates(map, duplicates)
 
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: new_next}
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end
 
   @doc false
   def replace_many!(
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index} = ord_map,
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map,
         key_values
       ) do
     case do_replace_many(key_values, map, vector) do
@@ -1237,39 +1236,40 @@ defmodule A.OrdMap do
         raise KeyError, key: key, term: ord_map
 
       {:ok, map, vector} ->
-        %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index}
+        %__MODULE__{__ord_map__: map, __ord_vector__: vector}
     end
   end
 
   # Private functions
 
-  defp do_add_new(map, vector, index, key, value) do
-    new_vector = A.Vector.Raw.append(vector, {key, value})
+  defp do_add_new(map, vector, key, value) do
+    index = RawVector.size(vector)
+    new_vector = RawVector.append(vector, {key, value})
     new_map = Map.put(map, key, {index, value})
 
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: index + 1}
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end
 
-  defp do_add_existing(map, vector, index, key, value, next_index) do
-    new_vector = A.Vector.Raw.replace_positive!(vector, index, {key, value})
+  defp do_add_existing(map, vector, index, key, value) do
+    new_vector = RawVector.replace_positive!(vector, index, {key, value})
     new_map = Map.put(map, key, {index, value})
 
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: next_index}
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end
 
-  defp do_delete_existing(new_map, _vector, _index, _next_index) when new_map === %{} do
+  defp do_delete_existing(new_map, _vector, _index) when new_map === %{} do
     # always return the same empty ord map, and reset the index to avoid considering it as sparse
     %__MODULE__{}
   end
 
-  defp do_delete_existing(new_map, vector, index, next_index) when index == next_index - 1 do
-    {_last, new_vector} = A.Vector.Raw.pop_last(vector)
-    periodic_rebuild(new_map, new_vector, index)
+  defp do_delete_existing(new_map, vector, index) when index + 1 == RawVector.size(vector) do
+    {_last, new_vector} = RawVector.pop_last(vector)
+    periodic_rebuild(new_map, new_vector)
   end
 
-  defp do_delete_existing(new_map, vector, index, next_index) do
-    new_vector = A.Vector.Raw.replace_positive!(vector, index, nil)
-    periodic_rebuild(new_map, new_vector, next_index)
+  defp do_delete_existing(new_map, vector, index) do
+    new_vector = RawVector.replace_positive!(vector, index, nil)
+    periodic_rebuild(new_map, new_vector)
   end
 
   defp do_fix_vector_duplicates(vector, _map, _duplicates = nil) do
@@ -1279,7 +1279,7 @@ defmodule A.OrdMap do
   defp do_fix_vector_duplicates(vector, map, duplicates) do
     Enum.reduce(duplicates, vector, fn {key, value}, acc ->
       %{^key => {index, _value}} = map
-      A.Vector.Raw.replace_positive!(acc, index, {key, value})
+      RawVector.replace_positive!(acc, index, {key, value})
     end)
   end
 
@@ -1291,7 +1291,7 @@ defmodule A.OrdMap do
     case map do
       %{^key => {index, _value}} ->
         new_map = Map.replace!(map, key, {index, value})
-        new_vector = A.Vector.Raw.replace_positive!(vector, index, {key, value})
+        new_vector = RawVector.replace_positive!(vector, index, {key, value})
         do_replace_many(rest, new_map, new_vector)
 
       _ ->
@@ -1304,17 +1304,17 @@ defmodule A.OrdMap do
   end
 
   defp from_list(list) do
-    {map, key_values, index} =
+    {map, key_values} =
       case do_add_optimistic(list, %{}, [], 0) do
-        {map, reversed_kvs, index, nil} ->
-          {map, :lists.reverse(reversed_kvs), index}
+        {map, reversed_kvs, nil} ->
+          {map, :lists.reverse(reversed_kvs)}
 
-        {map, reversed_kvs, index, duplicates} ->
-          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, []), index}
+        {map, reversed_kvs, duplicates} ->
+          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, [])}
       end
 
-    vector = A.Vector.Raw.from_list(key_values)
-    %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: index}
+    vector = RawVector.from_list(key_values)
+    %__MODULE__{__ord_map__: map, __ord_vector__: vector}
   end
 
   @doc false
@@ -1345,35 +1345,31 @@ defmodule A.OrdMap do
   defp constant_key?(_), do: false
 
   defp from_list_ast_constant_keys(kvs_ast) do
-    {map, key_values, index} =
+    {map, key_values} =
       case do_add_optimistic(kvs_ast, %{}, [], 0) do
-        {map, reversed_kvs, index, nil} ->
-          {map, :lists.reverse(reversed_kvs), index}
+        {map, reversed_kvs, nil} ->
+          {map, :lists.reverse(reversed_kvs)}
 
-        {map, reversed_kvs, index, duplicates} ->
+        {map, reversed_kvs, duplicates} ->
           for {key, _} <- duplicates do
             IO.warn("key #{inspect(key)} will be overridden in ord map")
           end
 
-          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, []), index}
+          {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, [])}
       end
 
-    vector_ast = A.Vector.Raw.from_list_ast(key_values)
+    vector_ast = RawVector.from_list_ast(key_values)
     map_ast = {:%{}, [], Map.to_list(map)}
 
     quote do
-      %unquote(__MODULE__){
-        __ord_map__: unquote(map_ast),
-        __ord_vector__: unquote(vector_ast),
-        __ord_next__: unquote(index)
-      }
+      %unquote(__MODULE__){__ord_map__: unquote(map_ast), __ord_vector__: unquote(vector_ast)}
     end
   end
 
   @compile {:inline, do_add_optimistic: 4}
 
-  defp do_add_optimistic([], map, key_values, next_index) do
-    {map, key_values, next_index, nil}
+  defp do_add_optimistic([], map, key_values, _next_index) do
+    {map, key_values, nil}
   end
 
   defp do_add_optimistic([{key, value} | rest], map, key_values, next_index) do
@@ -1390,8 +1386,8 @@ defmodule A.OrdMap do
     end
   end
 
-  defp do_add_with_duplicates([], map, key_values, duplicates, next_index) do
-    {map, key_values, next_index, duplicates}
+  defp do_add_with_duplicates([], map, key_values, duplicates, _next_index) do
+    {map, key_values, duplicates}
   end
 
   defp do_add_with_duplicates([{key, value} | rest], map, key_values, duplicates, next_index) do
@@ -1420,14 +1416,14 @@ defmodule A.OrdMap do
     do_reverse_and_update_duplicates(rest, duplicates, [{key, value} | acc])
   end
 
-  defp periodic_rebuild(map, vector, next_index) when next_index >= 2 * map_size(map) do
+  defp periodic_rebuild(map, vector) when RawVector.size(vector) >= 2 * map_size(map) do
     vector
-    |> A.Vector.Raw.sparse_to_list()
+    |> RawVector.sparse_to_list()
     |> from_list()
   end
 
-  defp periodic_rebuild(map, vector, next_index) do
-    %__MODULE__{__ord_map__: map, __ord_vector__: vector, __ord_next__: next_index}
+  defp periodic_rebuild(map, vector) do
+    %__MODULE__{__ord_map__: map, __ord_vector__: vector}
   end
 
   defimpl Enumerable do

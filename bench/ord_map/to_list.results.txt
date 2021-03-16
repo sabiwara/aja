@@ -22,27 +22,27 @@ Benchmarking A.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap        9.96 M      100.40 ns ±21541.40%          61 ns         187 ns
-Map             5.92 M      168.85 ns ±17785.41%          56 ns         195 ns
+A.OrdMap       10.26 M       97.49 ns ±23247.25%          54 ns         315 ns
+Map             4.42 M      226.23 ns ±17701.46%          60 ns         312 ns
 
 Comparison: 
-A.OrdMap        9.96 M
-Map             5.92 M - 1.68x slower +68.44 ns
+A.OrdMap       10.26 M
+Map             4.42 M - 2.32x slower +128.75 ns
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap        2.88 M      347.43 ns ±12126.01%         210 ns         532 ns
-Map             1.59 M      630.66 ns  ±3083.15%         467 ns         963 ns
+A.OrdMap        2.34 M      427.01 ns  ±9279.54%         214 ns         700 ns
+Map             1.31 M      764.31 ns  ±4706.35%         503 ns        1631 ns
 
 Comparison: 
-A.OrdMap        2.88 M
-Map             1.59 M - 1.82x slower +283.23 ns
+A.OrdMap        2.34 M
+Map             1.31 M - 1.79x slower +337.29 ns
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap       37.65 K       26.56 μs   ±104.51%       12.04 μs       71.03 μs
-Map             5.55 K      180.34 μs    ±52.48%      193.58 μs      348.81 μs
+A.OrdMap       33.49 K       29.86 μs    ±86.44%       13.12 μs       98.88 μs
+Map             4.90 K      204.14 μs    ±54.04%      209.65 μs      461.94 μs
 
 Comparison: 
-A.OrdMap       37.65 K
-Map             5.55 K - 6.79x slower +153.78 μs
+A.OrdMap       33.49 K
+Map             4.90 K - 6.84x slower +174.28 μs

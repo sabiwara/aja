@@ -20,18 +20,18 @@ Benchmarking A.OrdMap with input n = 10000...
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-Map           143.41 K        6.97 μs   ±110.61%        6.66 μs       14.63 μs
-A.OrdMap      110.04 K        9.09 μs    ±91.70%        8.61 μs       22.12 μs
+Map           120.01 K        8.33 μs   ±121.35%        7.50 μs       25.35 μs
+A.OrdMap      100.07 K        9.99 μs    ±94.57%        9.03 μs       27.09 μs
 
 Comparison: 
-Map           143.41 K
-A.OrdMap      110.04 K - 1.30x slower +2.12 μs
+Map           120.01 K
+A.OrdMap      100.07 K - 1.20x slower +1.66 μs
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-Map             606.52        1.65 ms     ±9.66%        1.58 ms        2.10 ms
-A.OrdMap        314.16        3.18 ms    ±15.91%        3.01 ms        4.61 ms
+Map             543.17        1.84 ms    ±14.23%        1.78 ms        2.82 ms
+A.OrdMap        284.84        3.51 ms    ±16.94%        3.39 ms        5.38 ms
 
 Comparison: 
-Map             606.52
-A.OrdMap        314.16 - 1.93x slower +1.53 ms
+Map             543.17
+A.OrdMap        284.84 - 1.91x slower +1.67 ms
