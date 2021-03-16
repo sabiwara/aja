@@ -1263,8 +1263,8 @@ defmodule A.OrdMap do
   end
 
   defp do_delete_existing(new_map, vector, index, next_index) when index == next_index - 1 do
-    {_lat, new_vector} = A.Vector.Raw.pop_last(vector)
-    %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector, __ord_next__: index}
+    {_last, new_vector} = A.Vector.Raw.pop_last(vector)
+    periodic_rebuild(new_map, new_vector, index)
   end
 
   defp do_delete_existing(new_map, vector, index, next_index) do

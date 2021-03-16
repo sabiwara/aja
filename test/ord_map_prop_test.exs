@@ -12,20 +12,26 @@ defmodule A.OrdMap.PropTest do
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
   # that most operations work as they should without any weird edge case
 
-  def key, do: one_of([integer(), float(), string(:printable), atom(:alphanumeric)])
+  defp log_rescale(generator) do
+    scale(generator, &trunc(:math.log(&1)))
+  end
+
+  def key do
+    one_of([integer(), float(), string(:printable), atom(:alphanumeric)])
+    |> log_rescale()
+  end
 
   def value do
     # values probably don't impact the algoithm that much
     # no need to intensively check for arbitrary/huge nested values
     frequency([
       {4, key()},
-      {1, term()}
+      {1, term() |> log_rescale()}
     ])
-    |> resize(10)
   end
 
   def key_value_pairs() do
-    list_of(tuple({key(), term()}))
+    list_of(tuple({key(), value()}))
   end
 
   def operation do
