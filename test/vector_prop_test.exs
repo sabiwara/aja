@@ -2,8 +2,6 @@ defmodule A.Vector.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  import ExUnit.CaptureIO
-
   import A, only: [vec: 1, vec_size: 1]
 
   @moduletag timeout: :infinity
@@ -100,21 +98,17 @@ defmodule A.Vector.PropTest do
     assert 0 = A.Vector.size(vector)
     assert [] = A.Vector.to_list(vector)
     assert [] = A.Enum.to_list(vector)
-
-    capture_io(:stderr, fn ->
-      assert [] = Enum.to_list(vector)
-    end)
+    assert [] = Enum.to_list(vector)
   end
 
   def assert_properties(%A.Vector{} = vector) do
     as_list = A.Vector.to_list(vector)
-
-    capture_io(:stderr, fn ->
-      assert ^as_list = Enum.to_list(vector)
-    end)
+    assert ^as_list = Enum.to_list(vector)
+    assert ^as_list = A.Enum.to_list(vector)
 
     assert A.Vector.size(vector) === length(as_list)
     assert Enum.count(vector) === length(as_list)
+    assert A.Enum.count(vector) === length(as_list)
 
     assert A.Vector.first(vector) === List.first(as_list)
     assert A.Vector.last(vector) === List.last(as_list)
@@ -155,10 +149,7 @@ defmodule A.Vector.PropTest do
       assert vz === A.Enum.into(y, vx)
       assert vz === A.Enum.into(vy, vx)
       assert vz === Enum.into(y, vx)
-
-      capture_io(:stderr, fn ->
-        assert vz === Enum.into(vy, vx)
-      end)
+      assert vz === Enum.into(vy, vx)
 
       assert A.Vector.size(vz) === A.Vector.size(vx) + A.Vector.size(vy)
     end

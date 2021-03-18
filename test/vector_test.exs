@@ -1,8 +1,6 @@
 defmodule A.VectorTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureIO
-
   doctest A.Vector
 
   defp spy_callback(fun) do
@@ -456,16 +454,10 @@ defmodule A.VectorTest do
   end
 
   test "Enum.to_list/1" do
-    captured =
-      capture_io(:stderr, fn ->
-        assert [] == A.Vector.new() |> Enum.to_list()
-        assert [1, 2, 3, 4, 5] == A.Vector.new(1..5) |> Enum.to_list()
-        assert Enum.to_list(1..50) == A.Vector.new(1..50) |> Enum.to_list()
-        assert Enum.to_list(1..500) == A.Vector.new(1..500) |> Enum.to_list()
-      end)
-
-    assert captured =~ "warning"
-    assert captured =~ "Enum has sub-optimal performance"
+    assert [] == A.Vector.new() |> Enum.to_list()
+    assert [1, 2, 3, 4, 5] == A.Vector.new(1..5) |> Enum.to_list()
+    assert Enum.to_list(1..50) == A.Vector.new(1..50) |> Enum.to_list()
+    assert Enum.to_list(1..500) == A.Vector.new(1..500) |> Enum.to_list()
   end
 
   test "Enum.member?/2" do

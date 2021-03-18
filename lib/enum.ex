@@ -19,13 +19,10 @@ defmodule A.Enum do
   One of the main reasons to adopt a specific data structure is the performance.
   Using vectors with `Enum` would defeat the purpose, hence the introduction of `A.Enum`.
 
-      vector = A.Vector.new(1..10000)
-
-      Enum.sum(vector)
-      # warning: Enum has sub-optimal performance for A.Vector, use A.Enum (see https://hexdocs.pm/aja/A.Enum.html)
+      iex> vector = A.Vector.new(1..10000)
+      iex> Enum.sum(vector)    # slow
       50005000
-
-      A.Enum.sum(vector)  # same result, much faster
+      iex> A.Enum.sum(vector)  # same result, much faster
       50005000
 
   """

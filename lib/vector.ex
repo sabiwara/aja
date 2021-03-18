@@ -2121,9 +2121,9 @@ defmodule A.Vector do
     def reduce(%A.Vector{__vector__: internal}, acc, fun) do
       # TODO investigate best way to warn
       # flag it?
-      IO.warn(
-        "Enum has sub-optimal performance for A.Vector, use A.Enum (see https://hexdocs.pm/aja/A.Enum.html)"
-      )
+      # IO.warn(
+      #   "Enum has sub-optimal performance for A.Vector, use A.Enum (see https://hexdocs.pm/aja/A.Enum.html)"
+      # )
 
       internal
       |> A.Vector.Raw.to_list()
