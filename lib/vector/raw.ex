@@ -136,6 +136,9 @@ defmodule A.Vector.Raw do
     small(1, unquote(C.value_with_nils(C.var(value)) |> C.array()))
   end
 
+  def concat(vector, []), do: vector
+  def concat(vector, [value]), do: append(vector, value)
+
   def concat(large(size, tail_offset, level, trie, tail), list) do
     case Tail.complete_tail(tail, size - tail_offset, list) do
       {new_tail, added, []} ->
