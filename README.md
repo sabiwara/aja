@@ -98,6 +98,14 @@ All data structures offer:
 - (optional if `Jason` is installed) implemention of the `Jason.Encoder` protocol
 
 
+#### Optimized `Enum`: `A.Enum`
+
+`A.Enum` mirrors the `Enum` module, but its implementation is highly optimized for
+Aja structures such as `A.Vector` or `A.OrdMap`.
+
+`A.Enum` on vectors/ord maps can be even faster than `Enum` on lists/maps,
+depending on the function and size of the sequence.
+
 ## Utility functions
 
 #### Sigil i for [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
