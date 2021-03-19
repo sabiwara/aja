@@ -16,6 +16,7 @@
 * Remove A.OrdMap.pop_first/1 and A.OrdMap.pop_last/1
 * Remove A.RBMap and A.RBSet
 * Deprecate methods from `A.Vector` that have been moved to `A.Enum`
+* Rename `A.List.repeat/2` and `A.Vector.repeat/2`
 
 ## v0.4.8 (2021-02-23)
 

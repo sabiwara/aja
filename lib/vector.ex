@@ -425,14 +425,18 @@ defmodule A.Vector do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exsplus, {1, 2, 3})
-      iex> A.Vector.repeatedly(&:rand.uniform/0, 3)
+      iex> A.Vector.repeat(&:rand.uniform/0, 3)
       #A<vec([0.40502929729990744, 0.45336720247823126, 0.04094511692041057])>
 
   """
-  def repeatedly(generator_fun, n)
+  def repeat(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
-    A.List.repeatedly(generator_fun, n) |> from_list()
+    A.List.repeat(generator_fun, n) |> from_list()
   end
+
+  @doc false
+  @deprecated "Use A.Vector.repeat/2 instead"
+  defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
 
   @doc """
   Appends a `value` at the end of a `vector`.

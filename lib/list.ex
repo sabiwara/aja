@@ -4,7 +4,7 @@ defmodule A.List do
   that are not in the core `List` module.
   """
 
-  @compile {:inline, prepend: 2, repeatedly: 2, do_repeatedly: 3}
+  @compile {:inline, prepend: 2, repeat: 2, do_repeat: 3}
 
   @doc """
   Prepends an element to a list, equivalent of `[elem | list]` that can be used in a pipe.
@@ -26,7 +26,7 @@ defmodule A.List do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exsplus, {1, 2, 3})
-      iex> A.List.repeatedly(&:rand.uniform/0, 3)
+      iex> A.List.repeat(&:rand.uniform/0, 3)
       [0.40502929729990744, 0.45336720247823126, 0.04094511692041057]
 
       # It is basically just syntactic sugar for the following:
@@ -34,7 +34,7 @@ defmodule A.List do
 
   ## Rationale
 
-  - It has a consistent API with `Stream.repeatedly/1` and `List.duplicate/2`
+  - It offers has a consistent API with `Stream.repeatedly/1` and `List.duplicate/2`
   - It provides a less verbose way of writing one of the most common uses of `Stream.repeatedly/1`
   - It removes the temptation to write the following, which is more concise but is technically incorrect:
 
@@ -44,17 +44,23 @@ defmodule A.List do
         iex> Enum.to_list(1..0)  # <- because of this
         [1, 0]
 
+  - It is more efficient
+
   This is the same problem that `A.ExRange` is addressing.
   """
-  def repeatedly(generator_fun, n)
+  def repeat(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
-    do_repeatedly(generator_fun, n, [])
+    do_repeat(generator_fun, n, [])
   end
 
-  defp do_repeatedly(_generator_fun, 0, acc), do: :lists.reverse(acc)
+  defp do_repeat(_generator_fun, 0, acc), do: :lists.reverse(acc)
 
-  defp do_repeatedly(generator_fun, n, acc) do
+  defp do_repeat(generator_fun, n, acc) do
     new_acc = [generator_fun.() | acc]
-    do_repeatedly(generator_fun, n - 1, new_acc)
+    do_repeat(generator_fun, n - 1, new_acc)
   end
+
+  @doc false
+  @deprecated "Use A.List.repeat/2 instead"
+  defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
 end
