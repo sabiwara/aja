@@ -32,6 +32,8 @@ defmodule A.Enum do
 
   require RawVector
 
+  @compile :inline_list_funcs
+
   @dialyzer :no_opaque
 
   @type index :: integer
@@ -331,7 +333,7 @@ defmodule A.Enum do
   def reduce(enumerable, acc, fun) when is_function(fun, 2) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.reduce(enumerable, acc, fun)
-      list when is_list(list) -> Enum.reduce(list, acc, fun)
+      list when is_list(list) -> :lists.foldl(fun, acc, list)
       vector -> RawVector.foldl(vector, acc, fun)
     end
   end
@@ -724,7 +726,7 @@ defmodule A.Enum do
   def each(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.each(enumerable, fun)
-      list when is_list(list) -> Enum.each(list, fun)
+      list when is_list(list) -> :lists.foreach(fun, list)
       vector -> RawVector.each(vector, fun)
     end
   end
