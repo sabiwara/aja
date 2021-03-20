@@ -22,12 +22,6 @@ defmodule A.Vector.Node do
     end
   end
 
-  def ast_from_incomplete_list(list) do
-    # note: no need to optimize this one for runtime
-    nil_count = C.branch_factor() - length(list)
-    {:{}, [], list ++ List.duplicate(nil, nil_count)}
-  end
-
   # def to_list({arg1, arg2, arg3, arg4}) do
   #   [arg1, arg2, arg3, arg4]
   # end
@@ -51,6 +45,19 @@ defmodule A.Vector.Node do
       |> C.duplicate_argument()
       |> C.array()
     )
+  end
+
+  for i <- C.range() do
+    # def partial_duplicate(value, 2) do
+    #   {value, value, nil, nil}
+    # end
+    def partial_duplicate(value, unquote(i)) do
+      unquote(
+        List.duplicate(C.var(value), i)
+        |> C.fill_with(nil)
+        |> C.array()
+      )
+    end
   end
 
   def take(node, amount)

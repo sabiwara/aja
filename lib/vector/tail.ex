@@ -8,45 +8,83 @@ defmodule A.Vector.Tail do
 
   @type t(value) :: Node.t(value | nil)
 
-  def pop_last(tail, i) do
-    {elem(tail, i), put_elem(tail, i, nil)}
+  def append(
+        unquote(C.arguments(C.branch_factor() - 1) |> C.left_fill_with(nil) |> C.array()),
+        value
+      ) do
+    unquote(C.array(C.arguments(C.branch_factor() - 1) ++ [C.var(value)]))
+  end
+
+  def delete_last(unquote(C.array_with_wildcards(C.branch_factor() - 1))) do
+    unquote(
+      quote do
+        unquote(C.array([nil | C.arguments(C.branch_factor() - 1)]))
+      end
+    )
+  end
+
+  def partial_map(unquote(C.array()), fun, tail_size) do
+    unquote(
+      C.arguments()
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} ->
+        quote do
+          case var!(tail_size) >= unquote(C.branch_factor() - index) do
+            true -> var!(fun).(unquote(arg))
+            _ -> unquote(arg)
+          end
+        end
+      end)
+      |> C.array()
+    )
   end
 
   for i <- C.range() do
-    # def partial_map({arg1, arg2, arg3, arg4}, fun, 2) do
-    #   {fun.(arg1), fun.(arg2), arg3, arg4}
+    # def partial_to_list({_, _, arg1, arg2}, 2) do
+    #   [arg1, arg2]
     # end
-    def partial_map(unquote(C.array()), fun, unquote(i)) do
-      unquote(
-        C.map_until(i, C.apply_mapper(C.var(fun)))
-        |> C.array()
-      )
+    def partial_to_list(unquote(C.array_with_left_wildcards(i)), unquote(i)) do
+      unquote(C.arguments(i))
     end
   end
 
+  # def from_incomplete_list([arg1, arg2]) do
+  #   {nil, nil, arg1, arg2}
+  # end
   for i <- C.range() do
-    # def partial_to_list({arg1, arg2, _arg3, _arg4}, 2) do
-    #   [arg1, arg2]
+    def partial_from_list(unquote(C.arguments(i))) do
+      unquote(C.arguments(i) |> C.left_fill_with(nil) |> C.array())
+    end
+  end
+
+  def partial_take(node, shifted_amount)
+
+  for i <- C.range() do
+    # def take({arg1, arg2, _arg3, _arg4}, _shifted_amount = 2) do
+    #   {nil, nil, arg1, arg2}
     # end
-    def partial_to_list(unquote(C.array_with_wildcards(i)), unquote(i)) do
-      unquote(C.arguments(i))
+    def partial_take(
+          unquote(C.array_with_wildcards(i)),
+          _shifted_amount = unquote(C.branch_factor() - i)
+        ) do
+      unquote(C.arguments(i) |> C.left_fill_with(nil) |> C.array())
     end
   end
 
   for i <- C.range() do
     # def partial_duplicate(value, 2) do
-    #   {value, value, nil, nil}
+    #   {nil, nil, value, value}
     # end
     def partial_duplicate(value, unquote(i)) do
       unquote(
         List.duplicate(C.var(value), i)
-        |> C.fill_with(nil)
+        |> C.left_fill_with(nil)
         |> C.array()
       )
     end
   end
 
-  # def partial_member?({arg1, arg2, arg3, _arg4}, size, value) do
+  # def partial_member?({arg4, arg3, arg2, arg1}, size, value) do
   #   cond do
   #     arg1 === value -> true
   #     size === 1 -> false
@@ -58,14 +96,14 @@ defmodule A.Vector.Tail do
   #     true -> false
   #   end
   # end
-  def partial_member?(unquote(C.array()), size, value) do
+  def partial_member?(unquote(C.reversed_arguments() |> C.array()), size, value) do
     C.find_cond_tail size do
       arg === value -> true
       _ -> false
     end
   end
 
-  # def partial_any?({arg1, arg2, arg3, arg4}, size) do
+  # def partial_any?({arg4, arg3, arg2, arg1}, size) do
   #   cond do
   #     arg1 -> true
   #     size === 1 -> false
@@ -77,33 +115,14 @@ defmodule A.Vector.Tail do
   #     true -> false
   #   end
   # end
-  def partial_any?(unquote(C.array()), size) do
+  def partial_any?(unquote(C.reversed_arguments() |> C.array()), size) do
     C.find_cond_tail size do
       arg -> true
       _ -> false
     end
   end
 
-  # def partial_any?({arg1, arg2, arg3, arg4}, size, fun) do
-  #   cond do
-  #     fun.(arg1) -> true
-  #     size === 1 -> false
-  #     fun.(arg2) -> true
-  #     size === 2 -> false
-  #     fun.(arg3) -> true
-  #     size === 3 -> false
-  #     fun.(arg4) -> true
-  #     true -> false
-  #   end
-  # end
-  def partial_any?(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      fun.(arg) -> true
-      _ -> false
-    end
-  end
-
-  # def partial_all?({arg1, arg2, arg3, arg4}, size) do
+  # def partial_all?({arg4, arg3, arg2, arg1}, size) do
   #   cond do
   #     !arg1 -> false
   #     size === 1 -> true
@@ -115,57 +134,106 @@ defmodule A.Vector.Tail do
   #     true -> true
   #   end
   # end
-  def partial_all?(unquote(C.array()), size) do
+  def partial_all?(unquote(C.reversed_arguments() |> C.array()), size) do
     C.find_cond_tail size do
       !arg -> false
       _ -> true
     end
   end
 
-  # def partial_all?({arg1, arg2, arg3, arg4}, size, fun) do
-  #   cond do
-  #     !fun.(arg1) -> false
-  #     size === 1 -> true
-  #     !fun.(arg2) -> false
-  #     size === 2 -> true
-  #     !fun.(arg3) -> false
-  #     size === 3 -> true
-  #     !fun.(arg4) -> false
-  #     true -> true
-  #   end
-  # end
-  def partial_all?(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      !fun.(arg) -> false
-      _ -> true
+  @compile {:inline, partial_any?: 3}
+  def partial_any?(tail, start, fun)
+
+  def partial_any?(_tail, _i = C.branch_factor(), _fun), do: false
+
+  def partial_any?(tail, i, fun) do
+    i = i + 1
+    value = :erlang.element(i, tail)
+
+    if fun.(value) do
+      true
+    else
+      partial_any?(tail, i, fun)
     end
   end
 
-  def partial_find(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      fun.(arg) -> {:ok, arg}
-      _ -> nil
+  @compile {:inline, partial_all?: 3}
+  def partial_all?(tail, start, fun)
+
+  def partial_all?(_tail, _i = C.branch_factor(), _fun), do: true
+
+  def partial_all?(tail, i, fun) do
+    i = i + 1
+    value = :erlang.element(i, tail)
+
+    if fun.(value) do
+      partial_all?(tail, i, fun)
+    else
+      false
     end
   end
 
-  def partial_find_value(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      value = fun.(arg) -> value
-      _ -> nil
+  @compile {:inline, partial_find: 3}
+  def partial_find(tail, start, fun)
+
+  def partial_find(_tail, _i = C.branch_factor(), _fun), do: nil
+
+  def partial_find(tail, i, fun) do
+    i = i + 1
+    value = :erlang.element(i, tail)
+
+    if fun.(value) do
+      {:ok, value}
+    else
+      partial_find(tail, i, fun)
     end
   end
 
-  def partial_find_index(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      fun.(arg) -> i
-      _ -> nil
+  @compile {:inline, partial_find_value: 3}
+  def partial_find_value(tail, start, fun)
+
+  def partial_find_value(_tail, _i = C.branch_factor(), _fun), do: nil
+
+  def partial_find_value(tail, i, fun) do
+    i = i + 1
+    value = :erlang.element(i, tail) |> fun.()
+
+    if value do
+      value
+    else
+      partial_find_value(tail, i, fun)
     end
   end
 
-  def partial_find_falsy_index(unquote(C.array()), size, fun) do
-    C.find_cond_tail size do
-      !fun.(arg) -> i
-      _ -> nil
+  @compile {:inline, partial_find_index: 3}
+  def partial_find_index(tail, start, fun)
+
+  def partial_find_index(_tail, _i = C.branch_factor(), _fun), do: nil
+
+  def partial_find_index(tail, i, fun) do
+    i2 = i + 1
+    value = :erlang.element(i2, tail)
+
+    if fun.(value) do
+      i
+    else
+      partial_find_index(tail, i2, fun)
+    end
+  end
+
+  @compile {:inline, partial_find_falsy_index: 3}
+  def partial_find_falsy_index(tail, start, fun)
+
+  def partial_find_falsy_index(_tail, _i = C.branch_factor(), _fun), do: nil
+
+  def partial_find_falsy_index(tail, i, fun) do
+    i2 = i + 1
+    value = :erlang.element(i2, tail)
+
+    if fun.(value) do
+      partial_find_falsy_index(tail, i2, fun)
+    else
+      i
     end
   end
 
@@ -175,129 +243,106 @@ defmodule A.Vector.Tail do
     {tail, 0, []}
   end
 
-  for i <- C.range() do
-    # def complete_tail({arg1, arg2, _arg3, _arg4}, 2, [arg3, arg4 | rest]) do
+  def complete_tail(tail, _tail_size = C.branch_factor(), rest) do
+    {tail, 0, rest}
+  end
+
+  for i <- C.range() |> Enum.drop(-1) do
+    # def complete_tail({_, _, arg1, arg2}, tail_size, [arg3, arg4 | rest]) when tail_size <= 2 do
     #   {{arg1, arg2, arg3, arg4}, 2, rest}
     # end
     def complete_tail(
-          unquote(C.array_with_wildcards(i)),
-          unquote(i),
+          unquote(C.array_with_left_wildcards(i)),
+          tail_size,
           unquote(Enum.drop(C.arguments(), i) |> C.list_with_rest(C.var(rest)))
-        ) do
+        )
+        when tail_size <= unquote(i) do
       {unquote(C.array()), unquote(C.branch_factor() - i), rest}
     end
   end
 
-  for i <- C.range() do
-    # def complete_tail(tail, tail_size, [arg1, arg2]) do
-    #   new_tail = put_elem(put_elem(tail, tail_size, arg1), tail_size + 1, arg2)
-    #   {new_tail, 2, []}
-    # end
-    def complete_tail(tail, tail_size, unquote(C.arguments(i))) do
-      new_tail =
-        unquote(
-          C.arguments(i)
-          |> Enum.with_index()
-          |> Enum.reduce(C.var(tail), fn {arg, index}, acc ->
-            quote do
-              put_elem(unquote(acc), var!(tail_size) + unquote(index), unquote(arg))
-            end
-          end)
-        )
-
-      {new_tail, unquote(i), []}
-    end
-  end
-
-  def slice(tail, start, last) do
-    do_slice(tail, start, last, [])
+  def slice(tail, start, last, tail_size) do
+    offset = C.branch_factor() - tail_size
+    do_slice(tail, start + offset, last + offset + 1, [])
   end
 
   @compile {:inline, do_slice: 4}
-  defp do_slice(tail, i, i, acc) do
-    [elem(tail, i) | acc]
+  defp do_slice(_tail, i, i, acc) do
+    acc
   end
 
   defp do_slice(tail, start, i, acc) do
-    new_acc = [elem(tail, i) | acc]
+    new_acc = [:erlang.element(i, tail) | acc]
     do_slice(tail, start, i - 1, new_acc)
   end
 
-  def partial_map_reduce(tail, tail_size, acc, fun) do
-    do_partial_map_reduce(tail, tail_size, 0, acc, fun)
-  end
+  def partial_map_reduce(tail, _i = C.branch_factor(), acc, _fun), do: {tail, acc}
 
-  defp do_partial_map_reduce(tail, tail_size, _i = tail_size, acc, _fun), do: {tail, acc}
-
-  defp do_partial_map_reduce(tail, tail_size, i, acc, fun) do
+  def partial_map_reduce(tail, i, acc, fun) do
     i = i + 1
     value = :erlang.element(i, tail)
     {new_value, new_acc} = fun.(value, acc)
     new_tail = :erlang.setelement(i, tail, new_value)
-    do_partial_map_reduce(new_tail, tail_size, i, new_acc, fun)
+    partial_map_reduce(new_tail, i, new_acc, fun)
   end
 
-  def partial_scan(tail, tail_size, acc, fun) do
-    do_partial_scan(tail, tail_size, 0, acc, fun)
-  end
+  def partial_scan(tail, _i = C.branch_factor(), _acc, _fun), do: tail
 
-  defp do_partial_scan(tail, tail_size, _i = tail_size, _acc, _fun), do: tail
-
-  defp do_partial_scan(tail, tail_size, i, acc, fun) do
+  def partial_scan(tail, i, acc, fun) do
     i = i + 1
     value = :erlang.element(i, tail)
     new_acc = fun.(value, acc)
     new_tail = :erlang.setelement(i, tail, new_acc)
-    do_partial_scan(new_tail, tail_size, i, new_acc, fun)
+    partial_scan(new_tail, i, new_acc, fun)
   end
 
   def partial_with_index(tail, tail_size, offset)
 
-  def partial_with_index(tail, _i = 0, _offset), do: tail
+  def partial_with_index(tail, _i = C.branch_factor(), _offset), do: tail
 
   def partial_with_index(tail, i, offset) do
+    i = i + 1
     value = :erlang.element(i, tail)
-    new_i = i - 1
-    new_tail = :erlang.setelement(i, tail, {value, offset + new_i})
-    partial_with_index(new_tail, new_i, offset)
+    new_tail = :erlang.setelement(i, tail, {value, offset})
+    partial_with_index(new_tail, i, offset + 1)
   end
 
-  def partial_with_index(tail, tail_size, offset, fun)
+  def partial_with_index(tail, start, offset, fun)
 
-  def partial_with_index(tail, _i = 0, _offset, _fun), do: tail
+  def partial_with_index(tail, _i = C.branch_factor(), _offset, _fun), do: tail
 
   def partial_with_index(tail, i, offset, fun) do
+    i = i + 1
     value = :erlang.element(i, tail)
-    new_i = i - 1
-    new_tail = :erlang.setelement(i, tail, fun.(value, offset + new_i))
-    partial_with_index(new_tail, new_i, offset, fun)
+    new_tail = :erlang.setelement(i, tail, fun.(value, offset))
+    partial_with_index(new_tail, i, offset + 1, fun)
   end
 
-  def partial_zip(tail1, tail2, tail_size)
+  def partial_zip(tail1, tail2, start)
 
-  def partial_zip(tail1, _tail2, _i = 0), do: tail1
+  def partial_zip(tail1, _tail2, _i = C.branch_factor()), do: tail1
 
   def partial_zip(tail1, tail2, i) do
+    i = i + 1
     value1 = :erlang.element(i, tail1)
     value2 = :erlang.element(i, tail2)
-    new_i = i - 1
     new_tail = :erlang.setelement(i, tail1, {value1, value2})
-    partial_zip(new_tail, tail2, new_i)
+    partial_zip(new_tail, tail2, i)
   end
 
-  def partial_unzip(tail, tail_size) do
-    do_partial_unzip(tail, tail, tail_size)
+  def partial_unzip(tail, start) do
+    do_partial_unzip(tail, tail, start)
   end
 
-  defp do_partial_unzip(left, right, _i = 0) do
+  defp do_partial_unzip(left, right, _i = C.branch_factor()) do
     {left, right}
   end
 
   defp do_partial_unzip(left, right, i) do
+    i = i + 1
     {value1, value2} = :erlang.element(i, left)
-    new_i = i - 1
     new_left = :erlang.setelement(i, left, value1)
     new_right = :erlang.setelement(i, right, value2)
-    do_partial_unzip(new_left, new_right, new_i)
+    do_partial_unzip(new_left, new_right, i)
   end
 end

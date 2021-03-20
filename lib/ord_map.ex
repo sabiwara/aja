@@ -1106,7 +1106,10 @@ defmodule A.OrdMap do
   def last(ord_map, default \\ nil)
 
   def last(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
-    RawVector.last(vector, default)
+    case vector do
+      RawVector.last_pattern(last) -> last
+      _ -> default
+    end
   end
 
   def last(%A.OrdMap{__ord_vector__: vector}, default) do

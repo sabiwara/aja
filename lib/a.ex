@@ -265,7 +265,7 @@ defmodule A do
 
       iex> import A
       iex> quote do vec([1, foo, _]) end |> Macro.expand(__ENV__) |> Macro.to_string()
-      "%A.Vector{__vector__: {3, {1, foo, _, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil}}}"
+      "%A.Vector{__vector__: {3, 0, nil, nil, {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1, foo, _}}}"
 
   """
   defmacro vec(list) when is_list(list) do
@@ -283,6 +283,12 @@ defmodule A do
     ~> last
     |> Enum.to_list()
     |> ast_from_list()
+  end
+
+  defmacro vec({:|||, _, [{:_, _, _}, last]}) do
+    quote do
+      %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(:todo, last))}
+    end
   end
 
   defmacro vec({:_, _, _}) do

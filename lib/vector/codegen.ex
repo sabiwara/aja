@@ -142,9 +142,20 @@ defmodule A.Vector.CodeGen do
     Enum.take(@arguments_ast, i) ++ nils
   end
 
+  def arguments_with_left_wildcards(i) when i in 1..@branch_factor do
+    nils = List.duplicate(@wildcard, @branch_factor - i)
+    nils ++ Enum.take(@arguments_ast, i)
+  end
+
   def array_with_wildcards(n) do
     n
     |> arguments_with_wildcards()
+    |> do_array()
+  end
+
+  def array_with_left_wildcards(n) do
+    n
+    |> arguments_with_left_wildcards()
     |> do_array()
   end
 
@@ -161,6 +172,11 @@ defmodule A.Vector.CodeGen do
   def fill_with(args, value) do
     missing = @branch_factor - length(args)
     args ++ List.duplicate(value, missing)
+  end
+
+  def left_fill_with(args, value) do
+    missing = @branch_factor - length(args)
+    List.duplicate(value, missing) ++ args
   end
 
   def map_until(args \\ @arguments_ast, n, fun) when is_integer(n) and is_function(fun, 1) do
@@ -365,6 +381,15 @@ defmodule A.Vector.CodeGen do
     quote do
       def unquote(fun_name)(vector, unquote(acc_var), unquote_splicing(rest_args))
 
+      def unquote(fun_name)({size, 0, _, _, tail}, unquote(acc_var), unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) - size,
+          unquote(acc_var),
+          unquote_splicing(rest_args)
+        )
+      end
+
       def unquote(fun_name)(
             {size, tail_offset, level, trie, tail},
             unquote(acc_var),
@@ -373,11 +398,12 @@ defmodule A.Vector.CodeGen do
         new_acc =
           unquote(trie_fun_name)(trie, level, unquote(acc_var), unquote_splicing(rest_args))
 
-        unquote(tail_fun_name)(tail, 0, size - tail_offset, new_acc, unquote_splicing(rest_args))
-      end
-
-      def unquote(fun_name)({size, tail}, unquote(acc_var), unquote_splicing(rest_args)) do
-        unquote(tail_fun_name)(tail, 0, size, unquote(acc_var), unquote_splicing(rest_args))
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) + tail_offset - size,
+          new_acc,
+          unquote_splicing(rest_args)
+        )
       end
 
       def unquote(fun_name)(
@@ -400,6 +426,15 @@ defmodule A.Vector.CodeGen do
     quote do
       def unquote(fun_name)(vector, unquote_splicing(rest_args))
 
+      def unquote(fun_name)({size, 0, _, _, tail}, unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) - size,
+          unquote(acc_value),
+          unquote_splicing(rest_args)
+        )
+      end
+
       def unquote(fun_name)(
             {size, tail_offset, level, trie, tail},
             unquote_splicing(rest_args)
@@ -412,11 +447,12 @@ defmodule A.Vector.CodeGen do
             unquote_splicing(rest_args)
           )
 
-        unquote(tail_fun_name)(tail, 0, size - tail_offset, new_acc, unquote_splicing(rest_args))
-      end
-
-      def unquote(fun_name)({size, tail}, unquote_splicing(rest_args)) do
-        unquote(tail_fun_name)(tail, 0, size, unquote(acc_value), unquote_splicing(rest_args))
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) + tail_offset - size,
+          new_acc,
+          unquote_splicing(rest_args)
+        )
       end
 
       def unquote(fun_name)(
@@ -432,18 +468,29 @@ defmodule A.Vector.CodeGen do
     quote do
       def unquote(fun_name)(vector, unquote_splicing(rest_args))
 
+      def unquote(fun_name)({size, 0, _, _, tail}, unquote_splicing(rest_args)) do
+        acc = :erlang.element(unquote(@branch_factor + 1) - size, tail)
+
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) + 1 - size,
+          acc,
+          unquote_splicing(rest_args)
+        )
+      end
+
       def unquote(fun_name)(
             {size, tail_offset, level, trie, tail},
             unquote_splicing(rest_args)
           ) do
         new_acc = unquote(trie_left_fun_name)(trie, level, unquote_splicing(rest_args))
 
-        unquote(tail_fun_name)(tail, 0, size - tail_offset, new_acc, unquote_splicing(rest_args))
-      end
-
-      def unquote(fun_name)({size, tail}, unquote_splicing(rest_args)) do
-        acc = :erlang.element(1, tail)
-        unquote(tail_fun_name)(tail, 1, size, acc, unquote_splicing(rest_args))
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor) + tail_offset - size,
+          new_acc,
+          unquote_splicing(rest_args)
+        )
       end
 
       def unquote(fun_name)(
@@ -459,19 +506,18 @@ defmodule A.Vector.CodeGen do
     value_var = Macro.var(:value, nil)
 
     quote do
-      defp unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args))
 
       defp unquote(fun_name)(
              _tail,
-             _i = size,
-             size,
+             _i = unquote(@branch_factor),
              unquote(acc_var),
              unquote_splicing(for _ <- rest_args, do: @wildcard)
            ) do
         unquote(acc_var)
       end
 
-      defp unquote(fun_name)(tail, i, size, unquote(acc_var), unquote_splicing(rest_args)) do
+      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args)) do
         i = i + 1
         unquote(value_var) = :erlang.element(i, tail)
 
@@ -486,7 +532,7 @@ defmodule A.Vector.CodeGen do
             )
           )
 
-        unquote(fun_name)(tail, i, size, new_acc, unquote_splicing(rest_args))
+        unquote(fun_name)(tail, i, new_acc, unquote_splicing(rest_args))
       end
     end
   end
@@ -626,6 +672,16 @@ defmodule A.Vector.CodeGen do
     quote do
       def unquote(fun_name)(vector, unquote(acc_var), unquote_splicing(rest_args))
 
+      def unquote(fun_name)({size, 0, _, _, tail}, unquote(acc_var), unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor),
+          unquote(@branch_factor) - size,
+          unquote(acc_var),
+          unquote_splicing(rest_args)
+        )
+      end
+
       def unquote(fun_name)(
             {size, tail_offset, level, trie, tail},
             unquote(acc_var),
@@ -634,16 +690,13 @@ defmodule A.Vector.CodeGen do
         new_acc =
           unquote(tail_fun_name)(
             tail,
-            size - tail_offset,
+            unquote(@branch_factor),
+            unquote(@branch_factor) + tail_offset - size,
             unquote(acc_var),
             unquote_splicing(rest_args)
           )
 
         unquote(trie_fun_name)(trie, level, new_acc, unquote_splicing(rest_args))
-      end
-
-      def unquote(fun_name)({size, tail}, unquote(acc_var), unquote_splicing(rest_args)) do
-        unquote(tail_fun_name)(tail, size, unquote(acc_var), unquote_splicing(rest_args))
       end
 
       def unquote(fun_name)(
@@ -666,6 +719,16 @@ defmodule A.Vector.CodeGen do
     quote do
       def unquote(fun_name)(vector, unquote_splicing(rest_args))
 
+      def unquote(fun_name)({size, 0, _, _, tail}, unquote_splicing(rest_args)) do
+        unquote(tail_fun_name)(
+          tail,
+          unquote(@branch_factor),
+          unquote(@branch_factor) - size,
+          unquote(acc_value),
+          unquote_splicing(rest_args)
+        )
+      end
+
       def unquote(fun_name)(
             {size, tail_offset, level, trie, tail},
             unquote_splicing(rest_args)
@@ -673,7 +736,8 @@ defmodule A.Vector.CodeGen do
         new_acc =
           unquote(tail_fun_name)(
             tail,
-            size - tail_offset,
+            unquote(@branch_factor),
+            unquote(@branch_factor) + tail_offset - size,
             unquote(acc_value),
             unquote_splicing(rest_args)
           )
@@ -684,10 +748,6 @@ defmodule A.Vector.CodeGen do
           new_acc,
           unquote_splicing(rest_args)
         )
-      end
-
-      def unquote(fun_name)({size, tail}, unquote_splicing(rest_args)) do
-        unquote(tail_fun_name)(tail, size, unquote(acc_value), unquote_splicing(rest_args))
       end
 
       def unquote(fun_name)(
@@ -703,18 +763,19 @@ defmodule A.Vector.CodeGen do
     value_var = Macro.var(:value, nil)
 
     quote do
-      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args))
+      defp unquote(fun_name)(tail, i, until, unquote(acc_var), unquote_splicing(rest_args))
 
       defp unquote(fun_name)(
              _tail,
-             _i = 0,
+             _i = until,
+             until,
              unquote(acc_var),
              unquote_splicing(for _ <- rest_args, do: @wildcard)
            ) do
         unquote(acc_var)
       end
 
-      defp unquote(fun_name)(tail, i, unquote(acc_var), unquote_splicing(rest_args)) do
+      defp unquote(fun_name)(tail, i, until, unquote(acc_var), unquote_splicing(rest_args)) do
         unquote(value_var) = :erlang.element(i, tail)
 
         new_acc =
@@ -728,7 +789,7 @@ defmodule A.Vector.CodeGen do
             )
           )
 
-        unquote(fun_name)(tail, i - 1, new_acc, unquote_splicing(rest_args))
+        unquote(fun_name)(tail, i - 1, until, new_acc, unquote_splicing(rest_args))
       end
     end
   end

@@ -30,7 +30,7 @@ defmodule A.Vector.Trie do
   end
 
   defp do_group_leaves(rest, acc, count) do
-    last = Node.from_incomplete_list(rest)
+    last = Tail.partial_from_list(rest)
     {count + length(rest), count, :lists.reverse(acc), last}
   end
 
@@ -58,7 +58,7 @@ defmodule A.Vector.Trie do
     last =
       rest
       |> Enum.map(fun)
-      |> Node.from_incomplete_list()
+      |> Tail.partial_from_list()
 
     {count + length(rest), count, :lists.reverse(acc), last}
   end
@@ -72,7 +72,7 @@ defmodule A.Vector.Trie do
   end
 
   defp do_group_leaves_ast(rest, acc, count) do
-    last = Node.ast_from_incomplete_list(rest)
+    last = rest |> C.left_fill_with(nil) |> C.array()
     {count + length(rest), count, :lists.reverse(acc), last}
   end
 
@@ -87,7 +87,7 @@ defmodule A.Vector.Trie do
 
       _ ->
         [{count, node} | rest] = acc
-        base_trie = Tail.partial_duplicate(node, count)
+        base_trie = Node.partial_duplicate(node, count)
 
         trie = duplicate_rest(base_trie, rest, count)
 
@@ -121,8 +121,8 @@ defmodule A.Vector.Trie do
   defp duplicate_rest(node, [{child_count, child_node} | rest], count) do
     child_base =
       case child_count do
-        0 -> Node.duplicate(nil) |> Tail.partial_duplicate(1)
-        _ -> Tail.partial_duplicate(child_node, child_count)
+        0 -> Node.duplicate(nil) |> Node.partial_duplicate(1)
+        _ -> Node.partial_duplicate(child_node, child_count)
       end
 
     child = duplicate_rest(child_base, rest, child_count)
@@ -174,7 +174,7 @@ defmodule A.Vector.Trie do
   end
 
   defp do_from_ast_nodes(nodes, level) do
-    {level, Node.ast_from_incomplete_list(nodes)}
+    {level, nodes |> C.fill_with(nil) |> C.array()}
   end
 
   defp group_ast_nodes(nodes)
@@ -184,7 +184,7 @@ defmodule A.Vector.Trie do
   end
 
   defp group_ast_nodes(nodes) do
-    [Node.ast_from_incomplete_list(nodes)]
+    [nodes |> C.fill_with(nil) |> C.array()]
   end
 
   @compile {:inline, append_leaf: 4}
@@ -842,7 +842,7 @@ defmodule A.Vector.Trie do
   end
 
   defp do_take(leaf, _level = 0, last_index, _same_level?) do
-    {0, Node.take(leaf, C.radix_rem(last_index) + 1)}
+    {0, Tail.partial_take(leaf, C.branch_factor() - C.radix_rem(last_index) - 1)}
   end
 
   defp do_take(trie, level, last_index, same_level?) do

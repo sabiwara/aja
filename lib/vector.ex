@@ -113,9 +113,9 @@ defmodule A.Vector do
 
       iex> memory_for = fn n -> [Enum.to_list(1..n), A.Vector.new(1..n)] |> Enum.map(&:erts_debug.size/1) end
       iex> memory_for.(1)
-      [2, 28]
+      [2, 31]
       iex> memory_for.(10)
-      [20, 28]
+      [20, 31]
       iex> memory_for.(100)
       [200, 150]
       iex> memory_for.(10_000)
@@ -537,7 +537,10 @@ defmodule A.Vector do
   def last(vector, default \\ nil)
 
   def last(%__MODULE__{__vector__: internal}, default) do
-    Raw.last(internal, default)
+    case internal do
+      Raw.last_pattern(last) -> last
+      _ -> default
+    end
   end
 
   @doc """
