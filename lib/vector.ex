@@ -113,28 +113,28 @@ defmodule A.Vector do
 
       iex> memory_for = fn n -> [Enum.to_list(1..n), A.Vector.new(1..n)] |> Enum.map(&:erts_debug.size/1) end
       iex> memory_for.(1)
-      [2, 31]
+      [2, 32]
       iex> memory_for.(10)
-      [20, 31]
+      [20, 32]
       iex> memory_for.(100)
-      [200, 150]
+      [200, 151]
       iex> memory_for.(10_000)
-      [20000, 11370]
+      [20000, 11371]
 
   If you need to work with vectors containing mostly the same value, `A.Vector.duplicate/2`
   is highly efficient both in time and memory (logarithmic).
   It minimizes the number of actual copies and reuses the same nested structures under the hood:
 
       iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.size()
-      116
+      117
       iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
-      11370
+      11371
 
   Even a 1B x 1B matrix of the same element costs virtually nothing!
 
       big_n = 1_000_000_000
       0 |> A.Vector.duplicate(big_n) |> A.Vector.duplicate(big_n) |> :erts_debug.size()
-      538
+      539
 
 
   ## Efficiency guide
@@ -503,7 +503,7 @@ defmodule A.Vector do
   @doc """
   Returns the first element in the `vector` or `default` if `vector` is empty.
 
-  Runs in effective constant time.
+  Runs in actual constant time.
 
   ## Examples
 
@@ -517,7 +517,10 @@ defmodule A.Vector do
   def first(vector, default \\ nil)
 
   def first(%__MODULE__{__vector__: internal}, default) do
-    Raw.first(internal, default)
+    case internal do
+      Raw.first_pattern(first) -> first
+      _ -> default
+    end
   end
 
   @doc """

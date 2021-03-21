@@ -186,9 +186,9 @@ defmodule A.OrdMap do
       iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
       358
       iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
-      1110
+      1111
       iex> ord_map_size / map_size
-      3.100558659217877
+      3.1033519553072626
 
   """
 
@@ -1079,7 +1079,10 @@ defmodule A.OrdMap do
   def first(ord_map, default \\ nil)
 
   def first(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
-    RawVector.first(vector, default)
+    case vector do
+      RawVector.first_pattern(first) -> first
+      _ -> default
+    end
   end
 
   def first(%A.OrdMap{__ord_vector__: vector}, default) do

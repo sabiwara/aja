@@ -263,10 +263,6 @@ defmodule A do
   The `vec/1` macro generates the AST at compile time instead of building the vector
   at runtime. This can speedup the instanciation of vectors of known size.
 
-      iex> import A
-      iex> quote do vec([1, foo, _]) end |> Macro.expand(__ENV__) |> Macro.to_string()
-      "%A.Vector{__vector__: {3, 0, nil, nil, {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1, foo, _}}}"
-
   """
   defmacro vec(list) when is_list(list) do
     ast_from_list(list)
@@ -285,9 +281,9 @@ defmodule A do
     |> ast_from_list()
   end
 
-  defmacro vec({:|||, _, [{:_, _, _}, last]}) do
+  defmacro vec({:|||, _, [first, last]}) do
     quote do
-      %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(:todo, last))}
+      %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(first, last))}
     end
   end
 

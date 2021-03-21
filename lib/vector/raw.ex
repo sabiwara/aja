@@ -10,16 +10,23 @@ defmodule A.Vector.Raw do
 
   @empty {0}
 
-  defmacrop small(size, tail) do
+  defmacrop small(size, tail, first) do
     # TODO distinguish match
     quote do
-      {unquote(size), 0, nil, nil, unquote(tail)}
+      {unquote(size), 0, nil, nil, unquote(tail), unquote(first)}
     end
   end
 
-  defmacrop large(size, tail_offset, shift, trie, tail) do
+  defmacrop large(size, tail_offset, shift, trie, tail, first) do
     quote do
-      {unquote(size), unquote(tail_offset), unquote(shift), unquote(trie), unquote(tail)}
+      {unquote(size), unquote(tail_offset), unquote(shift), unquote(trie), unquote(tail),
+       unquote(first)}
+    end
+  end
+
+  defmacro first_pattern(first) do
+    quote do
+      {_, _, _, _, _, unquote(first)}
     end
   end
 
@@ -27,7 +34,7 @@ defmodule A.Vector.Raw do
     tail_ast = [last] |> C.left_fill_with(C.var(_)) |> C.array()
 
     quote do
-      {_, _, _, _, unquote(tail_ast)}
+      {_, _, _, _, unquote(tail_ast), _}
     end
   end
 
@@ -49,9 +56,7 @@ defmodule A.Vector.Raw do
   @type tail_offset :: non_neg_integer
   @type shift :: non_neg_integer
   @type t(value) ::
-          {0}
-          | {size, Tail.t(value)}
-          | {size, tail_offset, shift, Trie.t(value), Tail.t(value)}
+          {0} | {size, tail_offset, shift, Trie.t(value), Tail.t(value), value}
   @type t() :: t(value)
 
   defmacro size(vector) do
@@ -84,12 +89,12 @@ defmodule A.Vector.Raw do
   @spec from_list([val]) :: t(val) when val: value
   def from_list([]), do: @empty
 
-  def from_list(list) when is_list(list) do
+  def from_list(list = [first | _]) do
     {size, tail_offset, leaves, tail} = Trie.group_leaves(list)
 
     case Trie.from_leaves(leaves) do
-      nil -> small(size, tail)
-      {shift, trie} -> large(size, tail_offset, shift, trie, tail)
+      nil -> small(size, tail, first)
+      {shift, trie} -> large(size, tail_offset, shift, trie, tail, first)
     end
   end
 
@@ -100,69 +105,75 @@ defmodule A.Vector.Raw do
     {size, tail_offset, leaves, tail} = Trie.group_map_leaves(list, fun)
 
     case Trie.from_leaves(leaves) do
-      nil -> small(size, tail)
-      {shift, trie} -> large(size, tail_offset, shift, trie, tail)
+      nil ->
+        first = elem(tail, C.branch_factor() - size)
+        small(size, tail, first)
+
+      {level, trie} ->
+        large(size, tail_offset, level, trie, tail, Trie.first(trie, level))
     end
   end
 
   def from_list_ast([]), do: unquote(Macro.escape(@empty) |> Macro.escape())
 
-  def from_list_ast(list) do
+  def from_list_ast(list = [first | _]) do
     {size, tail_offset, leaves, tail} = Trie.group_leaves_ast(list)
 
     case Trie.from_ast_leaves(leaves) do
-      nil -> tuple_ast([size, 0, nil, nil, tail])
-      {shift, trie} -> tuple_ast([size, tail_offset, shift, trie, tail])
+      nil -> tuple_ast([size, 0, nil, nil, tail, first])
+      {shift, trie} -> tuple_ast([size, tail_offset, shift, trie, tail, first])
     end
   end
 
-  def from_first_last_ast(_first, last) do
+  def from_first_last_ast(first, last) do
     tail = [last] |> C.left_fill_with(C.var(_)) |> C.array()
-    tuple_ast([C.var(_), C.var(_), C.var(_), C.var(_), tail])
+    tuple_ast([C.var(_), C.var(_), C.var(_), C.var(_), tail, first])
   end
 
   @spec append(t(val), val) :: t(val) when val: value
   def append(vector, value)
 
-  def append(small(size, tail), value) do
+  def append(small(size, tail, first), value) do
     if size == C.branch_factor() do
       large(
         size + 1,
         size,
         0,
         tail,
-        unquote([C.var(value)] |> C.left_fill_with(nil) |> C.array())
+        unquote([C.var(value)] |> C.left_fill_with(nil) |> C.array()),
+        first
       )
     else
       new_tail = Tail.append(tail, value)
-      small(size + 1, new_tail)
+      small(size + 1, new_tail, first)
     end
   end
 
-  def append(large(size, tail_offset, level, trie, tail), value) do
+  def append(large(size, tail_offset, level, trie, tail, first), value) do
     case C.radix_rem(size) do
       0 ->
         {new_trie, new_level} = Trie.append_leaf(trie, level, tail_offset, tail)
         new_tail = unquote([C.var(value)] |> C.left_fill_with(nil) |> C.array())
-        large(size + 1, tail_offset + C.branch_factor(), new_level, new_trie, new_tail)
+        large(size + 1, tail_offset + C.branch_factor(), new_level, new_trie, new_tail, first)
 
       _ ->
         new_tail = Tail.append(tail, value)
-        large(size + 1, tail_offset, level, trie, new_tail)
+        large(size + 1, tail_offset, level, trie, new_tail, first)
     end
   end
 
   def append(empty_pattern(), value) do
-    small(1, unquote(C.value_with_nils(C.var(value)) |> Enum.reverse() |> C.array()))
+    tail = unquote(C.value_with_nils(C.var(value)) |> Enum.reverse() |> C.array())
+    small(1, tail, value)
   end
 
   def concat(vector, []), do: vector
   def concat(vector, [value]), do: append(vector, value)
 
-  def concat(small(size, tail), list) do
+  def concat(small(size, tail, first), list) do
     case Tail.complete_tail(tail, size, list) do
       {new_tail, added, []} ->
-        small(size + added, new_tail)
+        small(size + added, new_tail, first)
 
       {first_leaf, added_tail, list} ->
         {added_size, tail_offset, leaves, new_tail} = Trie.group_leaves(list)
@@ -174,15 +185,16 @@ defmodule A.Vector.Raw do
           tail_offset + C.branch_factor(),
           shift,
           trie,
-          new_tail
+          new_tail,
+          first
         )
     end
   end
 
-  def concat(large(size, tail_offset, level, trie, tail), list) do
+  def concat(large(size, tail_offset, level, trie, tail, first), list) do
     case Tail.complete_tail(tail, size - tail_offset, list) do
       {new_tail, added, []} ->
-        large(size + added, tail_offset, level, trie, new_tail)
+        large(size + added, tail_offset, level, trie, new_tail, first)
 
       {first_leaf, added_tail, list} ->
         {added_size, added_offset, leaves, new_tail} = Trie.group_leaves(list)
@@ -192,7 +204,7 @@ defmodule A.Vector.Raw do
 
         new_size = size + added_size + added_tail
         new_offset = tail_offset + added_offset + C.branch_factor()
-        large(new_size, new_offset, new_level, new_trie, new_tail)
+        large(new_size, new_offset, new_level, new_trie, new_tail, first)
     end
   end
 
@@ -211,7 +223,7 @@ defmodule A.Vector.Raw do
 
   def duplicate(value, n) when n <= C.branch_factor() do
     tail = Tail.partial_duplicate(value, n)
-    small(n, tail)
+    small(n, tail, value)
   end
 
   def duplicate(value, n) do
@@ -221,16 +233,16 @@ defmodule A.Vector.Raw do
     tail_offset = n - tail_size
     {level, trie} = Trie.duplicate(value, tail_offset)
 
-    large(n, tail_offset, level, trie, tail)
+    large(n, tail_offset, level, trie, tail, value)
   end
 
   @compile {:inline, fetch_positive!: 2}
   @spec fetch_positive!(t(val), non_neg_integer) :: val when val: value
-  def fetch_positive!(small(size, tail), index) do
+  def fetch_positive!(small(size, tail, _first), index) do
     elem(tail, C.branch_factor() - size + index)
   end
 
-  def fetch_positive!(large(size, tail_offset, shift, trie, tail), index) do
+  def fetch_positive!(large(size, tail_offset, shift, trie, tail, _first), index) do
     if index < tail_offset do
       Trie.lookup(trie, index, shift)
     else
@@ -238,55 +250,73 @@ defmodule A.Vector.Raw do
     end
   end
 
-  @compile {:inline, first: 2}
-  @spec first(t(val), default) :: val | default when val: value, default: term
-  def first(vector, default)
-
-  def first(small(size, tail), _default) do
-    :erlang.element(unquote(C.branch_factor() + 1) - size, tail)
-  end
-
-  def first(large(_size, _tail_offset, shift, trie, _tail), _default) do
-    Trie.lookup(trie, 0, shift)
-  end
-
-  def first(empty_pattern(), default) do
-    default
-  end
-
   @spec replace_positive!(t(val), non_neg_integer, val) :: t(val) when val: value
   def replace_positive!(vector, index, value)
 
-  def replace_positive!(small(size, tail), index, value) do
+  def replace_positive!(small(size, tail, first), index, value) do
     new_tail = put_elem(tail, C.branch_factor() - size + index, value)
-    small(size, new_tail)
+
+    new_first =
+      case index do
+        0 -> value
+        _ -> first
+      end
+
+    small(size, new_tail, new_first)
   end
 
-  def replace_positive!(large(size, tail_offset, level, trie, tail), index, value) do
+  def replace_positive!(large(size, tail_offset, level, trie, tail, first), index, value) do
+    new_first =
+      case index do
+        0 -> value
+        _ -> first
+      end
+
     if index < tail_offset do
       new_trie = Trie.replace(trie, index, level, value)
-      large(size, tail_offset, level, new_trie, tail)
+      large(size, tail_offset, level, new_trie, tail, new_first)
     else
       new_tail = put_elem(tail, C.branch_factor() - size + index, value)
-      large(size, tail_offset, level, trie, new_tail)
+      large(size, tail_offset, level, trie, new_tail, new_first)
     end
   end
 
   @spec update_positive!(t(val), non_neg_integer, (val -> val)) :: val when val: value
   def update_positive!(vector, index, fun)
 
-  def update_positive!(small(size, tail), index, fun) do
+  def update_positive!(small(size, tail, first), index, fun) do
     new_tail = Node.update_at(tail, C.branch_factor() - size + index, fun)
-    small(size, new_tail)
+
+    new_first =
+      case index do
+        0 -> elem(new_tail, C.branch_factor() - size)
+        _ -> first
+      end
+
+    small(size, new_tail, new_first)
   end
 
-  def update_positive!(large(size, tail_offset, level, trie, tail), index, fun) do
+  def update_positive!(large(size, tail_offset, level, trie, tail, first), index, fun) do
     if index < tail_offset do
       new_trie = Trie.update(trie, index, level, fun)
-      large(size, tail_offset, level, new_trie, tail)
+
+      new_first =
+        case index do
+          0 -> Trie.first(new_trie, level)
+          _ -> first
+        end
+
+      large(size, tail_offset, level, new_trie, tail, new_first)
     else
       new_tail = Node.update_at(tail, C.branch_factor() - size + index, fun)
-      large(size, tail_offset, level, trie, new_tail)
+
+      new_first =
+        case index do
+          0 -> elem(new_tail, C.branch_factor() - size)
+          _ -> first
+        end
+
+      large(size, tail_offset, level, trie, new_tail, new_first)
     end
   end
 
@@ -334,26 +364,26 @@ defmodule A.Vector.Raw do
   end
 
   @spec delete_last(t(val)) :: t(val) when val: value
-  def delete_last(small(1, _tail)), do: @empty
+  def delete_last(small(1, _tail, _first)), do: @empty
 
-  def delete_last(small(size, tail)) do
+  def delete_last(small(size, tail, first)) do
     new_tail = Tail.delete_last(tail)
-    small(size - 1, new_tail)
+    small(size - 1, new_tail, first)
   end
 
-  def delete_last(large(unquote(C.branch_factor() + 1), _, _, trie, _tail)) do
-    small(C.branch_factor(), trie)
+  def delete_last(large(unquote(C.branch_factor() + 1), _, _, trie, _tail, first)) do
+    small(C.branch_factor(), trie, first)
   end
 
-  def delete_last(large(size, tail_offset, level, trie, tail)) do
+  def delete_last(large(size, tail_offset, level, trie, tail, first)) do
     case tail_offset + 1 do
       ^size ->
         {new_tail, new_trie, new_level} = Trie.pop_leaf(trie, level, tail_offset - 1)
-        large(size - 1, tail_offset - C.branch_factor(), new_level, new_trie, new_tail)
+        large(size - 1, tail_offset - C.branch_factor(), new_level, new_trie, new_tail, first)
 
       _ ->
         new_tail = Tail.delete_last(tail)
-        large(size - 1, tail_offset, level, trie, new_tail)
+        large(size - 1, tail_offset, level, trie, new_tail, first)
     end
   end
 
@@ -385,11 +415,11 @@ defmodule A.Vector.Raw do
   # LOOPS
 
   @spec to_list(t(val)) :: [val] when val: value
-  def to_list(small(size, tail)) do
+  def to_list(small(size, tail, _first)) do
     Tail.partial_to_list(tail, size)
   end
 
-  def to_list(large(size, tail_offset, shift, trie, tail)) do
+  def to_list(large(size, tail_offset, shift, trie, tail, _first)) do
     acc = Tail.partial_to_list(tail, size - tail_offset)
     Trie.to_list(trie, shift, acc)
   end
@@ -657,22 +687,22 @@ defmodule A.Vector.Raw do
 
   # FIND
 
-  def member?(small(size, tail), value) do
+  def member?(small(size, tail, _first), value) do
     Tail.partial_member?(tail, size, value)
   end
 
-  def member?(large(size, tail_offset, level, trie, tail), value) do
+  def member?(large(size, tail_offset, level, trie, tail, _first), value) do
     Trie.member?(trie, level, value) or Tail.partial_member?(tail, size - tail_offset, value)
   end
 
   def member?(empty_pattern(), _value), do: false
   @spec any?(t()) :: boolean()
 
-  def any?(small(size, tail)) do
+  def any?(small(size, tail, _first)) do
     Tail.partial_any?(tail, size)
   end
 
-  def any?(large(size, tail_offset, level, trie, tail)) do
+  def any?(large(size, tail_offset, level, trie, tail, _first)) do
     Trie.any?(trie, level) or Tail.partial_any?(tail, size - tail_offset)
   end
 
@@ -680,11 +710,11 @@ defmodule A.Vector.Raw do
 
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
-  def any?(small(size, tail), fun) do
+  def any?(small(size, tail, _first), fun) do
     Tail.partial_any?(tail, C.branch_factor() - size, fun)
   end
 
-  def any?(large(size, tail_offset, level, trie, tail), fun) do
+  def any?(large(size, tail_offset, level, trie, tail, _first), fun) do
     Trie.any?(trie, level, fun) or
       Tail.partial_any?(tail, C.branch_factor() + tail_offset - size, fun)
   end
@@ -693,11 +723,11 @@ defmodule A.Vector.Raw do
 
   @spec all?(t()) :: boolean()
 
-  def all?(small(size, tail)) do
+  def all?(small(size, tail, _first)) do
     Tail.partial_all?(tail, size)
   end
 
-  def all?(large(size, tail_offset, level, trie, tail)) do
+  def all?(large(size, tail_offset, level, trie, tail, _first)) do
     Trie.all?(trie, level) and Tail.partial_all?(tail, size - tail_offset)
   end
 
@@ -705,11 +735,11 @@ defmodule A.Vector.Raw do
 
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean() when val: value
 
-  def all?(small(size, tail), fun) do
+  def all?(small(size, tail, _first), fun) do
     Tail.partial_all?(tail, C.branch_factor() - size, fun)
   end
 
-  def all?(large(size, tail_offset, level, trie, tail), fun) do
+  def all?(large(size, tail_offset, level, trie, tail, _first), fun) do
     Trie.all?(trie, level, fun) and
       Tail.partial_all?(tail, C.branch_factor() + tail_offset - size, fun)
   end
@@ -725,11 +755,11 @@ defmodule A.Vector.Raw do
     end
   end
 
-  defp do_find(small(size, tail), fun) do
+  defp do_find(small(size, tail, _first), fun) do
     Tail.partial_find(tail, C.branch_factor() - size, fun)
   end
 
-  defp do_find(large(size, tail_offset, level, trie, tail), fun) do
+  defp do_find(large(size, tail_offset, level, trie, tail, _first), fun) do
     Trie.find(trie, level, fun) ||
       Tail.partial_find(tail, C.branch_factor() + tail_offset - size, fun)
   end
@@ -738,11 +768,11 @@ defmodule A.Vector.Raw do
 
   @spec find_value(t(val), (val -> new_val)) :: new_val | nil when val: value, new_val: value
 
-  def find_value(small(size, tail), fun) do
+  def find_value(small(size, tail, _first), fun) do
     Tail.partial_find_value(tail, C.branch_factor() - size, fun)
   end
 
-  def find_value(large(size, tail_offset, level, trie, tail), fun) do
+  def find_value(large(size, tail_offset, level, trie, tail, _first), fun) do
     Trie.find_value(trie, level, fun) ||
       Tail.partial_find_value(tail, C.branch_factor() + tail_offset - size, fun)
   end
@@ -751,14 +781,14 @@ defmodule A.Vector.Raw do
 
   @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
 
-  def find_index(small(size, tail), fun) do
+  def find_index(small(size, tail, _first), fun) do
     case Tail.partial_find_index(tail, C.branch_factor() - size, fun) do
       nil -> nil
       index -> index + size - C.branch_factor()
     end
   end
 
-  def find_index(large(size, tail_offset, level, trie, tail), fun) do
+  def find_index(large(size, tail_offset, level, trie, tail, _first), fun) do
     cond do
       index = Trie.find_index(trie, level, fun) ->
         index
@@ -776,14 +806,14 @@ defmodule A.Vector.Raw do
   @spec find_falsy_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil
         when val: value
 
-  def find_falsy_index(small(size, tail), fun) do
+  def find_falsy_index(small(size, tail, _first), fun) do
     case Tail.partial_find_falsy_index(tail, C.branch_factor() - size, fun) do
       nil -> nil
       index -> index + size - C.branch_factor()
     end
   end
 
-  def find_falsy_index(large(size, tail_offset, level, trie, tail), fun) do
+  def find_falsy_index(large(size, tail_offset, level, trie, tail, _first), fun) do
     cond do
       index = Trie.find_falsy_index(trie, level, fun) ->
         index
@@ -802,16 +832,17 @@ defmodule A.Vector.Raw do
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def map(vector, fun)
 
-  def map(small(size, tail), fun) do
+  def map(small(size, tail, _first), fun) do
     new_tail = Tail.partial_map(tail, fun, size)
-    small(size, new_tail)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    small(size, new_tail, new_first)
   end
 
-  def map(large(size, tail_offset, level, trie, tail), fun) do
+  def map(large(size, tail_offset, level, trie, tail, _first), fun) do
     new_trie = Trie.map(trie, level, fun)
     new_tail = Tail.partial_map(tail, fun, size - tail_offset)
 
-    large(size, tail_offset, level, new_trie, new_tail)
+    large(size, tail_offset, level, new_trie, new_tail, Trie.first(new_trie, level))
   end
 
   def map(empty_pattern(), _fun), do: @empty
@@ -820,11 +851,11 @@ defmodule A.Vector.Raw do
   @spec slice(t(val), non_neg_integer, non_neg_integer) :: [val] when val: value
   def slice(vector, start, last)
 
-  def slice(small(size, tail), start, last) do
+  def slice(small(size, tail, _first), start, last) do
     Tail.slice(tail, start, last, size)
   end
 
-  def slice(large(size, tail_offset, level, trie, tail), start, last) do
+  def slice(large(size, tail_offset, level, trie, tail, _first), start, last) do
     acc =
       if last < tail_offset do
         []
@@ -850,7 +881,7 @@ defmodule A.Vector.Raw do
   @spec take(t(val), non_neg_integer) :: t(val) when val: value
   def take(vector, amount)
 
-  def take(small(size, tail) = vector, amount) do
+  def take(small(size, tail, first) = vector, amount) do
     case amount do
       0 ->
         @empty
@@ -860,11 +891,11 @@ defmodule A.Vector.Raw do
 
       new_size ->
         new_tail = Tail.partial_take(tail, size - new_size)
-        small(new_size, new_tail)
+        small(new_size, new_tail, first)
     end
   end
 
-  def take(large(size, tail_offset, level, trie, tail) = vector, amount) do
+  def take(large(size, tail_offset, level, trie, tail, first) = vector, amount) do
     case amount do
       0 ->
         @empty
@@ -876,15 +907,15 @@ defmodule A.Vector.Raw do
         case new_size > tail_offset do
           true ->
             new_tail = Tail.partial_take(tail, size - new_size)
-            large(new_size, tail_offset, level, trie, new_tail)
+            large(new_size, tail_offset, level, trie, new_tail, first)
 
           _ ->
             case Trie.take(trie, level, new_size) do
               {:small, new_tail} ->
-                small(new_size, new_tail)
+                small(new_size, new_tail, first)
 
               {:large, new_trie, new_level, new_tail} ->
-                large(new_size, get_tail_offset(new_size), new_level, new_trie, new_tail)
+                large(new_size, get_tail_offset(new_size), new_level, new_trie, new_tail, first)
             end
         end
     end
@@ -899,30 +930,32 @@ defmodule A.Vector.Raw do
   @spec with_index(t(val), integer) :: t({val, integer}) when val: value
   def with_index(vector, offset)
 
-  def with_index(small(size, tail), offset) do
+  def with_index(small(size, tail, _first), offset) do
     new_tail = Tail.partial_with_index(tail, C.branch_factor() - size, offset)
-    small(size, new_tail)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    small(size, new_tail, new_first)
   end
 
-  def with_index(large(size, tail_offset, level, trie, tail), offset) do
+  def with_index(large(size, tail_offset, level, trie, tail, _first), offset) do
     new_trie = Trie.with_index(trie, level, offset)
 
     new_tail =
       Tail.partial_with_index(tail, C.branch_factor() + tail_offset - size, offset + tail_offset)
 
-    large(size, tail_offset, level, new_trie, new_tail)
+    large(size, tail_offset, level, new_trie, new_tail, Trie.first(new_trie, level))
   end
 
   def with_index(empty_pattern(), _offset), do: @empty
 
   def with_index(vector, offset, fun)
 
-  def with_index(small(size, tail), offset, fun) do
+  def with_index(small(size, tail, _first), offset, fun) do
     new_tail = Tail.partial_with_index(tail, C.branch_factor() - size, offset, fun)
-    small(size, new_tail)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    small(size, new_tail, new_first)
   end
 
-  def with_index(large(size, tail_offset, level, trie, tail), offset, fun) do
+  def with_index(large(size, tail_offset, level, trie, tail, _first), offset, fun) do
     new_trie = Trie.with_index(trie, level, offset, fun)
 
     new_tail =
@@ -933,7 +966,7 @@ defmodule A.Vector.Raw do
         fun
       )
 
-    large(size, tail_offset, level, new_trie, new_tail)
+    large(size, tail_offset, level, new_trie, new_tail, Trie.first(new_trie, level))
   end
 
   def with_index(empty_pattern(), _offset, _fun), do: @empty
@@ -953,7 +986,8 @@ defmodule A.Vector.Raw do
 
   def take_random(vector, 1) do
     picked = random(vector)
-    small(1, unquote([C.var(picked)] |> C.left_fill_with(nil) |> C.array()))
+    tail = unquote([C.var(picked)] |> C.left_fill_with(nil) |> C.array())
+    small(1, tail, picked)
   end
 
   def take_random(vector, amount) when amount >= size(vector) do
@@ -973,31 +1007,33 @@ defmodule A.Vector.Raw do
     end)
   end
 
-  def scan(small(size, tail), acc, fun) do
+  def scan(small(size, tail, _first), acc, fun) do
     new_tail = Tail.partial_scan(tail, C.branch_factor() - size, acc, fun)
-    small(size, new_tail)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    small(size, new_tail, new_first)
   end
 
   def scan(
-        large(size, tail_offset, level, trie, tail),
+        large(size, tail_offset, level, trie, tail, _first),
         acc,
         fun
       ) do
     {new_trie, acc} = Trie.scan(trie, level, acc, fun)
     new_tail = Tail.partial_scan(tail, C.branch_factor() + tail_offset - size, acc, fun)
-    large(size, tail_offset, level, new_trie, new_tail)
+    large(size, tail_offset, level, new_trie, new_tail, Trie.first(new_trie, level))
   end
 
   def scan(empty_pattern(), _acc, _fun), do: @empty
 
-  def map_reduce(small(size, tail), acc, fun) do
+  def map_reduce(small(size, tail, _first), acc, fun) do
     {new_tail, acc} = Tail.partial_map_reduce(tail, C.branch_factor() - size, acc, fun)
-    new_raw = small(size, new_tail)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    new_raw = small(size, new_tail, new_first)
     {new_raw, acc}
   end
 
   def map_reduce(
-        large(size, tail_offset, level, trie, tail),
+        large(size, tail_offset, level, trie, tail, _first),
         acc,
         fun
       ) do
@@ -1006,7 +1042,8 @@ defmodule A.Vector.Raw do
     {new_tail, acc} =
       Tail.partial_map_reduce(tail, C.branch_factor() + tail_offset - size, acc, fun)
 
-    new_raw = large(size, tail_offset, level, new_trie, new_tail)
+    new_first = Trie.first(new_trie, level)
+    new_raw = large(size, tail_offset, level, new_trie, new_tail, new_first)
     {new_raw, acc}
   end
 
@@ -1024,35 +1061,38 @@ defmodule A.Vector.Raw do
     end
   end
 
-  defp do_zip(small(size, tail1), small(size, tail2)) do
+  defp do_zip(small(size, tail1, first1), small(size, tail2, first2)) do
     new_tail = Tail.partial_zip(tail1, tail2, C.branch_factor() - size)
-    small(size, new_tail)
+    small(size, new_tail, {first1, first2})
   end
 
   defp do_zip(
-         large(size, tail_offset, level, trie1, tail1),
-         large(size, tail_offset, level, trie2, tail2)
+         large(size, tail_offset, level, trie1, tail1, first1),
+         large(size, tail_offset, level, trie2, tail2, first2)
        ) do
     new_tail = Tail.partial_zip(tail1, tail2, C.branch_factor() + tail_offset - size)
     new_trie = Trie.zip(trie1, trie2, level)
-    large(size, tail_offset, level, new_trie, new_tail)
+    large(size, tail_offset, level, new_trie, new_tail, {first1, first2})
   end
 
   defp do_zip(empty_pattern(), empty_pattern()), do: @empty
 
   @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
-  def unzip(small(size, tail)) do
+  def unzip(small(size, tail, _size)) do
     {tail1, tail2} = Tail.partial_unzip(tail, C.branch_factor() - size)
-    {small(size, tail1), small(size, tail2)}
+    first1 = elem(tail1, C.branch_factor() - size)
+    first2 = elem(tail2, C.branch_factor() - size)
+    {small(size, tail1, first1), small(size, tail2, first2)}
   end
 
-  def unzip(large(size, tail_offset, level, trie, tail)) do
+  def unzip(large(size, tail_offset, level, trie, tail, first)) do
     {tail1, tail2} = Tail.partial_unzip(tail, C.branch_factor() + tail_offset - size)
     {trie1, trie2} = Trie.unzip(trie, level)
+    {first1, first2} = first
 
     {
-      large(size, tail_offset, level, trie1, tail1),
-      large(size, tail_offset, level, trie2, tail2)
+      large(size, tail_offset, level, trie1, tail1, first1),
+      large(size, tail_offset, level, trie2, tail2, first2)
     }
   end
 
