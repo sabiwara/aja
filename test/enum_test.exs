@@ -3,21 +3,7 @@ defmodule A.EnumTest do
 
   doctest A.Enum
 
-  # TODO move to test helper
-  defp spy_callback(fun) do
-    {:ok, agent} = Agent.start_link(fn -> [] end)
-
-    callback = fn arg ->
-      Agent.update(agent, fn state -> [arg | state] end)
-      fun.(arg)
-    end
-
-    pop_args = fn ->
-      Agent.get_and_update(agent, fn state -> {Enum.reverse(state), []} end)
-    end
-
-    {callback, pop_args}
-  end
+  import A.TestHelpers
 
   test "all?/1 (vector)" do
     assert true == A.Vector.new() |> A.Enum.all?()

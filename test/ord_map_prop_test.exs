@@ -3,6 +3,7 @@ defmodule A.OrdMap.PropTest do
   use ExUnitProperties
 
   import A
+  import A.TestDataGenerators
 
   @moduletag timeout: :infinity
   @moduletag :property
@@ -12,13 +13,8 @@ defmodule A.OrdMap.PropTest do
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
   # that most operations work as they should without any weird edge case
 
-  defp log_rescale(generator) do
-    scale(generator, &trunc(:math.log(&1)))
-  end
-
   def key do
-    one_of([integer(), float(), string(:printable), atom(:alphanumeric)])
-    |> log_rescale()
+    simple_value()
   end
 
   def value do

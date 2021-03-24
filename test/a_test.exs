@@ -138,6 +138,10 @@ defmodule ATest do
     assert vec([1, 2, value, 4, 5]) = A.Vector.new(1..5)
     assert 3 = value
 
+    assert vec([vec([a, b]), vec([c, d])]) =
+             A.Vector.new([A.Vector.new([1, 2]), A.Vector.new([3, 4])])
+    assert {1, 2, 3, 4} == {a, b, c, d}
+
     assert vec([
              first,
              2,
@@ -193,6 +197,8 @@ defmodule ATest do
 
     assert {1, 25, 50} = {first, middle, last}
 
+    assert vec(_) = A.Vector.new([])
+    assert vec(_) = A.Vector.new([1, 2])
     assert vec(_) = A.Vector.new(1..100)
   end
 
@@ -201,11 +207,13 @@ defmodule ATest do
     gt? = &match?(v when vec_size(v) > 10, &1)
 
     assert lt?.(A.Vector.new(1..9))
+    assert lt?.(A.Vector.new([]))
     refute lt?.(A.Vector.new(1..10))
     refute lt?.([])
     refute lt?.(%{})
 
     assert gt?.(A.Vector.new(1..11))
+    assert gt?.(A.Vector.new(1..100))
     refute gt?.(A.Vector.new(1..10))
     refute gt?.([])
     refute gt?.(%{})

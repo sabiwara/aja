@@ -7,7 +7,6 @@ defmodule A.String.PropTest do
 
   def candidate_string do
     string(:printable)
-    # |> resize(50)
   end
 
   property "slugify/2 works with any string (mode: :default)" do

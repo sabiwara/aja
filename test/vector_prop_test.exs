@@ -3,6 +3,8 @@ defmodule A.Vector.PropTest do
   use ExUnitProperties
 
   import A, only: [vec: 1, vec_size: 1]
+  import A.TestHelpers
+  import A.TestDataGenerators
 
   @moduletag timeout: :infinity
   @moduletag :property
@@ -12,28 +14,9 @@ defmodule A.Vector.PropTest do
   # Those tests are a bit complex, but they should cover a lot of ground and help building confidence
   # that most operations work as they should without any weird edge case
 
-  defmacrop capture_error(expr) do
-    # Check if we fail in the same case than the equivalent Enum
-    quote do
-      try do
-        {:ok, unquote(expr)}
-      rescue
-        error ->
-          :error
-      end
-    end
-  end
-
   def hash_multiple_of_2(value) do
     :erlang.phash2(value, 2) === 0
   end
-
-  def simple_value do
-    one_of([float(), string(:printable), atom(:alphanumeric)])
-    |> scale(&trunc(:math.log(&1)))
-  end
-
-  def big_positive_integer, do: positive_integer() |> scale(&(&1 * 100))
 
   def value do
     # prefer simple values which will should be more representative of actual uses, but keep exploring
@@ -183,31 +166,41 @@ defmodule A.Vector.PropTest do
       assert match?(v when vec_size(v) >= list_length, vector)
       refute match?(v when vec_size(v) < list_length, vector)
 
-      assert capture_error(Enum.min(list)) === capture_error(A.Enum.min(vector))
-      assert capture_error(Enum.max(list)) === capture_error(A.Enum.max(vector))
+      assert capture_error_without_type(Enum.min(list)) ===
+               capture_error_without_type(A.Enum.min(vector))
 
-      assert capture_error(Enum.min(list)) === capture_error(A.Enum.max(vector, &<=/2))
-      assert capture_error(Enum.max(list)) === capture_error(A.Enum.min(vector, &>=/2))
+      assert capture_error_without_type(Enum.max(list)) ===
+               capture_error_without_type(A.Enum.max(vector))
 
-      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Enum.min_by(vector, &:erlang.phash2/1))
+      assert capture_error_without_type(Enum.min(list)) ===
+               capture_error_without_type(A.Enum.max(vector, &<=/2))
 
-      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Enum.max_by(vector, &:erlang.phash2/1))
+      assert capture_error_without_type(Enum.max(list)) ===
+               capture_error_without_type(A.Enum.min(vector, &>=/2))
 
-      assert capture_error(Enum.min_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Enum.max_by(vector, &:erlang.phash2/1, &<=/2))
+      assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(A.Enum.min_by(vector, &:erlang.phash2/1))
 
-      assert capture_error(Enum.max_by(list, &:erlang.phash2/1)) ===
-               capture_error(A.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
+      assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(A.Enum.max_by(vector, &:erlang.phash2/1))
+
+      assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(A.Enum.max_by(vector, &:erlang.phash2/1, &<=/2))
+
+      assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(A.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
 
       assert Enum.at(list, i1) === A.Vector.at(vector, i1)
       assert Enum.at(list, i1, :default) === A.Vector.at(vector, i1, :default)
       assert Enum.at(list, i1) === vector[i1]
       assert Enum.fetch(list, i1) === A.Vector.fetch(vector, i1)
       assert Enum.fetch(list, i1) === A.Enum.fetch(vector, i1)
-      assert capture_error(Enum.fetch!(list, i1)) === capture_error(A.Enum.fetch!(vector, i1))
-      assert capture_error(Enum.fetch!(list, i1)) === capture_error(A.Vector.fetch!(vector, i1))
+
+      assert capture_error_without_type(Enum.fetch!(list, i1)) ===
+               capture_error_without_type(A.Enum.fetch!(vector, i1))
+
+      assert capture_error_without_type(Enum.fetch!(list, i1)) ===
+               capture_error_without_type(A.Vector.fetch!(vector, i1))
 
       # amount must be >=0
       amount = abs(i2)
@@ -241,8 +234,8 @@ defmodule A.Vector.PropTest do
       assert list === A.Vector.foldr(vector, [], &[&1 | &2])
       assert Enum.reverse(list) === A.Vector.foldl(vector, [], &[&1 | &2])
 
-      assert capture_error(Enum.reduce(list, &[&1 | &2])) ===
-               capture_error(A.Enum.reduce(vector, &[&1 | &2]))
+      assert capture_error_without_type(Enum.reduce(list, &[&1 | &2])) ===
+               capture_error_without_type(A.Enum.reduce(vector, &[&1 | &2]))
 
       assert Enum.scan(list, &[&1 | &2]) |> A.Vector.new() === A.Vector.scan(vector, &[&1 | &2])
 
@@ -305,12 +298,15 @@ defmodule A.Vector.PropTest do
       assert {A.Vector.new(taken), A.Vector.new(dropped)} ===
                A.Vector.split_while(vector, &hash_multiple_of_2/1)
 
-      assert capture_error(Enum.sum(list)) === capture_error(A.Enum.sum(vector))
+      assert capture_error_without_type(Enum.sum(list)) ===
+               capture_error_without_type(A.Enum.sum(vector))
 
-      assert capture_error(Enum.reduce(list, 1, &(&2 * &1))) ===
-               capture_error(A.Enum.product(vector))
+      assert capture_error_without_type(Enum.reduce(list, 1, &(&2 * &1))) ===
+               capture_error_without_type(A.Enum.product(vector))
 
-      assert capture_error(Enum.join(list, ",")) === capture_error(A.Enum.join(vector, ","))
+      assert capture_error_without_type(Enum.join(list, ",")) ===
+               capture_error_without_type(A.Enum.join(vector, ","))
+
       assert Enum.map_join(list, ",", &inspect/1) === A.Enum.map_join(vector, ",", &inspect/1)
 
       assert Enum.intersperse(list, nil) === A.Enum.intersperse(vector, nil)

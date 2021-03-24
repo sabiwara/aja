@@ -28,7 +28,8 @@ defmodule Aja.MixProject do
 
       # Docs
       name: "Aja",
-      docs: docs()
+      docs: docs(),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -95,4 +96,7 @@ defmodule Aja.MixProject do
       extras: ["README.md", "CHANGELOG.md", "LICENSE.md"]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
