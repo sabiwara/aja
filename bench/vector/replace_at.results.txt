@@ -3,26 +3,97 @@ CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
 Elixir 1.11.1
-Erlang 23.0.4
+Erlang 24.0-rc1
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
-time: 5 s
+time: 2 s
 memory time: 0 ns
 parallel: 1
-inputs: none specified
-Estimated total run time: 21 s
+inputs: n = 100, n = 101, n = 1000, n = 1001, n = 10000, n = 10001
+Estimated total run time: 1.20 min
 
-Benchmarking :array.set/3...
-Benchmarking A.Vector.replace_at/3...
-Benchmarking List.replace_at/3...
+Benchmarking :array.set/3 with input n = 100...
+Benchmarking :array.set/3 with input n = 101...
+Benchmarking :array.set/3 with input n = 1000...
+Benchmarking :array.set/3 with input n = 1001...
+Benchmarking :array.set/3 with input n = 10000...
+Benchmarking :array.set/3 with input n = 10001...
+Benchmarking A.Vector.replace_at/3 with input n = 100...
+Benchmarking A.Vector.replace_at/3 with input n = 101...
+Benchmarking A.Vector.replace_at/3 with input n = 1000...
+Benchmarking A.Vector.replace_at/3 with input n = 1001...
+Benchmarking A.Vector.replace_at/3 with input n = 10000...
+Benchmarking A.Vector.replace_at/3 with input n = 10001...
+Benchmarking List.replace_at/3 with input n = 100...
+Benchmarking List.replace_at/3 with input n = 101...
+Benchmarking List.replace_at/3 with input n = 1000...
+Benchmarking List.replace_at/3 with input n = 1001...
+Benchmarking List.replace_at/3 with input n = 10000...
+Benchmarking List.replace_at/3 with input n = 10001...
 
+##### With input n = 100 #####
 Name                            ips        average  deviation         median         99th %
-:array.set/3                 6.13 M      163.09 ns ±17815.03%          82 ns         284 ns
-A.Vector.replace_at/3        4.66 M      214.41 ns ±11218.91%         124 ns         389 ns
-List.replace_at/3            1.65 M      606.45 ns  ±4336.58%         485 ns         851 ns
+A.Vector.replace_at/3        6.44 M      155.21 ns ±11143.19%          84 ns         322 ns
+:array.set/3                 5.33 M      187.64 ns ±12061.93%          72 ns         247 ns
+List.replace_at/3            2.59 M      385.37 ns  ±3768.99%         247 ns         656 ns
 
 Comparison: 
-:array.set/3                 6.13 M
-A.Vector.replace_at/3        4.66 M - 1.31x slower +51.33 ns
-List.replace_at/3            1.65 M - 3.72x slower +443.37 ns
+A.Vector.replace_at/3        6.44 M
+:array.set/3                 5.33 M - 1.21x slower +32.43 ns
+List.replace_at/3            2.59 M - 2.48x slower +230.16 ns
+
+##### With input n = 101 #####
+Name                            ips        average  deviation         median         99th %
+A.Vector.replace_at/3        6.51 M      153.57 ns ±11136.77%          82 ns         335 ns
+:array.set/3                 4.87 M      205.30 ns  ±8482.65%         108 ns         368 ns
+List.replace_at/3            2.58 M      387.16 ns  ±4581.61%         246 ns         705 ns
+
+Comparison: 
+A.Vector.replace_at/3        6.51 M
+:array.set/3                 4.87 M - 1.34x slower +51.72 ns
+List.replace_at/3            2.58 M - 2.52x slower +233.59 ns
+
+##### With input n = 1000 #####
+Name                            ips        average  deviation         median         99th %
+:array.set/3                 4.93 M      202.91 ns  ±8247.49%         107 ns         339 ns
+A.Vector.replace_at/3        3.83 M      261.13 ns ±10140.91%         111 ns         420 ns
+List.replace_at/3            0.39 M     2560.78 ns   ±306.24%        2238 ns     6514.92 ns
+
+Comparison: 
+:array.set/3                 4.93 M
+A.Vector.replace_at/3        3.83 M - 1.29x slower +58.22 ns
+List.replace_at/3            0.39 M - 12.62x slower +2357.86 ns
+
+##### With input n = 1001 #####
+Name                            ips        average  deviation         median         99th %
+:array.set/3                 4.04 M      247.47 ns  ±9130.32%         144 ns         441 ns
+A.Vector.replace_at/3        3.80 M      263.40 ns  ±9803.22%         111 ns         409 ns
+List.replace_at/3            0.38 M     2608.53 ns   ±369.35%        2245 ns     7493.52 ns
+
+Comparison: 
+:array.set/3                 4.04 M
+A.Vector.replace_at/3        3.80 M - 1.06x slower +15.93 ns
+List.replace_at/3            0.38 M - 10.54x slower +2361.06 ns
+
+##### With input n = 10000 #####
+Name                            ips        average  deviation         median         99th %
+:array.set/3                 4.04 M      247.62 ns  ±8372.00%         145 ns         422 ns
+A.Vector.replace_at/3        3.81 M      262.18 ns  ±7316.69%         136 ns         432 ns
+List.replace_at/3          0.0333 M    29996.40 ns    ±29.01%       30376 ns    69359.87 ns
+
+Comparison: 
+:array.set/3                 4.04 M
+A.Vector.replace_at/3        3.81 M - 1.06x slower +14.56 ns
+List.replace_at/3          0.0333 M - 121.14x slower +29748.78 ns
+
+##### With input n = 10001 #####
+Name                            ips        average  deviation         median         99th %
+:array.set/3                 3.88 M      257.80 ns  ±7661.24%         178 ns         476 ns
+A.Vector.replace_at/3        3.76 M      265.65 ns  ±7500.57%         136 ns         442 ns
+List.replace_at/3          0.0335 M    29818.68 ns    ±28.73%       30383 ns    69292.10 ns
+
+Comparison: 
+:array.set/3                 3.88 M
+A.Vector.replace_at/3        3.76 M - 1.03x slower +7.85 ns
+List.replace_at/3          0.0335 M - 115.67x slower +29560.89 ns
