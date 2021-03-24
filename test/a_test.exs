@@ -29,6 +29,27 @@ defmodule ATest do
                "b" => %{lower: ?b, upper: ?B},
                "c" => %{lower: ?c, upper: ?C}
              })
+
+    # dynamic key/values
+    {k1, v1, k2, v2, k3, v3} = {:foo, 45, :bar, 98, :baz, 76}
+
+    assert A.OrdMap.new([{:foo, 45}, {:bar, 98}, {:baz, 76}]) ==
+             ord(%{k1 => v1, k2 => v2, k3 => v3})
+
+    # computed key/values
+    {f, pop_args} = spy_callback(&(&1 * 2))
+
+    assert A.OrdMap.new([{0, 20}, {2, 40}, {4, 60}]) ==
+             ord(%{f.(0) => f.(10), f.(1) => f.(20), f.(2) => f.(30)})
+
+    assert [0, 10, 1, 20, 2, 30] = pop_args.()
+
+    # fixed key / computed values
+
+    assert A.OrdMap.new(foo: 200, bar: 400, baz: 600) ==
+             ord(%{foo: f.(100), bar: f.(200), baz: f.(300)})
+
+    assert [100, 200, 300] = pop_args.()
   end
 
   test "ord/1 - pattern matching" do
@@ -43,6 +64,10 @@ defmodule ATest do
     assert false == match?(ord(%{}), %{})
     assert false == match?(ord(%{c: _c}), ordered)
     assert false == match?(ord(%{a: "not A"}), ordered)
+
+    # pin operator
+    {key, value} = {:bar, 32}
+    assert ord(%{^key => ^value}) = A.OrdMap.new(foo: 46, bar: 32)
   end
 
   test "ord/1 - errors" do

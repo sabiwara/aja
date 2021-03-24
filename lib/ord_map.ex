@@ -1331,24 +1331,37 @@ defmodule A.OrdMap do
   end
 
   def from_list_ast(kvs_ast) do
-    if Enum.all?(kvs_ast, fn {key_ast, _} -> constant_key?(key_ast) end) do
-      from_list_ast_constant_keys(kvs_ast)
-    else
-      quote do
-        unquote(__MODULE__).new(unquote(kvs_ast))
-      end
+    cond do
+      Macro.quoted_literal?(kvs_ast) -> from_list_ast_constant_keys(kvs_ast)
+      literal_keys?(kvs_ast) -> from_non_literal_values(kvs_ast)
+      true -> quote do: unquote(__MODULE__).new(unquote(kvs_ast))
     end
   end
 
-  defp constant_key?(ast) when is_atom(ast), do: true
-  defp constant_key?(ast) when is_binary(ast), do: true
-  defp constant_key?(ast) when is_number(ast), do: true
-
-  defp constant_key?(ast) when is_list(ast) do
-    Enum.all?(ast, &constant_key?/1)
+  defp literal_keys?(kvs_ast) do
+    Enum.all?(kvs_ast, fn {key_ast, _} ->
+      Macro.quoted_literal?(key_ast)
+    end)
   end
 
-  defp constant_key?(_), do: false
+  defp from_non_literal_values(kvs_ast) do
+    vars = Macro.generate_arguments(length(kvs_ast), nil)
+
+    {safe_kvs_ast, assigns} =
+      kvs_ast
+      |> Enum.zip(vars)
+      |> Enum.map_reduce([], fn {{key_ast, value_ast}, var}, acc ->
+        assign =
+          quote do
+            unquote(var) = unquote(value_ast)
+          end
+
+        {{key_ast, var}, [assign | acc]}
+      end)
+
+    instructions = Enum.reverse([from_list_ast_constant_keys(safe_kvs_ast) | assigns])
+    {:__block__, [], instructions}
+  end
 
   defp from_list_ast_constant_keys(kvs_ast) do
     {map, key_values} =
