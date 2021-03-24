@@ -74,6 +74,8 @@ defmodule A.Vector.PropTest do
 
     assert A.Vector.size(vector) - 1 === A.Vector.size(new_vector)
 
+    assert vec(_ ||| ^last) = vector
+
     new_vector
   end
 
@@ -82,6 +84,7 @@ defmodule A.Vector.PropTest do
     assert [] = A.Vector.to_list(vector)
     assert [] = A.Enum.to_list(vector)
     assert [] = Enum.to_list(vector)
+    assert vec([]) = vector
   end
 
   def assert_properties(%A.Vector{} = vector) do
@@ -93,8 +96,12 @@ defmodule A.Vector.PropTest do
     assert Enum.count(vector) === length(as_list)
     assert A.Enum.count(vector) === length(as_list)
 
-    assert A.Vector.first(vector) === List.first(as_list)
-    assert A.Vector.last(vector) === List.last(as_list)
+    first = List.first(as_list)
+    last = List.last(as_list)
+    assert A.Vector.first(vector) === first
+    assert A.Vector.last(vector) === last
+
+    assert vec(^first ||| ^last) = vector
 
     assert vector === A.Vector.new(vector)
     assert vector === A.Vector.concat(vector, [])

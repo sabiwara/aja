@@ -37,23 +37,23 @@ true
 ```
 
 `A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,
-with efficiency in mind. It should be significantly faster and easier to use from Elixir than Erlang's
-[`:array`](http://erlang.org/doc/man/array.html) module.
+with efficiency in mind. It should be easier to use from Elixir than Erlang's
+[`:array`](http://erlang.org/doc/man/array.html) module and faster in most cases.
 
 The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make it easier to work with vectors
 and make pattern-matching possible:
 
 ```elixir
 iex> import A
-iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5)
-#A<vec([1, 2, 3, 4, 5])>
-iex> {a, c, e}
+iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5); {a, c, e}
 {1, 3, 5}
+iex> vec(first ||| last) = A.Vector.new(1..1_000_000); {first, last}
+{1, 1000000}
 iex> match?(v when vec_size(v) > 9, vec(1..10))
 true
 ```
 
-The `A.+++/2` operator provides synctactic sugar for concatenating vectors:
+The `A.+++/2` operator provides synctactic sugar for vector concatenation:
 
 ```elixir
 iex> vec([1, 2, 3]) +++ vec([4, 5])
@@ -105,6 +105,7 @@ Aja structures such as `A.Vector` or `A.OrdMap`.
 
 `A.Enum` on vectors/ord maps can be even faster than `Enum` on lists/maps,
 depending on the function and size of the sequence.
+
 
 ## Utility functions
 

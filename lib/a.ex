@@ -232,16 +232,14 @@ defmodule A do
   @doc """
   Convenience macro to create or pattern match on `A.Vector`s.
 
-  It can only work with known-size vectors.
-
   ## Examples
 
       iex> import A
       iex> vec([1, 2, 3])
       #A<vec([1, 2, 3])>
-      iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6)
-      #A<vec([1, 2, 3, 4, 5, 6])>
-      iex> var
+      iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
+      {0, 99999}
+      iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
       3
       iex> vec([_, _, _]) = A.Vector.new(1..6)
       ** (MatchError) no match of right hand side value: #A<vec([1, 2, 3, 4, 5, 6])>
@@ -282,8 +280,14 @@ defmodule A do
   end
 
   defmacro vec({:|||, _, [first, last]}) do
-    quote do
-      %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(first, last))}
+    case __CALLER__.context do
+      :match ->
+        quote do
+          %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(first, last))}
+        end
+
+      _ ->
+        raise ArgumentError, "The `vec(x ||| y)` syntax can only be used in matches"
     end
   end
 

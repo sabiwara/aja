@@ -7,16 +7,18 @@
 * `A.OrdMap` new implemention, with highly improved performance ⚡️⚡️
 * `A.Enum` as a faster `Enum` module optimized for Aja structures (vectors, ord maps)
 * Added `A.ord_size/1` macro
+* `A.vec/1` can pattern-match on first and last elements
 * `A.ord/1` warns on duplicate errors and can generate the AST on compile time for constant keys
 
 ### Breaking changes
 
 * Reimplement `A.OrdMap`, changing its internals completely
-* Change signature of `A.OrdMap.foldl/3` and `A.OrdMap.foldr/3`
+* Change signature of `A.OrdMap.foldl/3` and `A.OrdMap.foldr/3` for consistency
 * Remove A.OrdMap.pop_first/1 and A.OrdMap.pop_last/1
-* Remove A.RBMap and A.RBSet
+* Modify `A.Vector` internals (only breaking if persisted)
 * Deprecate methods from `A.Vector` that have been moved to `A.Enum`
-* Rename `A.List.repeat/2` and `A.Vector.repeat/2`
+* Remove A.RBMap and A.RBSet
+* Rename `A.List.repeat/2` and `A.Vector.repeat/2` (previously "repeatedly")
 
 ## v0.4.8 (2021-02-23)
 

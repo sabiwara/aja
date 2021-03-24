@@ -79,6 +79,8 @@ defmodule A.Vector do
       #A<vec([1, 2, 3])>
       iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
       3
+      iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
+      {0, 99999}
 
   The `A.vec_size/1` macro can be used in guards:
 
@@ -166,14 +168,11 @@ defmodule A.Vector do
   not support efficient deletion, with the exception of the last element that
   can be popped very efficiently (`A.Vector.pop_last/1`, `A.Vector.delete_last/1`).
 
-  Deleting close to the end of the vector is still fairly fast, but deleting near
-  the beginning needs to reconstruct most of the vector.
+  Deleting close to the end of the vector using `A.Vector.delete_at/2` or
+  `A.Vector.pop_at/3` is still fairly fast, but deleting near the beginning needs
+  to reconstruct most of the vector.
 
-  Deletion functionality is provided through functions like `A.Vector.pop_at/3`
-  and `A.Vector.delete_at/2` for the sake of completion, but please note that they
-  are inefficient and their usage is discouraged.
-
-  If you need to be able to pop arbitrary indexes, chances are you should consider
+  If you need to be able to delete arbitrary indexes, chances are you should consider
   an alternative data structure.
   Another possibility could be to use sparse arrays, defining `nil` as a deleted value
   (but then the indexing and size won't reflect this).
@@ -199,7 +198,6 @@ defmodule A.Vector do
   **DON'T**
 
       Enum.reduce(enumerable, vector, fn val, acc -> A.Vector.append(acc, val) end)
-      Enum.into(enumerable, vector)
 
   **DO**
 
@@ -234,7 +232,7 @@ defmodule A.Vector do
       # or A.Vector.concat(vector, enumerable)
       # or vector +++ enumerable
 
-  Although it depends on the function, expect a factor ~10x speed difference.
+  Although it depends on the function, you can expect a ~10x speed difference.
 
   `for` comprehensions are actually using `Enumerable` as well, so
   the same advice holds:
@@ -274,7 +272,7 @@ defmodule A.Vector do
   ### `A.Vector` and `A.Enum`
 
   - `A.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
-  - `A.Vector` mirrors `Enum` functions returning lists, but returns vectors instead
+  - `A.Vector` mirrors `Enum` functions that are returning lists, but returns vectors instead
 
       iex> vector = A.Vector.new(1..10)
       iex> A.Enum.reverse(vector)

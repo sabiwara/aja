@@ -234,6 +234,18 @@ defmodule ATest do
     assert vec(_) = A.Vector.new([])
     assert vec(_) = A.Vector.new([1, 2])
     assert vec(_) = A.Vector.new(1..100)
+
+    assert vec(1 ||| 2) = A.Vector.new(1..2)
+    assert vec(1 ||| 20) = A.Vector.new(1..20)
+    assert vec(1 ||| 200) = A.Vector.new(1..200)
+    assert vec(1 ||| 2000) = A.Vector.new(1..2000)
+    refute match?(vec(_ ||| _), A.Vector.new())
+  end
+
+  test "vec(x ||| y) outside patterns" do
+    quoted = quote do: vec(1 ||| 2)
+
+    assert_raise ArgumentError, fn -> Code.eval_quoted(quoted) end
   end
 
   test "vec_size/1 in guards" do
