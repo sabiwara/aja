@@ -265,20 +265,20 @@ defmodule A do
 
   """
   defmacro vec(list) when is_list(list) do
-    ast_from_list(list)
+    ast_from_list(list, __CALLER__)
   end
 
   defmacro vec({:.., _, [first, last]}) when is_integer(first) and is_integer(last) do
     first..last
     |> Enum.to_list()
-    |> ast_from_list()
+    |> ast_from_list(__CALLER__)
   end
 
   defmacro vec({:~>, _, [first, last]}) when is_integer(first) and is_integer(last) do
     first
     ~> last
     |> Enum.to_list()
-    |> ast_from_list()
+    |> ast_from_list(__CALLER__)
   end
 
   defmacro vec({:|||, _, [first, last]}) do
@@ -315,7 +315,30 @@ defmodule A do
     """
   end
 
-  defp ast_from_list(list) do
+  defp ast_from_list([head | tail], %{context: nil}) do
+    if Macro.quoted_literal?(head) do
+      do_ast_from_list([head | tail])
+    else
+      quote do
+        first = unquote(head)
+
+        unquote(
+          do_ast_from_list([
+            quote do
+              first
+            end
+            | tail
+          ])
+        )
+      end
+    end
+  end
+
+  defp ast_from_list(list, _caller) do
+    do_ast_from_list(list)
+  end
+
+  defp do_ast_from_list(list) do
     internal_ast = A.Vector.Raw.from_list_ast(list)
 
     quote do

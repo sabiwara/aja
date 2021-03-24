@@ -2,6 +2,7 @@ defmodule ATest do
   use ExUnit.Case, async: true
 
   import A
+  import A.TestHelpers
 
   doctest A
 
@@ -74,8 +75,13 @@ defmodule ATest do
     assert A.Vector.new([]) ==
              vec([])
 
-    assert A.Vector.new(1..5) ==
-             vec([1, 2, 3, 4, 5])
+    assert A.Vector.new(1..5) == vec([1, 2, 3, 4, 5])
+
+    assert A.Vector.new(1..5) == vec(1..5)
+
+    {f, pop_args} = spy_callback(&(&1 * 2))
+    assert A.Vector.new([2, 4, 6, 8]) == vec([f.(1), f.(2), f.(3), f.(4)])
+    assert [1, 2, 3, 4] = pop_args.()
 
     assert A.Vector.new(1..50) ==
              vec([
@@ -130,6 +136,8 @@ defmodule ATest do
                49,
                50
              ])
+
+    assert A.Vector.new(1..50) == vec(1..50)
   end
 
   test "vec/1 pattern matching" do
@@ -140,6 +148,7 @@ defmodule ATest do
 
     assert vec([vec([a, b]), vec([c, d])]) =
              A.Vector.new([A.Vector.new([1, 2]), A.Vector.new([3, 4])])
+
     assert {1, 2, 3, 4} == {a, b, c, d}
 
     assert vec([
