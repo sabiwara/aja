@@ -96,6 +96,41 @@ defmodule ATest do
     assert "`A.ord/1` cannot be used in guards" = err.message
   end
 
+  test "ord/1 - warnings - literal key & values" do
+    expected = A.OrdMap.new(foo: "Baz", bar: "Bar")
+
+    warning =
+      ExUnit.CaptureIO.capture_io(:stderr, fn ->
+        assert {^expected, []} =
+                 Code.eval_quoted(
+                   quote do
+                     ord(%{foo: "Foo", bar: "Bar", foo: "Baz"})
+                   end
+                 )
+      end)
+
+    assert warning =~ "warning"
+    assert warning =~ "key :foo will be overridden in ord map"
+  end
+
+  test "ord/1 - warnings - literal key, computed values" do
+    expected = A.OrdMap.new(foo: 6, bar: 4)
+
+    warning =
+      ExUnit.CaptureIO.capture_io(:stderr, fn ->
+        assert {^expected, _} =
+                 Code.eval_quoted(
+                   quote do
+                     fun = &(&1 * 2)
+                     ord(%{foo: fun.(1), bar: fun.(2), foo: fun.(3)})
+                   end
+                 )
+      end)
+
+    assert warning =~ "warning"
+    assert warning =~ "key :foo will be overridden in ord map"
+  end
+
   test "vec/1 creation" do
     assert A.Vector.new([]) ==
              vec([])
