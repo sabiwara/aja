@@ -7,7 +7,7 @@ defmodule A.OrdMap do
       iex> %{"one" => 1, "two" => 2, "three" => 3}
       %{"one" => 1, "three" => 3, "two" => 2}
       iex> A.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
-      #A<ord(%{"one" => 1, "two" => 2, "three" => 3})>
+      ord(%{"one" => 1, "two" => 2, "three" => 3})
 
   There is an unavoidable overhead compared to natively implemented maps, so
   keep using regular maps when you do not care about the insertion order.
@@ -22,21 +22,19 @@ defmodule A.OrdMap do
   `A.OrdMap` offers the same API as `Map` :
 
       iex> ord_map = A.OrdMap.new([b: "Bat", a: "Ant", c: "Cat"])
-      #A<ord(%{b: "Bat", a: "Ant", c: "Cat"})>
+      ord(%{b: "Bat", a: "Ant", c: "Cat"})
       iex> A.OrdMap.get(ord_map, :c)
       "Cat"
       iex> A.OrdMap.fetch(ord_map, :a)
       {:ok, "Ant"}
       iex> A.OrdMap.put(ord_map, :d, "Dinosaur")
-      #A<ord(%{b: "Bat", a: "Ant", c: "Cat", d: "Dinosaur"})>
+      ord(%{b: "Bat", a: "Ant", c: "Cat", d: "Dinosaur"})
       iex> A.OrdMap.put(ord_map, :b, "Buffalo")
-      #A<ord(%{b: "Buffalo", a: "Ant", c: "Cat"})>
-      iex> A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      ord(%{b: "Buffalo", a: "Ant", c: "Cat"})
       iex> Enum.to_list(ord_map)
       [b: "Bat", a: "Ant", c: "Cat"]
       iex> [d: "Dinosaur", b: "Buffalo", e: "Eel"] |> Enum.into(ord_map)
-      #A<ord(%{b: "Buffalo", a: "Ant", c: "Cat", d: "Dinosaur", e: "Eel"})>
+      ord(%{b: "Buffalo", a: "Ant", c: "Cat", d: "Dinosaur", e: "Eel"})
 
   ## Specific functions
 
@@ -62,11 +60,11 @@ defmodule A.OrdMap do
       iex> ord_map[:a]
       "Ant"
       iex> put_in(ord_map[:b], "Buffalo")
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> put_in(ord_map[:d], "Dinosaur")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})
       iex> {"Cat", updated} = pop_in(ord_map[:c]); updated
-      #A<ord(%{a: "Ant", b: "Bat"})>
+      ord(%{a: "Ant", b: "Bat"})
 
   ## Convenience [`ord/1`](`A.ord/1`) and [`ord_size/1`](`A.ord_size/1`) macros
 
@@ -82,12 +80,12 @@ defmodule A.OrdMap do
 
       iex> import A
       iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})
-      #A<ord(%{"一" => 1, "二" => 2, "三" => 3})>
+      ord(%{"一" => 1, "二" => 2, "三" => 3})
       iex> ord(%{"三" => three, "一" => one}) = ord_map
       iex> {one, three}
       {1, 3}
       iex> ord(%{ord_map | "二" => "NI!"})
-      #A<ord(%{"一" => 1, "二" => "NI!", "三" => 3})>
+      ord(%{"一" => 1, "二" => "NI!", "三" => 3})
 
   Notes:
   - pattern-matching on keys is not affected by insertion order.
@@ -129,9 +127,9 @@ defmodule A.OrdMap do
   Calling `A.OrdMap.new/1` on a sparse ord map will rebuild a new dense one from scratch (which can be expensive).
 
       iex> dense = A.OrdMap.new(a: "Ant", b: "Bat")
-      #A<ord(%{a: "Ant", b: "Bat"})>
+      ord(%{a: "Ant", b: "Bat"})
       iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
       iex> dense == sparse
       false
       iex> match?(^dense, sparse)
@@ -139,7 +137,7 @@ defmodule A.OrdMap do
       iex> A.OrdMap.equal?(dense, sparse)  # works with sparse maps, but less efficient
       true
       iex> new_dense = A.OrdMap.new(sparse)  # rebuild a dense map from a sparse one
-      #A<ord(%{a: "Ant", b: "Bat"})>
+      ord(%{a: "Ant", b: "Bat"})
       iex> new_dense === dense
       true
 
@@ -147,15 +145,15 @@ defmodule A.OrdMap do
   ord maps cannot be more than half sparse, and are periodically rebuilt as dense upon deletion.
 
       iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
       iex> A.OrdMap.delete(sparse, :a)
-      #A<ord(%{b: "Bat"})>
+      ord(%{b: "Bat"})
 
   Note: Deleting the last key does not make a dense ord map sparse. This is not a bug,
   but an expected behavior due to how data is stored.
 
       iex> A.OrdMap.new([one: 1, two: 2, three: 3]) |> A.OrdMap.delete(:three)
-      #A<ord(%{one: 1, two: 2})>
+      ord(%{one: 1, two: 2})
 
   The `dense?/1` and `sparse?/1` functions can be used to check if a `A.OrdMap` is dense or sparse.
 
@@ -300,7 +298,7 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> A.OrdMap.new()
-      #A<ord(%{})>
+      ord(%{})
 
   """
   @spec new :: t
@@ -317,18 +315,18 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
-      #A<ord(%{b: "Bat", a: "Ant", c: "Cat"})>
+      ord(%{b: "Bat", a: "Ant", c: "Cat"})
       iex> A.OrdMap.new(b: "Bat", a: "Ant", b: "Buffalo", a: "Antelope")
-      #A<ord(%{b: "Buffalo", a: "Antelope"})>
+      ord(%{b: "Buffalo", a: "Antelope"})
 
   `new/1` will return dense ord maps untouched, but will rebuild sparse ord maps from scratch.
   This can be used to build a dense ord map from from a sparse one.
   See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
 
       iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A<ord(%{a: "Ant", b: "Bat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
       iex> A.OrdMap.new(sparse)
-      #A<ord(%{a: "Ant", b: "Bat"})>
+      ord(%{a: "Ant", b: "Bat"})
 
   """
   @spec new(Enumerable.t()) :: t(key, value)
@@ -350,7 +348,7 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> A.OrdMap.new([:a, :b], fn x -> {x, x} end)
-      #A<ord(%{a: :a, b: :b})>
+      ord(%{a: :a, b: :b})
 
   """
   @spec new(Enumerable.t(), (term -> {k, v})) :: t(k, v) when k: key, v: value
@@ -418,7 +416,7 @@ defmodule A.OrdMap do
       iex> A.OrdMap.fetch!(ord_map, :c)
       "C"
       iex> A.OrdMap.fetch!(ord_map, :z)
-      ** (KeyError) key :z not found in: #A<ord(%{a: "A", b: "B", c: "C"})>
+      ** (KeyError) key :z not found in: ord(%{a: "A", b: "B", c: "C"})
 
   """
   @spec fetch!(t(k, v), k) :: v when k: key, v: value
@@ -440,9 +438,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat")
       iex> A.OrdMap.put_new(ord_map, :a, "Ant")
-      #A<ord(%{b: "Bat", c: "Cat", a: "Ant"})>
+      ord(%{b: "Bat", c: "Cat", a: "Ant"})
       iex> A.OrdMap.put_new(ord_map, :b, "Buffalo")
-      #A<ord(%{b: "Bat", c: "Cat"})>
+      ord(%{b: "Bat", c: "Cat"})
 
   """
   @spec put_new(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -467,9 +465,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.replace(ord_map, :b, "Buffalo")
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> A.OrdMap.replace(ord_map, :d, "Dinosaur")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   """
   @spec replace(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -496,9 +494,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.replace!(ord_map, :b, "Buffalo")
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> A.OrdMap.replace!(ord_map, :d, "Dinosaur")
-      ** (KeyError) key :d not found in: #A<ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})>
+      ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
 
   """
   @spec replace!(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -529,9 +527,9 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat")
       iex> expensive_fun = fn -> "Ant" end
       iex> A.OrdMap.put_new_lazy(ord_map, :a, expensive_fun)
-      #A<ord(%{b: "Bat", c: "Cat", a: "Ant"})>
+      ord(%{b: "Bat", c: "Cat", a: "Ant"})
       iex> A.OrdMap.put_new_lazy(ord_map, :b, expensive_fun)
-      #A<ord(%{b: "Bat", c: "Cat"})>
+      ord(%{b: "Bat", c: "Cat"})
 
   """
   @spec put_new_lazy(t(k, v), k, (() -> v)) :: t(k, v) when k: key, v: value
@@ -559,7 +557,7 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.take(ord_map, [:c, :e, :a])
-      #A<ord(%{c: "Cat", a: "Ant"})>
+      ord(%{c: "Cat", a: "Ant"})
 
   """
   @spec get(t(k, v), [k]) :: t(k, v) when k: key, v: value
@@ -660,9 +658,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.put(ord_map, :b, "Buffalo")
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> A.OrdMap.put(ord_map, :d, "Dinosaur")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})
 
   """
   @spec put(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -691,9 +689,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> A.OrdMap.delete(ord_map, :z)
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   """
   @spec delete(t(k, v), k) :: t(k, v) when k: key, v: value
@@ -719,9 +717,9 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), A.OrdMap.new(%{a: 3, d: 4}))
-      #A<ord(%{a: 3, b: 2, d: 4})>
+      ord(%{a: 3, b: 2, d: 4})
       iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), %{a: 3, d: 4})
-      #A<ord(%{a: 3, b: 2, d: 4})>
+      ord(%{a: 3, b: 2, d: 4})
 
   """
   @spec merge(t(k, v), t(k, v) | %{optional(k) => v}) :: t(k, v) when k: key, v: value
@@ -746,9 +744,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.update(ord_map, :b, "N/A", &String.upcase/1)
-      #A<ord(%{a: "Ant", b: "BAT", c: "Cat"})>
+      ord(%{a: "Ant", b: "BAT", c: "Cat"})
       iex> A.OrdMap.update(ord_map, :z, "N/A", &String.upcase/1)
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat", z: "N/A"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat", z: "N/A"})
 
   """
   @spec update(t(k, v), k, v, (k -> v)) :: t(k, v) when k: key, v: value
@@ -782,13 +780,13 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> {"Bat", updated} = A.OrdMap.pop(ord_map, :b)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> {nil, updated} = A.OrdMap.pop(ord_map, :z)
       iex> updated
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
       iex> {"Z", updated} = A.OrdMap.pop(ord_map, :z, "Z")
       iex> updated
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
   @impl Access
   @spec pop(t(k, v), k, v) :: {v, t(k, v)} when k: key, v: value
@@ -816,9 +814,9 @@ defmodule A.OrdMap do
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> {"Bat", updated} = A.OrdMap.pop!(ord_map, :b)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> A.OrdMap.pop!(ord_map, :z)
-      ** (KeyError) key :z not found in: #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
   def pop!(
@@ -851,10 +849,10 @@ defmodule A.OrdMap do
       iex> expensive_fun = fn -> "Zebra" end
       iex> {"Ant", updated} = A.OrdMap.pop_lazy(ord_map, :a, expensive_fun)
       iex> updated
-      #A<ord(%{b: "Bat", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{b: "Bat", c: "Cat"}, sparse?: true>
       iex> {"Zebra", not_updated} = A.OrdMap.pop_lazy(ord_map, :z, expensive_fun)
       iex> not_updated
-      #A<ord(%{b: "Bat", a: "Ant", c: "Cat"})>
+      ord(%{b: "Bat", a: "Ant", c: "Cat"})
 
   """
   @spec pop_lazy(t(k, v), k, (() -> v)) :: {v, t(k, v)} when k: key, v: value
@@ -882,7 +880,7 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.drop(ord_map, [:b, :d])
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
 
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
@@ -902,9 +900,9 @@ defmodule A.OrdMap do
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> A.OrdMap.update!(ord_map, :b,  &String.upcase/1)
-      #A<ord(%{a: "Ant", b: "BAT", c: "Cat"})>
+      ord(%{a: "Ant", b: "BAT", c: "Cat"})
       iex> A.OrdMap.update!(ord_map, :d, &String.upcase/1)
-      ** (KeyError) key :d not found in: #A<ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})>
+      ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
 
   """
   @spec update!(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -935,18 +933,18 @@ defmodule A.OrdMap do
       ...>   {current_value && String.downcase(current_value), "Buffalo"}
       ...> end)
       iex> updated
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> {nil, updated} = A.OrdMap.get_and_update(ord_map, :z, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Zebra"}
       ...> end)
       iex> updated
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat", z: "Zebra"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat", z: "Zebra"})
       iex> {"Bat", updated} = A.OrdMap.get_and_update(ord_map, :b, fn _ -> :pop end)
       iex> updated
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> {nil, updated} = A.OrdMap.get_and_update(ord_map, :z, fn _ -> :pop end)
       iex> updated
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
   @impl Access
   @spec get_and_update(t(k, v), k, (v -> {returned, v} | :pop)) :: {returned, t(k, v)}
@@ -969,11 +967,11 @@ defmodule A.OrdMap do
       ...>   {current_value && String.downcase(current_value), "Buffalo"}
       ...> end)
       iex> updated
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> A.OrdMap.get_and_update!(ord_map, :z, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Zebra"}
       ...> end)
-      ** (KeyError) key :z not found in: #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
   @spec get_and_update!(t(k, v), k, (v -> {returned, v} | :pop)) :: {returned, t(k, v)}
         when k: key, v: value, returned: term
@@ -1010,10 +1008,10 @@ defmodule A.OrdMap do
       end
 
       A.OrdMap.from_struct(User)
-      #A<ord(%{age: nil, name: nil})>
+      ord(%{age: nil, name: nil})
 
       A.OrdMap.from_struct(%User{name: "john", age: 44})
-      #A<ord(%{age: 44, name: "john"})>
+      ord(%{age: 44, name: "john"})
 
   """
   @spec from_struct(atom | struct) :: t
@@ -1183,11 +1181,11 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
       iex> A.OrdMap.dense?(ord_map)
       true
       iex> sparse = A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> A.OrdMap.dense?(sparse)
       false
 
@@ -1204,11 +1202,11 @@ defmodule A.OrdMap do
   ## Examples
 
       iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
       iex> A.OrdMap.sparse?(ord_map)
       false
       iex> sparse = A.OrdMap.delete(ord_map, :b)
-      #A<ord(%{a: "Ant", c: "Cat"}, sparse?: true)>
+      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> A.OrdMap.sparse?(sparse)
       true
 
@@ -1493,10 +1491,11 @@ defmodule A.OrdMap do
     import Inspect.Algebra
 
     def inspect(ord_map, opts) do
-      open = color("#A<ord(%{", :map, opts)
-      sep = color(",", :map, opts)
+      {open_mark, close_mark} = open_close_marks(ord_map)
 
-      close = color(close_mark(ord_map), :map, opts)
+      open = color(open_mark, :map, opts)
+      close = color(close_mark, :map, opts)
+      sep = color(",", :map, opts)
 
       as_list = A.OrdMap.to_list(ord_map)
 
@@ -1519,11 +1518,11 @@ defmodule A.OrdMap do
       concat(concat(to_doc(key, opts), sep), to_doc(value, opts))
     end
 
-    defp close_mark(ord_map) do
+    defp open_close_marks(ord_map) do
       if A.OrdMap.sparse?(ord_map) do
-        "}, sparse?: true)>"
+        {"#A.OrdMap<%{", "}, sparse?: true>"}
       else
-        "})>"
+        {"ord(%{", "})"}
       end
     end
   end

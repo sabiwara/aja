@@ -108,24 +108,22 @@ defmodule A do
   ## Creation examples
 
       iex> ord(%{"一" => 1, "二" => 2, "三" => 3})
-      #A<ord(%{"一" => 1, "二" => 2, "三" => 3})>
+      ord(%{"一" => 1, "二" => 2, "三" => 3})
       iex> ord(%{a: "Ant", b: "Bat", c: "Cat"})
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   ## Pattern matching examples
 
-      iex> ord(%{b: bat}) = ord(%{a: "Ant", b: "Bat", c: "Cat"})
-      #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
-      iex> bat
+      iex> ord(%{b: bat}) = ord(%{a: "Ant", b: "Bat", c: "Cat"}); bat
       "Bat"
 
   ## Replace existing keys examples
 
       iex> ordered = ord(%{a: "Ant", b: "Bat", c: "Cat"})
       iex> ord(%{ordered | b: "Buffalo"})
-      #A<ord(%{a: "Ant", b: "Buffalo", c: "Cat"})>
+      ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> ord(%{ordered | z: "Zebra"})
-      ** (KeyError) key :z not found in: #A<ord(%{a: "Ant", b: "Bat", c: "Cat"})>
+      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   """
   defmacro ord({:%{}, _context, [{:|, _context2, [ordered, key_values]}]} = call) do

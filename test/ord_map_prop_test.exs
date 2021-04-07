@@ -158,7 +158,12 @@ defmodule A.OrdMap.PropTest do
     require A.Vector.Raw
     assert 2 * map_size(ord_map.__ord_map__) >= A.Vector.Raw.size(ord_map.__ord_vector__)
 
-    assert inspect(ord_map) =~ "#A<ord(%{"
+    if A.OrdMap.sparse?(ord_map) do
+      assert inspect(ord_map) =~ "#A.OrdMap<%{"
+      assert inspect(ord_map) =~ ", sparse?: true>"
+    else
+      assert inspect(ord_map) =~ "ord(%{"
+    end
   end
 
   property "any series of transformation should yield a valid ordered map" do

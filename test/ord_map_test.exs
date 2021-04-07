@@ -1,6 +1,8 @@
 defmodule A.OrdMapTest do
   use ExUnit.Case, async: true
 
+  import A, only: [ord: 1]
+
   doctest A.OrdMap
 
   defmodule User do
@@ -75,13 +77,13 @@ defmodule A.OrdMapTest do
   end
 
   test "inspect" do
-    assert "#A<ord(%{})>" = A.OrdMap.new() |> inspect()
-    assert "#A<ord(%{a: 1, b: 2})>" = A.OrdMap.new(a: 1, b: 2) |> inspect()
+    assert "ord(%{})" = A.OrdMap.new() |> inspect()
+    assert "ord(%{a: 1, b: 2})" = A.OrdMap.new(a: 1, b: 2) |> inspect()
 
-    assert "#A<ord(%{1 => 1, 2 => 4, 3 => 9})>" =
+    assert "ord(%{1 => 1, 2 => 4, 3 => 9})" =
              A.OrdMap.new(1..3, fn i -> {i, i * i} end) |> inspect()
 
-    assert "#A<ord(%{:foo => :atom, 5 => :integer})>" =
+    assert "ord(%{:foo => :atom, 5 => :integer})" =
              A.OrdMap.new([{:foo, :atom}, {5, :integer}]) |> inspect()
   end
 

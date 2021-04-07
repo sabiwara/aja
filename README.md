@@ -70,7 +70,7 @@ The standard library does not offer any similar functionality:
 iex> %{"one" => 1, "two" => 2, "three" => 3}
 %{"one" => 1, "three" => 3, "two" => 2}
 iex> ord_map = A.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
-#A<ord(%{"one" => 1, "two" => 2, "three" => 3})>
+ord(%{"one" => 1, "two" => 2, "three" => 3})
 iex> ord_map["two"]
 2
 iex> Enum.to_list(ord_map)
@@ -84,7 +84,7 @@ The convenience macro `A.ord/1` make them a breeze to instantiate or pattern-mat
 ```elixir
 iex> import A
 iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})
-#A<ord(%{"一" => 1, "二" => 2, "三" => 3})>
+ord(%{"一" => 1, "二" => 2, "三" => 3})
 iex> ord(%{"三" => three, "一" => one}) = ord_map
 iex> {one, three}
 {1, 3}
