@@ -1322,16 +1322,16 @@ defmodule A.OrdMap do
   end
 
   @doc false
-  def from_list_ast([]) do
+  def from_list_ast([], _env) do
     quote do
       unquote(__MODULE__).new()
     end
   end
 
-  def from_list_ast(kvs_ast) do
+  def from_list_ast(kvs_ast, env) do
     cond do
-      Macro.quoted_literal?(kvs_ast) -> from_list_ast_constant_keys(kvs_ast)
-      literal_keys?(kvs_ast) -> from_non_literal_values(kvs_ast)
+      Macro.quoted_literal?(kvs_ast) -> from_list_ast_constant_keys(kvs_ast, env)
+      literal_keys?(kvs_ast) -> from_non_literal_values(kvs_ast, env)
       true -> quote do: unquote(__MODULE__).new(unquote(kvs_ast))
     end
   end
@@ -1342,7 +1342,7 @@ defmodule A.OrdMap do
     end)
   end
 
-  defp from_non_literal_values(kvs_ast) do
+  defp from_non_literal_values(kvs_ast, env) do
     vars = Macro.generate_arguments(length(kvs_ast), nil)
 
     {safe_kvs_ast, assigns} =
@@ -1357,11 +1357,11 @@ defmodule A.OrdMap do
         {{key_ast, var}, [assign | acc]}
       end)
 
-    instructions = Enum.reverse([from_list_ast_constant_keys(safe_kvs_ast) | assigns])
+    instructions = Enum.reverse([from_list_ast_constant_keys(safe_kvs_ast, env) | assigns])
     {:__block__, [], instructions}
   end
 
-  defp from_list_ast_constant_keys(kvs_ast) do
+  defp from_list_ast_constant_keys(kvs_ast, env) do
     {map, key_values} =
       case do_add_optimistic(kvs_ast, %{}, [], 0) do
         {map, reversed_kvs, nil} ->
@@ -1369,7 +1369,10 @@ defmodule A.OrdMap do
 
         {map, reversed_kvs, duplicates} ->
           for {key, _} <- duplicates do
-            IO.warn("key #{inspect(key)} will be overridden in ord map")
+            IO.warn(
+              "key #{inspect(key)} will be overridden in ord map",
+              Macro.Env.stacktrace(env)
+            )
           end
 
           {map, do_reverse_and_update_duplicates(reversed_kvs, duplicates, [])}

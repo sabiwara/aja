@@ -139,7 +139,7 @@ defmodule A do
   defmacro ord({:%{}, context, key_value_pairs}) do
     case __CALLER__.context do
       nil ->
-        A.OrdMap.from_list_ast(key_value_pairs)
+        A.OrdMap.from_list_ast(key_value_pairs, __CALLER__)
 
       :match ->
         match_map = to_match_map(key_value_pairs, context)

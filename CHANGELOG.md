@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Bug fixes
+
+* `A.ord/1` warning on duplicate keys uses the proper stacktrace
+
 ### Breaking changes
 
 * Change `Inspect` protocol for `A.Vector` and `A.OrdMap`
