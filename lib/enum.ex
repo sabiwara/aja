@@ -1332,6 +1332,7 @@ defmodule A.Enum do
 
   # TODO remove in 0.6
 
+  @doc false
   @deprecated "Use |> A.Enum.sort() |> A.Enum.dedup() instead"
   def sort_uniq(enumerable) do
     enumerable
@@ -1339,6 +1340,7 @@ defmodule A.Enum do
     |> dedup_list()
   end
 
+  @doc false
   @deprecated "Use |> A.Enum.sort(fun) |> A.Enum.dedup() instead"
   def sort_uniq(enumerable, fun) do
     enumerable
