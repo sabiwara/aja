@@ -4,7 +4,7 @@ defmodule A.List do
   that are not in the core `List` module.
   """
 
-  @compile {:inline, prepend: 2, repeat: 2, do_repeat: 3}
+  @compile {:inline, prepend: 2, do_repeat: 3}
 
   @doc """
   Prepends an element to a list, equivalent of `[elem | list]` that can be used in a pipe.
@@ -36,7 +36,7 @@ defmodule A.List do
 
   - It offers has a consistent API with `Stream.repeatedly/1` and `List.duplicate/2`
   - It provides a less verbose way of writing one of the most common uses of `Stream.repeatedly/1`
-  - It removes the temptation to write the following, which is more concise but is technically incorrect:
+  - (before Elixir 1.12) It removes the temptation to write the following, which is more concise but is technically incorrect:
 
         iex> incorrect = fn n -> for _i <- 1..n, do: :rand.uniform() end
         iex> incorrect.(0) |> length()
@@ -44,9 +44,10 @@ defmodule A.List do
         iex> Enum.to_list(1..0)  # <- because of this
         [1, 0]
 
+    Elixir 1.12 solved this problem by introducing a step, `1..n//1`.
+
   - It is more efficient
 
-  This is the same problem that `A.ExRange` is addressing.
   """
   def repeat(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
