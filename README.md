@@ -146,7 +146,7 @@ iex> A.Integer.decimal_format(1234567)
 iex> A.Integer.div_rem(7, 3)
 {2, 1}
 iex> A.List.repeat(&:rand.uniform/0, 3)
-[0.40502929729990744, 0.45336720247823126, 0.04094511692041057]
+[0.7498295129076106, 0.06161655489244533, 0.7924073127680873]
 iex> A.IO.iodata_empty?(["", []])
 true
 ```

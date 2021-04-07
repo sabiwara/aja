@@ -7,7 +7,7 @@ defmodule Bench.Maps.New do
 
   defp shuffle(enum) do
     if @shuffled do
-      :rand.seed(:exsplus, {1, 2, 3})
+      :rand.seed(:exrop, {1, 2, 3})
       Enum.shuffle(enum)
     else
       enum
@@ -22,7 +22,7 @@ defmodule Bench.Maps.New do
       ],
       inputs: inputs(),
       before_scenario: fn n ->
-        :rand.seed(:exsplus, {1, 2, 3})
+        :rand.seed(:exrop, {1, 2, 3})
         1..n |> shuffle() |> Enum.map(fn i -> {i, "i"} end)
       end
     )

@@ -422,9 +422,9 @@ defmodule A.Vector do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exsplus, {1, 2, 3})
+      iex> :rand.seed(:exrop, {1, 2, 3})
       iex> A.Vector.repeat(&:rand.uniform/0, 3)
-      vec([0.40502929729990744, 0.45336720247823126, 0.04094511692041057])
+      vec([0.7498295129076106, 0.06161655489244533, 0.7924073127680873])
 
   """
   def repeat(generator_fun, n)

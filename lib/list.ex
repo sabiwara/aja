@@ -25,9 +25,9 @@ defmodule A.List do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exsplus, {1, 2, 3})
+      iex> :rand.seed(:exrop, {1, 2, 3})
       iex> A.List.repeat(&:rand.uniform/0, 3)
-      [0.40502929729990744, 0.45336720247823126, 0.04094511692041057]
+      [0.7498295129076106, 0.06161655489244533, 0.7924073127680873]
 
       # It is basically just syntactic sugar for the following:
       iex> Stream.repeatedly(&:rand.uniform/0) |> Enum.take(3)

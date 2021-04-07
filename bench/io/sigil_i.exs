@@ -4,7 +4,7 @@ defmodule Bench.IO.SigilI do
   def before_scenario(_) do
     first_names = ["John", "Jane", "Joe", "Joseph"]
     last_names = ["Doe", "Joestar", "Wood", "Black"]
-    :rand.seed(:exsplus, {1, 2, 3})
+    :rand.seed(:exrop, {1, 2, 3})
 
     Stream.repeatedly(fn ->
       {Enum.random(first_names), Enum.random(last_names)}

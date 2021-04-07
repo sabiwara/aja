@@ -1,7 +1,7 @@
 defmodule Bench.IO.Empty do
   def inputs() do
     for n <- [5, 50] do
-      :rand.seed(:exsplus, {1, 2, 3})
+      :rand.seed(:exrop, {1, 2, 3})
       iodata = Stream.repeatedly(fn -> <<?a..?z |> Enum.random()>> end) |> Enum.take(n)
       {"n = #{n}", iodata}
     end
