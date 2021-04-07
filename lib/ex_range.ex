@@ -1,69 +1,5 @@
 defmodule A.ExRange do
-  @moduledoc ~S"""
-  Exclusive ranges are an exact copy of regular ranges (see `Range`),
-  except that they exclude the second parameter.
-
-  ## Why/when would you need exclusive ranges?
-
-  The most typical use case would be when using `1..n` for loops based
-  on a parameter `n >= 0`:
-
-      iex> incorrect = fn n -> for i <- 1..n, do: "id_#{i}" end
-      iex> incorrect.(3) # works fine in general...
-      ["id_1", "id_2", "id_3"]
-      iex> incorrect.(0)  # weird bug at edge case!
-      ["id_1", "id_0"]
-
-  To fix it, you would typically need to match the `n == 0` case and handle
-  it differently, which is adds noise.
-  With exclusive ranges like `0 ~> n`, you get to keep the compact and elegant
-  approach from above, while having a correct algorithm that covers the edge case:
-
-      iex> correct = fn n -> for i <- 1 ~> n + 1, do: "id_#{i}" end
-      iex> correct.(3) # works fine
-      ["id_1", "id_2", "id_3"]
-      iex> correct.(0)  # edge case works fine too
-      []
-
-  Exclusive ranges can be either increasing (`start <= stop`) or
-  decreasing (`start > stop`). The `start` parameter is included
-  (except if `start == stop`), the `stop` parameter is *always* excluded.
-
-  An exclusive range is represented internally as a struct
-  `A.ExRange{start: start, stop: stop}` and can be used as is.
-
-  The `A.~>/2` convenience macro makes it possible to have a more compact
-  syntax, similar to `../2`.
-  It is totally optional and needs to be imported:
-
-      iex> import A
-      iex> import A, only: [~>: 2]  # more selective
-
-  ## Examples:
-
-      iex> A.ExRange.new(5)
-      #A<0 ~> 5>
-      iex> range = 0 ~> 5
-      #A<0 ~> 5>
-      iex> start ~> stop = range
-      iex> {start, stop}
-      iex> {0, 4}
-      iex> Enum.to_list(range)
-      [0, 1, 2, 3, 4]
-      iex> Enum.count(range)
-      5
-      iex> Enum.member?(range, 5)
-      false
-      iex> Enum.member?(range, 4)
-      true
-      iex> Enum.to_list(3 ~> 0)
-      [3, 2, 1]
-
-  Just like `Range`s, such function calls are efficient memory-wise
-  no matter the size of the range. The implementation of the `Enumerable`
-  protocol uses logic based solely on the endpoints and does
-  not materialize the whole list of integers.
-  """
+  @moduledoc false
 
   import A, only: [~>: 2]
 
@@ -71,19 +7,9 @@ defmodule A.ExRange do
   @enforce_keys [:start, :stop]
   defstruct [:start, :stop]
 
-  @doc """
-  Creates a new exclusive range.
-  `start` defaults to 0.
-
-  ## Examples
-
-      iex> A.ExRange.new(0, 100)
-      #A<0 ~> 100>
-      iex> A.ExRange.new(10)
-      #A<0 ~> 10>
-
-  """
-  @spec new(integer, integer) :: t
+  # TODO remove in 0.6
+  @doc false
+  @deprecated "Use first..last//1 instead"
   def new(start \\ 0, stop)
 
   def new(start, stop) when is_integer(start) and is_integer(stop) do

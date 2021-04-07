@@ -65,7 +65,6 @@ defmodule A.Enum do
       %A.OrdMap{__ord_map__: map} -> map_size(map)
       %MapSet{} -> MapSet.size(enumerable)
       start..stop -> abs(start - stop) + 1
-      %A.ExRange{start: start, stop: stop} -> abs(start - stop)
       _ -> Enum.count(enumerable)
     end
   end
@@ -116,7 +115,6 @@ defmodule A.Enum do
       %A.OrdMap{__ord_map__: map} -> map == %{}
       %MapSet{} -> MapSet.size(enumerable) == 0
       %Range{} -> false
-      %A.ExRange{start: start, stop: stop} -> start == stop
       _ -> Enum.empty?(enumerable)
     end
   end

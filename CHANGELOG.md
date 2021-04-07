@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Breaking changes
+
+* Deprecate A.ExRange
+
 ## v0.5.1 (2021-04-09)
 
 ### Enhancements

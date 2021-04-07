@@ -117,16 +117,6 @@ iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
 ["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
 ```
 
-#### Exclusive ranges: `A.ExRange`
-
-```elixir
-iex> A.ExRange.new(0, 10) |> Enum.to_list()
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-iex> import A
-iex> Enum.map(0 ~> 5, &"id_#{&1}")
-["id_0", "id_1", "id_2", "id_3", "id_4"]
-```
-
 #### *Don't Break The Pipe!*
 
 ```elixir

@@ -39,8 +39,6 @@ defmodule A.Enum.PropTest do
       assert unique_length === A.Enum.count(map_set)
 
       assert Enum.count(i1..i2) == A.Enum.count(i1..i2)
-      assert Enum.count(A.ExRange.new(i1, i2)) == A.Enum.count(A.ExRange.new(i1, i2))
-      assert Enum.count(i1..i2) - 1 == A.Enum.count(A.ExRange.new(i1, i2))
 
       fun = fn x -> :erlang.phash2(x, 7) == 0 end
       count_result = Enum.count(list, fun)
@@ -58,7 +56,6 @@ defmodule A.Enum.PropTest do
       assert expected_empty == A.Enum.empty?(map_set)
 
       assert Enum.empty?(i1..i2) == A.Enum.empty?(i1..i2)
-      assert Enum.empty?(A.ExRange.new(i1, i2)) == A.Enum.empty?(A.ExRange.new(i1, i2))
 
       min_result = Enum.min(list) |> capture_error()
       assert min_result === A.Enum.min(list) |> capture_error()

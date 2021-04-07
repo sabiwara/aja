@@ -70,22 +70,9 @@ defmodule A do
     end
   end
 
-  @doc ~S"""
-  Convenience macro to work with `A.ExRange`s (exclusive ranges).
-
-  Use `import A` to use it, or `import A, only: [~>: 2]`.
-
-  ## Examples
-
-      iex> 1 ~> 5
-      1 ~> 5
-      iex> start ~> stop = 0 ~> 10
-      iex> {start, stop}
-      {0, 10}
-      iex> for i <- 0 ~> 5, do: "id_#{i}"
-      ["id_0", "id_1", "id_2", "id_3", "id_4"]
-
-  """
+  # TODO remove in 0.6
+  @doc false
+  @deprecated "Use first..last//1 instead"
   defmacro start ~> stop do
     case __CALLER__.context do
       nil ->
@@ -246,8 +233,6 @@ defmodule A do
 
       iex> vec(0..4) = A.Vector.new(0..4)
       vec([0, 1, 2, 3, 4])
-      iex> vec(0~>8)
-      vec([0, 1, 2, 3, 4, 5, 6, 7])
 
   Variable lists or dynamic ranges cannot be passed:
 
@@ -270,10 +255,10 @@ defmodule A do
     |> ast_from_list(__CALLER__)
   end
 
+  # TODO remove in 0.6
   defmacro vec({:~>, _, [first, last]}) when is_integer(first) and is_integer(last) do
-    first
-    ~> last
-    |> Enum.to_list()
+    first..last
+    |> Enum.drop(-1)
     |> ast_from_list(__CALLER__)
   end
 

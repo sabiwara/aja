@@ -269,7 +269,7 @@ defmodule A.Vector.PropTest do
 
       assert index_vector === A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
 
-      assert {vector, A.Vector.new(A.ExRange.new(i1, list_length + i1))} ==
+      assert {vector, i1..(list_length + i1) |> Enum.drop(-1) |> A.Vector.new()} ==
                A.Vector.unzip(index_vector)
 
       assert Enum.any?(list) === A.Enum.any?(vector)
