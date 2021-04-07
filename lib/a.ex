@@ -236,20 +236,20 @@ defmodule A do
 
       iex> import A
       iex> vec([1, 2, 3])
-      #A<vec([1, 2, 3])>
+      vec([1, 2, 3])
       iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
       {0, 99999}
       iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
       3
       iex> vec([_, _, _]) = A.Vector.new(1..6)
-      ** (MatchError) no match of right hand side value: #A<vec([1, 2, 3, 4, 5, 6])>
+      ** (MatchError) no match of right hand side value: vec([1, 2, 3, 4, 5, 6])
 
   It also supports ranges with **constant** values:
 
       iex> vec(0..4) = A.Vector.new(0..4)
-      #A<vec([0, 1, 2, 3, 4])>
+      vec([0, 1, 2, 3, 4])
       iex> vec(0~>8)
-      #A<vec([0, 1, 2, 3, 4, 5, 6, 7])>
+      vec([0, 1, 2, 3, 4, 5, 6, 7])
 
   Variable lists or dynamic ranges cannot be passed:
 
@@ -410,9 +410,9 @@ defmodule A do
 
         iex> import A
         iex> vec(5..1) +++ vec([:boom, nil])
-        #A<vec([5, 4, 3, 2, 1, :boom, nil])>
+        vec([5, 4, 3, 2, 1, :boom, nil])
         iex> vec(5..1) +++ 0..3
-        #A<vec([5, 4, 3, 2, 1, 0, 1, 2, 3])>
+        vec([5, 4, 3, 2, 1, 0, 1, 2, 3])
 
     """
     # TODO remove hack to support 1.10

@@ -370,7 +370,7 @@ defmodule A.Vector.PropTest do
         assert rand in shuffled
       end
 
-      assert inspect(vector) =~ "#A<vec(["
+      assert inspect(vector) =~ "vec(["
     end
   end
 

@@ -1,6 +1,8 @@
 defmodule A.VectorTest do
   use ExUnit.Case, async: true
 
+  import A, only: [vec: 1]
+
   doctest A.Vector
 
   import A.TestHelpers

@@ -7,7 +7,7 @@ defmodule A.Vector do
 
       iex> import A
       iex> vec([1, 2, 3]) +++ vec([4, 5])
-      #A<vec([1, 2, 3, 4, 5])>
+      vec([1, 2, 3, 4, 5])
   """
 
   @moduledoc ~s"""
@@ -41,13 +41,13 @@ defmodule A.Vector do
   ## Examples
 
       iex> vector = A.Vector.new(1..10)
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
       iex> A.Vector.append(vector, :foo)
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])
       iex> vector[3]
       4
       iex> A.Vector.replace_at(vector, -1, :bar)
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])
       iex> 3 in vector
       true
 
@@ -59,9 +59,9 @@ defmodule A.Vector do
       iex> vector[3]
       4
       iex> put_in(vector[5], :foo)
-      #A<vec([1, 2, 3, 4, 5, :foo, 7, 8, 9, 10])>
+      vec([1, 2, 3, 4, 5, :foo, 7, 8, 9, 10])
       iex> {9, updated} = pop_in(vector[8]); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 10])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8, 10])
 
   ## Convenience [`vec/1`](`A.vec/1`) and [`vec_size/1`](`A.vec_size/1`) macros
 
@@ -76,7 +76,7 @@ defmodule A.Vector do
 
       iex> import A
       iex> vec([1, 2, 3])
-      #A<vec([1, 2, 3])>
+      vec([1, 2, 3])
       iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
       3
       iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
@@ -278,11 +278,11 @@ defmodule A.Vector do
       iex> A.Enum.reverse(vector)
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
       iex> A.Vector.reverse(vector)
-      #A<vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])>
+      vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
       iex> A.Enum.map(vector, & (&1 * 7))
       [7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
       iex> A.Vector.map(vector, & (&1 * 7))
-      #A<vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])>
+      vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])
 
   ### Additional notes
 
@@ -345,7 +345,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new()
-      #A<vec([])>
+      vec([])
 
   """
   @compile {:inline, new: 0}
@@ -362,7 +362,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(10..25)
-      #A<vec([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])>
+      vec([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
 
   """
   @spec new(Enumerable.t()) :: t()
@@ -383,7 +383,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..10, &(&1 * &1))
-      #A<vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])>
+      vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])
 
   """
   @spec new(Enumerable.t(), (v1 -> v2)) :: t(v2) when v1: value, v2: value
@@ -406,9 +406,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.duplicate(nil, 10)
-      #A<vec([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])>
+      vec([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
       iex> A.Vector.duplicate(:foo, 0)
-      #A<vec([])>
+      vec([])
 
   """
   @spec duplicate(val, non_neg_integer) :: t(val) when val: value
@@ -424,7 +424,7 @@ defmodule A.Vector do
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exsplus, {1, 2, 3})
       iex> A.Vector.repeat(&:rand.uniform/0, 3)
-      #A<vec([0.40502929729990744, 0.45336720247823126, 0.04094511692041057])>
+      vec([0.40502929729990744, 0.45336720247823126, 0.04094511692041057])
 
   """
   def repeat(generator_fun, n)
@@ -444,9 +444,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new() |> A.Vector.append(:foo)
-      #A<vec([:foo])>
+      vec([:foo])
       iex> A.Vector.new(1..5) |> A.Vector.append(:foo)
-      #A<vec([1, 2, 3, 4, 5, :foo])>
+      vec([1, 2, 3, 4, 5, :foo])
 
   """
   @spec append(t(val), val) :: t(val) when val: value
@@ -463,9 +463,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..5) |> A.Vector.concat(10..15)
-      #A<vec([1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])>
+      vec([1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
       iex> A.Vector.new() |> A.Vector.concat(10..15)
-      #A<vec([10, 11, 12, 13, 14, 15])>
+      vec([10, 11, 12, 13, 14, 15])
 
   """
   @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
@@ -488,9 +488,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new() |> A.Vector.prepend(:foo)
-      #A<vec([:foo])>
+      vec([:foo])
       iex> A.Vector.new(1..5) |> A.Vector.prepend(:foo)
-      #A<vec([:foo, 1, 2, 3, 4, 5])>
+      vec([:foo, 1, 2, 3, 4, 5])
 
   """
   @spec prepend(t(val), val) :: t(val) when val: value
@@ -656,11 +656,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..8) |> A.Vector.replace_at(5, :foo)
-      #A<vec([1, 2, 3, 4, 5, :foo, 7, 8])>
+      vec([1, 2, 3, 4, 5, :foo, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.replace_at(8, :foo)
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.replace_at(-2, :foo)
-      #A<vec([1, 2, 3, 4, 5, 6, :foo, 8])>
+      vec([1, 2, 3, 4, 5, 6, :foo, 8])
 
   """
   @spec replace_at(t(val), index, val) :: t(val) when val: value
@@ -688,9 +688,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..8) |> A.Vector.replace_at!(5, :foo)
-      #A<vec([1, 2, 3, 4, 5, :foo, 7, 8])>
+      vec([1, 2, 3, 4, 5, :foo, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.replace_at!(-2, :foo)
-      #A<vec([1, 2, 3, 4, 5, 6, :foo, 8])>
+      vec([1, 2, 3, 4, 5, 6, :foo, 8])
       iex> A.Vector.new(1..8) |> A.Vector.replace_at!(8, :foo)
       ** (A.Vector.IndexError) out of bound index: 8 not in -8..7
 
@@ -720,11 +720,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..8) |> A.Vector.update_at(2, &(&1 * 1000))
-      #A<vec([1, 2, 3000, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3000, 4, 5, 6, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.update_at(8, &(&1 * 1000))
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.update_at(-1, &(&1 * 1000))
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8000])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8000])
 
   """
   @spec update_at(t(val), index, (val -> val)) :: t(val) when val: value
@@ -752,9 +752,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..8) |> A.Vector.update_at!(2, &(&1 * 1000))
-      #A<vec([1, 2, 3000, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3000, 4, 5, 6, 7, 8])
       iex> A.Vector.new(1..8) |> A.Vector.update_at!(-1, &(&1 * 1000))
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8000])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8000])
       iex> A.Vector.new(1..8) |> A.Vector.update_at!(-9, &(&1 * 1000))
       ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
 
@@ -784,9 +784,9 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> {8, updated} = A.Vector.pop_last(vector); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7])>
+      vec([1, 2, 3, 4, 5, 6, 7])
       iex> {nil, updated} = A.Vector.pop_last(A.Vector.new()); updated
-      #A<vec([])>
+      vec([])
 
   """
   @spec pop_last(t(val), default) :: {val | default, t(val)} when val: value, default: term
@@ -810,7 +810,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> {8, updated} = A.Vector.pop_last!(vector); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7])>
+      vec([1, 2, 3, 4, 5, 6, 7])
       iex> {nil, updated} = A.Vector.pop_last!(A.Vector.new()); updated
       ** (A.Vector.EmptyError) empty vector error
 
@@ -836,9 +836,9 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> A.Vector.delete_last(vector)
-      #A<vec([1, 2, 3, 4, 5, 6, 7])>
+      vec([1, 2, 3, 4, 5, 6, 7])
       iex> A.Vector.delete_last(A.Vector.new())
-      #A<vec([])>
+      vec([])
 
   """
   @spec delete_last(t(val)) :: t(val) when val: value
@@ -862,7 +862,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> A.Vector.delete_last!(vector)
-      #A<vec([1, 2, 3, 4, 5, 6, 7])>
+      vec([1, 2, 3, 4, 5, 6, 7])
       iex> A.Vector.delete_last!(A.Vector.new())
       ** (A.Vector.EmptyError) empty vector error
 
@@ -890,9 +890,9 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> {5, updated} = A.Vector.pop_at(vector, 4); updated
-      #A<vec([1, 2, 3, 4, 6, 7, 8])>
+      vec([1, 2, 3, 4, 6, 7, 8])
       iex> {nil, updated} = A.Vector.pop_at(vector, -9); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
   @spec pop_at(t(val), index, default) :: {val | default, t(val)} when val: value, default: term
@@ -924,7 +924,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> {5, updated} = A.Vector.pop_at!(vector, 4); updated
-      #A<vec([1, 2, 3, 4, 6, 7, 8])>
+      vec([1, 2, 3, 4, 6, 7, 8])
       iex> A.Vector.pop_at!(vector, -9)
       ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
 
@@ -963,9 +963,9 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> A.Vector.delete_at(vector, 4)
-      #A<vec([1, 2, 3, 4, 6, 7, 8])>
+      vec([1, 2, 3, 4, 6, 7, 8])
       iex> A.Vector.delete_at(vector, -9)
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
   @spec delete_at(t(val), index) :: t(val) when val: value
@@ -994,7 +994,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..8)
       iex> A.Vector.delete_at!(vector, 4)
-      #A<vec([1, 2, 3, 4, 6, 7, 8])>
+      vec([1, 2, 3, 4, 6, 7, 8])
       iex> A.Vector.delete_at!(vector, -9)
       ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
 
@@ -1025,15 +1025,15 @@ defmodule A.Vector do
       iex> {6, updated} = A.Vector.get_and_update(vector, 5, fn current_value ->
       ...>   {current_value, current_value && current_value * 100}
       ...> end); updated
-      #A<vec([1, 2, 3, 4, 5, 600, 7, 8])>
+      vec([1, 2, 3, 4, 5, 600, 7, 8])
       iex> {nil, updated} = A.Vector.get_and_update(vector, 8, fn current_value ->
       ...>   {current_value, current_value && current_value * 100}
       ...> end); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
       iex> {4, updated} = A.Vector.get_and_update(vector, 3, fn _ -> :pop end); updated
-      #A<vec([1, 2, 3, 5, 6, 7, 8])>
+      vec([1, 2, 3, 5, 6, 7, 8])
       iex> {nil, updated} = A.Vector.get_and_update(vector, 8, fn _ -> :pop end); updated
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
   @impl Access
@@ -1072,7 +1072,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..10) |> A.Vector.map(&(&1 * &1))
-      #A<vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])>
+      vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])
 
   """
   @spec map(t(v1), (v1 -> v2)) :: t(v2) when v1: value, v2: value
@@ -1090,7 +1090,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..100)
       iex> A.Vector.filter(vector, fn i -> rem(i, 13) == 0 end)
-      #A<vec([13, 26, 39, 52, 65, 78, 91])>
+      vec([13, 26, 39, 52, 65, 78, 91])
 
   """
   @spec filter(t(val), (val -> as_boolean(term))) :: t(val) when val: value
@@ -1108,7 +1108,7 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(1..12)
       iex> A.Vector.reject(vector, fn i -> rem(i, 3) == 0 end)
-      #A<vec([1, 2, 4, 5, 7, 8, 10, 11])>
+      vec([1, 2, 4, 5, 7, 8, 10, 11])
 
   """
   @spec reject(t(val), (val -> as_boolean(term))) :: t(val) when val: value
@@ -1133,9 +1133,9 @@ defmodule A.Vector do
       iex> vector = A.Vector.new(1..12)
       iex> {filtered, rejected} = A.Vector.split_with(vector, fn i -> rem(i, 3) == 0 end)
       iex> filtered
-      #A<vec([3, 6, 9, 12])>
+      vec([3, 6, 9, 12])
       iex> rejected
-      #A<vec([1, 2, 4, 5, 7, 8, 10, 11])>
+      vec([1, 2, 4, 5, 7, 8, 10, 11])
 
   """
   @spec split_with(t(val), (val -> as_boolean(term))) :: {t(val), t(val)} when val: value
@@ -1152,7 +1152,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(9..1) |> A.Vector.sort()
-      #A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9])>
+      vec([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
   """
   @spec sort(t(val)) :: t(val) when val: value
@@ -1171,7 +1171,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..9) |> A.Vector.sort(:desc)
-      #A<vec([9, 8, 7, 6, 5, 4, 3, 2, 1])>
+      vec([9, 8, 7, 6, 5, 4, 3, 2, 1])
 
   """
   @spec sort(
@@ -1199,9 +1199,9 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(["some", "kind", "of", "monster"])
       iex> A.Vector.sort_by(vector, &byte_size/1)
-      #A<vec(["of", "some", "kind", "monster"])>
+      vec(["of", "some", "kind", "monster"])
       iex> A.Vector.sort_by(vector, &{byte_size(&1), String.first(&1)})
-      #A<vec(["of", "kind", "some", "monster"])>
+      vec(["of", "kind", "some", "monster"])
 
   """
   @spec sort_by(
@@ -1229,7 +1229,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new([1, 1, 2, 1, 2, 3, 2]) |> A.Vector.uniq()
-      #A<vec([1, 2, 3])>
+      vec([1, 2, 3])
 
   """
   @spec uniq(t(val)) :: t(val) when val: value
@@ -1247,9 +1247,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> vector = A.Vector.new([x: 1, y: 2, z: 1])
-      #A<vec([x: 1, y: 2, z: 1])>
+      vec([x: 1, y: 2, z: 1])
       iex> A.Vector.uniq_by(vector, fn {_x, y} -> y end)
-      #A<vec([x: 1, y: 2])>
+      vec([x: 1, y: 2])
 
   """
   @spec uniq_by(t(val), (val -> term)) :: t(val) when val: value
@@ -1269,9 +1269,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new([1, 2, 3, 3, 2, 1]) |> A.Vector.dedup()
-      #A<vec([1, 2, 3, 2, 1])>
+      vec([1, 2, 3, 2, 1])
       iex> A.Vector.new([1, 1, 2, 2.0, :three, :three]) |> A.Vector.dedup()
-      #A<vec([1, 2, 2.0, :three])>
+      vec([1, 2, 2.0, :three])
 
   """
   @spec dedup(t(val)) :: t(val) when val: value
@@ -1290,11 +1290,11 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new([{1, :a}, {2, :b}, {2, :c}, {1, :a}])
       iex> A.Vector.dedup_by(vector, fn {x, _} -> x end)
-      #A<vec([{1, :a}, {2, :b}, {1, :a}])>
+      vec([{1, :a}, {2, :b}, {1, :a}])
 
       iex> vector = A.Vector.new([5, 1, 2, 3, 2, 1])
       iex> A.Vector.dedup_by(vector, fn x -> x > 2 end)
-      #A<vec([5, 1, 3, 2])>
+      vec([5, 1, 3, 2])
 
 
   """
@@ -1314,7 +1314,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..6) |> A.Vector.intersperse(nil)
-      #A<vec([1, nil, 2, nil, 3, nil, 4, nil, 5, nil, 6])>
+      vec([1, nil, 2, nil, 3, nil, 4, nil, 5, nil, 6])
 
   """
   @spec intersperse(
@@ -1336,7 +1336,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..6) |> A.Vector.map_intersperse(nil, &(&1 * 10))
-      #A<vec([10, nil, 20, nil, 30, nil, 40, nil, 50, nil, 60])>
+      vec([10, nil, 20, nil, 30, nil, 40, nil, 50, nil, 60])
 
   """
   @spec map_intersperse(
@@ -1422,13 +1422,13 @@ defmodule A.Vector do
       iex> vector = A.Vector.new([1, 2, 3])
       iex> {new_vec, 6} = A.Vector.map_reduce(vector, 0, fn x, acc -> {x * 2, x + acc} end)
       iex> new_vec
-      #A<vec([2, 4, 6])>
+      vec([2, 4, 6])
 
   For example, if `with_index/2` was not implemented, you could implement it as follows:
 
       iex> vector = A.Vector.new([1, 2, 3])
       iex> A.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end) |> elem(0)
-      #A<vec([{1, 0}, {2, 1}, {3, 2}])>
+      vec([{1, 0}, {2, 1}, {3, 2}])
 
   """
   @spec map_reduce(t(val), acc, (val, acc -> {mapped_val, acc})) :: {t(mapped_val), acc}
@@ -1449,7 +1449,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..10) |> A.Vector.scan(&+/2)
-      #A<vec([1, 3, 6, 10, 15, 21, 28, 36, 45, 55])>
+      vec([1, 3, 6, 10, 15, 21, 28, 36, 45, 55])
 
   """
   @spec scan(t(val), (val, val -> val)) :: val when val: value
@@ -1468,7 +1468,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..10) |> A.Vector.scan(100, &+/2)
-      #A<vec([101, 103, 106, 110, 115, 121, 128, 136, 145, 155])>
+      vec([101, 103, 106, 110, 115, 121, 128, 136, 145, 155])
 
   """
   @spec scan(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
@@ -1648,7 +1648,7 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..12) |> A.Vector.reverse()
-      #A<vec([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1])>
+      vec([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
 
   """
   @spec reverse(t(val)) :: t(val) when val: value
@@ -1668,11 +1668,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(0..100) |> A.Vector.slice(80..90)
-      #A<vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])>
+      vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])
       iex> A.Vector.new(0..100) |> A.Vector.slice(-40..-30)
-      #A<vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])>
+      vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])
       iex> A.Vector.new([:only_one]) |> A.Vector.slice(0..1000)
-      #A<vec([:only_one])>
+      vec([:only_one])
 
   """
   @spec slice(t(val), Range.t()) :: t(val) when val: value
@@ -1705,11 +1705,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(0..100) |> A.Vector.slice(80, 10)
-      #A<vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89])>
+      vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89])
       iex> A.Vector.new(0..100) |> A.Vector.slice(-40, 10)
-      #A<vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70])>
+      vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70])
       iex> A.Vector.new([:only_one]) |> A.Vector.slice(0, 1000)
-      #A<vec([:only_one])>
+      vec([:only_one])
 
   """
   @spec slice(t(val), index, non_neg_integer) :: t(val) when val: value
@@ -1740,11 +1740,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(0..100) |> A.Vector.take(10)
-      #A<vec([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])>
+      vec([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
       iex> A.Vector.new([:only_one]) |> A.Vector.take(1000)
-      #A<vec([:only_one])>
+      vec([:only_one])
       iex> A.Vector.new(0..10) |> A.Vector.take(-5)
-      #A<vec([6, 7, 8, 9, 10])>
+      vec([6, 7, 8, 9, 10])
 
   """
   @spec take(t(val), integer) :: t(val) when val: value
@@ -1782,11 +1782,11 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(0..15) |> A.Vector.drop(10)
-      #A<vec([10, 11, 12, 13, 14, 15])>
+      vec([10, 11, 12, 13, 14, 15])
       iex> A.Vector.new(0..5) |> A.Vector.drop(0)
-      #A<vec([0, 1, 2, 3, 4, 5])>
+      vec([0, 1, 2, 3, 4, 5])
       iex> A.Vector.new(0..10) |> A.Vector.drop(-5)
-      #A<vec([0, 1, 2, 3, 4, 5])>
+      vec([0, 1, 2, 3, 4, 5])
 
   """
   @spec drop(t(val), integer) :: t(val) when val: value
@@ -1830,15 +1830,15 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new([1, 2, 3])
       iex> A.Vector.split(vector, 2) |> inspect()
-      "{#A<vec([1, 2])>, #A<vec([3])>}"
+      "{vec([1, 2]), vec([3])}"
       iex> A.Vector.split(vector, 10) |> inspect()
-      "{#A<vec([1, 2, 3])>, #A<vec([])>}"
+      "{vec([1, 2, 3]), vec([])}"
       iex> A.Vector.split(vector, 0) |> inspect()
-      "{#A<vec([])>, #A<vec([1, 2, 3])>}"
+      "{vec([]), vec([1, 2, 3])}"
       iex> A.Vector.split(vector, -1) |> inspect()
-      "{#A<vec([1, 2])>, #A<vec([3])>}"
+      "{vec([1, 2]), vec([3])}"
       iex> A.Vector.split(vector, -5) |> inspect()
-      "{#A<vec([])>, #A<vec([1, 2, 3])>}"
+      "{vec([]), vec([1, 2, 3])}"
 
   """
   @spec split(t(val), integer) :: {t(val), t(val)} when val: value
@@ -1867,9 +1867,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..100) |> A.Vector.take_while(fn x -> x < 7 end)
-      #A<vec([1, 2, 3, 4, 5, 6])>
+      vec([1, 2, 3, 4, 5, 6])
       iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.take_while(fn x -> x end)
-      #A<vec([1, true, %{}])>
+      vec([1, true, %{}])
 
   """
   @spec take_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
@@ -1891,9 +1891,9 @@ defmodule A.Vector do
   ## Examples
 
       iex> A.Vector.new(1..10) |> A.Vector.drop_while(fn x -> x < 7 end)
-      #A<vec([7, 8, 9, 10])>
+      vec([7, 8, 9, 10])
       iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.drop_while(fn x -> x end)
-      #A<vec([nil, "abc"])>
+      vec([nil, "abc"])
 
   """
   @spec drop_while(t(val), (val -> as_boolean(term()))) :: t(val) when val: value
@@ -1929,9 +1929,9 @@ defmodule A.Vector do
 
       iex> {taken, dropped} = A.Vector.new(1..10) |> A.Vector.split_while(fn x -> x < 7 end)
       iex> taken
-      #A<vec([1, 2, 3, 4, 5, 6])>
+      vec([1, 2, 3, 4, 5, 6])
       iex> dropped
-      #A<vec([7, 8, 9, 10])>
+      vec([7, 8, 9, 10])
 
   """
   @spec split_while(t(val), (val -> as_boolean(term()))) :: {t(val), t(val)} when val: value
@@ -1973,11 +1973,11 @@ defmodule A.Vector do
 
       iex> vector = A.Vector.new(["foo", "bar", "baz"])
       iex> A.Vector.with_index(vector)
-      #A<vec([{"foo", 0}, {"bar", 1}, {"baz", 2}])>
+      vec([{"foo", 0}, {"bar", 1}, {"baz", 2}])
       iex> A.Vector.with_index(vector, 100)
-      #A<vec([{"foo", 100}, {"bar", 101}, {"baz", 102}])>
+      vec([{"foo", 100}, {"bar", 101}, {"baz", 102}])
       iex> A.Vector.with_index(vector, fn element, index -> {index, element} end)
-      #A<vec([{0, "foo"}, {1, "bar"}, {2, "baz"}])>
+      vec([{0, "foo"}, {1, "bar"}, {2, "baz"}])
 
   """
   @spec with_index(t(val), index) :: t({val, index}) when val: value
@@ -2018,9 +2018,9 @@ defmodule A.Vector do
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
       iex> A.Vector.new(1..10) |> A.Vector.take_random(2)
-      #A<vec([7, 2])>
+      vec([7, 2])
       iex> A.Vector.new([:foo, :bar, :baz]) |> A.Vector.take_random(100)
-      #A<vec([:bar, :baz, :foo])>
+      vec([:bar, :baz, :foo])
 
   """
   @spec take_random(t(val), non_neg_integer) :: t(val) when val: value
@@ -2039,9 +2039,9 @@ defmodule A.Vector do
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
       iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
-      #A<vec([3, 1, 2])>
+      vec([3, 1, 2])
       iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
-      #A<vec([1, 3, 2])>
+      vec([1, 3, 2])
 
   """
   @spec shuffle(t(val)) :: t(val) when val: value
@@ -2061,9 +2061,9 @@ defmodule A.Vector do
   Runs in linear time.
 
       iex> A.Vector.zip(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]))
-      #A<vec([{1, :a}, {2, :b}, {3, :c}])>
+      vec([{1, :a}, {2, :b}, {3, :c}])
       iex> A.Vector.zip(A.Vector.new(0..100), A.Vector.new([:a, :b, :c]))
-      #A<vec([{0, :a}, {1, :b}, {2, :c}])>
+      vec([{0, :a}, {1, :b}, {2, :c}])
 
   """
   @spec zip(t(val1), t(val2)) :: t({val1, val2}) when val1: value, val2: value
@@ -2085,9 +2085,9 @@ defmodule A.Vector do
 
       iex> {vector1, vector2} = A.Vector.new([{1, :a}, {2, :b}, {3, :c}]) |> A.Vector.unzip()
       iex> vector1
-      #A<vec([1, 2, 3])>
+      vec([1, 2, 3])
       iex> vector2
-      #A<vec([:a, :b, :c])>
+      vec([:a, :b, :c])
 
   """
   @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
@@ -2107,7 +2107,7 @@ defmodule A.Vector do
 
     def inspect(vector, opts) do
       opts = %Inspect.Opts{opts | charlists: :as_lists}
-      concat(["#A<vec(", Inspect.List.inspect(A.Vector.to_list(vector), opts), ")>"])
+      concat(["vec(", Inspect.List.inspect(A.Vector.to_list(vector), opts), ")"])
     end
   end
 

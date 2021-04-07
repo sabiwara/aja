@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Breaking changes
+
+* Change `Inspect` protocol for `A.Vector`
+
 ## v0.5.0 (2021-03-25)
 
 ### Enhancements

@@ -25,13 +25,13 @@ Supports many operations like appends and random access in effective constant ti
 
 ```elixir
 iex> vector = A.Vector.new(1..10)
-#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])>
+vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 iex> A.Vector.append(vector, :foo)
-#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])>
+vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])
 iex> vector[3]
 4
 iex> A.Vector.replace_at(vector, -1, :bar)
-#A<vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])>
+vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])
 iex> 3 in vector
 true
 ```
@@ -57,7 +57,7 @@ The `A.+++/2` operator provides synctactic sugar for vector concatenation:
 
 ```elixir
 iex> vec([1, 2, 3]) +++ vec([4, 5])
-#A<vec([1, 2, 3, 4, 5])>
+vec([1, 2, 3, 4, 5])
 ```
 
 #### Ordered maps: `A.OrdMap`
