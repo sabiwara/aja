@@ -884,11 +884,21 @@ defmodule A.OrdMap do
 
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
-  def drop(%__MODULE__{} = ord_map, keys) when is_list(keys) do
-    # TODO optimize
-    Enum.reduce(keys, ord_map, fn key, acc ->
-      delete(acc, key)
-    end)
+  def drop(%__MODULE__{__ord_map__: map, __ord_vector__: vector} = ord_map, keys)
+      when is_list(keys) do
+    case Map.take(map, keys) do
+      empty when empty == %{} ->
+        ord_map
+
+      dropped ->
+        dropped_keys = Map.keys(dropped)
+
+        dropped
+        |> Map.values()
+        |> Enum.map(fn {index, _value} -> index end)
+        |> Enum.sort(:desc)
+        |> do_drop(map, vector, dropped_keys)
+    end
   end
 
   @doc """
@@ -1266,14 +1276,48 @@ defmodule A.OrdMap do
     %__MODULE__{}
   end
 
-  defp do_delete_existing(new_map, vector, index) when index + 1 == RawVector.size(vector) do
-    {_last, new_vector} = RawVector.pop_last(vector)
+  defp do_delete_existing(new_map, vector, index) do
+    new_vector = vector_delete_at(vector, index)
     periodic_rebuild(new_map, new_vector)
   end
 
-  defp do_delete_existing(new_map, vector, index) do
-    new_vector = RawVector.replace_positive!(vector, index, nil)
-    periodic_rebuild(new_map, new_vector)
+  defp periodic_rebuild(map, vector) when RawVector.size(vector) >= 2 * map_size(map) do
+    vector
+    |> RawVector.sparse_to_list()
+    |> from_list()
+  end
+
+  defp periodic_rebuild(map, vector) do
+    %__MODULE__{__ord_map__: map, __ord_vector__: vector}
+  end
+
+  defp do_drop(_indexes = [], map, vector, dropped_keys) do
+    periodic_rebuild_drop_keys(map, vector, dropped_keys)
+  end
+
+  defp do_drop([index | indexes], map, vector, dropped_keys) do
+    new_vector = vector_delete_at(vector, index)
+    do_drop(indexes, map, new_vector, dropped_keys)
+  end
+
+  defp periodic_rebuild_drop_keys(map, vector, dropped_keys)
+       when RawVector.size(vector) >= 2 * (map_size(map) - length(dropped_keys)) do
+    vector
+    |> RawVector.sparse_to_list()
+    |> from_list()
+  end
+
+  defp periodic_rebuild_drop_keys(map, vector, dropped_keys) do
+    new_map = Map.drop(map, dropped_keys)
+    %__MODULE__{__ord_map__: new_map, __ord_vector__: vector}
+  end
+
+  defp vector_delete_at(vector, index) when index + 1 == RawVector.size(vector) do
+    RawVector.delete_last(vector)
+  end
+
+  defp vector_delete_at(vector, index) do
+    RawVector.replace_positive!(vector, index, nil)
   end
 
   defp do_fix_vector_duplicates(vector, _map, _duplicates = nil) do
@@ -1434,16 +1478,6 @@ defmodule A.OrdMap do
       end
 
     do_reverse_and_update_duplicates(rest, duplicates, [{key, value} | acc])
-  end
-
-  defp periodic_rebuild(map, vector) when RawVector.size(vector) >= 2 * map_size(map) do
-    vector
-    |> RawVector.sparse_to_list()
-    |> from_list()
-  end
-
-  defp periodic_rebuild(map, vector) do
-    %__MODULE__{__ord_map__: map, __ord_vector__: vector}
   end
 
   defimpl Enumerable do

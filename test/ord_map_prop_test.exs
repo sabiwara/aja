@@ -35,6 +35,7 @@ defmodule A.OrdMap.PropTest do
       {:put, key(), value()},
       {:replace_existing, value()},
       {:delete_random, key()},
+      {:drop_random, key() |> list_of()},
       :delete_existing
     ])
   end
@@ -91,6 +92,8 @@ defmodule A.OrdMap.PropTest do
     assert {^value, ^new_map} = pop_in(ord_map, [key])
     assert {^value, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> :pop end)
 
+    assert ^new_map = A.OrdMap.drop(ord_map, [key])
+
     assert A.OrdMap.has_key?(ord_map, key)
     refute A.OrdMap.has_key?(new_map, key)
     assert nil === new_map[key]
@@ -106,6 +109,21 @@ defmodule A.OrdMap.PropTest do
     assert ^new_map = A.OrdMap.delete(ord_map, key)
     assert {^returned, ^new_map} = pop_in(ord_map, [key])
     assert ^new_map = A.OrdMap.drop(ord_map, [key])
+
+    new_map
+  end
+
+  def apply_operation(%A.OrdMap{} = ord_map, {:drop_random, keys}) do
+    new_map = A.OrdMap.drop(ord_map, keys)
+    assert ^new_map = A.OrdMap.drop(new_map, keys)
+
+    assert Map.new(new_map) == ord_map |> Map.new() |> Map.drop(keys)
+
+    successive = Enum.reduce(keys, ord_map, fn key, acc -> A.OrdMap.delete(acc, key) end)
+    assert A.OrdMap.equal?(successive, new_map)
+    assert A.OrdMap.to_list(successive) === A.OrdMap.to_list(new_map)
+
+    assert A.OrdMap.new() == A.OrdMap.take(new_map, keys)
 
     new_map
   end

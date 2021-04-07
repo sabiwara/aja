@@ -2,6 +2,11 @@
 
 ## Dev
 
+
+### Enhancements
+
+* `A.OrdMap.drop/2` will only try to period rebuild once after dropping all keys
+
 ### Bug fixes
 
 * `A.ord/1` warning on duplicate keys uses the proper stacktrace
