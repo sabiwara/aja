@@ -575,9 +575,15 @@ defmodule A.OrdMap do
   defp do_take(map, [key | keys], kvs, map_acc, index) do
     case map do
       %{^key => {_index, value}} ->
-        new_kvs = [{key, value} | kvs]
-        new_map_acc = Map.put(map_acc, key, {index, value})
-        do_take(map, keys, new_kvs, new_map_acc, index + 1)
+        case map_acc do
+          %{^key => _} ->
+            do_take(map, keys, kvs, map_acc, index)
+
+          _ ->
+            new_kvs = [{key, value} | kvs]
+            new_map_acc = Map.put(map_acc, key, {index, value})
+            do_take(map, keys, new_kvs, new_map_acc, index + 1)
+        end
 
       _ ->
         do_take(map, keys, kvs, map_acc, index)

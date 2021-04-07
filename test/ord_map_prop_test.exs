@@ -36,6 +36,7 @@ defmodule A.OrdMap.PropTest do
       {:replace_existing, value()},
       {:delete_random, key()},
       {:drop_random, key() |> list_of()},
+      {:take_random, key() |> list_of()},
       :delete_existing
     ])
   end
@@ -125,6 +126,30 @@ defmodule A.OrdMap.PropTest do
 
     assert A.OrdMap.new() == A.OrdMap.take(new_map, keys)
 
+    assert A.OrdMap.size(new_map) ==
+             A.OrdMap.size(ord_map) - (A.OrdMap.take(ord_map, keys) |> A.OrdMap.size())
+
+    new_map
+  end
+
+  def apply_operation(%A.OrdMap{} = ord_map, {:take_random, keys}) do
+    new_map = A.OrdMap.take(ord_map, keys)
+    assert ^new_map = A.OrdMap.take(new_map, keys)
+
+    assert Map.new(new_map) == ord_map |> Map.new() |> Map.take(keys)
+
+    successive =
+      Enum.reduce(keys, A.OrdMap.new(), fn key, acc ->
+        case ord_map do
+          ord(%{^key => value}) -> A.OrdMap.put(acc, key, value)
+          _ -> acc
+        end
+      end)
+
+    assert successive == new_map
+
+    assert A.OrdMap.new() == A.OrdMap.drop(new_map, keys)
+
     new_map
   end
 
@@ -142,6 +167,7 @@ defmodule A.OrdMap.PropTest do
     assert A.OrdMap.size(ord_map) == length_list
     assert Enum.count(ord_map) == length_list
     assert A.Enum.count(ord_map) == length_list
+    assert ord_size(ord_map) == length_list
     assert match?(o when ord_size(o) == length_list, ord_map)
 
     for kv <- as_list do
