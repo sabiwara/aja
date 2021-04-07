@@ -15,6 +15,7 @@
 ### Breaking changes
 
 * Change `Inspect` protocol for `A.Vector` and `A.OrdMap`
+* Deprecate A.Enum.sort_uniq/1, A.Enum.sort_uniq/2
 
 ## v0.5.0 (2021-03-25)
 
@@ -156,7 +157,7 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
 
-* Add `A.Enum.sort_uniq/1`, `A.Enum.sort_uniq/2`
+* Add A.Enum.sort_uniq/1, A.Enum.sort_uniq/2
 * Add `A.List.prepend/2`
 
 ## v0.3.1 (2020-11-05)

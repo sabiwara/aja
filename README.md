@@ -145,8 +145,6 @@ iex> A.Integer.decimal_format(1234567)
 "1,234,567"
 iex> A.Integer.div_rem(7, 3)
 {2, 1}
-iex> A.Enum.sort_uniq([1, 4, 2, 2, 3, 1, 4, 3])
-[1, 2, 3, 4]
 iex> A.List.repeat(&:rand.uniform/0, 3)
 [0.40502929729990744, 0.45336720247823126, 0.04094511692041057]
 iex> A.IO.iodata_empty?(["", []])
