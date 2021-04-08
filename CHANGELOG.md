@@ -9,6 +9,7 @@
 
 ### Bug fixes
 
+* Fix the minimal version needed for `Jason` (1.2)
 * `A.OrdMap.take/2` behaves as expected when keys are duplicated
 * `A.ord/1` warning on duplicate keys uses the proper stacktrace
 

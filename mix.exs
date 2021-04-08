@@ -54,7 +54,7 @@ defmodule Aja.MixProject do
   defp deps do
     [
       # OPTIONAL DEPENDENCIES
-      {:jason, "~> 1.0", optional: true},
+      {:jason, "~> 1.2", optional: true},
 
       # CI
       {:dialyxir, "~> 1.0", only: :dialyzer, runtime: false},
