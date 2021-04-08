@@ -237,7 +237,8 @@ defmodule A.Vector.PropTest do
       assert {vector[i1], A.Vector.new(deleted_list)} == pop_in(vector[i1])
 
       assert list === A.Vector.to_list(vector)
-      assert Enum.reverse(list) === A.Vector.reverse(vector) |> A.Vector.to_list()
+      assert Enum.reverse(list) |> A.Vector.new() === A.Vector.reverse(vector)
+      assert Enum.reverse(list, 'abc') |> A.Vector.new() === A.Vector.reverse(vector, 'abc')
       assert list === A.Vector.foldr(vector, [], &[&1 | &2])
       assert Enum.reverse(list) === A.Vector.foldl(vector, [], &[&1 | &2])
 

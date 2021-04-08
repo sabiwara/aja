@@ -475,4 +475,20 @@ defmodule A.Enum.PropTest do
       assert false === A.Enum.all?(replaced_vector, negate)
     end
   end
+
+  property "A.Enum functions taking 2 enumerables should work the same as Enum" do
+    check all(list1 <- list_of(value()), list2 <- list_of(value())) do
+      vector1 = A.Vector.new(list1)
+      stream1 = Stream.map(list1, & &1)
+
+      vector2 = A.Vector.new(list2)
+      stream2 = Stream.map(list2, & &1)
+
+      reversed = Enum.reverse(list1, list2)
+
+      for x1 <- [list1, vector1, stream1], x2 <- [list2, vector2, stream2] do
+        assert ^reversed = A.Enum.reverse(x1, x2)
+      end
+    end
+  end
 end

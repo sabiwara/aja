@@ -1676,7 +1676,25 @@ defmodule A.Vector do
   @spec reverse(t(val)) :: t(val) when val: value
   def reverse(%__MODULE__{__vector__: internal}) do
     internal
-    |> Raw.reverse_to_list()
+    |> Raw.reverse_to_list([])
+    |> from_list()
+  end
+
+  @doc """
+  Returns the `vector` in reverse order, and appends the `tail` (which is an `Enumerable`).
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(1..5) |> A.Vector.reverse(100..105)
+      vec([5, 4, 3, 2, 1, 100, 101, 102, 103, 104, 105])
+
+  """
+  @spec reverse(t(val), Enumerable.t()) :: t(val) when val: value
+  def reverse(%__MODULE__{__vector__: internal}, tail) do
+    internal
+    |> Raw.reverse_to_list(A.EnumHelper.to_list(tail))
     |> from_list()
   end
 

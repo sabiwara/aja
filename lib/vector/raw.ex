@@ -428,8 +428,8 @@ defmodule A.Vector.Raw do
     []
   end
 
-  @spec reverse_to_list(t(val)) :: [val] when val: value
-  C.def_foldl reverse_to_list(arg, acc \\ []) do
+  @spec reverse_to_list(t(val), [val]) :: [val] when val: value
+  C.def_foldl reverse_to_list(arg, acc) do
     [arg | acc]
   end
 

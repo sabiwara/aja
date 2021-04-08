@@ -252,7 +252,24 @@ defmodule A.Enum do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.reverse(enumerable)
       list when is_list(list) -> :lists.reverse(list)
-      vector -> RawVector.reverse_to_list(vector)
+      vector -> RawVector.reverse_to_list(vector, [])
+    end
+  end
+
+  @doc """
+  Reverses the elements in enumerable, appends the tail,
+  and returns it as a list.
+
+  Mirrors `Enum.reverse/2` with higher performance for Aja structures.
+  """
+  @spec reverse(t(val), t(val)) :: [val] when val: value
+  def reverse(enumerable, tail) do
+    tail = H.to_list(tail)
+
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.reverse(enumerable, tail)
+      list when is_list(list) -> :lists.reverse(list, tail)
+      vector -> RawVector.reverse_to_list(vector, tail)
     end
   end
 
