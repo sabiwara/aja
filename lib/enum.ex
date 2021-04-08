@@ -257,7 +257,7 @@ defmodule A.Enum do
   end
 
   @doc """
-  Reverses the elements in enumerable, appends the tail,
+  Reverses the elements in `enumerable`, concatenates the `tail`,
   and returns it as a list.
 
   Mirrors `Enum.reverse/2` with higher performance for Aja structures.

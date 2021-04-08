@@ -1355,7 +1355,7 @@ defmodule A.Vector do
   @doc """
   Maps the given `fun` over `vector` and flattens the result.
 
-  This function returns a new vector built by appending the result
+  This function returns a new vector built by concatenating the results
   of invoking `fun` on each element of `vector` together.
 
   Runs in linear time.
@@ -1681,7 +1681,7 @@ defmodule A.Vector do
   end
 
   @doc """
-  Returns the `vector` in reverse order, and appends the `tail` (which is an `Enumerable`).
+  Returns the `vector` in reverse order, and concatenates the `tail` (enumerable).
 
   Runs in linear time.
 
