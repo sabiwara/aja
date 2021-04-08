@@ -499,10 +499,10 @@ defmodule A.Vector.Raw do
   end
 
   def map_to_list(vector, fun) do
-    do_map_to_list(vector, fun) |> :lists.reverse()
+    map_reverse_list(vector, fun) |> :lists.reverse()
   end
 
-  C.def_foldl do_map_to_list(arg, acc \\ [], fun) do
+  C.def_foldl map_reverse_list(arg, acc \\ [], fun) do
     [fun.(arg) | acc]
   end
 

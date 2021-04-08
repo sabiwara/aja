@@ -325,6 +325,9 @@ defmodule A.Vector.PropTest do
       assert Enum.map_intersperse(list, nil, &inspect/1) ===
                A.Enum.map_intersperse(vector, nil, &inspect/1)
 
+      assert Enum.flat_map(list, &[&1, &1]) |> A.Vector.new() ===
+               A.Vector.flat_map(vector, &[&1, &1])
+
       assert Enum.frequencies(list) === A.Enum.frequencies(vector)
 
       assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===

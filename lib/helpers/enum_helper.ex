@@ -75,4 +75,37 @@ defmodule A.EnumHelper do
         Enum.map(enumerable, fun)
     end
   end
+
+  @compile {:inline, flat_map: 2}
+  def flat_map(enumerable, fun) when is_function(fun, 1) do
+    case try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        enumerable
+        |> Enum.reduce([], fn value, acc -> [to_list(fun.(value)) | acc] end)
+        |> unwrap_flat_map([])
+
+      list when is_list(list) ->
+        flat_map_list(list, fun)
+
+      vector ->
+        vector
+        |> RawVector.map_reverse_list(fn value -> to_list(fun.(value)) end)
+        |> unwrap_flat_map([])
+    end
+  end
+
+  defp flat_map_list([], _fun), do: []
+
+  defp flat_map_list([head | tail], fun) do
+    case fun.(head) do
+      list when is_list(list) -> list ++ flat_map_list(tail, fun)
+      other -> to_list(other) ++ flat_map_list(tail, fun)
+    end
+  end
+
+  defp unwrap_flat_map([], acc), do: acc
+
+  defp unwrap_flat_map([head | tail], acc) do
+    unwrap_flat_map(tail, head ++ acc)
+  end
 end

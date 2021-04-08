@@ -1353,6 +1353,28 @@ defmodule A.Vector do
   end
 
   @doc """
+  Maps the given `fun` over `vector` and flattens the result.
+
+  This function returns a new vector built by appending the result
+  of invoking `fun` on each element of `vector` together.
+
+  Runs in linear time.
+
+  ## Examples
+
+      iex> A.Vector.new(0..4) |> A.Vector.flat_map(fn i -> List.duplicate(i, i) end)
+      vec([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+
+  """
+  @spec flat_map(t(val), (val -> t(mapped_val))) :: t(mapped_val)
+        when val: value, mapped_val: value
+  def flat_map(%__MODULE__{} = vector, fun) when is_function(fun, 1) do
+    vector
+    |> A.EnumHelper.flat_map(fun)
+    |> from_list()
+  end
+
+  @doc """
   Folds (reduces) the given `vector` from the left with the function `fun`.
   Requires an accumulator `acc`.
 

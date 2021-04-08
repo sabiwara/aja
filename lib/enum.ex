@@ -639,36 +639,7 @@ defmodule A.Enum do
   """
   @spec flat_map(t(val), (val -> t(mapped_val))) :: [mapped_val]
         when val: value, mapped_val: value
-  def flat_map(enumerable, fun) when is_function(fun, 1) do
-    case enumerable do
-      list when is_list(list) ->
-        flat_map_list(list, fun)
-
-      _ ->
-        reduce(enumerable, [], fn x, acc ->
-          case fun.(x) do
-            list when is_list(list) -> [list | acc]
-            other -> [H.to_list(other) | acc]
-          end
-        end)
-        |> unwrap_flat_map([])
-    end
-  end
-
-  defp flat_map_list([], _fun), do: []
-
-  defp flat_map_list([head | tail], fun) do
-    case fun.(head) do
-      list when is_list(list) -> list ++ flat_map_list(tail, fun)
-      other -> H.to_list(other) ++ flat_map_list(tail, fun)
-    end
-  end
-
-  defp unwrap_flat_map([], acc), do: acc
-
-  defp unwrap_flat_map([head | tail], acc) do
-    unwrap_flat_map(tail, head ++ acc)
-  end
+  defdelegate flat_map(enumerable, fun), to: H
 
   @doc """
   Returns a map with keys as unique elements of `enumerable` and values
