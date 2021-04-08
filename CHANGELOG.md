@@ -2,11 +2,11 @@
 
 ## Dev
 
-
 ### Enhancements
 
 * Add `A.Vector.flat_map/2`
 * Add `A.Vector.reverse/2` and `A.Enum.reverse/2`
+* Add `A.Enum.concat/2`
 * `A.OrdMap.drop/2` will only try to period rebuild once after dropping all keys
 
 ### Bug fixes

@@ -171,6 +171,26 @@ defmodule A.Enum do
   end
 
   @doc """
+  Concatenates the enumerable on the `right` with the enumerable on the `left`.
+
+  Mirrors `Enum.concat/2` with higher performance for Aja structures.
+  """
+  @spec concat(t(val), t(val)) :: t(val) when val: value
+  def concat(left, right)
+
+  def concat(left, right) when is_list(left) and is_list(right) do
+    left ++ right
+  end
+
+  def concat(left, right) do
+    case H.try_get_raw_vec_or_list(left) do
+      nil -> Enum.concat(left, right)
+      list when is_list(list) -> list ++ to_list(right)
+      vector -> RawVector.concat_list(vector, to_list(right))
+    end
+  end
+
+  @doc """
   Finds the element at the given `index` (zero-based).
 
   Mirrors `Enum.at/3` with higher performance for Aja structures.

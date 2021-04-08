@@ -1,0 +1,37 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.11.1
+Erlang 23.1
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 42 s
+
+Benchmarking ++/2...
+Benchmarking A.Enum.concat/2 (vector, list)...
+Benchmarking A.Enum.concat/2 (vector, vector)...
+Benchmarking A.Vector.concat/2 (vector, list)...
+Benchmarking Enum.concat/2 (vector, list)...
+Benchmarking Enum.concat/2 (vector, vector)...
+
+Name                                       ips        average  deviation         median         99th %
+++/2                                    3.40 M        0.29 μs ±10628.39%       0.166 μs        0.43 μs
+A.Enum.concat/2 (vector, list)          2.05 M        0.49 μs  ±6508.26%        0.33 μs        1.03 μs
+A.Enum.concat/2 (vector, vector)        1.27 M        0.78 μs  ±3205.01%        0.57 μs        2.27 μs
+A.Vector.concat/2 (vector, list)        0.93 M        1.08 μs  ±2661.32%        0.87 μs        2.07 μs
+Enum.concat/2 (vector, list)           0.180 M        5.56 μs   ±234.75%        4.84 μs       21.11 μs
+Enum.concat/2 (vector, vector)         0.128 M        7.80 μs   ±134.32%        6.86 μs       27.97 μs
+
+Comparison: 
+++/2                                    3.40 M
+A.Enum.concat/2 (vector, list)          2.05 M - 1.66x slower +0.194 μs
+A.Enum.concat/2 (vector, vector)        1.27 M - 2.67x slower +0.49 μs
+A.Vector.concat/2 (vector, list)        0.93 M - 3.68x slower +0.79 μs
+Enum.concat/2 (vector, list)           0.180 M - 18.94x slower +5.27 μs
+Enum.concat/2 (vector, vector)         0.128 M - 26.54x slower +7.50 μs

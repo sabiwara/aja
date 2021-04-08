@@ -428,6 +428,20 @@ defmodule A.Vector.Raw do
     []
   end
 
+  @spec concat_list(t(val), [val]) :: [val] when val: value
+  def concat_list(small(size, tail, _first), list) do
+    Tail.partial_to_list(tail, size) ++ list
+  end
+
+  def concat_list(large(size, tail_offset, shift, trie, tail, _first), list) do
+    acc = Tail.partial_to_list(tail, size - tail_offset) ++ list
+    Trie.to_list(trie, shift, acc)
+  end
+
+  def concat_list(empty_pattern(), list) do
+    list
+  end
+
   @spec reverse_to_list(t(val), [val]) :: [val] when val: value
   C.def_foldl reverse_to_list(arg, acc) do
     [arg | acc]

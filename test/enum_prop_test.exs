@@ -484,9 +484,11 @@ defmodule A.Enum.PropTest do
       vector2 = A.Vector.new(list2)
       stream2 = Stream.map(list2, & &1)
 
+      concat = Enum.concat(list1, list2)
       reversed = Enum.reverse(list1, list2)
 
       for x1 <- [list1, vector1, stream1], x2 <- [list2, vector2, stream2] do
+        assert ^concat = A.Enum.concat(x1, x2)
         assert ^reversed = A.Enum.reverse(x1, x2)
       end
     end
