@@ -493,6 +493,14 @@ defmodule A.Enum.PropTest do
         assert ^reversed = A.Enum.reverse(x1, x2)
         assert ^zipped = A.Enum.zip(x1, x2)
       end
+
+      zipped_vector = A.Vector.zip(vector1, vector2)
+      zipped_stream = Stream.map(zipped, & &1)
+      unzipped = Enum.unzip(zipped)
+
+      assert ^unzipped = A.Enum.unzip(zipped)
+      assert ^unzipped = A.Enum.unzip(zipped_vector)
+      assert ^unzipped = A.Enum.unzip(zipped_stream)
     end
   end
 end

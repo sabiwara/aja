@@ -1360,6 +1360,27 @@ defmodule A.Enum do
   defp zip_try_get_list(nil, enumerable), do: enumerable
   defp zip_try_get_list(vector, _enumerable), do: RawVector.to_list(vector)
 
+  @doc """
+  Opposite of `zip/2`. Extracts two-element tuples from the given `enumerable`
+  and groups them together.
+
+  Mirrors `Enum.unzip/1` with higher performance for Aja structures.
+  """
+  @spec unzip(t({val1, val2})) :: {list(val1), list(val2)} when val1: value, val2: value
+  def unzip(enumerable) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil ->
+        Enum.unzip(enumerable)
+
+      list when is_list(list) ->
+        Enum.unzip(list)
+
+      vector ->
+        {vector1, vector2} = RawVector.unzip(vector)
+        {RawVector.to_list(vector1), RawVector.to_list(vector2)}
+    end
+  end
+
   # TODO remove in 0.6
 
   @doc false
