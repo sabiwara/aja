@@ -1338,6 +1338,28 @@ defmodule A.Enum do
     |> Enum.sort_by(mapper, sorter)
   end
 
+  @doc """
+  Zips corresponding elements from two enumerables into one list of tuples.
+
+  Mirrors `Enum.zip/2` with higher performance for Aja structures.
+  """
+  @spec zip(t(val1), t(val2)) :: list({val1, val2}) when val1: value, val2: value
+  def zip(enumerable1, enumerable2) do
+    case {H.try_get_raw_vec_or_list(enumerable1), H.try_get_raw_vec_or_list(enumerable2)} do
+      {vector1, vector2} when is_tuple(vector1) and is_tuple(vector2) ->
+        RawVector.zip(vector1, vector2) |> RawVector.to_list()
+
+      {result1, result2} ->
+        list_or_enum1 = zip_try_get_list(result1, enumerable1)
+        list_or_enum2 = zip_try_get_list(result2, enumerable2)
+        Enum.zip(list_or_enum1, list_or_enum2)
+    end
+  end
+
+  defp zip_try_get_list(list, _enumerable) when is_list(list), do: list
+  defp zip_try_get_list(nil, enumerable), do: enumerable
+  defp zip_try_get_list(vector, _enumerable), do: RawVector.to_list(vector)
+
   # TODO remove in 0.6
 
   @doc false
