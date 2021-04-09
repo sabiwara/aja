@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.5.1 (2021-04-09)
+
 ### Enhancements
 
 * Add `A.Vector.flat_map/2`
