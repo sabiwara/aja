@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Bug fixes
+
+* Fix `A.vec/1` bug when ranges use negative number
+
 ### Breaking changes
 
 * Deprecate A.ExRange

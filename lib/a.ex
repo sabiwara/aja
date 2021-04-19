@@ -249,10 +249,22 @@ defmodule A do
     ast_from_list(list, __CALLER__)
   end
 
-  defmacro vec({:.., _, [first, last]}) when is_integer(first) and is_integer(last) do
-    first..last
-    |> Enum.to_list()
-    |> ast_from_list(__CALLER__)
+  defmacro vec({:.., _, [first, last]} = call) do
+    case {Macro.expand(first, __CALLER__), Macro.expand(last, __CALLER__)} do
+      {first, last} when is_integer(first) and is_integer(last) ->
+        first..last
+        |> Enum.to_list()
+        |> ast_from_list(__CALLER__)
+
+      _ ->
+        raise ArgumentError, ~s"""
+        Incorrect use of `A.vec/1`:
+          vec(#{Macro.to_string(call)}).
+
+        The `vec(a..b)` syntax can only be used with constants:
+          vec(1..100)
+        """
+    end
   end
 
   # TODO remove in 0.6
@@ -299,6 +311,7 @@ defmodule A do
       vec([1, 2, x, _]) = vector
       vec([]) = empty_vector
       vec(_) = vector
+      vec(first ||| last) = vector
     """
   end
 
