@@ -139,6 +139,8 @@ defmodule ATest do
 
     assert A.Vector.new(1..5) == vec(1..5)
     assert A.Vector.new(-5..-1) == vec(-5..-1)
+    # TODO uncomment when dropping support for Elixir < 1.12
+    # assert A.Vector.new(-20..20//5) == vec(-20..20//5)
 
     {f, pop_args} = spy_callback(&(&1 * 2))
     assert A.Vector.new([2, 4, 6, 8]) == vec([f.(1), f.(2), f.(3), f.(4)])

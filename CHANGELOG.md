@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancement
+
+* Add support for stepped ranges in Elixir 1.12
+
 ### Bug fixes
 
 * Fix `A.vec/1` bug when ranges use negative number

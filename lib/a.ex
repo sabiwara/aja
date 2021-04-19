@@ -250,8 +250,8 @@ defmodule A do
   end
 
   defmacro vec({:.., _, [first, last]} = call) do
-    case {Macro.expand(first, __CALLER__), Macro.expand(last, __CALLER__)} do
-      {first, last} when is_integer(first) and is_integer(last) ->
+    case Enum.map([first, last], &Macro.expand(&1, __CALLER__)) do
+      [first, last] when is_integer(first) and is_integer(last) ->
         first..last
         |> Enum.to_list()
         |> ast_from_list(__CALLER__)
@@ -264,6 +264,29 @@ defmodule A do
         The `vec(a..b)` syntax can only be used with constants:
           vec(1..100)
         """
+    end
+  end
+
+  # TODO remove when dropping support for Elixir < 1.12
+  stepped_range_available? = Version.compare(System.version(), "1.12.0-rc.0") != :lt
+
+  if stepped_range_available? do
+    defmacro vec({:"..//", _, [first, last, step]} = call) do
+      case Enum.map([first, last, step], &Macro.expand(&1, __CALLER__)) do
+        [first, last, step] when is_integer(first) and is_integer(last) and is_integer(step) ->
+          Range.new(first, last, step)
+          |> Enum.to_list()
+          |> ast_from_list(__CALLER__)
+
+        _ ->
+          raise ArgumentError, ~s"""
+          Incorrect use of `A.vec/1`:
+            vec(#{Macro.to_string(call)}).
+
+          The `vec(a..b//c)` syntax can only be used with constants:
+            vec(1..100//5)
+          """
+      end
     end
   end
 
