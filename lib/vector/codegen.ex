@@ -42,13 +42,13 @@ defmodule A.Vector.CodeGen do
 
   defmacro radix_div(i) do
     quote do
-      Bitwise.>>>(unquote(i), unquote(@bits))
+      :erlang.bsr(unquote(i), unquote(@bits))
     end
   end
 
   defmacro radix_rem(i) do
     quote do
-      Bitwise.&&&(unquote(i), unquote(@branch_factor - 1))
+      :erlang.band(unquote(i), unquote(@branch_factor - 1))
     end
   end
 
@@ -61,8 +61,8 @@ defmodule A.Vector.CodeGen do
   defmacro radix_search(index, level) do
     quote do
       unquote(index)
-      |> Bitwise.>>>(unquote(level))
-      |> Bitwise.&&&(unquote(@branch_factor - 1))
+      |> :erlang.bsr(unquote(level))
+      |> :erlang.band(unquote(@branch_factor - 1))
     end
   end
 

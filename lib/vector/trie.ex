@@ -4,8 +4,6 @@ defmodule A.Vector.Trie do
   alias A.Vector.CodeGen, as: C
   require C
 
-  import Bitwise
-
   alias A.Vector.{Node, Tail}
 
   @type value :: term
@@ -80,7 +78,7 @@ defmodule A.Vector.Trie do
     div = C.radix_div(n)
     {level, acc} = do_duplicate(value, div, 0, [])
 
-    case 1 <<< level do
+    case :erlang.bsl(1, level) do
       ^n ->
         [{1, trie}] = acc
         {C.decr_level(level), trie}
@@ -198,7 +196,7 @@ defmodule A.Vector.Trie do
   end
 
   def append_leaf(trie, level, index, leaf) do
-    case index >>> level do
+    case :erlang.bsr(index, level) do
       C.branch_factor() ->
         new_branch = build_single_branch(leaf, level)
 
@@ -643,7 +641,7 @@ defmodule A.Vector.Trie do
     child_level = C.decr_level(level)
 
     C.find_cond_trie do
-      child_index = find_index(arg, child_level, fun) -> child_index + (i <<< level)
+      child_index = find_index(arg, child_level, fun) -> child_index + :erlang.bsl(i, level)
       _ -> nil
     end
   end
@@ -661,7 +659,7 @@ defmodule A.Vector.Trie do
     child_level = C.decr_level(level)
 
     C.find_cond_trie do
-      child_index = find_falsy_index(arg, child_level, fun) -> child_index + (i <<< level)
+      child_index = find_falsy_index(arg, child_level, fun) -> child_index + :erlang.bsl(i, level)
       _ -> nil
     end
   end
@@ -1045,7 +1043,7 @@ defmodule A.Vector.Trie do
             with_index(
               unquote(arg),
               var!(child_level),
-              var!(offset) + (unquote(index) <<< var!(level))
+              var!(offset) + :erlang.bsl(unquote(index), var!(level))
             )
         end
       end)
@@ -1080,7 +1078,7 @@ defmodule A.Vector.Trie do
             with_index(
               unquote(arg),
               var!(child_level),
-              var!(offset) + (unquote(index) <<< var!(level)),
+              var!(offset) + :erlang.bsl(unquote(index), var!(level)),
               var!(fun)
             )
         end
