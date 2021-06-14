@@ -168,6 +168,15 @@ def deps do
 end
 ```
 
+Or, if you are using Elixir 1.12, you can just try it out from `iex` or an `.exs` script:
+
+```elixir
+iex> Mix.install([:aja])
+:ok
+iex> A.String.slugify("Hello, World!")
+"hello-world"
+```
+
 Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 
 ## About Aja
