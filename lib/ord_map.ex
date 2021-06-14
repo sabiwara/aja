@@ -1,5 +1,5 @@
 defmodule A.OrdMap do
-  @moduledoc ~S"""
+  base_doc = ~S"""
   A map preserving key insertion order, with efficient lookups, updates and enumeration.
 
   It works like regular maps, except that the insertion order is preserved:
@@ -181,14 +181,24 @@ defmodule A.OrdMap do
 
   `A.OrdMap` takes roughly 2~3x more memory than a regular map depending on the type of data:
 
-      iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
-      358
-      iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
-      1111
-      iex> ord_map_size / map_size
-      3.1033519553072626
-
   """
+
+  module_doc =
+    if(System.otp_release() |> String.to_integer() >= 24) do
+      base_doc <>
+        ~S"""
+            iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
+            366
+            iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
+            1119
+            iex> Float.round(ord_map_size / map_size, 2)
+            3.06
+        """
+    else
+      base_doc
+    end
+
+  @moduledoc module_doc
 
   alias A.Vector.Raw, as: RawVector
   require RawVector
