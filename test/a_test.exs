@@ -316,12 +316,9 @@ defmodule ATest do
     ["charlist: ", 'baz', ".\n"] = ~i"charlist: #{'baz'}.\n"
     ["iolist: ", [["abc"], 'def' | "ghi"], ".\n"] = ~i"iolist: #{[["abc"], 'def' | "ghi"]}.\n"
 
-    ["assignments: ", "3", ".\n"] =
-      ~i"assignments: #{
-        a = 1
-        b = 2
-        a + b
-      }.\n"
+    ["assignments: ", "3", ".\n"] = ~i"assignments: #{a = 1
+    b = 2
+    a + b}.\n"
 
     iodata = ~i"[#{for i <- 1..3, do: ~i({"name": "foo_#{i}"},)}]"
 

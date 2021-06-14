@@ -88,11 +88,9 @@ defmodule A.Vector do
       iex> match?(v when vec_size(v) > 99, A.Vector.new(1..100))
       true
 
-  #{
-    if Version.compare(System.version(), "1.11.0") != :lt do
-      plusplusplus_doc
-    end
-  }
+  #{if Version.compare(System.version(), "1.11.0") != :lt do
+    plusplusplus_doc
+  end}
 
 
   ## Pattern-matching and opaque type
@@ -202,11 +200,9 @@ defmodule A.Vector do
   **DO**
 
       A.Vector.concat(vector, enumerable)
-      #{
-    if Version.compare(System.version(), "1.11.0") != :lt do
-      "vector +++ enumerable"
-    end
-  }
+      #{if Version.compare(System.version(), "1.11.0") != :lt do
+    "vector +++ enumerable"
+  end}
 
   ### Prefer `A.Enum` and `A.Vector` to `Enum` for vectors
 
