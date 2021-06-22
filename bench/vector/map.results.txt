@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking A.Vector.map/2 (vector)...
 Benchmarking Enum.map/2 (list)...
 
 Name                              ips        average  deviation         median         99th %
-A.Vector.map/2 (vector)      597.25 K        1.67 μs  ±1116.64%        1.44 μs        3.58 μs
-Enum.map/2 (list)            566.94 K        1.76 μs  ±1080.94%        1.54 μs        3.06 μs
-A.Enum.map/2 (vector)        560.58 K        1.78 μs   ±828.68%        1.52 μs        3.57 μs
-:array.map/2 (array)         265.98 K        3.76 μs   ±382.90%        3.32 μs       10.37 μs
+A.Vector.map/2 (vector)     1045.99 K        0.96 μs  ±3104.20%        0.81 μs        1.20 μs
+A.Enum.map/2 (vector)        882.96 K        1.13 μs  ±1779.05%        0.97 μs        1.48 μs
+Enum.map/2 (list)            847.15 K        1.18 μs  ±1828.09%        1.03 μs        1.45 μs
+:array.map/2 (array)         403.32 K        2.48 μs   ±802.99%        2.24 μs        3.23 μs
 
 Comparison: 
-A.Vector.map/2 (vector)      597.25 K
-Enum.map/2 (list)            566.94 K - 1.05x slower +0.0895 μs
-A.Enum.map/2 (vector)        560.58 K - 1.07x slower +0.110 μs
-:array.map/2 (array)         265.98 K - 2.25x slower +2.09 μs
+A.Vector.map/2 (vector)     1045.99 K
+A.Enum.map/2 (vector)        882.96 K - 1.18x slower +0.177 μs
+Enum.map/2 (list)            847.15 K - 1.23x slower +0.22 μs
+:array.map/2 (array)         403.32 K - 2.59x slower +1.52 μs

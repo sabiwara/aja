@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking A.Vector.intersperse/1...
 Benchmarking Enum.intersperse/2 (list)...
 
 Name                                    ips        average  deviation         median         99th %
-A.Enum.intersperse/2 (vector)     1497.86 K        0.67 μs  ±4282.48%        0.51 μs        1.38 μs
-A.Vector.intersperse/1             608.37 K        1.64 μs  ±1537.68%        1.37 μs        3.56 μs
-Enum.intersperse/2 (list)          511.95 K        1.95 μs   ±807.03%        1.64 μs        3.87 μs
+A.Enum.intersperse/2 (vector)        2.57 M      388.72 ns  ±9865.17%         260 ns         634 ns
+Enum.intersperse/2 (list)            1.04 M      962.33 ns  ±2958.32%         789 ns        1221 ns
+A.Vector.intersperse/1               0.98 M     1024.03 ns  ±2922.40%         861 ns        1369 ns
 
 Comparison: 
-A.Enum.intersperse/2 (vector)     1497.86 K
-A.Vector.intersperse/1             608.37 K - 2.46x slower +0.98 μs
-Enum.intersperse/2 (list)          511.95 K - 2.93x slower +1.29 μs
+A.Enum.intersperse/2 (vector)        2.57 M
+Enum.intersperse/2 (list)            1.04 M - 2.48x slower +573.61 ns
+A.Vector.intersperse/1               0.98 M - 2.63x slower +635.31 ns

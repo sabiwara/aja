@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 24.0-rc1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -22,27 +22,27 @@ Benchmarking A.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap       10.26 M       97.49 ns ±23247.25%          54 ns         315 ns
-Map             4.42 M      226.23 ns ±17701.46%          60 ns         312 ns
+A.OrdMap        9.47 M      105.58 ns ±27383.52%          56 ns         160 ns
+Map             6.22 M      160.81 ns ±20055.82%          59 ns         212 ns
 
 Comparison: 
-A.OrdMap       10.26 M
-Map             4.42 M - 2.32x slower +128.75 ns
+A.OrdMap        9.47 M
+Map             6.22 M - 1.52x slower +55.23 ns
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap        2.34 M      427.01 ns  ±9279.54%         214 ns         700 ns
-Map             1.31 M      764.31 ns  ±4706.35%         503 ns        1631 ns
+A.OrdMap        2.99 M      334.02 ns ±11309.04%         203 ns         500 ns
+Map             1.45 M      689.50 ns  ±3963.66%         521 ns         981 ns
 
 Comparison: 
-A.OrdMap        2.34 M
-Map             1.31 M - 1.79x slower +337.29 ns
+A.OrdMap        2.99 M
+Map             1.45 M - 2.06x slower +355.48 ns
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap       33.49 K       29.86 μs    ±86.44%       13.12 μs       98.88 μs
-Map             4.90 K      204.14 μs    ±54.04%      209.65 μs      461.94 μs
+A.OrdMap       39.63 K       25.23 μs    ±84.85%       11.50 μs       54.74 μs
+Map             5.64 K      177.16 μs    ±44.93%      192.32 μs      325.23 μs
 
 Comparison: 
-A.OrdMap       33.49 K
-Map             4.90 K - 6.84x slower +174.28 μs
+A.OrdMap       39.63 K
+Map             5.64 K - 7.02x slower +151.93 μs

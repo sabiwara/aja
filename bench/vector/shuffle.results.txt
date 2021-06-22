@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Enum.shuffle/1 (list)...
 Benchmarking Enum.shuffle/1 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-Enum.shuffle/1 (list)              2.94 K      340.03 μs    ±18.87%      319.46 μs      614.93 μs
-A.Enum.shuffle/1 (vector)          2.85 K      351.14 μs    ±20.26%      329.70 μs      655.51 μs
-A.Vector.shuffle/1 (vector)        2.76 K      362.05 μs    ±23.32%      337.12 μs      733.87 μs
-Enum.shuffle/1 (vector)            2.67 K      374.94 μs    ±19.15%      350.47 μs      689.33 μs
+A.Enum.shuffle/1 (vector)          4.71 K      212.35 μs    ±16.55%      200.96 μs      349.95 μs
+Enum.shuffle/1 (list)              4.65 K      215.12 μs    ±17.85%      205.72 μs      399.87 μs
+A.Vector.shuffle/1 (vector)        4.46 K      223.99 μs    ±18.27%      213.90 μs      404.33 μs
+Enum.shuffle/1 (vector)            4.11 K      243.08 μs    ±18.13%      233.50 μs      445.70 μs
 
 Comparison: 
-Enum.shuffle/1 (list)              2.94 K
-A.Enum.shuffle/1 (vector)          2.85 K - 1.03x slower +11.11 μs
-A.Vector.shuffle/1 (vector)        2.76 K - 1.06x slower +22.02 μs
-Enum.shuffle/1 (vector)            2.67 K - 1.10x slower +34.91 μs
+A.Enum.shuffle/1 (vector)          4.71 K
+Enum.shuffle/1 (list)              4.65 K - 1.01x slower +2.78 μs
+A.Vector.shuffle/1 (vector)        4.46 K - 1.05x slower +11.65 μs
+Enum.shuffle/1 (vector)            4.11 K - 1.14x slower +30.73 μs

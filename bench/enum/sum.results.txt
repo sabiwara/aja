@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,15 +20,15 @@ Benchmarking Enum.sum/1 (list)...
 Benchmarking Enum.sum/1 (vector)...
 
 Name                               ips        average  deviation         median         99th %
-A.Enum.sum/1 (vector)         324.36 K        3.08 μs   ±692.17%        2.80 μs        5.17 μs
-Enum.sum/1 (list)             286.01 K        3.50 μs    ±34.16%        3.31 μs        6.28 μs
-:lists.sum/1                  280.63 K        3.56 μs    ±47.95%        3.28 μs        7.75 μs
-A.Enum.reduce/3 (vector)       59.88 K       16.70 μs    ±35.74%       15.63 μs       38.75 μs
-Enum.sum/1 (vector)            39.08 K       25.59 μs    ±38.88%       23.39 μs       56.76 μs
+A.Enum.sum/1 (vector)         584.60 K        1.71 μs  ±1299.13%        1.59 μs        1.95 μs
+:lists.sum/1                  358.77 K        2.79 μs    ±26.68%        2.44 μs        4.04 μs
+Enum.sum/1 (list)             327.37 K        3.05 μs    ±25.25%        2.71 μs        4.19 μs
+A.Enum.reduce/3 (vector)       73.42 K       13.62 μs    ±29.12%       13.53 μs       16.96 μs
+Enum.sum/1 (vector)            67.84 K       14.74 μs    ±22.70%       14.06 μs       18.97 μs
 
 Comparison: 
-A.Enum.sum/1 (vector)         324.36 K
-Enum.sum/1 (list)             286.01 K - 1.13x slower +0.41 μs
-:lists.sum/1                  280.63 K - 1.16x slower +0.48 μs
-A.Enum.reduce/3 (vector)       59.88 K - 5.42x slower +13.62 μs
-Enum.sum/1 (vector)            39.08 K - 8.30x slower +22.51 μs
+A.Enum.sum/1 (vector)         584.60 K
+:lists.sum/1                  358.77 K - 1.63x slower +1.08 μs
+Enum.sum/1 (list)             327.37 K - 1.79x slower +1.34 μs
+A.Enum.reduce/3 (vector)       73.42 K - 7.96x slower +11.91 μs
+Enum.sum/1 (vector)            67.84 K - 8.62x slower +13.03 μs

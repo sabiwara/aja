@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -17,9 +17,9 @@ Benchmarking :array.from_list/1...
 Benchmarking A.Vector.new/1...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.new/1            1.40 M        0.71 μs  ±4042.49%        0.54 μs        1.41 μs
-:array.from_list/1        0.62 M        1.61 μs  ±1705.22%        1.30 μs        3.62 μs
+A.Vector.new/1            2.17 M        0.46 μs  ±7339.26%        0.34 μs        0.64 μs
+:array.from_list/1        1.00 M        1.00 μs  ±2447.39%        0.85 μs        1.53 μs
 
 Comparison: 
-A.Vector.new/1            1.40 M
-:array.from_list/1        0.62 M - 2.27x slower +0.90 μs
+A.Vector.new/1            2.17 M
+:array.from_list/1        1.00 M - 2.18x slower +0.54 μs

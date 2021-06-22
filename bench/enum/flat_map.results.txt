@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 24.0-rc1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking A.Vector.flat_map/2 (vector)...
 Benchmarking Enum.flat_map/2 (list)...
 
 Name                                   ips        average  deviation         median         99th %
-Enum.flat_map/2 (list)            390.26 K        2.56 μs   ±817.04%        2.21 μs        5.90 μs
-A.Enum.flat_map/2 (list)          368.13 K        2.72 μs  ±1037.36%        2.29 μs        5.77 μs
-A.Enum.flat_map/2 (vector)        260.85 K        3.83 μs   ±411.17%        3.34 μs        9.33 μs
-A.Vector.flat_map/2 (vector)      232.22 K        4.31 μs   ±353.47%        3.94 μs        7.76 μs
+A.Enum.flat_map/2 (list)          396.08 K        2.52 μs   ±673.97%        2.22 μs        3.37 μs
+Enum.flat_map/2 (list)            377.16 K        2.65 μs   ±776.79%        2.33 μs        4.19 μs
+A.Enum.flat_map/2 (vector)        276.50 K        3.62 μs   ±463.19%        3.22 μs        5.82 μs
+A.Vector.flat_map/2 (vector)      234.64 K        4.26 μs   ±353.39%        3.89 μs        7.29 μs
 
 Comparison: 
-Enum.flat_map/2 (list)            390.26 K
-A.Enum.flat_map/2 (list)          368.13 K - 1.06x slower +0.154 μs
-A.Enum.flat_map/2 (vector)        260.85 K - 1.50x slower +1.27 μs
-A.Vector.flat_map/2 (vector)      232.22 K - 1.68x slower +1.74 μs
+A.Enum.flat_map/2 (list)          396.08 K
+Enum.flat_map/2 (list)            377.16 K - 1.05x slower +0.127 μs
+A.Enum.flat_map/2 (vector)        276.50 K - 1.43x slower +1.09 μs
+A.Vector.flat_map/2 (vector)      234.64 K - 1.69x slower +1.74 μs

@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Enum.group_by/2  (vector)...
 Benchmarking Enum.group_by/2 (list)...
 
 Name                                 ips        average  deviation         median         99th %
-A.Enum.group_by/2 (vector)      138.63 K        7.21 μs   ±186.48%        6.43 μs       25.21 μs
-Enum.group_by/2 (list)          111.81 K        8.94 μs   ±100.84%        7.79 μs       28.74 μs
-Enum.group_by/2  (vector)        84.48 K       11.84 μs    ±42.66%       11.00 μs       32.32 μs
+A.Enum.group_by/2 (vector)      167.41 K        5.97 μs   ±198.28%        5.63 μs        8.69 μs
+Enum.group_by/2 (list)          132.76 K        7.53 μs   ±122.46%        7.28 μs       15.85 μs
+Enum.group_by/2  (vector)       104.64 K        9.56 μs    ±90.01%        9.34 μs       12.51 μs
 
 Comparison: 
-A.Enum.group_by/2 (vector)      138.63 K
-Enum.group_by/2 (list)          111.81 K - 1.24x slower +1.73 μs
-Enum.group_by/2  (vector)        84.48 K - 1.64x slower +4.62 μs
+A.Enum.group_by/2 (vector)      167.41 K
+Enum.group_by/2 (list)          132.76 K - 1.26x slower +1.56 μs
+Enum.group_by/2  (vector)       104.64 K - 1.60x slower +3.58 μs

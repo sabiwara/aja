@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 24.0-rc1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -22,27 +22,27 @@ Benchmarking A.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name               ips        average  deviation         median         99th %
-Map             3.27 M      306.04 ns ±10613.50%         199 ns         576 ns
-A.OrdMap        2.80 M      357.24 ns  ±8921.06%         252 ns         828 ns
+Map             3.85 M      259.82 ns ±15085.32%         178 ns         443 ns
+A.OrdMap        3.23 M      309.33 ns  ±8798.19%         208 ns         489 ns
 
 Comparison: 
-Map             3.27 M
-A.OrdMap        2.80 M - 1.17x slower +51.20 ns
+Map             3.85 M
+A.OrdMap        3.23 M - 1.19x slower +49.51 ns
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-Map             2.73 M      366.13 ns  ±8256.56%         279 ns         723 ns
-A.OrdMap        2.36 M      424.52 ns  ±6320.01%         314 ns         923 ns
+Map             3.03 M      329.64 ns  ±7137.13%         268 ns         542 ns
+A.OrdMap        2.76 M      362.86 ns  ±4442.52%         304 ns         592 ns
 
 Comparison: 
-Map             2.73 M
-A.OrdMap        2.36 M - 1.16x slower +58.39 ns
+Map             3.03 M
+A.OrdMap        2.76 M - 1.10x slower +33.22 ns
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-Map             2.39 M      418.56 ns  ±7372.49%         310 ns         732 ns
-A.OrdMap        1.88 M      531.62 ns  ±6390.52%         372 ns         904 ns
+Map             2.48 M      403.04 ns  ±8193.03%         315 ns         581 ns
+A.OrdMap        2.18 M      459.26 ns  ±6114.70%         359 ns         648 ns
 
 Comparison: 
-Map             2.39 M
-A.OrdMap        1.88 M - 1.27x slower +113.06 ns
+Map             2.48 M
+A.OrdMap        2.18 M - 1.14x slower +56.22 ns

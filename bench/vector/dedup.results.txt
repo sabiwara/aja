@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking A.Vector.dedup/1 (vector)...
 Benchmarking Enum.dedup/2 (list)...
 
 Name                                ips        average  deviation         median         99th %
-A.Enum.dedup/1 (vector)       1154.79 K        0.87 μs  ±3314.92%        0.68 μs        1.74 μs
-A.Enum.dedup/2 (list)          939.72 K        1.06 μs  ±2109.23%        0.87 μs        2.29 μs
-A.Vector.dedup/1 (vector)      682.83 K        1.46 μs  ±1648.89%        1.24 μs        3.47 μs
-Enum.dedup/2 (list)            239.08 K        4.18 μs   ±279.23%        3.68 μs       11.10 μs
+A.Enum.dedup/1 (vector)          2.59 M      386.39 ns  ±7730.59%         277 ns         620 ns
+A.Enum.dedup/2 (list)            1.61 M      621.04 ns  ±3868.57%         508 ns         865 ns
+A.Vector.dedup/1 (vector)        1.38 M      724.83 ns  ±3710.60%         591 ns         996 ns
+Enum.dedup/2 (list)              1.20 M      835.12 ns  ±3848.98%         673 ns        1084 ns
 
 Comparison: 
-A.Enum.dedup/1 (vector)       1154.79 K
-A.Enum.dedup/2 (list)          939.72 K - 1.23x slower +0.198 μs
-A.Vector.dedup/1 (vector)      682.83 K - 1.69x slower +0.60 μs
-Enum.dedup/2 (list)            239.08 K - 4.83x slower +3.32 μs
+A.Enum.dedup/1 (vector)          2.59 M
+A.Enum.dedup/2 (list)            1.61 M - 1.61x slower +234.65 ns
+A.Vector.dedup/1 (vector)        1.38 M - 1.88x slower +338.45 ns
+Enum.dedup/2 (list)              1.20 M - 2.16x slower +448.74 ns

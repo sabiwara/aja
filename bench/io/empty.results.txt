@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.0.4
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,18 +20,18 @@ Benchmarking A.IO.iodata_empty?/1 with input n = 50...
 
 ##### With input n = 5 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          17.26 M       57.92 ns ±16191.73%          38 ns         148 ns
-IO.iodata_length() == 0       14.23 M       70.28 ns   ±784.26%          62 ns         185 ns
+A.IO.iodata_empty?/1          26.71 M       37.43 ns ±10935.18%          28 ns          72 ns
+IO.iodata_length() == 0       21.12 M       47.36 ns  ±7769.58%          38 ns          83 ns
 
 Comparison: 
-A.IO.iodata_empty?/1          17.26 M
-IO.iodata_length() == 0       14.23 M - 1.21x slower +12.36 ns
+A.IO.iodata_empty?/1          26.71 M
+IO.iodata_length() == 0       21.12 M - 1.27x slower +9.92 ns
 
 ##### With input n = 50 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          18.27 M       54.73 ns ±10514.17%          38 ns         132 ns
-IO.iodata_length() == 0        5.69 M      175.88 ns   ±166.25%         163 ns         335 ns
+A.IO.iodata_empty?/1          26.24 M       38.11 ns  ±8886.72%          30 ns          72 ns
+IO.iodata_length() == 0        7.41 M      134.89 ns  ±2402.74%         126 ns         179 ns
 
 Comparison: 
-A.IO.iodata_empty?/1          18.27 M
-IO.iodata_length() == 0        5.69 M - 3.21x slower +121.15 ns
+A.IO.iodata_empty?/1          26.24 M
+IO.iodata_length() == 0        7.41 M - 3.54x slower +96.77 ns

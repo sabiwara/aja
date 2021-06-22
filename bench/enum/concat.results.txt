@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -21,17 +21,17 @@ Benchmarking Enum.concat/2 (vector, list)...
 Benchmarking Enum.concat/2 (vector, vector)...
 
 Name                                       ips        average  deviation         median         99th %
-++/2                                    3.40 M        0.29 μs ±10628.39%       0.166 μs        0.43 μs
-A.Enum.concat/2 (vector, list)          2.05 M        0.49 μs  ±6508.26%        0.33 μs        1.03 μs
-A.Enum.concat/2 (vector, vector)        1.27 M        0.78 μs  ±3205.01%        0.57 μs        2.27 μs
-A.Vector.concat/2 (vector, list)        0.93 M        1.08 μs  ±2661.32%        0.87 μs        2.07 μs
-Enum.concat/2 (vector, list)           0.180 M        5.56 μs   ±234.75%        4.84 μs       21.11 μs
-Enum.concat/2 (vector, vector)         0.128 M        7.80 μs   ±134.32%        6.86 μs       27.97 μs
+++/2                                    3.70 M      270.63 ns ±13975.16%         179 ns         409 ns
+A.Enum.concat/2 (vector, list)          3.32 M      300.97 ns ±12219.81%         178 ns         467 ns
+A.Enum.concat/2 (vector, vector)        2.29 M      437.40 ns  ±7646.46%         309 ns         634 ns
+A.Vector.concat/2 (vector, list)        1.45 M      687.92 ns  ±4609.14%         563 ns         931 ns
+Enum.concat/2 (vector, list)            0.28 M     3582.74 ns   ±311.02%        3264 ns        6018 ns
+Enum.concat/2 (vector, vector)          0.20 M     4965.04 ns   ±258.37%        4621 ns        8324 ns
 
 Comparison: 
-++/2                                    3.40 M
-A.Enum.concat/2 (vector, list)          2.05 M - 1.66x slower +0.194 μs
-A.Enum.concat/2 (vector, vector)        1.27 M - 2.67x slower +0.49 μs
-A.Vector.concat/2 (vector, list)        0.93 M - 3.68x slower +0.79 μs
-Enum.concat/2 (vector, list)           0.180 M - 18.94x slower +5.27 μs
-Enum.concat/2 (vector, vector)         0.128 M - 26.54x slower +7.50 μs
+++/2                                    3.70 M
+A.Enum.concat/2 (vector, list)          3.32 M - 1.11x slower +30.35 ns
+A.Enum.concat/2 (vector, vector)        2.29 M - 1.62x slower +166.77 ns
+A.Vector.concat/2 (vector, list)        1.45 M - 2.54x slower +417.29 ns
+Enum.concat/2 (vector, list)            0.28 M - 13.24x slower +3312.12 ns
+Enum.concat/2 (vector, vector)          0.20 M - 18.35x slower +4694.42 ns

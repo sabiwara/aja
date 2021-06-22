@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 23.1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -21,17 +21,17 @@ Benchmarking Enum.concat/2 (lists)...
 Benchmarking Enum.into/2 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-A.Vector.concat/2                787.61 K        1.27 μs  ±1560.77%        1.08 μs        2.41 μs
-A.Enum.into/2 (vector)           781.50 K        1.28 μs  ±2210.01%        1.09 μs        2.31 μs
-Enum.concat/2 (lists)            399.67 K        2.50 μs   ±721.63%        2.11 μs       10.69 μs
-Enum.into/2 (vector)             209.39 K        4.78 μs   ±375.05%        4.16 μs       11.03 μs
-A.Vector.append/2 in reduce      106.53 K        9.39 μs    ±94.24%        8.82 μs       25.02 μs
-:array.set/3 in reduce            49.47 K       20.22 μs    ±30.54%       18.66 μs       46.61 μs
+A.Vector.concat/2               1170.76 K        0.85 μs  ±2742.91%        0.75 μs        1.22 μs
+A.Enum.into/2 (vector)          1167.01 K        0.86 μs  ±2737.87%        0.76 μs        1.18 μs
+Enum.concat/2 (lists)            429.90 K        2.33 μs   ±742.04%        2.03 μs        7.92 μs
+Enum.into/2 (vector)             287.37 K        3.48 μs   ±559.54%        3.17 μs        5.19 μs
+A.Vector.append/2 in reduce      175.04 K        5.71 μs   ±242.97%        5.48 μs       10.50 μs
+:array.set/3 in reduce            61.49 K       16.26 μs    ±43.21%       15.89 μs       22.40 μs
 
 Comparison: 
-A.Vector.concat/2                787.61 K
-A.Enum.into/2 (vector)           781.50 K - 1.01x slower +0.00992 μs
-Enum.concat/2 (lists)            399.67 K - 1.97x slower +1.23 μs
-Enum.into/2 (vector)             209.39 K - 3.76x slower +3.51 μs
-A.Vector.append/2 in reduce      106.53 K - 7.39x slower +8.12 μs
-:array.set/3 in reduce            49.47 K - 15.92x slower +18.95 μs
+A.Vector.concat/2               1170.76 K
+A.Enum.into/2 (vector)          1167.01 K - 1.00x slower +0.00274 μs
+Enum.concat/2 (lists)            429.90 K - 2.72x slower +1.47 μs
+Enum.into/2 (vector)             287.37 K - 4.07x slower +2.63 μs
+A.Vector.append/2 in reduce      175.04 K - 6.69x slower +4.86 μs
+:array.set/3 in reduce            61.49 K - 19.04x slower +15.41 μs

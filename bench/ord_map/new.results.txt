@@ -2,8 +2,8 @@ Operating System: Linux
 CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
 Number of Available Cores: 8
 Available memory: 15.41 GB
-Elixir 1.11.1
-Erlang 24.0-rc1
+Elixir 1.12.0
+Erlang 24.0
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,18 +20,18 @@ Benchmarking A.OrdMap with input n = 10000...
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-Map           120.01 K        8.33 μs   ±121.35%        7.50 μs       25.35 μs
-A.OrdMap      100.07 K        9.99 μs    ±94.57%        9.03 μs       27.09 μs
+Map           140.72 K        7.11 μs   ±102.87%        6.93 μs        9.78 μs
+A.OrdMap      102.66 K        9.74 μs    ±56.32%        9.36 μs       19.48 μs
 
 Comparison: 
-Map           120.01 K
-A.OrdMap      100.07 K - 1.20x slower +1.66 μs
+Map           140.72 K
+A.OrdMap      102.66 K - 1.37x slower +2.63 μs
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-Map             543.17        1.84 ms    ±14.23%        1.78 ms        2.82 ms
-A.OrdMap        284.84        3.51 ms    ±16.94%        3.39 ms        5.38 ms
+Map             589.45        1.70 ms     ±8.63%        1.63 ms        2.00 ms
+A.OrdMap        350.69        2.85 ms    ±11.86%        2.78 ms        3.71 ms
 
 Comparison: 
-Map             543.17
-A.OrdMap        284.84 - 1.91x slower +1.67 ms
+Map             589.45
+A.OrdMap        350.69 - 1.68x slower +1.15 ms
