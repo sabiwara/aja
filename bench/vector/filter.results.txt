@@ -11,18 +11,21 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 21 s
+Estimated total run time: 28 s
 
+Benchmarking A.Enum.filter/2 (list)...
 Benchmarking A.Enum.filter/2 (vector)...
 Benchmarking A.Vector.filter/2 (vector)...
 Benchmarking Enum.filter/2 (list)...
 
 Name                                 ips        average  deviation         median         99th %
-A.Enum.filter/2 (vector)        507.67 K        1.97 μs   ±896.52%        1.83 μs        2.34 μs
-A.Vector.filter/2 (vector)      453.87 K        2.20 μs   ±869.22%        2.04 μs        2.68 μs
-Enum.filter/2 (list)            425.74 K        2.35 μs   ±882.15%        2.19 μs        2.58 μs
+A.Enum.filter/2 (vector)        463.62 K        2.16 μs   ±968.43%        1.84 μs        3.69 μs
+A.Enum.filter/2 (list)          462.44 K        2.16 μs  ±1027.78%        1.86 μs        3.87 μs
+A.Vector.filter/2 (vector)      422.93 K        2.36 μs   ±747.32%        2.05 μs        4.14 μs
+Enum.filter/2 (list)            379.80 K        2.63 μs   ±911.88%        2.31 μs        3.96 μs
 
 Comparison: 
-A.Enum.filter/2 (vector)        507.67 K
-A.Vector.filter/2 (vector)      453.87 K - 1.12x slower +0.23 μs
-Enum.filter/2 (list)            425.74 K - 1.19x slower +0.38 μs
+A.Enum.filter/2 (vector)        463.62 K
+A.Enum.filter/2 (list)          462.44 K - 1.00x slower +0.00553 μs
+A.Vector.filter/2 (vector)      422.93 K - 1.10x slower +0.21 μs
+Enum.filter/2 (list)            379.80 K - 1.22x slower +0.48 μs

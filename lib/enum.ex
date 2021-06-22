@@ -308,9 +308,22 @@ defmodule A.Enum do
   def filter(enumerable, fun) when is_function(fun, 1) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.filter(enumerable, fun)
-      list when is_list(list) -> Enum.filter(list, fun)
+      list when is_list(list) -> filter_list(list, fun, [])
       vector -> RawVector.filter_to_list(vector, fun)
     end
+  end
+
+  defp filter_list([], _fun, acc), do: :lists.reverse(acc)
+
+  defp filter_list([head | tail], fun, acc) do
+    acc =
+      if fun.(head) do
+        [head | acc]
+      else
+        acc
+      end
+
+    filter_list(tail, fun, acc)
   end
 
   @doc """
@@ -1345,6 +1358,9 @@ defmodule A.Enum do
       {vector1, vector2} when is_tuple(vector1) and is_tuple(vector2) ->
         RawVector.zip(vector1, vector2) |> RawVector.to_list()
 
+      {list1, list2} when is_list(list1) and is_list(list2) ->
+        zip_lists(list1, list2, [])
+
       {result1, result2} ->
         list_or_enum1 = zip_try_get_list(result1, enumerable1)
         list_or_enum2 = zip_try_get_list(result2, enumerable2)
@@ -1355,6 +1371,14 @@ defmodule A.Enum do
   defp zip_try_get_list(list, _enumerable) when is_list(list), do: list
   defp zip_try_get_list(nil, enumerable), do: enumerable
   defp zip_try_get_list(vector, _enumerable), do: RawVector.to_list(vector)
+
+  defp zip_lists(list1, list2, acc) when list1 == [] or list2 == [] do
+    :lists.reverse(acc)
+  end
+
+  defp zip_lists([head1 | tail1], [head2 | tail2], acc) do
+    zip_lists(tail1, tail2, [{head1, head2} | acc])
+  end
 
   @doc """
   Opposite of `zip/2`. Extracts two-element tuples from the given `enumerable`
