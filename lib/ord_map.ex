@@ -200,8 +200,7 @@ defmodule A.OrdMap do
 
   @moduledoc module_doc
 
-  alias A.Vector.Raw, as: RawVector
-  require RawVector
+  require A.Vector.Raw, as: RawVector
 
   @behaviour Access
 

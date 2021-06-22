@@ -1,8 +1,7 @@
 defmodule A.Vector.Tail do
   @moduledoc false
 
-  alias A.Vector.CodeGen, as: C
-  require C
+  require A.Vector.CodeGen, as: C
 
   alias A.Vector.Node
 

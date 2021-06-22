@@ -3,8 +3,7 @@ defmodule A.Vector.Raw do
 
   import Kernel, except: [min: 2, max: 2]
 
-  alias A.Vector.CodeGen, as: C
-  require C
+  require A.Vector.CodeGen, as: C
 
   alias A.Vector.{Node, Tail, Trie}
 

@@ -27,10 +27,8 @@ defmodule A.Enum do
 
   """
 
-  alias A.Vector.Raw, as: RawVector
+  require A.Vector.Raw, as: RawVector
   alias A.EnumHelper, as: H
-
-  require RawVector
 
   @compile :inline_list_funcs
 
