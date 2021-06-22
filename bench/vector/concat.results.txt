@@ -1,0 +1,45 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.12.0
+Erlang 24.0
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+parallel: 1
+inputs: none specified
+Estimated total run time: 45 s
+
+Benchmarking big_list ++ small_list...
+Benchmarking big_vector +++ small_list...
+Benchmarking big_vector +++ small_vector...
+Benchmarking small_list ++ big_list...
+Benchmarking small_vector +++ big_vector...
+
+Name                                  ips        average  deviation         median         99th %
+small_list ++ big_list          3607.30 K        0.28 μs ±12278.54%       0.173 μs        0.41 μs
+big_vector +++ small_list       1169.63 K        0.85 μs  ±2767.41%        0.73 μs        1.48 μs
+big_vector +++ small_vector      941.51 K        1.06 μs  ±2866.22%        0.87 μs        1.75 μs
+big_list ++ small_list           434.92 K        2.30 μs   ±650.10%        2.04 μs        8.25 μs
+small_vector +++ big_vector      127.00 K        7.87 μs   ±249.84%        7.22 μs       16.42 μs
+
+Comparison: 
+small_list ++ big_list          3607.30 K
+big_vector +++ small_list       1169.63 K - 3.08x slower +0.58 μs
+big_vector +++ small_vector      941.51 K - 3.83x slower +0.78 μs
+big_list ++ small_list           434.92 K - 8.29x slower +2.02 μs
+small_vector +++ big_vector      127.00 K - 28.40x slower +7.60 μs
+
+Memory usage statistics:
+
+Name                           Memory usage
+small_list ++ big_list              1.56 KB
+big_vector +++ small_list           2.78 KB - 1.78x memory usage +1.22 KB
+big_vector +++ small_vector         4.61 KB - 2.95x memory usage +3.05 KB
+big_list ++ small_list              2.77 KB - 1.77x memory usage +1.20 KB
+small_vector +++ big_vector        42.72 KB - 27.34x memory usage +41.16 KB
+
+**All measurements for memory usage were the same**
