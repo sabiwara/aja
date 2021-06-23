@@ -35,7 +35,7 @@ jobs:
 
   format:
     runs-on: ubuntu-latest
-    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    name: Format (Elixir ${{matrix.elixir}})
     strategy:
       matrix:
         include:
