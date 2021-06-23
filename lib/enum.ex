@@ -182,7 +182,7 @@ defmodule A.Enum do
     case H.try_get_raw_vec_or_list(left) do
       nil -> Enum.concat(left, right)
       list when is_list(list) -> list ++ to_list(right)
-      vector -> RawVector.concat_list(vector, to_list(right))
+      vector -> RawVector.to_list(vector, to_list(right))
     end
   end
 

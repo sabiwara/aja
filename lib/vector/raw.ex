@@ -166,10 +166,10 @@ defmodule A.Vector.Raw do
     small(1, tail, value)
   end
 
-  def concat(vector, []), do: vector
-  def concat(vector, [value]), do: append(vector, value)
+  def concat_list(vector, []), do: vector
+  def concat_list(vector, [value]), do: append(vector, value)
 
-  def concat(small(size, tail, first), list) do
+  def concat_list(small(size, tail, first), list) do
     case Tail.complete_tail(tail, size, list) do
       {new_tail, added, []} ->
         small(size + added, new_tail, first)
@@ -190,7 +190,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def concat(large(size, tail_offset, level, trie, tail, first), list) do
+  def concat_list(large(size, tail_offset, level, trie, tail, first), list) do
     case Tail.complete_tail(tail, size - tail_offset, list) do
       {new_tail, added, []} ->
         large(size + added, tail_offset, level, trie, new_tail, first)
@@ -207,7 +207,7 @@ defmodule A.Vector.Raw do
     end
   end
 
-  def concat(empty_pattern(), list) do
+  def concat_list(empty_pattern(), list) do
     from_list(list)
   end
 
@@ -394,7 +394,7 @@ defmodule A.Vector.Raw do
       _ ->
         left = take(vector, index)
         [popped | right] = slice(vector, index, size - 1)
-        new_vector = concat(left, right)
+        new_vector = concat_list(left, right)
         {popped, new_vector}
     end
   end
@@ -407,7 +407,7 @@ defmodule A.Vector.Raw do
       amount ->
         left = take(vector, index)
         right = slice(vector, amount, size - 1)
-        concat(left, right)
+        concat_list(left, right)
     end
   end
 
@@ -427,17 +427,17 @@ defmodule A.Vector.Raw do
     []
   end
 
-  @spec concat_list(t(val), [val]) :: [val] when val: value
-  def concat_list(small(size, tail, _first), list) do
+  @spec to_list(t(val), [val]) :: [val] when val: value
+  def to_list(small(size, tail, _first), list) do
     Tail.partial_to_list(tail, size) ++ list
   end
 
-  def concat_list(large(size, tail_offset, shift, trie, tail, _first), list) do
+  def to_list(large(size, tail_offset, shift, trie, tail, _first), list) do
     acc = Tail.partial_to_list(tail, size - tail_offset) ++ list
     Trie.to_list(trie, shift, acc)
   end
 
-  def concat_list(empty_pattern(), list) do
+  def to_list(empty_pattern(), list) do
     list
   end
 

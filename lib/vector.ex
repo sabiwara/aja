@@ -468,7 +468,7 @@ defmodule A.Vector do
   def concat(%__MODULE__{__vector__: internal}, enumerable) do
     list = A.EnumHelper.to_list(enumerable)
 
-    Raw.concat(internal, list) |> from_internal()
+    Raw.concat_list(internal, list) |> from_internal()
   end
 
   @doc false
@@ -2188,7 +2188,7 @@ defmodule A.Vector do
     end
 
     defp done(internal, acc) do
-      new_internal = Raw.concat(internal, :lists.reverse(acc))
+      new_internal = Raw.concat_list(internal, :lists.reverse(acc))
       %A.Vector{__vector__: new_internal}
     end
   end
