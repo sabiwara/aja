@@ -55,7 +55,7 @@ defmodule A.Vector.Raw do
   @type tail_offset :: non_neg_integer
   @type shift :: non_neg_integer
   @type t(value) ::
-          {0} | {size, tail_offset, shift, Trie.t(value), Tail.t(value), value}
+          {0} | {size, tail_offset, shift | nil, Trie.t(value) | nil, Tail.t(value), value}
   @type t() :: t(value)
 
   defmacro size(vector) do
