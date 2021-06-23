@@ -5,6 +5,7 @@
 ### Enhancement
 
 * Add support for stepped ranges in Elixir 1.12
+* Add `A.Enum.concat/1`
 
 ### Bug fixes
 

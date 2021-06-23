@@ -167,6 +167,27 @@ defmodule A.Enum do
   end
 
   @doc """
+  Given an enumerable of enumerables, concatenates the `enumerables` into
+  a single list.
+
+  Mirrors `Enum.concat/1` with higher performance for Aja structures.
+  """
+  @spec concat(t(t(val))) :: t(val) when val: value
+  def concat(enumerables) do
+    case H.try_get_raw_vec_or_list(enumerables) do
+      nil -> Enum.reverse(enumerables) |> concat_wrap([])
+      list when is_list(list) -> :lists.reverse(list) |> concat_wrap([])
+      vector -> RawVector.foldr(vector, [], &concat/2)
+    end
+  end
+
+  defp concat_wrap(_reversed = [], acc), do: acc
+
+  defp concat_wrap([head | tail], acc) do
+    concat_wrap(tail, concat(head, acc))
+  end
+
+  @doc """
   Concatenates the enumerable on the `right` with the enumerable on the `left`.
 
   Mirrors `Enum.concat/2` with higher performance for Aja structures.

@@ -500,4 +500,29 @@ defmodule A.Enum.PropTest do
       assert ^unzipped = A.Enum.unzip(zipped_stream)
     end
   end
+
+  property "A.Enum functions taking an enumerable of enumerables should work the same as Enum" do
+    check all(specs <- list_of({one_of([List, MapSet, Stream, A.Vector]), list_of(value())})) do
+      list =
+        Enum.map(specs, fn
+          {List, x} -> x
+          {MapSet, x} -> MapSet.new(x)
+          {Stream, x} -> Stream.map(x, & &1)
+          {A.Vector, x} -> A.Vector.new(x)
+        end)
+
+      vector = A.Vector.new(list)
+      stream = Stream.map(list, & &1)
+
+      concat = Enum.concat(list)
+
+      assert ^concat = A.Enum.concat(list)
+      assert ^concat = A.Enum.concat(vector)
+      assert ^concat = A.Enum.concat(stream)
+
+      assert ^concat = A.Enum.flat_map(list, & &1)
+      assert ^concat = A.Enum.flat_map(vector, & &1)
+      assert ^concat = A.Enum.flat_map(stream, & &1)
+    end
+  end
 end

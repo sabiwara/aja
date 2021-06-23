@@ -1,0 +1,59 @@
+Operating System: Linux
+CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Number of Available Cores: 8
+Available memory: 15.41 GB
+Elixir 1.12.0
+Erlang 24.0
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: list_of_lists, list_of_vectors, vector_of_lists, vector_of_vectors
+Estimated total run time: 56 s
+
+Benchmarking A.Enum.concat/1 with input list_of_lists...
+Benchmarking A.Enum.concat/1 with input list_of_vectors...
+Benchmarking A.Enum.concat/1 with input vector_of_lists...
+Benchmarking A.Enum.concat/1 with input vector_of_vectors...
+Benchmarking Enum.concat/1 with input list_of_lists...
+Benchmarking Enum.concat/1 with input list_of_vectors...
+Benchmarking Enum.concat/1 with input vector_of_lists...
+Benchmarking Enum.concat/1 with input vector_of_vectors...
+
+##### With input list_of_lists #####
+Name                      ips        average  deviation         median         99th %
+A.Enum.concat/1      311.80 K        3.21 μs   ±614.43%        2.87 μs        8.94 μs
+Enum.concat/1         74.66 K       13.39 μs    ±51.46%       12.02 μs       53.16 μs
+
+Comparison: 
+A.Enum.concat/1      311.80 K
+Enum.concat/1         74.66 K - 4.18x slower +10.19 μs
+
+##### With input list_of_vectors #####
+Name                      ips        average  deviation         median         99th %
+A.Enum.concat/1      153.19 K        6.53 μs   ±101.65%        6.10 μs       16.87 μs
+Enum.concat/1         30.14 K       33.18 μs    ±25.27%       30.36 μs       68.82 μs
+
+Comparison: 
+A.Enum.concat/1      153.19 K
+Enum.concat/1         30.14 K - 5.08x slower +26.65 μs
+
+##### With input vector_of_lists #####
+Name                      ips        average  deviation         median         99th %
+A.Enum.concat/1      257.51 K        3.88 μs   ±384.38%        3.43 μs       15.52 μs
+Enum.concat/1         68.22 K       14.66 μs    ±21.53%       13.93 μs       23.87 μs
+
+Comparison: 
+A.Enum.concat/1      257.51 K
+Enum.concat/1         68.22 K - 3.77x slower +10.78 μs
+
+##### With input vector_of_vectors #####
+Name                      ips        average  deviation         median         99th %
+A.Enum.concat/1      151.31 K        6.61 μs   ±140.66%        6.12 μs       16.66 μs
+Enum.concat/1         28.42 K       35.19 μs    ±17.71%       32.33 μs       55.80 μs
+
+Comparison: 
+A.Enum.concat/1      151.31 K
+Enum.concat/1         28.42 K - 5.32x slower +28.58 μs
