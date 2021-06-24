@@ -329,6 +329,18 @@ defmodule A.Vector.Tail do
     partial_zip(new_tail, tail2, i)
   end
 
+  def partial_zip_with(tail1, tail2, start, fun)
+
+  def partial_zip_with(tail1, _tail2, _i = C.branch_factor(), _fun), do: tail1
+
+  def partial_zip_with(tail1, tail2, i, fun) do
+    i = i + 1
+    value1 = :erlang.element(i, tail1)
+    value2 = :erlang.element(i, tail2)
+    new_tail = :erlang.setelement(i, tail1, fun.(value1, value2))
+    partial_zip_with(new_tail, tail2, i, fun)
+  end
+
   def partial_unzip(tail, start) do
     do_partial_unzip(tail, tail, start)
   end

@@ -269,6 +269,9 @@ defmodule A.Vector.PropTest do
 
       assert index_vector === A.Vector.zip(vector, A.Vector.new(i1..(list_length + i1)))
 
+      assert index_vector ===
+               A.Vector.zip_with(vector, A.Vector.new(0..list_length), &{&1, &2 + i1})
+
       assert {vector, i1..(list_length + i1) |> Enum.drop(-1) |> A.Vector.new()} ==
                A.Vector.unzip(index_vector)
 

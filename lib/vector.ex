@@ -2110,6 +2110,30 @@ defmodule A.Vector do
   end
 
   @doc """
+  Zips corresponding elements from two vectors into a new vector,
+  transforming them with the `zip_fun` function as it goes.
+
+  The corresponding elements from each vector are passed to the
+  provided 2-arity `zip_fun` function in turn.
+
+  Runs in linear time.
+
+      iex> A.Vector.zip_with(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]), &{&2, &1})
+      vec([a: 1, b: 2, c: 3])
+      iex> A.Vector.zip_with(A.Vector.new(0..100), A.Vector.new([:a, :b, :c]), &{&2, &1})
+      vec([a: 0, b: 1, c: 2])
+
+  """
+  @spec zip_with(t(val1), t(val2), (val1, val2 -> val3)) :: t(val3)
+        when val1: value, val2: value, val3: value
+  def zip_with(vector1, vector2, zip_fun)
+
+  def zip_with(%__MODULE__{__vector__: internal1}, %__MODULE__{__vector__: internal2}, zip_fun)
+      when is_function(zip_fun, 2) do
+    Raw.zip_with(internal1, internal2, zip_fun) |> from_internal()
+  end
+
+  @doc """
   Opposite of `zip/2`. Extracts two-element tuples from the given `vector` and groups them together.
 
   It takes a `vector` with elements being two-element tuples and returns a tuple with two vectors,

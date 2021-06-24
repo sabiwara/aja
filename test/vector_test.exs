@@ -371,6 +371,32 @@ defmodule A.VectorTest do
              A.Vector.zip(A.Vector.new(1..500), A.Vector.new(-1..-1000))
   end
 
+  test "zip_with/3" do
+    assert A.Vector.new() == A.Vector.zip_with(A.Vector.new(), A.Vector.new(1..1000), &-/2)
+    assert A.Vector.new() == A.Vector.zip_with(A.Vector.new(1..1000), A.Vector.new(), &-/2)
+
+    assert A.Vector.new(1..5, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..1000), A.Vector.new(-1..-5), &-/2)
+
+    assert A.Vector.new(1..5, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..5), A.Vector.new(-1..-1000), &-/2)
+
+    assert A.Vector.new(1..5, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..5), A.Vector.new(-1..-5), &-/2)
+
+    assert A.Vector.new(1..50, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..1000), A.Vector.new(-1..-50), &-/2)
+
+    assert A.Vector.new(1..50, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..50), A.Vector.new(-1..-1000), &-/2)
+
+    assert A.Vector.new(1..500, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..1000), A.Vector.new(-1..-500), &-/2)
+
+    assert A.Vector.new(1..500, &(&1 * 2)) ==
+             A.Vector.zip_with(A.Vector.new(1..500), A.Vector.new(-1..-1000), &-/2)
+  end
+
   test "unzip/2" do
     assert {A.Vector.new(), A.Vector.new()} == A.Vector.unzip(A.Vector.new())
 

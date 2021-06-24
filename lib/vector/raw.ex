@@ -1090,6 +1090,38 @@ defmodule A.Vector.Raw do
 
   defp do_zip(empty_pattern(), empty_pattern()), do: @empty
 
+  @spec zip_with(t(val1), t(val2), (val1, val2 -> val3)) :: t(val3)
+        when val1: value, val2: value, val3: value
+  def zip_with(vector1, vector2, fun) do
+    size1 = size(vector1)
+    size2 = size(vector2)
+
+    cond do
+      size1 > size2 -> do_zip_with(take(vector1, size2), vector2, fun)
+      size1 == size2 -> do_zip_with(vector1, vector2, fun)
+      true -> do_zip_with(vector1, take(vector2, size1), fun)
+    end
+  end
+
+  defp do_zip_with(small(size, tail1, _first1), small(size, tail2, _first2), fun) do
+    new_tail = Tail.partial_zip_with(tail1, tail2, C.branch_factor() - size, fun)
+    new_first = elem(new_tail, C.branch_factor() - size)
+    small(size, new_tail, new_first)
+  end
+
+  defp do_zip_with(
+         large(size, tail_offset, level, trie1, tail1, _first1),
+         large(size, tail_offset, level, trie2, tail2, _first2),
+         fun
+       ) do
+    new_tail = Tail.partial_zip_with(tail1, tail2, C.branch_factor() + tail_offset - size, fun)
+    new_trie = Trie.zip_with(trie1, trie2, level, fun)
+    new_first = Trie.first(new_trie, level)
+    large(size, tail_offset, level, new_trie, new_tail, new_first)
+  end
+
+  defp do_zip_with(empty_pattern(), empty_pattern(), _fun), do: @empty
+
   @spec unzip(t({val1, val2})) :: {t(val1), t(val2)} when val1: value, val2: value
   def unzip(small(size, tail, _size)) do
     {tail1, tail2} = Tail.partial_unzip(tail, C.branch_factor() - size)
