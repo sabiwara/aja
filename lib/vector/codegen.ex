@@ -138,13 +138,18 @@ defmodule A.Vector.CodeGen do
   end
 
   def arguments_with_wildcards(i) when i in 1..@branch_factor do
-    nils = List.duplicate(@wildcard, @branch_factor - i)
-    Enum.take(@arguments_ast, i) ++ nils
+    wilds = List.duplicate(@wildcard, @branch_factor - i)
+    Enum.take(@arguments_ast, i) ++ wilds
   end
 
   def arguments_with_left_wildcards(i) when i in 1..@branch_factor do
-    nils = List.duplicate(@wildcard, @branch_factor - i)
-    nils ++ Enum.take(@arguments_ast, i)
+    wilds = List.duplicate(@wildcard, @branch_factor - i)
+    wilds ++ Enum.take(@arguments_ast, i)
+  end
+
+  def arguments_with_complement_wildcards(i) when i in 1..@branch_factor do
+    wilds = List.duplicate(@wildcard, i)
+    Enum.drop(@arguments_ast, i) ++ wilds
   end
 
   def array_with_wildcards(n) do
@@ -156,6 +161,12 @@ defmodule A.Vector.CodeGen do
   def array_with_left_wildcards(n) do
     n
     |> arguments_with_left_wildcards()
+    |> do_array()
+  end
+
+  def array_with_complement_wildcards(n) do
+    n
+    |> arguments_with_complement_wildcards()
     |> do_array()
   end
 

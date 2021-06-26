@@ -466,9 +466,11 @@ defmodule A.Vector do
   """
   @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
   def concat(%__MODULE__{__vector__: internal}, enumerable) do
-    list = A.EnumHelper.to_list(enumerable)
-
-    Raw.concat_list(internal, list) |> from_internal()
+    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+      list when is_list(list) -> Raw.concat_list(internal, list)
+      vector when is_tuple(vector) -> Raw.concat_vector(internal, vector)
+    end
+    |> from_internal()
   end
 
   @doc false

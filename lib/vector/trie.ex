@@ -10,56 +10,6 @@ defmodule A.Vector.Trie do
   @type t(value) :: Node.t(t(value) | value)
 
   # BUILD TRIE
-
-  @spec group_leaves([val]) :: {non_neg_integer, non_neg_integer, [leaf(val)], Tail.t(val)}
-        when val: value
-  def group_leaves(list) do
-    do_group_leaves(list, [], 0)
-  end
-
-  @compile {:inline, do_group_leaves: 3}
-  defp do_group_leaves(unquote(C.list_with_rest(C.var(rest))), acc, count) when rest != [] do
-    do_group_leaves(
-      rest,
-      [unquote(C.array()) | acc],
-      count + C.branch_factor()
-    )
-  end
-
-  defp do_group_leaves(rest, acc, count) do
-    last = Tail.partial_from_list(rest)
-    {count + length(rest), count, :lists.reverse(acc), last}
-  end
-
-  @spec group_map_leaves([v1], (v1 -> v2)) ::
-          {non_neg_integer, non_neg_integer, [leaf(v2)], Tail.t(v2)}
-        when v1: value, v2: value
-  def group_map_leaves(list, fun) do
-    do_group_map_leaves(list, fun, [], 0)
-  end
-
-  @compile {:inline, do_group_map_leaves: 4}
-  defp do_group_map_leaves(unquote(C.list_with_rest(C.var(rest))), fun, acc, count)
-       when rest != [] do
-    new_leaf =
-      unquote(
-        C.arguments()
-        |> Enum.map(C.apply_mapper(C.var(fun)))
-        |> C.array()
-      )
-
-    do_group_map_leaves(rest, fun, [new_leaf | acc], count + C.branch_factor())
-  end
-
-  defp do_group_map_leaves(rest, fun, acc, count) do
-    last =
-      rest
-      |> Enum.map(fun)
-      |> Tail.partial_from_list()
-
-    {count + length(rest), count, :lists.reverse(acc), last}
-  end
-
   def group_leaves_ast(list) do
     do_group_leaves_ast(list, [], 0)
   end
@@ -127,35 +77,6 @@ defmodule A.Vector.Trie do
     put_elem(node, count, child)
   end
 
-  @spec from_leaves([leaf(val)]) :: nil | {non_neg_integer, t(val)} when val: value
-  def from_leaves(leaves)
-
-  def from_leaves([]), do: nil
-  def from_leaves([leaf]), do: {0, leaf}
-  def from_leaves(leaves), do: do_from_nodes(leaves, C.bits())
-
-  @compile {:inline, do_from_nodes: 2}
-  defp do_from_nodes(nodes, level)
-
-  defp do_from_nodes(unquote(C.list_with_rest(C.var(rest))), level) when rest != [] do
-    nodes = [unquote(C.array()) | group_nodes(rest)]
-    do_from_nodes(nodes, C.incr_level(level))
-  end
-
-  defp do_from_nodes(nodes, level) do
-    {level, Node.from_incomplete_list(nodes)}
-  end
-
-  defp group_nodes(nodes)
-
-  defp group_nodes(unquote(C.list_with_rest(C.var(rest)))) when rest != [] do
-    [unquote(C.array()) | group_nodes(rest)]
-  end
-
-  defp group_nodes(nodes) do
-    [Node.from_incomplete_list(nodes)]
-  end
-
   @spec from_ast_leaves([leaf(val)]) :: nil | {non_neg_integer, t(val)} when val: value
   def from_ast_leaves(leaves)
 
@@ -184,7 +105,6 @@ defmodule A.Vector.Trie do
     [nodes |> C.fill_with(nil) |> C.array()]
   end
 
-  @compile {:inline, append_leaf: 4}
   def append_leaf(trie, level, index, leaf)
 
   def append_leaf(trie, _level = 0, _index, leaf) do
@@ -234,16 +154,6 @@ defmodule A.Vector.Trie do
   defp build_single_branch(leaf, level) do
     child = build_single_branch(leaf, C.decr_level(level))
     unquote(C.var(child) |> C.value_with_nils() |> C.array())
-  end
-
-  @compile {:inline, append_leaves: 4}
-  def append_leaves(trie, level, index, leaves)
-
-  def append_leaves(trie, level, _index, []), do: {trie, level}
-
-  def append_leaves(trie, level, index, [leaf | rest]) do
-    {new_trie, new_level} = append_leaf(trie, level, index, leaf)
-    append_leaves(new_trie, new_level, index + C.branch_factor(), rest)
   end
 
   # ACCESS
@@ -698,6 +608,51 @@ defmodule A.Vector.Trie do
         end
       end)
       |> C.array()
+    )
+  end
+
+  def list_leaves(trie, _level = 0, acc, _index) do
+    [trie | acc]
+  end
+
+  def list_leaves(trie, level, acc, index) do
+    current_index = C.radix_search(index, level)
+    child = elem(trie, current_index)
+
+    child_acc = list_leaves(child, C.decr_level(level), acc, index)
+    list_leaves_sparse(trie, level, child_acc, current_index)
+  end
+
+  def list_leaves_sparse(_trie, _level, acc, _current_index = 0), do: acc
+
+  def list_leaves_sparse(trie, level, acc, current_index) do
+    child = :erlang.element(current_index, trie)
+    new_acc = list_leaves_dense(child, C.decr_level(level), acc)
+    list_leaves_sparse(trie, level, new_acc, current_index - 1)
+  end
+
+  def list_leaves_dense(trie, _level = 0, acc) do
+    [trie | acc]
+  end
+
+  def list_leaves_dense(unquote(C.array()), _level = C.bits(), acc) do
+    unquote(C.list_with_rest(C.var(acc)))
+  end
+
+  def list_leaves_dense(unquote(C.array()), level, acc) do
+    child_level = C.decr_level(level)
+
+    unquote(
+      C.reversed_arguments()
+      |> Enum.reduce(C.var(acc), fn arg, ast_acc ->
+        quote do
+          list_leaves_dense(
+            unquote(arg),
+            var!(child_level),
+            unquote(ast_acc)
+          )
+        end
+      end)
     )
   end
 

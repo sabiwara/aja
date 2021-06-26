@@ -17,9 +17,9 @@ Benchmarking :array.from_list/1...
 Benchmarking A.Vector.new/1...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.new/1            2.17 M        0.46 μs  ±7339.26%        0.34 μs        0.64 μs
-:array.from_list/1        1.00 M        1.00 μs  ±2447.39%        0.85 μs        1.53 μs
+A.Vector.new/1            2.07 M        0.48 μs  ±7796.04%        0.33 μs        0.76 μs
+:array.from_list/1        0.87 M        1.14 μs  ±2761.22%        0.89 μs        2.23 μs
 
 Comparison: 
-A.Vector.new/1            2.17 M
-:array.from_list/1        1.00 M - 2.18x slower +0.54 μs
+A.Vector.new/1            2.07 M
+:array.from_list/1        0.87 M - 2.37x slower +0.66 μs

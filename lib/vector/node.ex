@@ -21,6 +21,42 @@ defmodule A.Vector.Node do
     end
   end
 
+  # def from_incomplete_reverse_list([arg2, arg1]) do
+  #   {arg1, arg2, nil, nil}
+  # end
+  for i <- C.range() do
+    def from_incomplete_reverse_list(unquote(C.arguments(i) |> Enum.reverse())) do
+      unquote(C.array_with_nils(i))
+    end
+  end
+
+  # def from_offset_nodes({_, _, _, arg1}, {arg2, arg3, arg4, _}, 3) do
+  #   {arg1, arg2, arg3, arg4}
+  # end
+  for i <- C.range() do
+    def from_offset_nodes(
+          unquote(C.array_with_left_wildcards(i)),
+          unquote(C.array_with_complement_wildcards(i)),
+          unquote(C.branch_factor() - i)
+        ) do
+      unquote(C.array())
+    end
+  end
+
+  # def shift(node, offset) do
+  #   {elem(node, (0 + offset) &&& 15), elem(node, (1 + offset) &&& 15), ...}
+  # end
+  def shift(node, offset) do
+    unquote(
+      Enum.map(C.range(), fn i ->
+        quote do
+          elem(var!(node), C.radix_rem(unquote(i - 1) + var!(offset)))
+        end
+      end)
+      |> C.array()
+    )
+  end
+
   # def to_list({arg1, arg2, arg3, arg4}) do
   #   [arg1, arg2, arg3, arg4]
   # end

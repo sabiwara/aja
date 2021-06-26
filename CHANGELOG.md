@@ -5,6 +5,7 @@
 ### Enhancement
 
 * Add support for stepped ranges in Elixir 1.12
+* More efficient implementation of vector concatenation
 * Add `A.Enum.concat/1`
 * Add `A.Vector.zip_with/3`
 

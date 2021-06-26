@@ -5,7 +5,7 @@ defmodule A.Vector.Raw do
 
   require A.Vector.CodeGen, as: C
 
-  alias A.Vector.{Node, Tail, Trie}
+  alias A.Vector.{Builder, Node, Tail, Trie}
 
   @empty {0}
 
@@ -89,28 +89,36 @@ defmodule A.Vector.Raw do
   def from_list([]), do: @empty
 
   def from_list(list = [first | _]) do
-    {size, tail_offset, leaves, tail} = Trie.group_leaves(list)
+    list |> Builder.from_list() |> from_builder(first)
+  end
 
-    case Trie.from_leaves(leaves) do
-      nil -> small(size, tail, first)
-      {shift, trie} -> large(size, tail_offset, shift, trie, tail, first)
-    end
+  defp from_builder({[], size, tail}, first) do
+    small(size, tail, first)
+  end
+
+  defp from_builder({tries, tail_size, tail}, first) do
+    {level, trie} = Builder.to_trie(tries, 0)
+    tail_offset = Builder.tail_offset(tries, C.bits(), 0)
+    large(tail_offset + tail_size, tail_offset, level, trie, tail, first)
   end
 
   @spec from_mapped_list([v1], (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def from_mapped_list([], _fun), do: @empty
 
   def from_mapped_list(list, fun) when is_list(list) do
-    {size, tail_offset, leaves, tail} = Trie.group_map_leaves(list, fun)
+    list |> Builder.map_from_list(fun) |> from_builder()
+  end
 
-    case Trie.from_leaves(leaves) do
-      nil ->
-        first = elem(tail, C.branch_factor() - size)
-        small(size, tail, first)
+  defp from_builder({[], size, tail}) do
+    first = :erlang.element(unquote(1 + C.branch_factor()) - size, tail)
+    small(size, tail, first)
+  end
 
-      {level, trie} ->
-        large(size, tail_offset, level, trie, tail, Trie.first(trie, level))
-    end
+  defp from_builder({tries, tail_size, tail}) do
+    {level, trie} = Builder.to_trie(tries, 0)
+    tail_offset = Builder.tail_offset(tries, C.bits(), 0)
+    first = Trie.first(trie, level)
+    large(tail_offset + tail_size, tail_offset, level, trie, tail, first)
   end
 
   def from_list_ast([]), do: unquote(Macro.escape(@empty) |> Macro.escape())
@@ -174,19 +182,8 @@ defmodule A.Vector.Raw do
       {new_tail, added, []} ->
         small(size + added, new_tail, first)
 
-      {first_leaf, added_tail, list} ->
-        {added_size, tail_offset, leaves, new_tail} = Trie.group_leaves(list)
-
-        {shift, trie} = Trie.from_leaves([first_leaf | leaves])
-
-        large(
-          size + added_size + added_tail,
-          tail_offset + C.branch_factor(),
-          shift,
-          trie,
-          new_tail,
-          first
-        )
+      {first_leaf, _added, list} ->
+        [[first_leaf]] |> Builder.concat_list(list) |> from_builder(first)
     end
   end
 
@@ -195,20 +192,69 @@ defmodule A.Vector.Raw do
       {new_tail, added, []} ->
         large(size + added, tail_offset, level, trie, new_tail, first)
 
-      {first_leaf, added_tail, list} ->
-        {added_size, added_offset, leaves, new_tail} = Trie.group_leaves(list)
-
-        {new_trie, new_level} =
-          Trie.append_leaves(trie, level, tail_offset, [first_leaf | leaves])
-
-        new_size = size + added_size + added_tail
-        new_offset = tail_offset + added_offset + C.branch_factor()
-        large(new_size, new_offset, new_level, new_trie, new_tail, first)
+      {first_leaf, _added, list} ->
+        Builder.from_trie(trie, level, tail_offset)
+        |> Builder.append_node(first_leaf)
+        |> Builder.concat_list(list)
+        |> from_builder(first)
     end
   end
 
   def concat_list(empty_pattern(), list) do
     from_list(list)
+  end
+
+  def concat_vector(empty_pattern(), right), do: right
+  def concat_vector(left, empty_pattern()), do: left
+
+  def concat_vector(left, right = small(_, _, _)) do
+    concat_list(left, to_list(right))
+  end
+
+  def concat_vector(left = small(_, _, _), right) do
+    # can probably fo better
+    left |> to_list(to_list(right)) |> from_list()
+  end
+
+  def concat_vector(
+        large(size1, tail_offset1, level1, trie1, tail1, first1),
+        large(size2, tail_offset2, level2, trie2, tail2, _first2)
+      ) do
+    leaves2 = Trie.list_leaves(trie2, level2, [], tail_offset2 - 1)
+
+    Builder.from_trie(trie1, level1, tail_offset1)
+    |> do_concat_vector(tail1, size1 - tail_offset1, leaves2, tail2, size2 - tail_offset2)
+    |> from_builder(first1)
+  end
+
+  defp do_concat_vector(
+         builder,
+         tail1,
+         _tail_size1 = C.branch_factor(),
+         leaves2,
+         tail2,
+         tail_size2
+       ) do
+    builder
+    |> Builder.append_node(tail1)
+    |> Builder.append_nodes(leaves2)
+    |> Builder.append_tail(tail2, tail_size2)
+  end
+
+  defp do_concat_vector(builder, tail1, tail_size1, leaves2, tail2, tail_size2) do
+    [first_right_leaf | _] = leaves2
+
+    {completed_tail, added, _list} =
+      Tail.complete_tail(tail1, tail_size1, Node.to_list(first_right_leaf))
+
+    builder
+    |> Builder.append_node(completed_tail)
+    |> Builder.append_nodes_with_offset(
+      leaves2,
+      added,
+      tail2,
+      tail_size2
+    )
   end
 
   def prepend(vector, value) do
