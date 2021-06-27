@@ -150,7 +150,10 @@ defmodule A.Enum do
   Mirrors `Enum.into/2` with higher performance for Aja structures.
   """
   @spec into(t(val), Collectable.t()) :: Collectable.t() when val: value
+  def into(enumerable, collectable)
+
   def into(enumerable, %A.Vector{} = vector) do
+    # TODO improve when this is the empty vector/ord_map
     A.Vector.concat(vector, enumerable)
   end
 
@@ -160,10 +163,36 @@ defmodule A.Enum do
 
   def into(enumerable, collectable) do
     case H.try_get_raw_vec_or_list(enumerable) do
-      nil -> Enum.into(enumerable, collectable)
-      list when is_list(list) -> Enum.into(list, collectable)
-      vector -> RawVector.to_list(vector) |> Enum.into(collectable)
+      nil -> enumerable
+      list when is_list(list) -> list
+      vector -> RawVector.to_list(vector)
     end
+    |> Enum.into(collectable)
+  end
+
+  @doc """
+  Inserts the given `enumerable` into a `collectable` according to the `transform` function.
+
+  Mirrors `Enum.into/3` with higher performance for Aja structures.
+  """
+  def into(enumerable, collectable, transform)
+
+  def into(enumerable, %A.Vector{} = vector, transform) do
+    # TODO we can probably improve this with the builder
+    A.Vector.concat(vector, H.map(enumerable, transform))
+  end
+
+  def into(enumerable, %A.OrdMap{} = ord_map, transform) do
+    A.OrdMap.merge_list(ord_map, H.map(enumerable, transform))
+  end
+
+  def into(enumerable, collectable, transform) when is_function(transform, 1) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> enumerable
+      list when is_list(list) -> list
+      vector -> RawVector.to_list(vector)
+    end
+    |> Enum.into(collectable, transform)
   end
 
   @doc """

@@ -140,6 +140,10 @@ defmodule A.Vector.PropTest do
       assert vz === A.Enum.into(vy, vx)
       assert vz === Enum.into(y, vx)
       assert vz === Enum.into(vy, vx)
+      assert vz === A.Enum.into(y, vx, & &1)
+      assert vz === A.Enum.into(vy, vx, & &1)
+      assert vz === Enum.into(y, vx, & &1)
+      assert vz === Enum.into(vy, vx, & &1)
 
       assert A.Vector.size(vz) === A.Vector.size(vx) + A.Vector.size(vy)
     end
