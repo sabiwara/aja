@@ -517,4 +517,30 @@ defmodule A.Enum.PropTest do
       assert ^concat = A.Enum.flat_map(stream, & &1)
     end
   end
+
+  property "A.Enum functions working with collectables should work the same as Enum" do
+    check all(
+            enumerable <- enumerable_of({value(), value()}),
+            collectable <- collectable_of({value(), value()})
+          ) do
+      into = Enum.into(enumerable, collectable)
+
+      is_plain_map = is_map(enumerable) and not is_struct(enumerable)
+
+      unless is_plain_map do
+        # the order is inconsistent for maps (to_list vs reduce)
+        assert ^into = A.Enum.into(enumerable, collectable)
+      end
+
+      assert ^into = Enum.into(enumerable, collectable, & &1)
+
+      unless is_plain_map do
+        assert ^into = A.Enum.into(enumerable, collectable, & &1)
+
+        transform = fn {x, y} -> {y, x} end
+        into_transformed = Enum.into(enumerable, collectable, transform)
+        assert ^into_transformed = A.Enum.into(enumerable, collectable, transform)
+      end
+    end
+  end
 end
