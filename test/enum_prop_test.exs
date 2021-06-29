@@ -502,15 +502,7 @@ defmodule A.Enum.PropTest do
   end
 
   property "A.Enum functions taking an enumerable of enumerables should work the same as Enum" do
-    check all(specs <- list_of({one_of([List, MapSet, Stream, A.Vector]), list_of(value())})) do
-      list =
-        Enum.map(specs, fn
-          {List, x} -> x
-          {MapSet, x} -> MapSet.new(x)
-          {Stream, x} -> Stream.map(x, & &1)
-          {A.Vector, x} -> A.Vector.new(x)
-        end)
-
+    check all(list <- list_of(enumerable_of(value()))) do
       vector = A.Vector.new(list)
       stream = Stream.map(list, & &1)
 
