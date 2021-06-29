@@ -1250,7 +1250,7 @@ defmodule A.OrdMap do
     new_vector =
       vector
       |> RawVector.concat_list(:lists.reverse(reversed_kvs))
-      |> do_fix_vector_duplicates(map, duplicates)
+      |> do_fix_vector_duplicates(new_map, duplicates)
 
     %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end

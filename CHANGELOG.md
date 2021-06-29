@@ -11,6 +11,7 @@
 
 ### Bug fixes
 
+* Fix bug in `A.Enum.into/2` when merging into an `A.OrdMap`
 * Fix `A.vec/1` bug when ranges use negative number
 
 ### Breaking changes
