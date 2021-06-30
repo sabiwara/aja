@@ -9,6 +9,7 @@ defmodule Aja.MixProject do
       version: @version,
       elixir: "~> 1.10",
       deps: deps(),
+      start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() != :test,
       aliases: aliases(),
       preferred_cli_env: [
