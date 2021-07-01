@@ -103,13 +103,19 @@ All data structures offer:
 `A.Enum` mirrors the `Enum` module, but its implementation is highly optimized for
 Aja structures such as `A.Vector` or `A.OrdMap`.
 
-`A.Enum` on vectors/ord maps can be even faster than `Enum` on lists/maps,
+`A.Enum` on vectors/ord maps can often be faster than `Enum` on lists/maps,
 depending on the function and size of the sequence.
 
 
 ## Utility functions
 
-#### Sigil i for [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
+#### IO data
+
+[IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
+are nested structures based on lists to work more efficiently with binary/text
+data without the need for any expensive concatenation.
+
+The `~i` sigil provides a way to build IO data using string interpolation:
 
 ```elixir
 iex> import A
@@ -117,34 +123,16 @@ iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
 ["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
 ```
 
-#### *Don't Break The Pipe!*
+The `A.IO` module provides functions to work with IO data:
 
 ```elixir
-iex> %{foo: "bar"} |> A.Pair.wrap(:noreply)
-{:noreply, %{foo: "bar"}}
-iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
-55
-```
-
-#### Various other convenience helpers
-
-```elixir
-iex> A.String.slugify("> \"It Was Me, Dio!!!\"\n")
-"it-was-me-dio"
-iex> A.Integer.decimal_format(1234567)
-"1,234,567"
-iex> A.Integer.div_rem(7, 3)
-{2, 1}
-iex> A.List.repeat(&:rand.uniform/0, 3)
-[0.7498295129076106, 0.06161655489244533, 0.7924073127680873]
+iex> A.IO.to_iodata(:foo)
+"foo"
+iex> A.IO.to_iodata(["abc", 'def' | "ghi"])
+["abc", 'def' | "ghi"]
 iex> A.IO.iodata_empty?(["", []])
 true
 ```
-
-Nothing groundbreaking, but having these helpers to hand might save you the implementation
-and the testing, or bringing over a library just for this one thing.
-
-Browse the API documentation for more details.
 
 ## Installation
 
@@ -163,8 +151,8 @@ Or, if you are using Elixir 1.12, you can just try it out from `iex` or an `.exs
 ```elixir
 iex> Mix.install([:aja])
 :ok
-iex> A.String.slugify("Hello, World!")
-"hello-world"
+iex> A.Vector.new(["Hello", "world!"])
+vec(["Hello", "world!"])
 ```
 
 Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
@@ -177,25 +165,17 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
   well-documented and just **delightful** ✨️
 - the also amazing [Python standard library](https://docs.python.org/3/library/),
   notably its [collections](https://docs.python.org/3/library/collections.html) module
-- the amazing [lodash](https://lodash.com/docs) which complements nicely the (historically rather small)
-  javascript standard library, with a very consistent API
 - various work on efficient [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure) spearheaded by Okasaki
-  (see [resources section](#resources) below)
 - Clojure's persistent vectors, by Rich Hickey and influenced by Phil Bagwell
 
 ### Goals
 
-- like the standard library, being **delightful** to use ✨️ (consistency with Elixir and itself, quality, documentation)
+- being consistent with Elixir and with itself (API, quality, documentation)
 - no external dependency to help you preserve a decent dependency tree
 - performance-conscious (right algorithm, proper benchmarking, fast compile times*)
 - mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
 
 (\* while fast compile time is a target, vectors are optimized for fast runtime at the expense of compile time)
-
-### Non-goals
-
-- add every possible feature that has not been accepted in elixir core (Aja is opinionated!)
-- touching anything OTP-related / stateful
 
 ### Resources
 
@@ -221,15 +201,15 @@ This effort is far from perfect, but increases our confidence in the overall rel
 #### Vectors
 
 Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
-noticeably faster than equivalent list operations (map, folds, join, sum...). Make sure to read the performance
-guide from the doc.
+noticeably faster than equivalent list operations (map, folds, join, sum...). Make sure to read the efficiency
+guide from `A.Vector` doc.
 
 #### Ordered maps
 
 Performance for ordered maps has an inevitable though decent overhead over plain maps in terms of creation and
 update time (write operations), as well as memory usage, since some extra work is needed to keep track of the order.
 It has however very good read performance, with a very minimal overhead in terms of key access, and can be
-enumerated much faster than maps.
+enumerated much faster than maps using `A.Enum`.
 
 #### Aja 💖️ JIT
 
@@ -246,35 +226,6 @@ performance-critical sections of your code, make sure to benchmark them.
 Benchmarking is still a work in progress, but you can check the
 [`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more detailed figures.
 
-### Does Aja try to do too much?
-
-The Unix philosophy of *"Do one thing and do it well"* is arguably the right approach in many cases.
-Aja doesn't really follow it, but there are conscious reasons for going that direction.
-
-While it might be possible later down the road to split some of its components, there is no plan to do so
-at the moment.
-
-First, we don't think there is any real downside of shipping "too much": Aja is and aims to remain
-lightweight and keep a modular structure.
-You can just use what you need without suffering from what you don't.
-
-This lodash-like approach has benefits too: it aims to ship with a lot of convenience while introducing only
-one flat dependency. This can help staying out of two extreme paths:
-
-- the ["leftpad way"](https://www.theregister.com/2016/03/23/npm_left_pad_chaos/), where every project relies on
-  a ton of small dependencies, ending up with un-manageable dependency trees and brittle software.
-- the ["Lisp Curse way"](http://winestockwebdesign.com/Essays/Lisp_Curse.html), where everybody keeps rewriting
-  the same thing over and over because nobody wants the extra dependency. Being a hidden Lisp with similar
-  super powers and expressiveness, Elixir might make it relatively easy and tempting to go down that path.
-
-Finally, data structures can work more efficiently together than if they were separated libraries.
-
-### What are the next steps?
-
-Nothing is set in stone, but the next steps will probably be:
-- complete the API for `A.Enum` and improve its ergonomics
-- more benchmarks and performance optimizations
-- investigate how to make a subset of Aja available on other BEAM languages
 
 ## Copyright and License
 
