@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.5.2 (2021-07-01)
+
 ### Enhancement
 
 * Add support for stepped ranges in Elixir 1.12
