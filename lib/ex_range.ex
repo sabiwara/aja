@@ -1,8 +1,6 @@
 defmodule A.ExRange do
   @moduledoc false
 
-  import A, only: [~>: 2]
-
   @type t :: %__MODULE__{start: integer, stop: integer}
   @enforce_keys [:start, :stop]
   defstruct [:start, :stop]
@@ -38,7 +36,7 @@ defmodule A.ExRange do
 
   """
   @spec disjoint?(t, t) :: boolean
-  def disjoint?(start1 ~> stop1 = _range1, start2 ~> stop2 = _range2) do
+  def disjoint?(%__MODULE__{start: start1, stop: stop1}, %__MODULE__{start: start2, stop: stop2}) do
     {start1, stop1} = normalize(start1, stop1)
     {start2, stop2} = normalize(start2, stop2)
     stop2 < start1 + 1 or stop1 < start2 + 1
@@ -49,7 +47,7 @@ defmodule A.ExRange do
   defp normalize(start, stop), do: {start, stop}
 
   defimpl Enumerable do
-    def reduce(start ~> stop, acc, fun) do
+    def reduce(%A.ExRange{start: start, stop: stop}, acc, fun) do
       reduce(start, stop, acc, fun, _up? = stop >= start)
     end
 
@@ -73,7 +71,7 @@ defmodule A.ExRange do
       {:done, acc}
     end
 
-    def member?(start ~> stop, value) when is_integer(value) do
+    def member?(%A.ExRange{start: start, stop: stop}, value) when is_integer(value) do
       if start <= stop do
         {:ok, start <= value and value < stop}
       else
@@ -81,11 +79,11 @@ defmodule A.ExRange do
       end
     end
 
-    def member?(_ ~> _, _value) do
+    def member?(%A.ExRange{}, _value) do
       {:ok, false}
     end
 
-    def count(start ~> stop) do
+    def count(%A.ExRange{start: start, stop: stop}) do
       if start <= stop do
         {:ok, stop - start}
       else
@@ -93,7 +91,7 @@ defmodule A.ExRange do
       end
     end
 
-    def slice(start ~> stop) do
+    def slice(%A.ExRange{start: start, stop: stop}) do
       if start <= stop do
         {:ok, stop - start, &slice_asc(start + &1, &2)}
       else
@@ -111,7 +109,7 @@ defmodule A.ExRange do
   defimpl Inspect do
     import Inspect.Algebra
 
-    def inspect(start ~> stop, opts) do
+    def inspect(%A.ExRange{start: start, stop: stop}, opts) do
       concat([
         "#A<",
         to_doc(start, opts),
