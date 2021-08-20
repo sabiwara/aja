@@ -4,7 +4,8 @@
 [![docs](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/aja/)
 [![CI](https://github.com/sabiwara/aja/workflows/CI/badge.svg)](https://github.com/sabiwara/aja/actions?query=workflow%3ACI)
 
-Extension of the Elixir standard library focused on data stuctures, data manipulation and performance.
+Extension of the Elixir standard library focused on data stuctures, data
+manipulation and performance.
 
 - [Data structures](#data-structures)
 - [Utility functions](#utility-functions)
@@ -14,14 +15,16 @@ Extension of the Elixir standard library focused on data stuctures, data manipul
 
 ## Data structures
 
-> "there is one aspect of functional programming that no amount of cleverness on the part of the
-  compiler writer is likely to mitigate — the use of inferior or inappropriate data structures."
-> -- [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+> "there is one aspect of functional programming that no amount of cleverness on
+> the part of the compiler writer is likely to mitigate — the use of inferior or
+> inappropriate data structures." --
+> [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
 
 #### Persistent vectors: `A.Vector`
 
-A blazing fast, pure Elixir implementation of a persistent vector, meant to offer an efficient alternative to lists.
-Supports many operations like appends and random access in effective constant time.
+A blazing fast, pure Elixir implementation of a persistent vector, meant to
+offer an efficient alternative to lists. Supports many operations like appends
+and random access in effective constant time.
 
 ```elixir
 iex> vector = A.Vector.new(1..10)
@@ -36,12 +39,13 @@ iex> 3 in vector
 true
 ```
 
-`A.Vector` reimplements many of the functions from the `Enum` module specifically for vectors,
-with efficiency in mind. It should be easier to use from Elixir than Erlang's
-[`:array`](http://erlang.org/doc/man/array.html) module and faster in most cases.
+`A.Vector` reimplements many of the functions from the `Enum` module
+specifically for vectors, with efficiency in mind. It should be easier to use
+from Elixir than Erlang's [`:array`](http://erlang.org/doc/man/array.html)
+module and faster in most cases.
 
-The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make it easier to work with vectors
-and make pattern-matching possible:
+The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make
+it easier to work with vectors and make pattern-matching possible:
 
 ```elixir
 iex> import A
@@ -63,8 +67,10 @@ vec([1, 2, 3, 4, 5])
 #### Ordered maps: `A.OrdMap`
 
 The standard library does not offer any similar functionality:
+
 - regular maps do not keep track of the insertion order
-- keywords do but they only support atoms and do not have the right performance characteristics (plain lists)
+- keywords do but they only support atoms and do not have the right performance
+  characteristics (plain lists)
 
 ```elixir
 iex> %{"one" => 1, "two" => 2, "three" => 3}
@@ -78,8 +84,8 @@ iex> Enum.to_list(ord_map)
 ```
 
 Ordered maps behave pretty much like regular maps, and the `A.OrdMap` module
-offers the same API as `Map`.
-The convenience macro `A.ord/1` make them a breeze to instantiate or pattern-match upon:
+offers the same API as `Map`. The convenience macro `A.ord/1` make them a breeze
+to instantiate or pattern-match upon:
 
 ```elixir
 iex> import A
@@ -91,29 +97,29 @@ iex> {one, three}
 ```
 
 All data structures offer:
+
 - great performance characteristics at any size (see [FAQ](#faq))
 - well-documented APIs that are consistent with the standard library
 - implementation of `Inspect`, `Enumerable` and `Collectable` protocols
 - implementation of the `Access` behaviour
-- (optional if `Jason` is installed) implemention of the `Jason.Encoder` protocol
-
+- (optional if `Jason` is installed) implemention of the `Jason.Encoder`
+  protocol
 
 #### Optimized `Enum`: `A.Enum`
 
-`A.Enum` mirrors the `Enum` module, but its implementation is highly optimized for
-Aja structures such as `A.Vector` or `A.OrdMap`.
+`A.Enum` mirrors the `Enum` module, but its implementation is highly optimized
+for Aja structures such as `A.Vector` or `A.OrdMap`.
 
 `A.Enum` on vectors/ord maps can often be faster than `Enum` on lists/maps,
 depending on the function and size of the sequence.
-
 
 ## Utility functions
 
 #### IO data
 
-[IO data](https://hexdocs.pm/elixir/IO.html#module-io-data)
-are nested structures based on lists to work more efficiently with binary/text
-data without the need for any expensive concatenation.
+[IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) are nested
+structures based on lists to work more efficiently with binary/text data without
+the need for any expensive concatenation.
 
 The `~i` sigil provides a way to build IO data using string interpolation:
 
@@ -146,7 +152,8 @@ def deps do
 end
 ```
 
-Or, if you are using Elixir 1.12, you can just try it out from `iex` or an `.exs` script:
+Or, if you are using Elixir 1.12, you can just try it out from `iex` or an
+`.exs` script:
 
 ```elixir
 iex> Mix.install([:aja])
@@ -161,71 +168,85 @@ Documentation can be found at [https://hexdocs.pm/aja](https://hexdocs.pm/aja).
 
 ### Inspirations
 
-- the amazingly polished [Elixir standard library](https://hexdocs.pm/elixir): self-consistent,
-  well-documented and just **delightful** ✨️
-- the also amazing [Python standard library](https://docs.python.org/3/library/),
-  notably its [collections](https://docs.python.org/3/library/collections.html) module
-- various work on efficient [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure) spearheaded by Okasaki
+- the amazingly polished [Elixir standard library](https://hexdocs.pm/elixir):
+  self-consistent, well-documented and just **delightful** ✨️
+- the also amazing
+  [Python standard library](https://docs.python.org/3/library/), notably its
+  [collections](https://docs.python.org/3/library/collections.html) module
+- various work on efficient
+  [persistent data structures](https://en.wikipedia.org/wiki/Persistent_data_structure)
+  spearheaded by Okasaki
 - Clojure's persistent vectors, by Rich Hickey and influenced by Phil Bagwell
 
 ### Goals
 
 - being consistent with Elixir and with itself (API, quality, documentation)
 - no external dependency to help you preserve a decent dependency tree
-- performance-conscious (right algorithm, proper benchmarking, fast compile times*)
-- mostly dead-simple pure functions: no configuration, no mandatory macro, no statefulness / OTP
+- performance-conscious (right algorithm, proper benchmarking, fast compile
+  times\*)
+- mostly dead-simple pure functions: no configuration, no mandatory macro, no
+  statefulness / OTP
 
-(\* while fast compile time is a target, vectors are optimized for fast runtime at the expense of compile time)
+(\* while fast compile time is a target, vectors are optimized for fast runtime
+at the expense of compile time)
 
 ### Resources
 
-- Chris Okasaki's [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
-- Jean Niklas L'orange's [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
-  and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB trees
+- Chris Okasaki's
+  [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+- Jean Niklas L'orange's
+  [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
+  and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB
+  trees
 
 ## FAQ
 
 ### How stable is it?
 
-Aja is still pretty early stage and the high-level organisation is still in flux.
-Expect some breaking changes until it reaches maturity.
+Aja is still pretty early stage and the high-level organisation is still in
+flux. Expect some breaking changes until it reaches maturity.
 
-However, most of its APIs are based on the standard library and should therefore remain fairly stable.
+However, most of its APIs are based on the standard library and should therefore
+remain fairly stable.
 
-Besides, Aja is tested quite thoroughly both with unit tests and property-based testing (especially for
-data structures).
-This effort is far from perfect, but increases our confidence in the overall reliability.
+Besides, Aja is tested quite thoroughly both with unit tests and property-based
+testing (especially for data structures). This effort is far from perfect, but
+increases our confidence in the overall reliability.
 
 ### How is the performance?
 
 #### Vectors
 
-Most operations from `A.Vector` are much faster than Erlang's `:array` equivalents, and in some cases are even
-noticeably faster than equivalent list operations (map, folds, join, sum...). Make sure to read the efficiency
-guide from `A.Vector` doc.
+Most operations from `A.Vector` are much faster than Erlang's `:array`
+equivalents, and in some cases are even noticeably faster than equivalent list
+operations (map, folds, join, sum...). Make sure to read the efficiency guide
+from `A.Vector` doc.
 
 #### Ordered maps
 
-Performance for ordered maps has an inevitable though decent overhead over plain maps in terms of creation and
-update time (write operations), as well as memory usage, since some extra work is needed to keep track of the order.
-It has however very good read performance, with a very minimal overhead in terms of key access, and can be
-enumerated much faster than maps using `A.Enum`.
+Performance for ordered maps has an inevitable though decent overhead over plain
+maps in terms of creation and update time (write operations), as well as memory
+usage, since some extra work is needed to keep track of the order. It has
+however very good read performance, with a very minimal overhead in terms of key
+access, and can be enumerated much faster than maps using `A.Enum`.
 
 #### Aja 💖️ JIT
 
-Aja's data structures (vectors and ordered maps) are already pretty fast on pre-JIT versions of OTP (`<= 23`).
-Benchmarks on OTP 24 suggest however that they are taking great advantage of the
-[JIT](https://blog.erlang.org/a-first-look-at-the-jit/), relative to lists/maps, making them
-even more interesting performance-wise.
+Aja's data structures (vectors and ordered maps) are already pretty fast on
+pre-JIT versions of OTP (`<= 23`). Benchmarks on OTP 24 suggest however that
+they are taking great advantage of the
+[JIT](https://blog.erlang.org/a-first-look-at-the-jit/), relative to lists/maps,
+making them even more interesting performance-wise.
 
 #### Benchmarks
 
-Aja data structures should work fine in most cases, but if you're considering them for
-performance-critical sections of your code, make sure to benchmark them.
+Aja data structures should work fine in most cases, but if you're considering
+them for performance-critical sections of your code, make sure to benchmark
+them.
 
 Benchmarking is still a work in progress, but you can check the
-[`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more detailed figures.
-
+[`bench` folder](https://github.com/sabiwara/aja/blob/main/bench) for more
+detailed figures.
 
 ## Copyright and License
 
