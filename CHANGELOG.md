@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.5.3 (2021-08-20)
+
 ### Enhancement
 
 - Optimize `A.OrdMap` internals to reduce memory usage
