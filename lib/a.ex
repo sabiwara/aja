@@ -165,7 +165,7 @@ defmodule A do
       for {key, value} <- key_value_pairs do
         {key,
          quote do
-           {_, unquote(value)}
+           [_ | unquote(value)]
          end}
       end
 

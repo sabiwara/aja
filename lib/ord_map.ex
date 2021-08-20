@@ -190,9 +190,9 @@ defmodule A.OrdMap do
             iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
             366
             iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
-            1119
+            1019
             iex> Float.round(ord_map_size / map_size, 2)
-            3.06
+            2.78
         """
     else
       base_doc
@@ -208,7 +208,7 @@ defmodule A.OrdMap do
   @type value :: term
   @typep index :: non_neg_integer
   @typep internals(key, value) :: %__MODULE__{
-           __ord_map__: %{optional(key) => {index, value}},
+           __ord_map__: %{optional(key) => [index | value]},
            __ord_vector__: RawVector.t({key, value})
          }
   @type t(key, value) :: internals(key, value)
@@ -405,7 +405,7 @@ defmodule A.OrdMap do
 
   def fetch(%__MODULE__{__ord_map__: map}, key) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => [_index | value]} ->
         {:ok, value}
 
       _ ->
@@ -431,7 +431,7 @@ defmodule A.OrdMap do
   @spec fetch!(t(k, v), k) :: v when k: key, v: value
   def fetch!(%__MODULE__{__ord_map__: map} = ord_map, key) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => [_index | value]} ->
         value
 
       _ ->
@@ -486,7 +486,7 @@ defmodule A.OrdMap do
         value
       ) do
     case map do
-      %{^key => {index, _value}} ->
+      %{^key => [index | _value]} ->
         do_add_existing(map, vector, index, key, value)
 
       _ ->
@@ -515,7 +515,7 @@ defmodule A.OrdMap do
         value
       ) do
     case map do
-      %{^key => {index, _value}} ->
+      %{^key => [index | _value]} ->
         do_add_existing(map, vector, index, key, value)
 
       _ ->
@@ -583,14 +583,14 @@ defmodule A.OrdMap do
 
   defp do_take(map, [key | keys], kvs, map_acc, index) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => [_index | value]} ->
         case map_acc do
           %{^key => _} ->
             do_take(map, keys, kvs, map_acc, index)
 
           _ ->
             new_kvs = [{key, value} | kvs]
-            new_map_acc = Map.put(map_acc, key, {index, value})
+            new_map_acc = Map.put(map_acc, key, [index | value])
             do_take(map, keys, new_kvs, new_map_acc, index + 1)
         end
 
@@ -623,7 +623,7 @@ defmodule A.OrdMap do
 
   def get(%__MODULE__{__ord_map__: map}, key, default) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => [_index | value]} ->
         value
 
       _ ->
@@ -655,7 +655,7 @@ defmodule A.OrdMap do
 
   def get_lazy(%__MODULE__{__ord_map__: map}, key, fun) when is_function(fun, 0) do
     case map do
-      %{^key => {_index, value}} ->
+      %{^key => [_index | value]} ->
         value
 
       _ ->
@@ -687,7 +687,7 @@ defmodule A.OrdMap do
         value
       ) do
     case map do
-      %{^key => {index, _value}} ->
+      %{^key => [index | _value]} ->
         do_add_existing(map, vector, index, key, value)
 
       _ ->
@@ -715,7 +715,7 @@ defmodule A.OrdMap do
         key
       ) do
     case :maps.take(key, map) do
-      {{index, _value}, new_map} ->
+      {[index | _value], new_map} ->
         do_delete_existing(new_map, vector, index)
 
       :error ->
@@ -775,7 +775,7 @@ defmodule A.OrdMap do
       )
       when is_function(fun, 1) do
     case map do
-      %{^key => {index, value}} ->
+      %{^key => [index | value]} ->
         do_add_existing(map, vector, index, key, fun.(value))
 
       _ ->
@@ -811,7 +811,7 @@ defmodule A.OrdMap do
         default \\ nil
       ) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
+      {[index | value], new_map} ->
         {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
@@ -839,7 +839,7 @@ defmodule A.OrdMap do
         key
       ) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
+      {[index | value], new_map} ->
         {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
@@ -878,7 +878,7 @@ defmodule A.OrdMap do
       )
       when is_function(fun, 0) do
     case :maps.take(key, map) do
-      {{index, value}, new_map} ->
+      {[index | value], new_map} ->
         {value, do_delete_existing(new_map, vector, index)}
 
       :error ->
@@ -910,7 +910,7 @@ defmodule A.OrdMap do
 
         dropped
         |> Map.values()
-        |> Enum.map(fn {index, _value} -> index end)
+        |> Enum.map(fn [index | _value] -> index end)
         |> Enum.sort(:desc)
         |> do_drop(map, vector, dropped_keys)
     end
@@ -938,7 +938,7 @@ defmodule A.OrdMap do
       )
       when is_function(fun, 1) do
     case map do
-      %{^key => {index, value}} ->
+      %{^key => [index | value]} ->
         do_add_existing(map, vector, index, key, fun.(value))
 
       _ ->
@@ -1274,14 +1274,14 @@ defmodule A.OrdMap do
   defp do_add_new(map, vector, key, value) do
     index = RawVector.size(vector)
     new_vector = RawVector.append(vector, {key, value})
-    new_map = Map.put(map, key, {index, value})
+    new_map = Map.put(map, key, [index | value])
 
     %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end
 
   defp do_add_existing(map, vector, index, key, value) do
     new_vector = RawVector.replace_positive!(vector, index, {key, value})
-    new_map = Map.put(map, key, {index, value})
+    new_map = Map.put(map, key, [index | value])
 
     %__MODULE__{__ord_map__: new_map, __ord_vector__: new_vector}
   end
@@ -1341,7 +1341,7 @@ defmodule A.OrdMap do
 
   defp do_fix_vector_duplicates(vector, map, duplicates) do
     Enum.reduce(duplicates, vector, fn {key, value}, acc ->
-      %{^key => {index, _value}} = map
+      %{^key => [index | _value]} = map
       RawVector.replace_positive!(acc, index, {key, value})
     end)
   end
@@ -1352,8 +1352,8 @@ defmodule A.OrdMap do
 
   defp do_replace_many([{key, value} | rest], map, vector) do
     case map do
-      %{^key => {index, _value}} ->
-        new_map = Map.replace!(map, key, {index, value})
+      %{^key => [index | _value]} ->
+        new_map = Map.replace!(map, key, [index | value])
         new_vector = RawVector.replace_positive!(vector, index, {key, value})
         do_replace_many(rest, new_map, new_vector)
 
@@ -1438,7 +1438,7 @@ defmodule A.OrdMap do
       end
 
     vector_ast = RawVector.from_list_ast(key_values)
-    map_ast = {:%{}, [], Map.to_list(map)}
+    map_ast = {:%{}, [], Enum.map(map, fn {k, [i | v]} -> {k, [{:|, [], [i, v]}]} end)}
 
     quote do
       %unquote(__MODULE__){__ord_map__: unquote(map_ast), __ord_vector__: unquote(vector_ast)}
@@ -1453,13 +1453,13 @@ defmodule A.OrdMap do
 
   defp do_add_optimistic([{key, value} | rest], map, key_values, next_index) do
     case map do
-      %{^key => {index, _value}} ->
+      %{^key => [index | _value]} ->
         duplicates = %{key => value}
-        new_map = Map.put(map, key, {index, value})
+        new_map = Map.put(map, key, [index | value])
         do_add_with_duplicates(rest, new_map, key_values, duplicates, next_index)
 
       _ ->
-        new_map = Map.put(map, key, {next_index, value})
+        new_map = Map.put(map, key, [next_index | value])
         new_kvs = [{key, value} | key_values]
         do_add_optimistic(rest, new_map, new_kvs, next_index + 1)
     end
@@ -1471,13 +1471,13 @@ defmodule A.OrdMap do
 
   defp do_add_with_duplicates([{key, value} | rest], map, key_values, duplicates, next_index) do
     case map do
-      %{^key => {index, _value}} ->
+      %{^key => [index | _value]} ->
         new_duplicates = Map.put(duplicates, key, value)
-        new_map = Map.put(map, key, {index, value})
+        new_map = Map.put(map, key, [index | value])
         do_add_with_duplicates(rest, new_map, key_values, new_duplicates, next_index)
 
       _ ->
-        new_map = Map.put(map, key, {next_index, value})
+        new_map = Map.put(map, key, [next_index | value])
         new_kvs = [{key, value} | key_values]
         do_add_with_duplicates(rest, new_map, new_kvs, duplicates, next_index + 1)
     end

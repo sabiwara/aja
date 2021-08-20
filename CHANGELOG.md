@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancement
+
+- Optimize `A.OrdMap` internals to reduce memory usage
+
 ### Bug fixes
 
 - Fix compilation warning in deprecated module
