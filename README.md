@@ -20,51 +20,51 @@ manipulation and performance.
 > inappropriate data structures." --
 > [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
 
-#### Persistent vectors: `A.Vector`
+#### Persistent vectors: `Aja.Vector`
 
 A blazing fast, pure Elixir implementation of a persistent vector, meant to
 offer an efficient alternative to lists. Supports many operations like appends
 and random access in effective constant time.
 
 ```elixir
-iex> vector = A.Vector.new(1..10)
+iex> vector = Aja.Vector.new(1..10)
 vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-iex> A.Vector.append(vector, :foo)
+iex> Aja.Vector.append(vector, :foo)
 vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])
 iex> vector[3]
 4
-iex> A.Vector.replace_at(vector, -1, :bar)
+iex> Aja.Vector.replace_at(vector, -1, :bar)
 vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])
 iex> 3 in vector
 true
 ```
 
-`A.Vector` reimplements many of the functions from the `Enum` module
+`Aja.Vector` reimplements many of the functions from the `Enum` module
 specifically for vectors, with efficiency in mind. It should be easier to use
 from Elixir than Erlang's [`:array`](http://erlang.org/doc/man/array.html)
 module and faster in most cases.
 
-The `A.vec/1` and `A.vec_size/1` macros, while being totally optional, can make
-it easier to work with vectors and make pattern-matching possible:
+The `Aja.vec/1` and `Aja.vec_size/1` macros, while being totally optional, can
+make it easier to work with vectors and make pattern-matching possible:
 
 ```elixir
-iex> import A
-iex> vec([a, 2, c, _d, e]) = A.Vector.new(1..5); {a, c, e}
+iex> import Aja
+iex> vec([a, 2, c, _d, e]) = Aja.Vector.new(1..5); {a, c, e}
 {1, 3, 5}
-iex> vec(first ||| last) = A.Vector.new(1..1_000_000); {first, last}
+iex> vec(first ||| last) = Aja.Vector.new(1..1_000_000); {first, last}
 {1, 1000000}
 iex> match?(v when vec_size(v) > 9, vec(1..10))
 true
 ```
 
-The `A.+++/2` operator provides synctactic sugar for vector concatenation:
+The `Aja.+++/2` operator provides synctactic sugar for vector concatenation:
 
 ```elixir
 iex> vec([1, 2, 3]) +++ vec([4, 5])
 vec([1, 2, 3, 4, 5])
 ```
 
-#### Ordered maps: `A.OrdMap`
+#### Ordered maps: `Aja.OrdMap`
 
 The standard library does not offer any similar functionality:
 
@@ -75,7 +75,7 @@ The standard library does not offer any similar functionality:
 ```elixir
 iex> %{"one" => 1, "two" => 2, "three" => 3}
 %{"one" => 1, "three" => 3, "two" => 2}
-iex> ord_map = A.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
+iex> ord_map = Aja.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
 ord(%{"one" => 1, "two" => 2, "three" => 3})
 iex> ord_map["two"]
 2
@@ -83,12 +83,12 @@ iex> Enum.to_list(ord_map)
 [{"one", 1}, {"two", 2}, {"three", 3}]
 ```
 
-Ordered maps behave pretty much like regular maps, and the `A.OrdMap` module
-offers the same API as `Map`. The convenience macro `A.ord/1` make them a breeze
-to instantiate or pattern-match upon:
+Ordered maps behave pretty much like regular maps, and the `Aja.OrdMap` module
+offers the same API as `Map`. The convenience macro `Aja.ord/1` make them a
+breeze to instantiate or pattern-match upon:
 
 ```elixir
-iex> import A
+iex> import Aja
 iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})
 ord(%{"一" => 1, "二" => 2, "三" => 3})
 iex> ord(%{"三" => three, "一" => one}) = ord_map
@@ -105,12 +105,12 @@ All data structures offer:
 - (optional if `Jason` is installed) implemention of the `Jason.Encoder`
   protocol
 
-#### Optimized `Enum`: `A.Enum`
+#### Optimized `Enum`: `Aja.Enum`
 
-`A.Enum` mirrors the `Enum` module, but its implementation is highly optimized
-for Aja structures such as `A.Vector` or `A.OrdMap`.
+`Aja.Enum` mirrors the `Enum` module, but its implementation is highly optimized
+for Aja structures such as `Aja.Vector` or `Aja.OrdMap`.
 
-`A.Enum` on vectors/ord maps can often be faster than `Enum` on lists/maps,
+`Aja.Enum` on vectors/ord maps can often be faster than `Enum` on lists/maps,
 depending on the function and size of the sequence.
 
 ## Utility functions
@@ -124,19 +124,19 @@ the need for any expensive concatenation.
 The `~i` sigil provides a way to build IO data using string interpolation:
 
 ```elixir
-iex> import A
+iex> import Aja
 iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
 ["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
 ```
 
-The `A.IO` module provides functions to work with IO data:
+The `Aja.IO` module provides functions to work with IO data:
 
 ```elixir
-iex> A.IO.to_iodata(:foo)
+iex> Aja.IO.to_iodata(:foo)
 "foo"
-iex> A.IO.to_iodata(["abc", 'def' | "ghi"])
+iex> Aja.IO.to_iodata(["abc", 'def' | "ghi"])
 ["abc", 'def' | "ghi"]
-iex> A.IO.iodata_empty?(["", []])
+iex> Aja.IO.iodata_empty?(["", []])
 true
 ```
 
@@ -158,7 +158,7 @@ Or, if you are using Elixir 1.12, you can just try it out from `iex` or an
 ```elixir
 iex> Mix.install([:aja])
 :ok
-iex> A.Vector.new(["Hello", "world!"])
+iex> Aja.Vector.new(["Hello", "world!"])
 vec(["Hello", "world!"])
 ```
 
@@ -217,10 +217,10 @@ increases our confidence in the overall reliability.
 
 #### Vectors
 
-Most operations from `A.Vector` are much faster than Erlang's `:array`
+Most operations from `Aja.Vector` are much faster than Erlang's `:array`
 equivalents, and in some cases are even noticeably faster than equivalent list
 operations (map, folds, join, sum...). Make sure to read the efficiency guide
-from `A.Vector` doc.
+from `Aja.Vector` doc.
 
 #### Ordered maps
 
@@ -228,7 +228,7 @@ Performance for ordered maps has an inevitable though decent overhead over plain
 maps in terms of creation and update time (write operations), as well as memory
 usage, since some extra work is needed to keep track of the order. It has
 however very good read performance, with a very minimal overhead in terms of key
-access, and can be enumerated much faster than maps using `A.Enum`.
+access, and can be enumerated much faster than maps using `Aja.Enum`.
 
 #### Aja 💖️ JIT
 

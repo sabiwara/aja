@@ -1,4 +1,4 @@
-defmodule A.ExRange do
+defmodule Aja.ExRange do
   @moduledoc false
 
   @type t :: %__MODULE__{start: integer, stop: integer}
@@ -11,12 +11,12 @@ defmodule A.ExRange do
   def new(start \\ 0, stop)
 
   def new(start, stop) when is_integer(start) and is_integer(stop) do
-    %A.ExRange{start: start, stop: stop}
+    %Aja.ExRange{start: start, stop: stop}
   end
 
   def new(start, stop) do
     raise ArgumentError,
-          "A.ExRange (start ~> stop) expect both sides to be integers, " <>
+          "Aja.ExRange (start ~> stop) expect both sides to be integers, " <>
             "got: #{inspect(start)} ~> #{inspect(stop)}"
   end
 
@@ -25,13 +25,13 @@ defmodule A.ExRange do
 
   ## Examples
 
-      iex> A.ExRange.disjoint?(1 ~> 6, 6 ~> 9)
+      iex> Aja.ExRange.disjoint?(1 ~> 6, 6 ~> 9)
       true
-      iex> A.ExRange.disjoint?(6 ~> 1, 6 ~> 9)
+      iex> Aja.ExRange.disjoint?(6 ~> 1, 6 ~> 9)
       true
-      iex> A.ExRange.disjoint?(1 ~> 6, 5 ~> 9)
+      iex> Aja.ExRange.disjoint?(1 ~> 6, 5 ~> 9)
       false
-      iex> A.ExRange.disjoint?(1 ~> 6, 2 ~> 7)
+      iex> Aja.ExRange.disjoint?(1 ~> 6, 2 ~> 7)
       false
 
   """
@@ -47,7 +47,7 @@ defmodule A.ExRange do
   defp normalize(start, stop), do: {start, stop}
 
   defimpl Enumerable do
-    def reduce(%A.ExRange{start: start, stop: stop}, acc, fun) do
+    def reduce(%Aja.ExRange{start: start, stop: stop}, acc, fun) do
       reduce(start, stop, acc, fun, _up? = stop >= start)
     end
 
@@ -71,7 +71,7 @@ defmodule A.ExRange do
       {:done, acc}
     end
 
-    def member?(%A.ExRange{start: start, stop: stop}, value) when is_integer(value) do
+    def member?(%Aja.ExRange{start: start, stop: stop}, value) when is_integer(value) do
       if start <= stop do
         {:ok, start <= value and value < stop}
       else
@@ -79,11 +79,11 @@ defmodule A.ExRange do
       end
     end
 
-    def member?(%A.ExRange{}, _value) do
+    def member?(%Aja.ExRange{}, _value) do
       {:ok, false}
     end
 
-    def count(%A.ExRange{start: start, stop: stop}) do
+    def count(%Aja.ExRange{start: start, stop: stop}) do
       if start <= stop do
         {:ok, stop - start}
       else
@@ -91,7 +91,7 @@ defmodule A.ExRange do
       end
     end
 
-    def slice(%A.ExRange{start: start, stop: stop}) do
+    def slice(%Aja.ExRange{start: start, stop: stop}) do
       if start <= stop do
         {:ok, stop - start, &slice_asc(start + &1, &2)}
       else
@@ -109,9 +109,9 @@ defmodule A.ExRange do
   defimpl Inspect do
     import Inspect.Algebra
 
-    def inspect(%A.ExRange{start: start, stop: stop}, opts) do
+    def inspect(%Aja.ExRange{start: start, stop: stop}, opts) do
       concat([
-        "#A<",
+        "#Aja<",
         to_doc(start, opts),
         " ~> ",
         to_doc(stop, opts),

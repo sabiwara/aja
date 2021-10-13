@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Enum.uniq/1 (vector)...
-Benchmarking A.Vector.uniq/1 (vector)...
+Benchmarking Aja.Enum.uniq/1 (vector)...
+Benchmarking Aja.Vector.uniq/1 (vector)...
 Benchmarking Enum.uniq/2 (list)...
 
 Name                               ips        average  deviation         median         99th %
-A.Enum.uniq/1 (vector)        131.63 K        7.60 μs   ±144.82%        7.07 μs       14.26 μs
-A.Vector.uniq/1 (vector)      127.51 K        7.84 μs    ±72.50%        7.40 μs       14.59 μs
+Aja.Enum.uniq/1 (vector)        131.63 K        7.60 μs   ±144.82%        7.07 μs       14.26 μs
+Aja.Vector.uniq/1 (vector)      127.51 K        7.84 μs    ±72.50%        7.40 μs       14.59 μs
 Enum.uniq/2 (list)            119.35 K        8.38 μs   ±105.68%        8.15 μs       10.93 μs
 
-Comparison: 
-A.Enum.uniq/1 (vector)        131.63 K
-A.Vector.uniq/1 (vector)      127.51 K - 1.03x slower +0.25 μs
+Comparison:
+Aja.Enum.uniq/1 (vector)        131.63 K
+Aja.Vector.uniq/1 (vector)      127.51 K - 1.03x slower +0.25 μs
 Enum.uniq/2 (list)            119.35 K - 1.10x slower +0.78 μs

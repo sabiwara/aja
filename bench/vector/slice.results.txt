@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Vector.slice/3 (vector)...
+Benchmarking Aja.Vector.slice/3 (vector)...
 Benchmarking Enum.slice/3 (list)...
 Benchmarking Enum.slice/3 (vector)...
 
 Name                                ips        average  deviation         median         99th %
 Enum.slice/3 (list)              2.22 M      451.43 ns  ±6005.27%         353 ns         693 ns
 Enum.slice/3 (vector)            1.99 M      502.63 ns  ±6452.90%         365 ns         730 ns
-A.Vector.slice/3 (vector)        1.18 M      846.84 ns  ±3319.99%         687 ns        1132 ns
+Aja.Vector.slice/3 (vector)        1.18 M      846.84 ns  ±3319.99%         687 ns        1132 ns
 
-Comparison: 
+Comparison:
 Enum.slice/3 (list)              2.22 M
 Enum.slice/3 (vector)            1.99 M - 1.11x slower +51.20 ns
-A.Vector.slice/3 (vector)        1.18 M - 1.88x slower +395.41 ns
+Aja.Vector.slice/3 (vector)        1.18 M - 1.88x slower +395.41 ns

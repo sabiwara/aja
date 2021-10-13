@@ -1,8 +1,8 @@
-defmodule A.IOTest do
+defmodule Aja.IOTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  doctest A.IO
+  doctest Aja.IO
 
   @tag timeout: :infinity
   @tag :property
@@ -10,7 +10,7 @@ defmodule A.IOTest do
     check all(data <- iodata()) do
       zero_length? = IO.iodata_length(data) == 0
 
-      assert zero_length? == A.IO.iodata_empty?(data)
+      assert zero_length? == Aja.IO.iodata_empty?(data)
     end
   end
 end

@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Enum.frequencies/1 (vector)...
-Benchmarking A.Enum.frequencies_by/2 (vector)...
+Benchmarking Aja.Enum.frequencies/1 (vector)...
+Benchmarking Aja.Enum.frequencies_by/2 (vector)...
 Benchmarking Enum.frequencies/1 (list)...
 Benchmarking Enum.frequencies_by/2 (list)...
 
 Name                                       ips        average  deviation         median         99th %
-A.Enum.frequencies_by/2 (vector)      194.84 K        5.13 μs   ±261.25%        4.68 μs        7.37 μs
+Aja.Enum.frequencies_by/2 (vector)      194.84 K        5.13 μs   ±261.25%        4.68 μs        7.37 μs
 Enum.frequencies_by/2 (list)          179.49 K        5.57 μs   ±261.57%        5.05 μs        8.68 μs
-A.Enum.frequencies/1 (vector)         108.71 K        9.20 μs   ±117.93%        8.75 μs       22.22 μs
+Aja.Enum.frequencies/1 (vector)         108.71 K        9.20 μs   ±117.93%        8.75 μs       22.22 μs
 Enum.frequencies/1 (list)             100.20 K        9.98 μs    ±62.98%        9.71 μs       14.43 μs
 
-Comparison: 
-A.Enum.frequencies_by/2 (vector)      194.84 K
+Comparison:
+Aja.Enum.frequencies_by/2 (vector)      194.84 K
 Enum.frequencies_by/2 (list)          179.49 K - 1.09x slower +0.44 μs
-A.Enum.frequencies/1 (vector)         108.71 K - 1.79x slower +4.07 μs
+Aja.Enum.frequencies/1 (vector)         108.71 K - 1.79x slower +4.07 μs
 Enum.frequencies/1 (list)             100.20 K - 1.94x slower +4.85 μs

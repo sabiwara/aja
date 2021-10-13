@@ -11,7 +11,7 @@ defmodule Bench.IO.Empty do
     Benchee.run(
       [
         {"IO.iodata_length() == 0", fn iodata -> IO.iodata_length(iodata) == 0 end},
-        {"A.IO.iodata_empty?/1", fn iodata -> A.IO.iodata_empty?(iodata) end}
+        {"Aja.IO.iodata_empty?/1", fn iodata -> Aja.IO.iodata_empty?(iodata) end}
       ],
       inputs: inputs()
     )

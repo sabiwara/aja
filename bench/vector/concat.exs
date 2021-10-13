@@ -1,9 +1,9 @@
-import A
+import Aja
 
 small_list = Enum.to_list(1..100)
 big_list = Enum.to_list(1..1000)
-small_vector = A.Vector.new(small_list)
-big_vector = A.Vector.new(big_list)
+small_vector = Aja.Vector.new(small_list)
+big_vector = Aja.Vector.new(big_list)
 
 Benchee.run(
   %{

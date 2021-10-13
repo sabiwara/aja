@@ -1,4 +1,4 @@
-defmodule A.IO do
+defmodule Aja.IO do
   @moduledoc ~S"""
   Some extra helper functions for working with IO data,
   that are not in the core `IO` module.
@@ -16,13 +16,13 @@ defmodule A.IO do
 
   ## Examples
 
-      iex> A.IO.iodata_empty?(["", []])
+      iex> Aja.IO.iodata_empty?(["", []])
       true
-      iex> A.IO.iodata_empty?('a')
+      iex> Aja.IO.iodata_empty?('a')
       false
-      iex> A.IO.iodata_empty?(["a"])
+      iex> Aja.IO.iodata_empty?(["a"])
       false
-      iex> A.IO.iodata_empty?(["", [], ["" | "c"]])
+      iex> Aja.IO.iodata_empty?(["", [], ["" | "c"]])
       false
 
   ## Rationale
@@ -56,7 +56,7 @@ defmodule A.IO do
 
   Leaves lists untouched without any validation, calls `to_string/1` on everything else.
 
-  This is the function invoked in string interpolations within the [i sigil](`A.sigil_i/2`).
+  This is the function invoked in string interpolations within the [i sigil](`Aja.sigil_i/2`).
 
   Works with both [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and
   [Chardata](https://hexdocs.pm/elixir/IO.html?#module-chardata),
@@ -64,11 +64,11 @@ defmodule A.IO do
 
   ## Examples
 
-      iex> A.IO.to_iodata(:foo)
+      iex> Aja.IO.to_iodata(:foo)
       "foo"
-      iex> A.IO.to_iodata(99)
+      iex> Aja.IO.to_iodata(99)
       "99"
-      iex> A.IO.to_iodata(["abc", 'def' | "ghi"])
+      iex> Aja.IO.to_iodata(["abc", 'def' | "ghi"])
       ["abc", 'def' | "ghi"]
 
   """

@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Enum.sort/1 (vector)...
-Benchmarking A.Vector.sort/1 (vector)...
+Benchmarking Aja.Enum.sort/1 (vector)...
+Benchmarking Aja.Vector.sort/1 (vector)...
 Benchmarking Enum.sort/1 (list)...
 Benchmarking Enum.sort/1 (vector)...
 
 Name                               ips        average  deviation         median         99th %
 Enum.sort/1 (list)             17.25 K       57.98 μs    ±18.49%       57.33 μs       91.50 μs
-A.Enum.sort/1 (vector)         16.93 K       59.06 μs    ±17.55%       56.10 μs       96.60 μs
-A.Vector.sort/1 (vector)       15.93 K       62.78 μs    ±16.04%       61.27 μs      100.06 μs
+Aja.Enum.sort/1 (vector)         16.93 K       59.06 μs    ±17.55%       56.10 μs       96.60 μs
+Aja.Vector.sort/1 (vector)       15.93 K       62.78 μs    ±16.04%       61.27 μs      100.06 μs
 Enum.sort/1 (vector)            4.24 K      235.83 μs    ±17.40%      224.57 μs      419.18 μs
 
-Comparison: 
+Comparison:
 Enum.sort/1 (list)             17.25 K
-A.Enum.sort/1 (vector)         16.93 K - 1.02x slower +1.08 μs
-A.Vector.sort/1 (vector)       15.93 K - 1.08x slower +4.80 μs
+Aja.Enum.sort/1 (vector)         16.93 K - 1.02x slower +1.08 μs
+Aja.Vector.sort/1 (vector)       15.93 K - 1.08x slower +4.80 μs
 Enum.sort/1 (vector)            4.24 K - 4.07x slower +177.85 μs

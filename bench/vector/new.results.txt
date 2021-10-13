@@ -14,12 +14,12 @@ inputs: none specified
 Estimated total run time: 14 s
 
 Benchmarking :array.from_list/1...
-Benchmarking A.Vector.new/1...
+Benchmarking Aja.Vector.new/1...
 
 Name                         ips        average  deviation         median         99th %
-A.Vector.new/1            2.07 M        0.48 μs  ±7796.04%        0.33 μs        0.76 μs
+Aja.Vector.new/1            2.07 M        0.48 μs  ±7796.04%        0.33 μs        0.76 μs
 :array.from_list/1        0.87 M        1.14 μs  ±2761.22%        0.89 μs        2.23 μs
 
-Comparison: 
-A.Vector.new/1            2.07 M
+Comparison:
+Aja.Vector.new/1            2.07 M
 :array.from_list/1        0.87 M - 2.37x slower +0.66 μs

@@ -1,4 +1,4 @@
-defmodule A.List do
+defmodule Aja.List do
   @moduledoc ~S"""
   Some extra helper functions for working with lists,
   that are not in the core `List` module.
@@ -11,7 +11,7 @@ defmodule A.List do
 
   ## Examples
 
-      iex> [2, 3, 5, 8] |> A.List.prepend(1)
+      iex> [2, 3, 5, 8] |> Aja.List.prepend(1)
       [1, 2, 3, 5, 8]
 
   """
@@ -26,7 +26,7 @@ defmodule A.List do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
-      iex> A.List.repeat(&:rand.uniform/0, 3)
+      iex> Aja.List.repeat(&:rand.uniform/0, 3)
       [0.7498295129076106, 0.06161655489244533, 0.7924073127680873]
 
       # It is basically just syntactic sugar for the following:
@@ -62,6 +62,6 @@ defmodule A.List do
   end
 
   @doc false
-  @deprecated "Use A.List.repeat/2 instead"
+  @deprecated "Use Aja.List.repeat/2 instead"
   defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
 end

@@ -1,9 +1,9 @@
-defmodule A.OrdMap.PropTest do
+defmodule Aja.OrdMap.PropTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  import A
-  import A.TestDataGenerators
+  import Aja
+  import Aja.TestDataGenerators
 
   @moduletag timeout: :infinity
   @moduletag :property
@@ -41,12 +41,12 @@ defmodule A.OrdMap.PropTest do
     ])
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, {:put, key, value}) do
-    new_map = A.OrdMap.put(ord_map, key, value)
+  def apply_operation(%Aja.OrdMap{} = ord_map, {:put, key, value}) do
+    new_map = Aja.OrdMap.put(ord_map, key, value)
 
     assert value == new_map[key]
-    assert value == A.OrdMap.fetch!(new_map, key)
-    assert A.OrdMap.has_key?(new_map, key)
+    assert value == Aja.OrdMap.fetch!(new_map, key)
+    assert Aja.OrdMap.has_key?(new_map, key)
     assert {key, value} in new_map
 
     new_map
@@ -56,26 +56,26 @@ defmodule A.OrdMap.PropTest do
     ord_map
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, {:replace_existing, value}) do
-    key = ord_map |> A.OrdMap.keys() |> Enum.random()
+  def apply_operation(%Aja.OrdMap{} = ord_map, {:replace_existing, value}) do
+    key = ord_map |> Aja.OrdMap.keys() |> Enum.random()
 
     # all of those are equivalent
-    new_map = A.OrdMap.replace!(ord_map, key, value)
-    assert ^new_map = A.OrdMap.replace(ord_map, key, value)
-    assert ^new_map = A.OrdMap.put(ord_map, key, value)
+    new_map = Aja.OrdMap.replace!(ord_map, key, value)
+    assert ^new_map = Aja.OrdMap.replace(ord_map, key, value)
+    assert ^new_map = Aja.OrdMap.put(ord_map, key, value)
     assert ^new_map = put_in(ord_map, [key], value)
     assert ^new_map = Enum.into([{key, value}], ord_map)
-    assert ^new_map = A.Enum.into([{key, value}], ord_map)
-    assert ^new_map = A.OrdMap.merge(ord_map, A.OrdMap.new([{key, value}]))
-    assert ^new_map = A.OrdMap.update(ord_map, key, nil, fn _ -> value end)
-    assert ^new_map = A.OrdMap.update!(ord_map, key, fn _ -> value end)
-    assert {_, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> {nil, value} end)
+    assert ^new_map = Aja.Enum.into([{key, value}], ord_map)
+    assert ^new_map = Aja.OrdMap.merge(ord_map, Aja.OrdMap.new([{key, value}]))
+    assert ^new_map = Aja.OrdMap.update(ord_map, key, nil, fn _ -> value end)
+    assert ^new_map = Aja.OrdMap.update!(ord_map, key, fn _ -> value end)
+    assert {_, ^new_map} = Aja.OrdMap.get_and_update!(ord_map, key, fn _ -> {nil, value} end)
     assert ^new_map = ord(%{ord_map | key => value})
 
-    assert ^ord_map = A.OrdMap.put_new(ord_map, key, make_ref())
-    assert ^ord_map = A.OrdMap.put_new_lazy(ord_map, key, &make_ref/0)
+    assert ^ord_map = Aja.OrdMap.put_new(ord_map, key, make_ref())
+    assert ^ord_map = Aja.OrdMap.put_new_lazy(ord_map, key, &make_ref/0)
 
-    assert A.OrdMap.size(new_map) == A.OrdMap.size(ord_map)
+    assert Aja.OrdMap.size(new_map) == Aja.OrdMap.size(ord_map)
 
     new_map
   end
@@ -84,89 +84,89 @@ defmodule A.OrdMap.PropTest do
     ord_map
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, :delete_existing) do
+  def apply_operation(%Aja.OrdMap{} = ord_map, :delete_existing) do
     {key, value} = ord_map |> Enum.random()
 
     # all of those must be equivalent
-    assert {^value, new_map} = A.OrdMap.pop!(ord_map, key)
-    assert {^value, ^new_map} = A.OrdMap.pop(ord_map, key, nil)
+    assert {^value, new_map} = Aja.OrdMap.pop!(ord_map, key)
+    assert {^value, ^new_map} = Aja.OrdMap.pop(ord_map, key, nil)
     assert {^value, ^new_map} = pop_in(ord_map, [key])
-    assert {^value, ^new_map} = A.OrdMap.get_and_update!(ord_map, key, fn _ -> :pop end)
+    assert {^value, ^new_map} = Aja.OrdMap.get_and_update!(ord_map, key, fn _ -> :pop end)
 
-    assert ^new_map = A.OrdMap.drop(ord_map, [key])
+    assert ^new_map = Aja.OrdMap.drop(ord_map, [key])
 
-    assert A.OrdMap.has_key?(ord_map, key)
-    refute A.OrdMap.has_key?(new_map, key)
+    assert Aja.OrdMap.has_key?(ord_map, key)
+    refute Aja.OrdMap.has_key?(new_map, key)
     assert nil === new_map[key]
     refute {key, value} in new_map
 
-    assert A.OrdMap.size(new_map) == A.OrdMap.size(ord_map) - 1
+    assert Aja.OrdMap.size(new_map) == Aja.OrdMap.size(ord_map) - 1
     new_map
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, {:delete_random, key}) do
+  def apply_operation(%Aja.OrdMap{} = ord_map, {:delete_random, key}) do
     # all of those must be equivalent
-    assert {returned, new_map} = A.OrdMap.pop(ord_map, key, nil)
-    assert ^new_map = A.OrdMap.delete(ord_map, key)
+    assert {returned, new_map} = Aja.OrdMap.pop(ord_map, key, nil)
+    assert ^new_map = Aja.OrdMap.delete(ord_map, key)
     assert {^returned, ^new_map} = pop_in(ord_map, [key])
-    assert ^new_map = A.OrdMap.drop(ord_map, [key])
+    assert ^new_map = Aja.OrdMap.drop(ord_map, [key])
 
     new_map
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, {:drop_random, keys}) do
-    new_map = A.OrdMap.drop(ord_map, keys)
-    assert ^new_map = A.OrdMap.drop(new_map, keys)
+  def apply_operation(%Aja.OrdMap{} = ord_map, {:drop_random, keys}) do
+    new_map = Aja.OrdMap.drop(ord_map, keys)
+    assert ^new_map = Aja.OrdMap.drop(new_map, keys)
 
     assert Map.new(new_map) == ord_map |> Map.new() |> Map.drop(keys)
 
-    successive = Enum.reduce(keys, ord_map, fn key, acc -> A.OrdMap.delete(acc, key) end)
-    assert A.OrdMap.equal?(successive, new_map)
-    assert A.OrdMap.to_list(successive) === A.OrdMap.to_list(new_map)
+    successive = Enum.reduce(keys, ord_map, fn key, acc -> Aja.OrdMap.delete(acc, key) end)
+    assert Aja.OrdMap.equal?(successive, new_map)
+    assert Aja.OrdMap.to_list(successive) === Aja.OrdMap.to_list(new_map)
 
-    assert A.OrdMap.new() == A.OrdMap.take(new_map, keys)
+    assert Aja.OrdMap.new() == Aja.OrdMap.take(new_map, keys)
 
-    assert A.OrdMap.size(new_map) ==
-             A.OrdMap.size(ord_map) - (A.OrdMap.take(ord_map, keys) |> A.OrdMap.size())
+    assert Aja.OrdMap.size(new_map) ==
+             Aja.OrdMap.size(ord_map) - (Aja.OrdMap.take(ord_map, keys) |> Aja.OrdMap.size())
 
     new_map
   end
 
-  def apply_operation(%A.OrdMap{} = ord_map, {:take_random, keys}) do
-    new_map = A.OrdMap.take(ord_map, keys)
-    assert ^new_map = A.OrdMap.take(new_map, keys)
+  def apply_operation(%Aja.OrdMap{} = ord_map, {:take_random, keys}) do
+    new_map = Aja.OrdMap.take(ord_map, keys)
+    assert ^new_map = Aja.OrdMap.take(new_map, keys)
 
     assert Map.new(new_map) == ord_map |> Map.new() |> Map.take(keys)
 
     successive =
-      Enum.reduce(keys, A.OrdMap.new(), fn key, acc ->
+      Enum.reduce(keys, Aja.OrdMap.new(), fn key, acc ->
         case ord_map do
-          ord(%{^key => value}) -> A.OrdMap.put(acc, key, value)
+          ord(%{^key => value}) -> Aja.OrdMap.put(acc, key, value)
           _ -> acc
         end
       end)
 
     assert successive == new_map
 
-    assert A.OrdMap.new() == A.OrdMap.drop(new_map, keys)
+    assert Aja.OrdMap.new() == Aja.OrdMap.drop(new_map, keys)
 
     new_map
   end
 
-  def assert_properties(%A.OrdMap{} = ord_map) do
+  def assert_properties(%Aja.OrdMap{} = ord_map) do
     as_list = Enum.to_list(ord_map)
-    assert ^as_list = A.OrdMap.to_list(ord_map)
-    assert ^as_list = A.OrdMap.foldr(ord_map, [], &[&1 | &2])
-    assert ^as_list = A.OrdMap.foldl(ord_map, [], &[&1 | &2]) |> Enum.reverse()
+    assert ^as_list = Aja.OrdMap.to_list(ord_map)
+    assert ^as_list = Aja.OrdMap.foldr(ord_map, [], &[&1 | &2])
+    assert ^as_list = Aja.OrdMap.foldl(ord_map, [], &[&1 | &2]) |> Enum.reverse()
 
-    as_vector = A.Vector.new(as_list)
-    assert ^as_vector = A.Vector.new(ord_map)
-    assert ^as_vector = A.Vector.new(ord_map, fn {k, v} -> {k, v} end)
+    as_vector = Aja.Vector.new(as_list)
+    assert ^as_vector = Aja.Vector.new(ord_map)
+    assert ^as_vector = Aja.Vector.new(ord_map, fn {k, v} -> {k, v} end)
 
     length_list = length(as_list)
-    assert A.OrdMap.size(ord_map) == length_list
+    assert Aja.OrdMap.size(ord_map) == length_list
     assert Enum.count(ord_map) == length_list
-    assert A.Enum.count(ord_map) == length_list
+    assert Aja.Enum.count(ord_map) == length_list
     assert ord_size(ord_map) == length_list
     assert match?(o when ord_size(o) == length_list, ord_map)
 
@@ -174,36 +174,36 @@ defmodule A.OrdMap.PropTest do
       assert {key, value} = kv
       assert kv in ord_map
       assert value == ord_map[key]
-      assert A.OrdMap.has_key?(ord_map, key)
-      assert value == A.OrdMap.fetch!(ord_map, key)
-      assert {:ok, ^value} = A.OrdMap.fetch(ord_map, key)
+      assert Aja.OrdMap.has_key?(ord_map, key)
+      assert value == Aja.OrdMap.fetch!(ord_map, key)
+      assert {:ok, ^value} = Aja.OrdMap.fetch(ord_map, key)
       assert ord(%{^key => ^value}) = ord_map
     end
 
-    assert Enum.map(as_list, fn {k, _v} -> k end) === A.OrdMap.keys(ord_map)
-    assert Enum.map(as_list, fn {_k, v} -> v end) === A.OrdMap.values(ord_map)
+    assert Enum.map(as_list, fn {k, _v} -> k end) === Aja.OrdMap.keys(ord_map)
+    assert Enum.map(as_list, fn {_k, v} -> v end) === Aja.OrdMap.values(ord_map)
 
-    refute A.OrdMap.has_key?(ord_map, make_ref())
+    refute Aja.OrdMap.has_key?(ord_map, make_ref())
 
-    assert A.OrdMap.first(ord_map) == List.first(as_list)
-    assert A.OrdMap.last(ord_map) == List.last(as_list)
+    assert Aja.OrdMap.first(ord_map) == List.first(as_list)
+    assert Aja.OrdMap.last(ord_map) == List.last(as_list)
 
-    dense = A.OrdMap.new(as_list)
-    assert ^dense = A.OrdMap.new(as_list, fn {k, v} -> {k, v} end)
-    assert ^dense = A.OrdMap.new(ord_map)
-    assert ^dense = A.OrdMap.new(ord_map, fn {k, v} -> {k, v} end)
-    assert ^dense = A.OrdMap.new(as_vector)
-    assert ^dense = A.OrdMap.new(as_vector, fn {k, v} -> {k, v} end)
-    assert ^dense = Enum.into(as_list, A.OrdMap.new())
-    assert ^dense = A.Enum.into(as_vector, A.OrdMap.new())
-    assert A.OrdMap.size(dense) == A.OrdMap.size(ord_map)
-    assert A.OrdMap.equal?(dense, ord_map)
+    dense = Aja.OrdMap.new(as_list)
+    assert ^dense = Aja.OrdMap.new(as_list, fn {k, v} -> {k, v} end)
+    assert ^dense = Aja.OrdMap.new(ord_map)
+    assert ^dense = Aja.OrdMap.new(ord_map, fn {k, v} -> {k, v} end)
+    assert ^dense = Aja.OrdMap.new(as_vector)
+    assert ^dense = Aja.OrdMap.new(as_vector, fn {k, v} -> {k, v} end)
+    assert ^dense = Enum.into(as_list, Aja.OrdMap.new())
+    assert ^dense = Aja.Enum.into(as_vector, Aja.OrdMap.new())
+    assert Aja.OrdMap.size(dense) == Aja.OrdMap.size(ord_map)
+    assert Aja.OrdMap.equal?(dense, ord_map)
 
-    require A.Vector.Raw
-    assert 2 * map_size(ord_map.__ord_map__) >= A.Vector.Raw.size(ord_map.__ord_vector__)
+    require Aja.Vector.Raw
+    assert 2 * map_size(ord_map.__ord_map__) >= Aja.Vector.Raw.size(ord_map.__ord_vector__)
 
-    if A.OrdMap.sparse?(ord_map) do
-      assert inspect(ord_map) =~ "#A.OrdMap<%{"
+    if Aja.OrdMap.sparse?(ord_map) do
+      assert inspect(ord_map) =~ "#Aja.OrdMap<%{"
       assert inspect(ord_map) =~ ", sparse?: true>"
     else
       assert inspect(ord_map) =~ "ord(%{"
@@ -215,7 +215,7 @@ defmodule A.OrdMap.PropTest do
             initial <- key_value_pairs(),
             operations <- list_of(operation())
           ) do
-      initial_map = A.OrdMap.new(initial)
+      initial_map = Aja.OrdMap.new(initial)
 
       ord_map =
         Enum.reduce(operations, initial_map, fn operation, acc ->

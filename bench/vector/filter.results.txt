@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Enum.filter/2 (list)...
-Benchmarking A.Enum.filter/2 (vector)...
-Benchmarking A.Vector.filter/2 (vector)...
+Benchmarking Aja.Enum.filter/2 (list)...
+Benchmarking Aja.Enum.filter/2 (vector)...
+Benchmarking Aja.Vector.filter/2 (vector)...
 Benchmarking Enum.filter/2 (list)...
 
 Name                                 ips        average  deviation         median         99th %
-A.Enum.filter/2 (vector)        463.62 K        2.16 μs   ±968.43%        1.84 μs        3.69 μs
-A.Enum.filter/2 (list)          462.44 K        2.16 μs  ±1027.78%        1.86 μs        3.87 μs
-A.Vector.filter/2 (vector)      422.93 K        2.36 μs   ±747.32%        2.05 μs        4.14 μs
+Aja.Enum.filter/2 (vector)        463.62 K        2.16 μs   ±968.43%        1.84 μs        3.69 μs
+Aja.Enum.filter/2 (list)          462.44 K        2.16 μs  ±1027.78%        1.86 μs        3.87 μs
+Aja.Vector.filter/2 (vector)      422.93 K        2.36 μs   ±747.32%        2.05 μs        4.14 μs
 Enum.filter/2 (list)            379.80 K        2.63 μs   ±911.88%        2.31 μs        3.96 μs
 
-Comparison: 
-A.Enum.filter/2 (vector)        463.62 K
-A.Enum.filter/2 (list)          462.44 K - 1.00x slower +0.00553 μs
-A.Vector.filter/2 (vector)      422.93 K - 1.10x slower +0.21 μs
+Comparison:
+Aja.Enum.filter/2 (vector)        463.62 K
+Aja.Enum.filter/2 (list)          462.44 K - 1.00x slower +0.00553 μs
+Aja.Vector.filter/2 (vector)      422.93 K - 1.10x slower +0.21 μs
 Enum.filter/2 (list)            379.80 K - 1.22x slower +0.48 μs

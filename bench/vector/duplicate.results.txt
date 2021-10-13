@@ -13,36 +13,36 @@ parallel: 1
 inputs: n = 100, n = 1000, n = 100000
 Estimated total run time: 42 s
 
-Benchmarking A.Vector.duplicate/2 with input n = 100...
-Benchmarking A.Vector.duplicate/2 with input n = 1000...
-Benchmarking A.Vector.duplicate/2 with input n = 100000...
+Benchmarking Aja.Vector.duplicate/2 with input n = 100...
+Benchmarking Aja.Vector.duplicate/2 with input n = 1000...
+Benchmarking Aja.Vector.duplicate/2 with input n = 100000...
 Benchmarking List.duplicate/2 with input n = 100...
 Benchmarking List.duplicate/2 with input n = 1000...
 Benchmarking List.duplicate/2 with input n = 100000...
 
 ##### With input n = 100 #####
 Name                           ips        average  deviation         median         99th %
-A.Vector.duplicate/2        5.16 M      193.92 ns ±19013.38%         106 ns         367 ns
+Aja.Vector.duplicate/2        5.16 M      193.92 ns ±19013.38%         106 ns         367 ns
 List.duplicate/2            1.76 M      566.65 ns  ±5343.02%         431 ns         740 ns
 
-Comparison: 
-A.Vector.duplicate/2        5.16 M
+Comparison:
+Aja.Vector.duplicate/2        5.16 M
 List.duplicate/2            1.76 M - 2.92x slower +372.73 ns
 
 ##### With input n = 1000 #####
 Name                           ips        average  deviation         median         99th %
-A.Vector.duplicate/2        3.28 M        0.30 μs ±12497.56%       0.164 μs        0.51 μs
+Aja.Vector.duplicate/2        3.28 M        0.30 μs ±12497.56%       0.164 μs        0.51 μs
 List.duplicate/2            0.21 M        4.68 μs   ±345.87%        4.27 μs        9.97 μs
 
-Comparison: 
-A.Vector.duplicate/2        3.28 M
+Comparison:
+Aja.Vector.duplicate/2        3.28 M
 List.duplicate/2            0.21 M - 15.36x slower +4.37 μs
 
 ##### With input n = 100000 #####
 Name                           ips        average  deviation         median         99th %
-A.Vector.duplicate/2        2.61 M        0.38 μs  ±8144.31%        0.25 μs        0.64 μs
+Aja.Vector.duplicate/2        2.61 M        0.38 μs  ±8144.31%        0.25 μs        0.64 μs
 List.duplicate/2         0.00158 M      632.90 μs    ±30.74%      752.86 μs      873.25 μs
 
-Comparison: 
-A.Vector.duplicate/2        2.61 M
+Comparison:
+Aja.Vector.duplicate/2        2.61 M
 List.duplicate/2         0.00158 M - 1652.04x slower +632.52 μs

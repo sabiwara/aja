@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Vector.Raw.member?/2...
+Benchmarking Aja.Vector.Raw.member?/2...
 Benchmarking Enum.member?/2 (list)...
 Benchmarking Enum.member?/2 (vector)...
 
 Name                              ips        average  deviation         median         99th %
-A.Vector.Raw.member?/2         1.05 M      950.96 ns  ±2822.70%         857 ns        1168 ns
+Aja.Vector.Raw.member?/2         1.05 M      950.96 ns  ±2822.70%         857 ns        1168 ns
 Enum.member?/2 (vector)        1.00 M      995.30 ns  ±2769.21%         898 ns        1224 ns
 Enum.member?/2 (list)          0.59 M     1683.29 ns    ±74.38%        1523 ns        2145 ns
 
-Comparison: 
-A.Vector.Raw.member?/2         1.05 M
+Comparison:
+Aja.Vector.Raw.member?/2         1.05 M
 Enum.member?/2 (vector)        1.00 M - 1.05x slower +44.34 ns
 Enum.member?/2 (list)          0.59 M - 1.77x slower +732.33 ns

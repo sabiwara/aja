@@ -1,8 +1,8 @@
-defmodule A.Vector.Builder do
+defmodule Aja.Vector.Builder do
   @moduledoc false
 
-  alias A.Vector.{Tail, Node}
-  require A.Vector.CodeGen, as: C
+  alias Aja.Vector.{Tail, Node}
+  require Aja.Vector.CodeGen, as: C
 
   def from_list(list) when is_list(list) do
     do_concat_list([], list)

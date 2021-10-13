@@ -1,4 +1,4 @@
-defmodule A.String do
+defmodule Aja.String do
   @moduledoc ~S"""
   Some extra helper functions for working with strings,
   that are not in the core `String` module.
@@ -18,25 +18,25 @@ defmodule A.String do
 
   ## Examples
 
-      iex> A.String.slugify("> \"It Was Me, Dio!!!\"\n")
+      iex> Aja.String.slugify("> \"It Was Me, Dio!!!\"\n")
       "it-was-me-dio"
-      iex> A.String.slugify("Joseph Joestar a.k.a ジョジョ")
+      iex> Aja.String.slugify("Joseph Joestar a.k.a ジョジョ")
       "joseph-joestar-aka-ジョジョ"
-      iex> A.String.slugify(<<220>>)
+      iex> Aja.String.slugify(<<220>>)
       ** (ArgumentError) Invalid string <<220>>
 
   `:ascii` converts to ascii when possible or strips characters:
 
-      iex> A.String.slugify("OLÁ!\n", :ascii)
+      iex> Aja.String.slugify("OLÁ!\n", :ascii)
       "ola"
-      iex> A.String.slugify("DIOの世界 -さらば友よ- ", :ascii)
+      iex> Aja.String.slugify("DIOの世界 -さらば友よ- ", :ascii)
       "dio"
 
   `:greek` handles the context sensitive sigma in Greek:
 
-      iex> A.String.slugify("\tΣΣ?")
+      iex> Aja.String.slugify("\tΣΣ?")
       "σσ"
-      iex> A.String.slugify("\tΣΣ?", :greek)
+      iex> Aja.String.slugify("\tΣΣ?", :greek)
       "σς"
 
   """

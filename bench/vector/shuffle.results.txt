@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Enum.shuffle/1 (vector)...
-Benchmarking A.Vector.shuffle/1 (vector)...
+Benchmarking Aja.Enum.shuffle/1 (vector)...
+Benchmarking Aja.Vector.shuffle/1 (vector)...
 Benchmarking Enum.shuffle/1 (list)...
 Benchmarking Enum.shuffle/1 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-A.Enum.shuffle/1 (vector)          4.71 K      212.35 μs    ±16.55%      200.96 μs      349.95 μs
+Aja.Enum.shuffle/1 (vector)          4.71 K      212.35 μs    ±16.55%      200.96 μs      349.95 μs
 Enum.shuffle/1 (list)              4.65 K      215.12 μs    ±17.85%      205.72 μs      399.87 μs
-A.Vector.shuffle/1 (vector)        4.46 K      223.99 μs    ±18.27%      213.90 μs      404.33 μs
+Aja.Vector.shuffle/1 (vector)        4.46 K      223.99 μs    ±18.27%      213.90 μs      404.33 μs
 Enum.shuffle/1 (vector)            4.11 K      243.08 μs    ±18.13%      233.50 μs      445.70 μs
 
-Comparison: 
-A.Enum.shuffle/1 (vector)          4.71 K
+Comparison:
+Aja.Enum.shuffle/1 (vector)          4.71 K
 Enum.shuffle/1 (list)              4.65 K - 1.01x slower +2.78 μs
-A.Vector.shuffle/1 (vector)        4.46 K - 1.05x slower +11.65 μs
+Aja.Vector.shuffle/1 (vector)        4.46 K - 1.05x slower +11.65 μs
 Enum.shuffle/1 (vector)            4.11 K - 1.14x slower +30.73 μs

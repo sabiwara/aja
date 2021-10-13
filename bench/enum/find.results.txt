@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Enum.find/2 (vector)...
+Benchmarking Aja.Enum.find/2 (vector)...
 Benchmarking Enum.find/2 (list)...
 Benchmarking Enum.find/2 (vector)...
 
 Name                             ips        average  deviation         median         99th %
-A.Enum.find/2 (vector)       94.44 K       10.59 μs    ±90.27%       10.38 μs       13.89 μs
+Aja.Enum.find/2 (vector)       94.44 K       10.59 μs    ±90.27%       10.38 μs       13.89 μs
 Enum.find/2 (list)           61.75 K       16.19 μs    ±21.51%       15.88 μs       21.70 μs
 Enum.find/2 (vector)         39.07 K       25.60 μs    ±20.40%       24.64 μs       39.38 μs
 
-Comparison: 
-A.Enum.find/2 (vector)       94.44 K
+Comparison:
+Aja.Enum.find/2 (vector)       94.44 K
 Enum.find/2 (list)           61.75 K - 1.53x slower +5.61 μs
 Enum.find/2 (vector)         39.07 K - 2.42x slower +15.01 μs

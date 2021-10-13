@@ -1,4 +1,4 @@
-defmodule A.Integer do
+defmodule Aja.Integer do
   @moduledoc ~S"""
   Some extra helper functions for working with integers,
   that are not in the core `Integer` module.
@@ -13,11 +13,11 @@ defmodule A.Integer do
 
   ## Examples
 
-      iex> A.Integer.div_rem(7, 3)
+      iex> Aja.Integer.div_rem(7, 3)
       {2, 1}
-      iex> A.Integer.div_rem(-99, 2)
+      iex> Aja.Integer.div_rem(-99, 2)
       {-49, -1}
-      iex> A.Integer.div_rem(100, 0)
+      iex> Aja.Integer.div_rem(100, 0)
       ** (ArithmeticError) bad argument in arithmetic expression
 
   """
@@ -32,11 +32,11 @@ defmodule A.Integer do
 
   ## Examples
 
-      iex> A.Integer.decimal_format(1_234_567)
+      iex> Aja.Integer.decimal_format(1_234_567)
       "1,234,567"
-      iex> A.Integer.decimal_format(-123)
+      iex> Aja.Integer.decimal_format(-123)
       "-123"
-      iex> A.Integer.decimal_format(-1_234, separator: ?_)
+      iex> Aja.Integer.decimal_format(-1_234, separator: ?_)
       "-1_234"
   """
   def decimal_format(integer, opts \\ []) when is_integer(integer) and is_list(opts) do

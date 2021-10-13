@@ -1,4 +1,4 @@
-defmodule A.TestHelpers do
+defmodule Aja.TestHelpers do
   defmacro capture_error(expr) do
     quote do
       try do

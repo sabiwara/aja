@@ -16,33 +16,33 @@ Estimated total run time: 42 s
 Benchmarking Map with input n = 10...
 Benchmarking Map with input n = 100...
 Benchmarking Map with input n = 10000...
-Benchmarking A.OrdMap with input n = 10...
-Benchmarking A.OrdMap with input n = 100...
-Benchmarking A.OrdMap with input n = 10000...
+Benchmarking Aja.OrdMap with input n = 10...
+Benchmarking Aja.OrdMap with input n = 100...
+Benchmarking Aja.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap        9.47 M      105.58 ns ±27383.52%          56 ns         160 ns
+Aja.OrdMap        9.47 M      105.58 ns ±27383.52%          56 ns         160 ns
 Map             6.22 M      160.81 ns ±20055.82%          59 ns         212 ns
 
-Comparison: 
-A.OrdMap        9.47 M
+Comparison:
+Aja.OrdMap        9.47 M
 Map             6.22 M - 1.52x slower +55.23 ns
 
 ##### With input n = 100 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap        2.99 M      334.02 ns ±11309.04%         203 ns         500 ns
+Aja.OrdMap        2.99 M      334.02 ns ±11309.04%         203 ns         500 ns
 Map             1.45 M      689.50 ns  ±3963.66%         521 ns         981 ns
 
-Comparison: 
-A.OrdMap        2.99 M
+Comparison:
+Aja.OrdMap        2.99 M
 Map             1.45 M - 2.06x slower +355.48 ns
 
 ##### With input n = 10000 #####
 Name               ips        average  deviation         median         99th %
-A.OrdMap       39.63 K       25.23 μs    ±84.85%       11.50 μs       54.74 μs
+Aja.OrdMap       39.63 K       25.23 μs    ±84.85%       11.50 μs       54.74 μs
 Map             5.64 K      177.16 μs    ±44.93%      192.32 μs      325.23 μs
 
-Comparison: 
-A.OrdMap       39.63 K
+Comparison:
+Aja.OrdMap       39.63 K
 Map             5.64 K - 7.02x slower +151.93 μs

@@ -14,15 +14,15 @@ inputs: none specified
 Estimated total run time: 21 s
 
 Benchmarking :array.foldl/3...
-Benchmarking A.Vector.foldl3...
+Benchmarking Aja.Vector.foldl3...
 Benchmarking List.foldl3/2...
 
 Name                      ips        average  deviation         median         99th %
-A.Vector.foldl3       10.62 K       94.12 μs     ±8.23%       94.31 μs      110.87 μs
+Aja.Vector.foldl3       10.62 K       94.12 μs     ±8.23%       94.31 μs      110.87 μs
 List.foldl3/2          9.05 K      110.56 μs     ±4.32%      110.73 μs      124.90 μs
 :array.foldl/3         5.15 K      194.28 μs     ±4.31%      193.97 μs      234.65 μs
 
-Comparison: 
-A.Vector.foldl3       10.62 K
+Comparison:
+Aja.Vector.foldl3       10.62 K
 List.foldl3/2          9.05 K - 1.17x slower +16.44 μs
 :array.foldl/3         5.15 K - 2.06x slower +100.16 μs

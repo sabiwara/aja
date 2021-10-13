@@ -15,23 +15,23 @@ Estimated total run time: 28 s
 
 Benchmarking IO.iodata_length() == 0 with input n = 5...
 Benchmarking IO.iodata_length() == 0 with input n = 50...
-Benchmarking A.IO.iodata_empty?/1 with input n = 5...
-Benchmarking A.IO.iodata_empty?/1 with input n = 50...
+Benchmarking Aja.IO.iodata_empty?/1 with input n = 5...
+Benchmarking Aja.IO.iodata_empty?/1 with input n = 50...
 
 ##### With input n = 5 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          26.71 M       37.43 ns ±10935.18%          28 ns          72 ns
+Aja.IO.iodata_empty?/1          26.71 M       37.43 ns ±10935.18%          28 ns          72 ns
 IO.iodata_length() == 0       21.12 M       47.36 ns  ±7769.58%          38 ns          83 ns
 
-Comparison: 
-A.IO.iodata_empty?/1          26.71 M
+Comparison:
+Aja.IO.iodata_empty?/1          26.71 M
 IO.iodata_length() == 0       21.12 M - 1.27x slower +9.92 ns
 
 ##### With input n = 50 #####
 Name                              ips        average  deviation         median         99th %
-A.IO.iodata_empty?/1          26.24 M       38.11 ns  ±8886.72%          30 ns          72 ns
+Aja.IO.iodata_empty?/1          26.24 M       38.11 ns  ±8886.72%          30 ns          72 ns
 IO.iodata_length() == 0        7.41 M      134.89 ns  ±2402.74%         126 ns         179 ns
 
-Comparison: 
-A.IO.iodata_empty?/1          26.24 M
+Comparison:
+Aja.IO.iodata_empty?/1          26.24 M
 IO.iodata_length() == 0        7.41 M - 3.54x slower +96.77 ns

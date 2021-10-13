@@ -25,8 +25,8 @@ defmodule Bench.Maps.Fetch do
     Benchee.run(
       [
         {"Map", create_scenario(&Map.new/1, fn map, key -> Map.fetch!(map, key) end)},
-        {"A.OrdMap",
-         create_scenario(&A.OrdMap.new/1, fn map, key -> A.OrdMap.fetch!(map, key) end)}
+        {"Aja.OrdMap",
+         create_scenario(&Aja.OrdMap.new/1, fn map, key -> Aja.OrdMap.fetch!(map, key) end)}
       ],
       inputs: inputs()
     )

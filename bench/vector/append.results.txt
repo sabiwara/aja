@@ -14,24 +14,24 @@ inputs: none specified
 Estimated total run time: 42 s
 
 Benchmarking :array.set/3 in reduce...
-Benchmarking A.Enum.into/2 (vector)...
-Benchmarking A.Vector.append/2 in reduce...
-Benchmarking A.Vector.concat/2...
+Benchmarking Aja.Enum.into/2 (vector)...
+Benchmarking Aja.Vector.append/2 in reduce...
+Benchmarking Aja.Vector.concat/2...
 Benchmarking Enum.concat/2 (lists)...
 Benchmarking Enum.into/2 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-A.Enum.into/2 (vector)          1221.09 K        0.82 μs  ±2935.84%        0.65 μs        1.29 μs
-A.Vector.concat/2               1189.22 K        0.84 μs  ±2949.79%        0.65 μs        1.34 μs
+Aja.Enum.into/2 (vector)          1221.09 K        0.82 μs  ±2935.84%        0.65 μs        1.29 μs
+Aja.Vector.concat/2               1189.22 K        0.84 μs  ±2949.79%        0.65 μs        1.34 μs
 Enum.concat/2 (lists)            400.24 K        2.50 μs   ±701.26%        2.11 μs       10.54 μs
 Enum.into/2 (vector)             286.53 K        3.49 μs   ±533.67%        2.99 μs        7.03 μs
-A.Vector.append/2 in reduce      164.84 K        6.07 μs   ±204.61%        5.35 μs       23.32 μs
+Aja.Vector.append/2 in reduce      164.84 K        6.07 μs   ±204.61%        5.35 μs       23.32 μs
 :array.set/3 in reduce            58.86 K       16.99 μs    ±55.73%       15.72 μs       39.60 μs
 
-Comparison: 
-A.Enum.into/2 (vector)          1221.09 K
-A.Vector.concat/2               1189.22 K - 1.03x slower +0.0219 μs
+Comparison:
+Aja.Enum.into/2 (vector)          1221.09 K
+Aja.Vector.concat/2               1189.22 K - 1.03x slower +0.0219 μs
 Enum.concat/2 (lists)            400.24 K - 3.05x slower +1.68 μs
 Enum.into/2 (vector)             286.53 K - 4.26x slower +2.67 μs
-A.Vector.append/2 in reduce      164.84 K - 7.41x slower +5.25 μs
+Aja.Vector.append/2 in reduce      164.84 K - 7.41x slower +5.25 μs
 :array.set/3 in reduce            58.86 K - 20.75x slower +16.17 μs

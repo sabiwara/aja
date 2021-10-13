@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Vector.scan/2...
-Benchmarking A.Vector.scan/3...
+Benchmarking Aja.Vector.scan/2...
+Benchmarking Aja.Vector.scan/3...
 Benchmarking Enum.scan/2...
 Benchmarking Enum.scan/3...
 
 Name                      ips        average  deviation         median         99th %
-A.Vector.scan/3      502.53 K        1.99 μs  ±1084.17%        1.86 μs        2.29 μs
+Aja.Vector.scan/3      502.53 K        1.99 μs  ±1084.17%        1.86 μs        2.29 μs
 Enum.scan/2          471.75 K        2.12 μs   ±757.34%        1.99 μs        2.46 μs
 Enum.scan/3          464.87 K        2.15 μs   ±751.99%        2.01 μs        2.50 μs
-A.Vector.scan/2      308.68 K        3.24 μs   ±562.14%        3.08 μs        4.10 μs
+Aja.Vector.scan/2      308.68 K        3.24 μs   ±562.14%        3.08 μs        4.10 μs
 
-Comparison: 
-A.Vector.scan/3      502.53 K
+Comparison:
+Aja.Vector.scan/3      502.53 K
 Enum.scan/2          471.75 K - 1.07x slower +0.130 μs
 Enum.scan/3          464.87 K - 1.08x slower +0.161 μs
-A.Vector.scan/2      308.68 K - 1.63x slower +1.25 μs
+Aja.Vector.scan/2      308.68 K - 1.63x slower +1.25 μs

@@ -1,34 +1,34 @@
-defmodule A.Enum do
+defmodule Aja.Enum do
   @moduledoc """
-  Drop-in replacement for the `Enum` module, optimized to work with Aja's data structures such as `A.Vector`.
+  Drop-in replacement for the `Enum` module, optimized to work with Aja's data structures such as `Aja.Vector`.
 
-  It currently only covers a subset of `Enum`, but `A.Enum` aims to completely mirror the API of `Enum`,
+  It currently only covers a subset of `Enum`, but `Aja.Enum` aims to completely mirror the API of `Enum`,
   and should behave exactly the same for any type of `Enumerable`.
   The only expected difference should be a significant increase in performance for Aja structures.
 
   ## Rationale
 
-  Structures such as `A.Vector` or `A.OrdMap` are implementing the `Enumerable` protocol, which means they can be
+  Structures such as `Aja.Vector` or `Aja.OrdMap` are implementing the `Enumerable` protocol, which means they can be
   used directly with the `Enum` module. The `Enumerable` protocol however comes with its overhead and is strongly
   limited in terms of performance.
 
-  On the other hand, `A.Enum` provides hand-crafted highly-optimized functions that fully take advantage of
+  On the other hand, `Aja.Enum` provides hand-crafted highly-optimized functions that fully take advantage of
   immutable vectors. The speedup can easily reach more than a factor 10 compared to `Enum` used on non-list
   structures, and sometimes even be noticeably faster than `Enum` used over lists.
 
   One of the main reasons to adopt a specific data structure is the performance.
-  Using vectors with `Enum` would defeat the purpose, hence the introduction of `A.Enum`.
+  Using vectors with `Enum` would defeat the purpose, hence the introduction of `Aja.Enum`.
 
-      iex> vector = A.Vector.new(1..10000)
+      iex> vector = Aja.Vector.new(1..10000)
       iex> Enum.sum(vector)    # slow
       50005000
-      iex> A.Enum.sum(vector)  # same result, much faster
+      iex> Aja.Enum.sum(vector)  # same result, much faster
       50005000
 
   """
 
-  require A.Vector.Raw, as: RawVector
-  alias A.EnumHelper, as: H
+  require Aja.Vector.Raw, as: RawVector
+  alias Aja.EnumHelper, as: H
 
   @compile :inline_list_funcs
 
@@ -36,7 +36,7 @@ defmodule A.Enum do
 
   @type index :: integer
   @type value :: any
-  @type t(value) :: A.Vector.t(value) | [value] | Enumerable.t()
+  @type t(value) :: Aja.Vector.t(value) | [value] | Enumerable.t()
 
   @empty_vector RawVector.empty()
 
@@ -59,8 +59,8 @@ defmodule A.Enum do
   def count(enumerable) do
     case enumerable do
       list when is_list(list) -> length(list)
-      %A.Vector{__vector__: vector} -> RawVector.size(vector)
-      %A.OrdMap{__ord_map__: map} -> map_size(map)
+      %Aja.Vector{__vector__: vector} -> RawVector.size(vector)
+      %Aja.OrdMap{__ord_map__: map} -> map_size(map)
       %MapSet{} -> MapSet.size(enumerable)
       start..stop -> abs(start - stop) + 1
       _ -> Enum.count(enumerable)
@@ -109,8 +109,8 @@ defmodule A.Enum do
   def empty?(enumerable) do
     case enumerable do
       list when is_list(list) -> list == []
-      %A.Vector{__vector__: vector} -> vector === @empty_vector
-      %A.OrdMap{__ord_map__: map} -> map == %{}
+      %Aja.Vector{__vector__: vector} -> vector === @empty_vector
+      %Aja.OrdMap{__ord_map__: map} -> map == %{}
       %MapSet{} -> MapSet.size(enumerable) == 0
       %Range{} -> false
       _ -> Enum.empty?(enumerable)
@@ -152,13 +152,13 @@ defmodule A.Enum do
   @spec into(t(val), Collectable.t()) :: Collectable.t() when val: value
   def into(enumerable, collectable)
 
-  def into(enumerable, %A.Vector{} = vector) do
+  def into(enumerable, %Aja.Vector{} = vector) do
     # TODO improve when this is the empty vector/ord_map
-    A.Vector.concat(vector, enumerable)
+    Aja.Vector.concat(vector, enumerable)
   end
 
-  def into(enumerable, %A.OrdMap{} = ord_map) do
-    A.OrdMap.merge_list(ord_map, H.to_list(enumerable))
+  def into(enumerable, %Aja.OrdMap{} = ord_map) do
+    Aja.OrdMap.merge_list(ord_map, H.to_list(enumerable))
   end
 
   def into(enumerable, collectable) do
@@ -177,13 +177,13 @@ defmodule A.Enum do
   """
   def into(enumerable, collectable, transform)
 
-  def into(enumerable, %A.Vector{} = vector, transform) do
+  def into(enumerable, %Aja.Vector{} = vector, transform) do
     # TODO we can probably improve this with the builder
-    A.Vector.concat(vector, H.map(enumerable, transform))
+    Aja.Vector.concat(vector, H.map(enumerable, transform))
   end
 
-  def into(enumerable, %A.OrdMap{} = ord_map, transform) do
-    A.OrdMap.merge_list(ord_map, H.map(enumerable, transform))
+  def into(enumerable, %Aja.OrdMap{} = ord_map, transform) do
+    Aja.OrdMap.merge_list(ord_map, H.map(enumerable, transform))
   end
 
   def into(enumerable, collectable, transform) when is_function(transform, 1) do
@@ -444,20 +444,20 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> A.Enum.any?([false, false, false])
+      iex> Aja.Enum.any?([false, false, false])
       false
 
-      iex> A.Enum.any?([false, true, false])
+      iex> Aja.Enum.any?([false, true, false])
       true
 
-      iex> A.Enum.any?([])
+      iex> Aja.Enum.any?([])
       false
 
   """
   @spec any?(t(as_boolean(val))) :: boolean when val: value
   def any?(enumerable) do
     case enumerable do
-      %A.Vector{__vector__: vector} -> RawVector.any?(vector)
+      %Aja.Vector{__vector__: vector} -> RawVector.any?(vector)
       _ -> Enum.any?(enumerable)
     end
   end
@@ -471,13 +471,13 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> A.Enum.any?([2, 4, 6], fn x -> rem(x, 2) == 1 end)
+      iex> Aja.Enum.any?([2, 4, 6], fn x -> rem(x, 2) == 1 end)
       false
 
-      iex> A.Enum.any?([2, 3, 4], fn x -> rem(x, 2) == 1 end)
+      iex> Aja.Enum.any?([2, 3, 4], fn x -> rem(x, 2) == 1 end)
       true
 
-      iex> A.Enum.any?([], fn x -> x > 0 end)
+      iex> Aja.Enum.any?([], fn x -> x > 0 end)
       false
 
   """
@@ -500,20 +500,20 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> A.Enum.all?([1, 2, 3])
+      iex> Aja.Enum.all?([1, 2, 3])
       true
 
-      iex> A.Enum.all?([1, nil, 3])
+      iex> Aja.Enum.all?([1, nil, 3])
       false
 
-      iex> A.Enum.all?([])
+      iex> Aja.Enum.all?([])
       true
 
   """
   @spec all?(t(as_boolean(val))) :: boolean when val: value
   def all?(enumerable) do
     case enumerable do
-      %A.Vector{__vector__: vector} -> RawVector.all?(vector)
+      %Aja.Vector{__vector__: vector} -> RawVector.all?(vector)
       _ -> Enum.all?(enumerable)
     end
   end
@@ -527,13 +527,13 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> A.Enum.all?([2, 4, 6], fn x -> rem(x, 2) == 0 end)
+      iex> Aja.Enum.all?([2, 4, 6], fn x -> rem(x, 2) == 0 end)
       true
 
-      iex> A.Enum.all?([2, 3, 4], fn x -> rem(x, 2) == 0 end)
+      iex> Aja.Enum.all?([2, 3, 4], fn x -> rem(x, 2) == 0 end)
       false
 
-      iex> A.Enum.all?([], fn _ -> nil end)
+      iex> Aja.Enum.all?([], fn _ -> nil end)
       true
 
   """
@@ -625,9 +625,9 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> 1..5 |> A.Enum.product()
+      iex> 1..5 |> Aja.Enum.product()
       120
-      iex> [] |> A.Enum.product()
+      iex> [] |> Aja.Enum.product()
       1
 
   """
@@ -1070,13 +1070,13 @@ defmodule A.Enum do
 
   ## Examples
 
-      iex> A.Enum.with_index([:a, :b, :c])
+      iex> Aja.Enum.with_index([:a, :b, :c])
       [a: 0, b: 1, c: 2]
 
-      iex> A.Enum.with_index([:a, :b, :c], 3)
+      iex> Aja.Enum.with_index([:a, :b, :c], 3)
       [a: 3, b: 4, c: 5]
 
-      iex> A.Enum.with_index([:a, :b, :c], fn element, index -> {index, element} end)
+      iex> Aja.Enum.with_index([:a, :b, :c], fn element, index -> {index, element} end)
       [{0, :a}, {1, :b}, {2, :c}]
 
   """
@@ -1454,7 +1454,7 @@ defmodule A.Enum do
   # TODO remove in 0.6
 
   @doc false
-  @deprecated "Use |> A.Enum.sort() |> A.Enum.dedup() instead"
+  @deprecated "Use |> Aja.Enum.sort() |> Aja.Enum.dedup() instead"
   def sort_uniq(enumerable) do
     enumerable
     |> sort()
@@ -1462,7 +1462,7 @@ defmodule A.Enum do
   end
 
   @doc false
-  @deprecated "Use |> A.Enum.sort(fun) |> A.Enum.dedup() instead"
+  @deprecated "Use |> Aja.Enum.sort(fun) |> Aja.Enum.dedup() instead"
   def sort_uniq(enumerable, fun) do
     enumerable
     |> sort(fun)
