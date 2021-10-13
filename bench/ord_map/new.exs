@@ -18,7 +18,7 @@ defmodule Bench.Maps.New do
     Benchee.run(
       [
         {"Map", &Map.new/1},
-        {"A.OrdMap", &A.OrdMap.new/1}
+        {"Aja.OrdMap", &Aja.OrdMap.new/1}
       ],
       inputs: inputs(),
       before_scenario: fn n ->

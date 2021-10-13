@@ -14,18 +14,18 @@ inputs: none specified
 Estimated total run time: 28 s
 
 Benchmarking :array.get/2...
-Benchmarking A.Vector.at/2...
+Benchmarking Aja.Vector.at/2...
 Benchmarking Access (vector)...
 Benchmarking List.at/2...
 
-Name                      ips        average  deviation         median         99th %
-:array.get/2          29.44 M       33.97 ns   ±278.44%          31 ns          58 ns
-A.Vector.at/2         27.12 M       36.87 ns   ±275.31%          34 ns          61 ns
-Access (vector)        7.98 M      125.34 ns ±28100.71%          54 ns         114 ns
-List.at/2              5.20 M      192.37 ns ±18567.57%         144 ns         419 ns
+Name                        ips        average  deviation         median         99th %
+:array.get/2            29.44 M       33.97 ns   ±278.44%          31 ns          58 ns
+Aja.Vector.at/2         27.12 M       36.87 ns   ±275.31%          34 ns          61 ns
+Access (vector)          7.98 M      125.34 ns ±28100.71%          54 ns         114 ns
+List.at/2                5.20 M      192.37 ns ±18567.57%         144 ns         419 ns
 
-Comparison: 
-:array.get/2          29.44 M
-A.Vector.at/2         27.12 M - 1.09x slower +2.90 ns
-Access (vector)        7.98 M - 3.69x slower +91.37 ns
-List.at/2              5.20 M - 5.66x slower +158.40 ns
+Comparison:
+:array.get/2            29.44 M
+Aja.Vector.at/2         27.12 M - 1.09x slower +2.90 ns
+Access (vector)          7.98 M - 3.69x slower +91.37 ns
+List.at/2                5.20 M - 5.66x slower +158.40 ns

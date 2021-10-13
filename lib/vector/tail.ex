@@ -1,9 +1,9 @@
-defmodule A.Vector.Tail do
+defmodule Aja.Vector.Tail do
   @moduledoc false
 
-  require A.Vector.CodeGen, as: C
+  require Aja.Vector.CodeGen, as: C
 
-  alias A.Vector.Node
+  alias Aja.Vector.Node
 
   @type t(value) :: Node.t(value | nil)
 

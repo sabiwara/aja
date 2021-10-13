@@ -18,7 +18,7 @@ defmodule Bench.Maps.ToList do
     Benchee.run(
       [
         {"Map", create_scenario(&Map.new/1, &Map.to_list/1)},
-        {"A.OrdMap", create_scenario(&A.OrdMap.new/1, &A.OrdMap.to_list/1)}
+        {"Aja.OrdMap", create_scenario(&Aja.OrdMap.new/1, &Aja.OrdMap.to_list/1)}
       ],
       inputs: inputs()
     )

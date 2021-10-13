@@ -1,5 +1,5 @@
-defmodule A.IntegerTest do
+defmodule Aja.IntegerTest do
   use ExUnit.Case, async: true
 
-  doctest A.Integer
+  doctest Aja.Integer
 end

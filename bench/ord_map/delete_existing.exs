@@ -25,8 +25,8 @@ defmodule Bench.Maps.DeleteExisting do
     Benchee.run(
       [
         {"Map", create_scenario(&Map.new/1, fn map, key -> Map.delete(map, key) end)},
-        {"A.OrdMap",
-         create_scenario(&A.OrdMap.new/1, fn map, key -> A.OrdMap.delete(map, key) end)}
+        {"Aja.OrdMap",
+         create_scenario(&Aja.OrdMap.new/1, fn map, key -> Aja.OrdMap.delete(map, key) end)}
       ],
       inputs: inputs()
     )

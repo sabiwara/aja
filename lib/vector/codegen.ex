@@ -1,8 +1,8 @@
-defmodule A.Vector.CodeGen do
+defmodule Aja.Vector.CodeGen do
   @moduledoc false
 
   # Notes: averaged overhead
-  # Enum.sum(for i <- 1..100, do: A.Vector.new(1..i) |> :erts_debug.size_shared()) / 100
+  # Enum.sum(for i <- 1..100, do: Aja.Vector.new(1..i) |> :erts_debug.size_shared()) / 100
 
   # 2^3 = 8 -> 87.2
   # 2^4 = 16 -> 86.96

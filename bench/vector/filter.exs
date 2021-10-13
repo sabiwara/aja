@@ -1,10 +1,10 @@
 # TODO bench bigger numbers
 list = Enum.to_list(1..100)
-vector = A.Vector.new(list)
+vector = Aja.Vector.new(list)
 
 Benchee.run(%{
-  "A.Vector.filter/2 (vector)" => fn -> A.Vector.filter(vector, &(rem(&1, 2) == 0)) end,
-  "A.Enum.filter/2 (vector)" => fn -> A.Enum.filter(vector, &(rem(&1, 2) == 0)) end,
+  "Aja.Vector.filter/2 (vector)" => fn -> Aja.Vector.filter(vector, &(rem(&1, 2) == 0)) end,
+  "Aja.Enum.filter/2 (vector)" => fn -> Aja.Enum.filter(vector, &(rem(&1, 2) == 0)) end,
   "Enum.filter/2 (list)" => fn -> Enum.filter(list, &(rem(&1, 2) == 0)) end,
-  "A.Enum.filter/2 (list)" => fn -> A.Enum.filter(list, &(rem(&1, 2) == 0)) end
+  "Aja.Enum.filter/2 (list)" => fn -> Aja.Enum.filter(list, &(rem(&1, 2) == 0)) end
 })

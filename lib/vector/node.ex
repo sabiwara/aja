@@ -1,7 +1,7 @@
-defmodule A.Vector.Node do
+defmodule Aja.Vector.Node do
   @moduledoc false
 
-  require A.Vector.CodeGen, as: C
+  require Aja.Vector.CodeGen, as: C
 
   # @type t(value) :: {value, value, value, value}
   C.array_type(t(value), value)

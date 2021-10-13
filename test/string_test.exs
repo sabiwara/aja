@@ -1,7 +1,7 @@
-defmodule A.StringTest do
+defmodule Aja.StringTest do
   use ExUnit.Case, async: true
 
-  doctest A.String
+  doctest Aja.String
 
   test "slugify/2 (mode: :default)" do
     expected = %{
@@ -18,7 +18,7 @@ defmodule A.StringTest do
 
     actual =
       Map.new(expected, fn {key, _value} ->
-        {key, A.String.slugify(key)}
+        {key, Aja.String.slugify(key)}
       end)
 
     assert actual == expected
@@ -39,14 +39,14 @@ defmodule A.StringTest do
 
     actual =
       Map.new(expected, fn {key, _value} ->
-        {key, A.String.slugify(key, :ascii)}
+        {key, Aja.String.slugify(key, :ascii)}
       end)
 
     assert actual == expected
   end
 
   test "slugif/2 (mode: :greek)" do
-    assert "σσ" = A.String.slugify("\tΣΣ?")
-    assert "σς" = A.String.slugify("\tΣΣ?", :greek)
+    assert "σσ" = Aja.String.slugify("\tΣΣ?")
+    assert "σς" = Aja.String.slugify("\tΣΣ?", :greek)
   end
 end

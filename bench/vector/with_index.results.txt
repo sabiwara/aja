@@ -13,13 +13,13 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 14 s
 
-Benchmarking A.Vector.with_index/1...
+Benchmarking Aja.Vector.with_index/1...
 Benchmarking Enum.with_index/1...
 
-Name                            ips        average  deviation         median         99th %
-A.Vector.with_index/1        1.65 M        0.61 μs  ±5961.47%        0.46 μs        0.88 μs
-Enum.with_index/1            0.41 M        2.41 μs   ±687.28%        2.13 μs        3.82 μs
+Name                              ips        average  deviation         median         99th %
+Aja.Vector.with_index/1        1.65 M        0.61 μs  ±5961.47%        0.46 μs        0.88 μs
+Enum.with_index/1              0.41 M        2.41 μs   ±687.28%        2.13 μs        3.82 μs
 
-Comparison: 
-A.Vector.with_index/1        1.65 M
-Enum.with_index/1            0.41 M - 3.97x slower +1.80 μs
+Comparison:
+Aja.Vector.with_index/1        1.65 M
+Enum.with_index/1              0.41 M - 3.97x slower +1.80 μs

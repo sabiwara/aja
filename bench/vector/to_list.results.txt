@@ -14,18 +14,18 @@ inputs: none specified
 Estimated total run time: 28 s
 
 Benchmarking :array.to_list/1 (array)...
-Benchmarking A.Enum.to_list/1 (vector)...
-Benchmarking A.Vector.to_list/1 (vector)...
+Benchmarking Aja.Enum.to_list/1 (vector)...
+Benchmarking Aja.Vector.to_list/1 (vector)...
 Benchmarking Enum.to_list/1 (vector)...
 
-Name                                  ips        average  deviation         median         99th %
-A.Vector.to_list/1 (vector)        3.63 M      275.52 ns ±12906.26%         185 ns         431 ns
-A.Enum.to_list/1 (vector)          3.59 M      278.22 ns ±12567.83%         187 ns         456 ns
-:array.to_list/1 (array)           1.50 M      668.60 ns  ±3826.35%         562 ns         890 ns
-Enum.to_list/1 (vector)            0.39 M     2572.45 ns   ±814.56%        2302 ns        3907 ns
+Name                                    ips        average  deviation         median         99th %
+Aja.Vector.to_list/1 (vector)        3.63 M      275.52 ns ±12906.26%         185 ns         431 ns
+Aja.Enum.to_list/1 (vector)          3.59 M      278.22 ns ±12567.83%         187 ns         456 ns
+:array.to_list/1 (array)             1.50 M      668.60 ns  ±3826.35%         562 ns         890 ns
+Enum.to_list/1 (vector)              0.39 M     2572.45 ns   ±814.56%        2302 ns        3907 ns
 
-Comparison: 
-A.Vector.to_list/1 (vector)        3.63 M
-A.Enum.to_list/1 (vector)          3.59 M - 1.01x slower +2.70 ns
-:array.to_list/1 (array)           1.50 M - 2.43x slower +393.08 ns
-Enum.to_list/1 (vector)            0.39 M - 9.34x slower +2296.94 ns
+Comparison:
+Aja.Vector.to_list/1 (vector)        3.63 M
+Aja.Enum.to_list/1 (vector)          3.59 M - 1.01x slower +2.70 ns
+:array.to_list/1 (array)             1.50 M - 2.43x slower +393.08 ns
+Enum.to_list/1 (vector)              0.39 M - 9.34x slower +2296.94 ns

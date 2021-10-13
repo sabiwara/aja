@@ -1,5 +1,5 @@
 defmodule Bench.IO.SigilI do
-  import A
+  import Aja
 
   def before_scenario(_) do
     first_names = ["John", "Jane", "Joe", "Joseph"]

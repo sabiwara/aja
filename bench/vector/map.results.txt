@@ -14,18 +14,18 @@ inputs: none specified
 Estimated total run time: 28 s
 
 Benchmarking :array.map/2 (array)...
-Benchmarking A.Enum.map/2 (vector)...
-Benchmarking A.Vector.map/2 (vector)...
+Benchmarking Aja.Enum.map/2 (vector)...
+Benchmarking Aja.Vector.map/2 (vector)...
 Benchmarking Enum.map/2 (list)...
 
-Name                              ips        average  deviation         median         99th %
-A.Vector.map/2 (vector)     1045.99 K        0.96 μs  ±3104.20%        0.81 μs        1.20 μs
-A.Enum.map/2 (vector)        882.96 K        1.13 μs  ±1779.05%        0.97 μs        1.48 μs
-Enum.map/2 (list)            847.15 K        1.18 μs  ±1828.09%        1.03 μs        1.45 μs
-:array.map/2 (array)         403.32 K        2.48 μs   ±802.99%        2.24 μs        3.23 μs
+Name                                ips        average  deviation         median         99th %
+Aja.Vector.map/2 (vector)     1045.99 K        0.96 μs  ±3104.20%        0.81 μs        1.20 μs
+Aja.Enum.map/2 (vector)        882.96 K        1.13 μs  ±1779.05%        0.97 μs        1.48 μs
+Enum.map/2 (list)              847.15 K        1.18 μs  ±1828.09%        1.03 μs        1.45 μs
+:array.map/2 (array)           403.32 K        2.48 μs   ±802.99%        2.24 μs        3.23 μs
 
-Comparison: 
-A.Vector.map/2 (vector)     1045.99 K
-A.Enum.map/2 (vector)        882.96 K - 1.18x slower +0.177 μs
-Enum.map/2 (list)            847.15 K - 1.23x slower +0.22 μs
-:array.map/2 (array)         403.32 K - 2.59x slower +1.52 μs
+Comparison:
+Aja.Vector.map/2 (vector)     1045.99 K
+Aja.Enum.map/2 (vector)        882.96 K - 1.18x slower +0.177 μs
+Enum.map/2 (list)              847.15 K - 1.23x slower +0.22 μs
+:array.map/2 (array)           403.32 K - 2.59x slower +1.52 μs

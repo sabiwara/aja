@@ -10,9 +10,9 @@ Benchee.run(
        before_scenario: fn n ->
          {1..n |> Enum.to_list() |> :array.from_list(), div(n, 2)}
        end},
-    "A.Vector.replace_at/3" =>
-      {fn {vector, i} -> A.Vector.replace_at(vector, i, :foo) end,
-       before_scenario: fn n -> {A.Vector.new(1..n), div(n, 2)} end},
+    "Aja.Vector.replace_at/3" =>
+      {fn {vector, i} -> Aja.Vector.replace_at(vector, i, :foo) end,
+       before_scenario: fn n -> {Aja.Vector.new(1..n), div(n, 2)} end},
     "List.replace_at/3" =>
       {fn {list, i} -> List.replace_at(list, i, :foo) end,
        before_scenario: fn n -> {Enum.to_list(1..n), div(n, 2)} end}

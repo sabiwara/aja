@@ -6,7 +6,7 @@ inputs =
 Benchee.run(
   %{
     "List.duplicate/2" => fn n -> List.duplicate(:x, n) end,
-    "A.Vector.duplicate/2" => fn n -> A.Vector.duplicate(:x, n) end
+    "Aja.Vector.duplicate/2" => fn n -> Aja.Vector.duplicate(:x, n) end
   },
   inputs: inputs
 )

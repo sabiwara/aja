@@ -1,25 +1,25 @@
 defmodule ATest do
   use ExUnit.Case, async: true
 
-  import A
-  import A.TestHelpers
+  import Aja
+  import Aja.TestHelpers
 
-  doctest A
+  doctest Aja
 
   test "ord/1 - new OrdMap" do
-    assert A.OrdMap.new() == ord(%{})
+    assert Aja.OrdMap.new() == ord(%{})
 
-    assert A.OrdMap.new([
+    assert Aja.OrdMap.new([
              {"一", 1},
              {"二", 2},
              {"三", 3}
            ]) == ord(%{"一" => 1, "二" => 2, "三" => 3})
 
-    assert A.OrdMap.new(a: A.OrdMap.new()) == ord(%{a: ord(%{})})
-    assert A.OrdMap.new(tuples: [{}, {1}, {2, 3, 4}]) == ord(%{tuples: [{}, {1}, {2, 3, 4}]})
+    assert Aja.OrdMap.new(a: Aja.OrdMap.new()) == ord(%{a: ord(%{})})
+    assert Aja.OrdMap.new(tuples: [{}, {1}, {2, 3, 4}]) == ord(%{tuples: [{}, {1}, {2, 3, 4}]})
 
     # multiline
-    assert A.OrdMap.new([
+    assert Aja.OrdMap.new([
              {"a", %{lower: 97, upper: 65}},
              {"b", %{lower: 98, upper: 66}},
              {"c", %{lower: 99, upper: 67}}
@@ -33,29 +33,29 @@ defmodule ATest do
     # dynamic key/values
     {k1, v1, k2, v2, k3, v3} = {:foo, 45, :bar, 98, :baz, 76}
 
-    assert A.OrdMap.new([{:foo, 45}, {:bar, 98}, {:baz, 76}]) ==
+    assert Aja.OrdMap.new([{:foo, 45}, {:bar, 98}, {:baz, 76}]) ==
              ord(%{k1 => v1, k2 => v2, k3 => v3})
 
     # computed key/values
     {f, pop_args} = spy_callback(&(&1 * 2))
 
-    assert A.OrdMap.new([{0, 20}, {2, 40}, {4, 60}]) ==
+    assert Aja.OrdMap.new([{0, 20}, {2, 40}, {4, 60}]) ==
              ord(%{f.(0) => f.(10), f.(1) => f.(20), f.(2) => f.(30)})
 
     assert [0, 10, 1, 20, 2, 30] = pop_args.()
 
     # fixed key / computed values
 
-    assert A.OrdMap.new(foo: 200, bar: 400, baz: 600) ==
+    assert Aja.OrdMap.new(foo: 200, bar: 400, baz: 600) ==
              ord(%{foo: f.(100), bar: f.(200), baz: f.(300)})
 
     assert [100, 200, 300] = pop_args.()
   end
 
   test "ord/1 - pattern matching" do
-    ordered = A.OrdMap.new(a: "A", b: "B")
+    ordered = Aja.OrdMap.new(a: "A", b: "B")
 
-    ord(%{}) = A.OrdMap.new()
+    ord(%{}) = Aja.OrdMap.new()
     ord(%{}) = ordered
     ord(%{a: "A"}) = ordered
 
@@ -67,7 +67,7 @@ defmodule ATest do
 
     # pin operator
     {key, value} = {:bar, 32}
-    assert ord(%{^key => ^value}) = A.OrdMap.new(foo: 46, bar: 32)
+    assert ord(%{^key => ^value}) = Aja.OrdMap.new(foo: 46, bar: 32)
   end
 
   test "ord/1 - errors" do
@@ -75,13 +75,13 @@ defmodule ATest do
       assert_raise ArgumentError,
                    fn -> Code.eval_quoted(quote do: ord(a: "A")) end
 
-    assert "Incorrect use of `A.ord/1`:\n  ord([a: \"A\"])." <> _ = err.message
+    assert "Incorrect use of `Aja.ord/1`:\n  ord([a: \"A\"])." <> _ = err.message
 
     err =
       assert_raise ArgumentError,
                    fn -> Code.eval_quoted(quote do: ord(%{a | b})) end
 
-    assert "Incorrect use of `A.ord/1`:\n  ord(%{a | b})." <> _ = err.message
+    assert "Incorrect use of `Aja.ord/1`:\n  ord(%{a | b})." <> _ = err.message
 
     err =
       assert_raise ArgumentError,
@@ -93,11 +93,11 @@ defmodule ATest do
                      )
                    end
 
-    assert "`A.ord/1` cannot be used in guards" = err.message
+    assert "`Aja.ord/1` cannot be used in guards" = err.message
   end
 
   test "ord/1 - warnings - literal key & values" do
-    expected = A.OrdMap.new(foo: "Baz", bar: "Bar")
+    expected = Aja.OrdMap.new(foo: "Baz", bar: "Bar")
 
     warning =
       ExUnit.CaptureIO.capture_io(:stderr, fn ->
@@ -114,7 +114,7 @@ defmodule ATest do
   end
 
   test "ord/1 - warnings - literal key, computed values" do
-    expected = A.OrdMap.new(foo: 6, bar: 4)
+    expected = Aja.OrdMap.new(foo: 6, bar: 4)
 
     warning =
       ExUnit.CaptureIO.capture_io(:stderr, fn ->
@@ -132,21 +132,21 @@ defmodule ATest do
   end
 
   test "vec/1 creation" do
-    assert A.Vector.new([]) ==
+    assert Aja.Vector.new([]) ==
              vec([])
 
-    assert A.Vector.new(1..5) == vec([1, 2, 3, 4, 5])
+    assert Aja.Vector.new(1..5) == vec([1, 2, 3, 4, 5])
 
-    assert A.Vector.new(1..5) == vec(1..5)
-    assert A.Vector.new(-5..-1) == vec(-5..-1)
+    assert Aja.Vector.new(1..5) == vec(1..5)
+    assert Aja.Vector.new(-5..-1) == vec(-5..-1)
     # TODO uncomment when dropping support for Elixir < 1.12
-    # assert A.Vector.new(-20..20//5) == vec(-20..20//5)
+    # assert Aja.Vector.new(-20..20//5) == vec(-20..20//5)
 
     {f, pop_args} = spy_callback(&(&1 * 2))
-    assert A.Vector.new([2, 4, 6, 8]) == vec([f.(1), f.(2), f.(3), f.(4)])
+    assert Aja.Vector.new([2, 4, 6, 8]) == vec([f.(1), f.(2), f.(3), f.(4)])
     assert [1, 2, 3, 4] = pop_args.()
 
-    assert A.Vector.new(1..50) ==
+    assert Aja.Vector.new(1..50) ==
              vec([
                1,
                2,
@@ -200,17 +200,17 @@ defmodule ATest do
                50
              ])
 
-    assert A.Vector.new(1..50) == vec(1..50)
+    assert Aja.Vector.new(1..50) == vec(1..50)
   end
 
   test "vec/1 pattern matching" do
-    assert vec([]) = A.Vector.new([])
+    assert vec([]) = Aja.Vector.new([])
 
-    assert vec([1, 2, value, 4, 5]) = A.Vector.new(1..5)
+    assert vec([1, 2, value, 4, 5]) = Aja.Vector.new(1..5)
     assert 3 = value
 
     assert vec([vec([a, b]), vec([c, d])]) =
-             A.Vector.new([A.Vector.new([1, 2]), A.Vector.new([3, 4])])
+             Aja.Vector.new([Aja.Vector.new([1, 2]), Aja.Vector.new([3, 4])])
 
     assert {1, 2, 3, 4} == {a, b, c, d}
 
@@ -265,19 +265,19 @@ defmodule ATest do
              48,
              49,
              last
-           ]) = A.Vector.new(1..50)
+           ]) = Aja.Vector.new(1..50)
 
     assert {1, 25, 50} = {first, middle, last}
 
-    assert vec(_) = A.Vector.new([])
-    assert vec(_) = A.Vector.new([1, 2])
-    assert vec(_) = A.Vector.new(1..100)
+    assert vec(_) = Aja.Vector.new([])
+    assert vec(_) = Aja.Vector.new([1, 2])
+    assert vec(_) = Aja.Vector.new(1..100)
 
-    assert vec(1 ||| 2) = A.Vector.new(1..2)
-    assert vec(1 ||| 20) = A.Vector.new(1..20)
-    assert vec(1 ||| 200) = A.Vector.new(1..200)
-    assert vec(1 ||| 2000) = A.Vector.new(1..2000)
-    refute match?(vec(_ ||| _), A.Vector.new())
+    assert vec(1 ||| 2) = Aja.Vector.new(1..2)
+    assert vec(1 ||| 20) = Aja.Vector.new(1..20)
+    assert vec(1 ||| 200) = Aja.Vector.new(1..200)
+    assert vec(1 ||| 2000) = Aja.Vector.new(1..2000)
+    refute match?(vec(_ ||| _), Aja.Vector.new())
   end
 
   test "vec(x ||| y) outside patterns" do
@@ -291,29 +291,29 @@ defmodule ATest do
       assert_raise ArgumentError,
                    fn -> Code.eval_quoted(quote do: vec(a..b)) end
 
-    assert "Incorrect use of `A.vec/1`:\n  vec(a..b)." <> _ = err.message
+    assert "Incorrect use of `Aja.vec/1`:\n  vec(a..b)." <> _ = err.message
   end
 
   test "vec_size/1 in guards" do
     lt? = &match?(v when vec_size(v) < 10, &1)
     gt? = &match?(v when vec_size(v) > 10, &1)
 
-    assert lt?.(A.Vector.new(1..9))
-    assert lt?.(A.Vector.new([]))
-    refute lt?.(A.Vector.new(1..10))
+    assert lt?.(Aja.Vector.new(1..9))
+    assert lt?.(Aja.Vector.new([]))
+    refute lt?.(Aja.Vector.new(1..10))
     refute lt?.([])
     refute lt?.(%{})
 
-    assert gt?.(A.Vector.new(1..11))
-    assert gt?.(A.Vector.new(1..100))
-    refute gt?.(A.Vector.new(1..10))
+    assert gt?.(Aja.Vector.new(1..11))
+    assert gt?.(Aja.Vector.new(1..100))
+    refute gt?.(Aja.Vector.new(1..10))
     refute gt?.([])
     refute gt?.(%{})
   end
 
   test "vec_size/1 outside guards" do
-    assert 20 = A.Vector.new(1..20) |> vec_size()
-    assert 1000 = A.Vector.new(1..1000) |> vec_size()
+    assert 20 = Aja.Vector.new(1..20) |> vec_size()
+    assert 1000 = Aja.Vector.new(1..1000) |> vec_size()
 
     assert_raise FunctionClauseError, fn -> 8 = %{__vector__: {8}} |> vec_size() end
   end

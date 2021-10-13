@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Enum.reverse/1 (vector)...
-Benchmarking A.Vector.reverse/1 (vector)...
+Benchmarking Aja.Enum.reverse/1 (vector)...
+Benchmarking Aja.Vector.reverse/1 (vector)...
 Benchmarking Enum.reverse/2 (list)...
 
-Name                                  ips        average  deviation         median         99th %
-Enum.reverse/2 (list)              3.87 M      258.09 ns ±14638.21%         158 ns         401 ns
-A.Enum.reverse/1 (vector)          3.40 M      293.97 ns ±10443.34%         190 ns         450 ns
-A.Vector.reverse/1 (vector)        1.56 M      640.21 ns  ±3989.88%         516 ns         869 ns
+Name                                    ips        average  deviation         median         99th %
+Enum.reverse/2 (list)                3.87 M      258.09 ns ±14638.21%         158 ns         401 ns
+Aja.Enum.reverse/1 (vector)          3.40 M      293.97 ns ±10443.34%         190 ns         450 ns
+Aja.Vector.reverse/1 (vector)        1.56 M      640.21 ns  ±3989.88%         516 ns         869 ns
 
-Comparison: 
-Enum.reverse/2 (list)              3.87 M
-A.Enum.reverse/1 (vector)          3.40 M - 1.14x slower +35.87 ns
-A.Vector.reverse/1 (vector)        1.56 M - 2.48x slower +382.12 ns
+Comparison:
+Enum.reverse/2 (list)                3.87 M
+Aja.Enum.reverse/1 (vector)          3.40 M - 1.14x slower +35.87 ns
+Aja.Vector.reverse/1 (vector)        1.56 M - 2.48x slower +382.12 ns

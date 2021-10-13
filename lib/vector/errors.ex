@@ -1,4 +1,4 @@
-defmodule A.Vector.IndexError do
+defmodule Aja.Vector.IndexError do
   defexception [:index, :size]
 
   @impl true
@@ -16,7 +16,7 @@ defmodule A.Vector.IndexError do
   end
 end
 
-defmodule A.Vector.EmptyError do
+defmodule Aja.Vector.EmptyError do
   defexception []
 
   @impl true

@@ -1,11 +1,11 @@
-defmodule A.Vector.Raw do
+defmodule Aja.Vector.Raw do
   @moduledoc false
 
   import Kernel, except: [min: 2, max: 2]
 
-  require A.Vector.CodeGen, as: C
+  require Aja.Vector.CodeGen, as: C
 
-  alias A.Vector.{Builder, Node, Tail, Trie}
+  alias Aja.Vector.{Builder, Node, Tail, Trie}
 
   @empty {0}
 

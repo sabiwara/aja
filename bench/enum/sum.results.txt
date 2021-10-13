@@ -14,21 +14,21 @@ inputs: none specified
 Estimated total run time: 35 s
 
 Benchmarking :lists.sum/1...
-Benchmarking A.Enum.reduce/3 (vector)...
-Benchmarking A.Enum.sum/1 (vector)...
+Benchmarking Aja.Enum.reduce/3 (vector)...
+Benchmarking Aja.Enum.sum/1 (vector)...
 Benchmarking Enum.sum/1 (list)...
 Benchmarking Enum.sum/1 (vector)...
 
-Name                               ips        average  deviation         median         99th %
-A.Enum.sum/1 (vector)         584.60 K        1.71 μs  ±1299.13%        1.59 μs        1.95 μs
-:lists.sum/1                  358.77 K        2.79 μs    ±26.68%        2.44 μs        4.04 μs
-Enum.sum/1 (list)             327.37 K        3.05 μs    ±25.25%        2.71 μs        4.19 μs
-A.Enum.reduce/3 (vector)       73.42 K       13.62 μs    ±29.12%       13.53 μs       16.96 μs
-Enum.sum/1 (vector)            67.84 K       14.74 μs    ±22.70%       14.06 μs       18.97 μs
+Name                                 ips        average  deviation         median         99th %
+Aja.Enum.sum/1 (vector)         584.60 K        1.71 μs  ±1299.13%        1.59 μs        1.95 μs
+:lists.sum/1                    358.77 K        2.79 μs    ±26.68%        2.44 μs        4.04 μs
+Enum.sum/1 (list)               327.37 K        3.05 μs    ±25.25%        2.71 μs        4.19 μs
+Aja.Enum.reduce/3 (vector)       73.42 K       13.62 μs    ±29.12%       13.53 μs       16.96 μs
+Enum.sum/1 (vector)              67.84 K       14.74 μs    ±22.70%       14.06 μs       18.97 μs
 
-Comparison: 
-A.Enum.sum/1 (vector)         584.60 K
-:lists.sum/1                  358.77 K - 1.63x slower +1.08 μs
-Enum.sum/1 (list)             327.37 K - 1.79x slower +1.34 μs
-A.Enum.reduce/3 (vector)       73.42 K - 7.96x slower +11.91 μs
-Enum.sum/1 (vector)            67.84 K - 8.62x slower +13.03 μs
+Comparison:
+Aja.Enum.sum/1 (vector)         584.60 K
+:lists.sum/1                    358.77 K - 1.63x slower +1.08 μs
+Enum.sum/1 (list)               327.37 K - 1.79x slower +1.34 μs
+Aja.Enum.reduce/3 (vector)       73.42 K - 7.96x slower +11.91 μs
+Enum.sum/1 (vector)              67.84 K - 8.62x slower +13.03 μs

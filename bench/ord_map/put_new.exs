@@ -23,8 +23,10 @@ defmodule Bench.Maps.PutNew do
     Benchee.run(
       [
         {"Map", create_scenario(&Map.new/1, fn map, key, value -> Map.put(map, key, value) end)},
-        {"A.OrdMap",
-         create_scenario(&A.OrdMap.new/1, fn map, key, value -> A.OrdMap.put(map, key, value) end)}
+        {"Aja.OrdMap",
+         create_scenario(&Aja.OrdMap.new/1, fn map, key, value ->
+           Aja.OrdMap.put(map, key, value)
+         end)}
       ],
       inputs: inputs()
     )

@@ -1,4 +1,4 @@
-defmodule A.Pair do
+defmodule Aja.Pair do
   @moduledoc ~S"""
   Convenience helpers for working with `{atom, value}` tuples without breaking the pipe.
   """
@@ -9,9 +9,9 @@ defmodule A.Pair do
 
   ## Examples
 
-      iex> 55 |> A.Pair.wrap(:ok)
+      iex> 55 |> Aja.Pair.wrap(:ok)
       {:ok, 55}
-      iex> %{a: 5} |> Map.update!(:a, & &1 + 1) |> A.Pair.wrap(:no_reply)
+      iex> %{a: 5} |> Map.update!(:a, & &1 + 1) |> Aja.Pair.wrap(:no_reply)
       {:no_reply, %{a: 6}}
   """
   def wrap(value, atom) when is_atom(atom) do
@@ -24,9 +24,9 @@ defmodule A.Pair do
 
   ## Examples
 
-      iex> {:ok, 55} |> A.Pair.unwrap!(:ok)
+      iex> {:ok, 55} |> Aja.Pair.unwrap!(:ok)
       55
-      iex> :error |> A.Pair.unwrap!(:ok)
+      iex> :error |> Aja.Pair.unwrap!(:ok)
       ** (ArgumentError) unwrap!/2 expected {:ok, _}, got: :error
   """
   def unwrap!(pair, atom) when is_atom(atom) do

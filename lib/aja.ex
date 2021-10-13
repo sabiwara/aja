@@ -1,18 +1,18 @@
-defmodule A do
+defmodule Aja do
   @moduledoc ~S"""
   Convenience macros to work with Aja's data structures.
 
-  Use `import A` to import everything, or import only the macros you need.
+  Use `import Aja` to import everything, or import only the macros you need.
   """
 
   @doc ~S"""
   A sigil to build [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and avoid string concatenation.
 
-  Use `import A` to use it, or `import A, only: [sigil_i: 2]`.
+  Use `import Aja` to use it, or `import Aja, only: [sigil_i: 2]`.
 
   This sigil provides a faster version of string interpolation which:
   - will build a list with all chunks instead of concatenating them as a string
-  - uses `A.IO.to_iodata/1` on interpolated values instead of `to_string/1`, which:
+  - uses `Aja.IO.to_iodata/1` on interpolated values instead of `to_string/1`, which:
     * will keep lists untouched, without any validation or transformation
     * will cast anything else using `to_string/1`
 
@@ -59,7 +59,7 @@ defmodule A do
 
   defp sigil_i_piece({:"::", _, [{{:., _, _}, _, [expr]}, {:binary, _, _}]}) do
     quote do
-      A.IO.to_iodata(unquote(expr))
+      Aja.IO.to_iodata(unquote(expr))
     end
   end
 
@@ -77,20 +77,20 @@ defmodule A do
     case __CALLER__.context do
       nil ->
         quote do
-          A.ExRange.new(unquote(start), unquote(stop))
+          Aja.ExRange.new(unquote(start), unquote(stop))
         end
 
       _ ->
         quote do
-          %A.ExRange{start: unquote(start), stop: unquote(stop)}
+          %Aja.ExRange{start: unquote(start), stop: unquote(stop)}
         end
     end
   end
 
   @doc ~S"""
-  Convenience macro to create or pattern match on `A.OrdMap`s.
+  Convenience macro to create or pattern match on `Aja.OrdMap`s.
 
-  Use `import A` to use it, or `import A, only: [ord: 1]`.
+  Use `import Aja` to use it, or `import Aja, only: [ord: 1]`.
 
   ## Creation examples
 
@@ -119,24 +119,24 @@ defmodule A do
     end
 
     quote do
-      A.OrdMap.replace_many!(unquote(ordered), unquote(key_values))
+      Aja.OrdMap.replace_many!(unquote(ordered), unquote(key_values))
     end
   end
 
   defmacro ord({:%{}, context, key_value_pairs}) do
     case __CALLER__.context do
       nil ->
-        A.OrdMap.from_list_ast(key_value_pairs, __CALLER__)
+        Aja.OrdMap.from_list_ast(key_value_pairs, __CALLER__)
 
       :match ->
         match_map = to_match_map(key_value_pairs, context)
 
         quote do
-          %A.OrdMap{__ord_map__: unquote(match_map)}
+          %Aja.OrdMap{__ord_map__: unquote(match_map)}
         end
 
       :guard ->
-        raise ArgumentError, "`A.ord/1` cannot be used in guards"
+        raise ArgumentError, "`Aja.ord/1` cannot be used in guards"
     end
   end
 
@@ -146,7 +146,7 @@ defmodule A do
 
   defp raise_ord_argument_error(call) do
     raise ArgumentError, ~s"""
-    Incorrect use of `A.ord/1`:
+    Incorrect use of `Aja.ord/1`:
       ord(#{Macro.to_string(call)}).
 
     To create a new ordered map:
@@ -177,17 +177,17 @@ defmodule A do
 
   It is implemented as a macro so that it can be used in guards.
 
-  When used outside of a guard, it will just be replaced by a call to `A.OrdMap.size/1`.
+  When used outside of a guard, it will just be replaced by a call to `Aja.OrdMap.size/1`.
 
-  When used in guards, it will fail if called on something else than an `A.OrdMap`.
+  When used in guards, it will fail if called on something else than an `Aja.OrdMap`.
   It is recommended to verify the type first.
 
   Runs in constant time.
 
   ## Examples
 
-      iex> import A
-      iex> ord_map = A.OrdMap.new(a: 1, b: 2, c: 3)
+      iex> import Aja
+      iex> ord_map = Aja.OrdMap.new(a: 1, b: 2, c: 3)
       iex> match?(v when ord_size(v) > 5, ord_map)
       false
       iex> match?(v when ord_size(v) < 5, ord_map)
@@ -200,11 +200,11 @@ defmodule A do
     case __CALLER__.context do
       nil ->
         quote do
-          A.OrdMap.size(unquote(ord_map))
+          Aja.OrdMap.size(unquote(ord_map))
         end
 
       :match ->
-        raise ArgumentError, "`A.ord_size/1` cannot be used in match"
+        raise ArgumentError, "`Aja.ord_size/1` cannot be used in match"
 
       :guard ->
         quote do
@@ -215,23 +215,23 @@ defmodule A do
   end
 
   @doc """
-  Convenience macro to create or pattern match on `A.Vector`s.
+  Convenience macro to create or pattern match on `Aja.Vector`s.
 
   ## Examples
 
-      iex> import A
+      iex> import Aja
       iex> vec([1, 2, 3])
       vec([1, 2, 3])
-      iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
+      iex> vec(first ||| last) = Aja.Vector.new(0..99_999); {first, last}
       {0, 99999}
-      iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
+      iex> vec([1, 2, var, _, _, _]) = Aja.Vector.new(1..6); var
       3
-      iex> vec([_, _, _]) = A.Vector.new(1..6)
+      iex> vec([_, _, _]) = Aja.Vector.new(1..6)
       ** (MatchError) no match of right hand side value: vec([1, 2, 3, 4, 5, 6])
 
   It also supports ranges with **constant** values:
 
-      iex> vec(0..4) = A.Vector.new(0..4)
+      iex> vec(0..4) = Aja.Vector.new(0..4)
       vec([0, 1, 2, 3, 4])
 
   Variable lists or dynamic ranges cannot be passed:
@@ -258,7 +258,7 @@ defmodule A do
 
       _ ->
         raise ArgumentError, ~s"""
-        Incorrect use of `A.vec/1`:
+        Incorrect use of `Aja.vec/1`:
           vec(#{Macro.to_string(call)}).
 
         The `vec(a..b)` syntax can only be used with constants:
@@ -280,7 +280,7 @@ defmodule A do
 
         _ ->
           raise ArgumentError, ~s"""
-          Incorrect use of `A.vec/1`:
+          Incorrect use of `Aja.vec/1`:
             vec(#{Macro.to_string(call)}).
 
           The `vec(a..b//c)` syntax can only be used with constants:
@@ -301,7 +301,7 @@ defmodule A do
     case __CALLER__.context do
       :match ->
         quote do
-          %A.Vector{__vector__: unquote(A.Vector.Raw.from_first_last_ast(first, last))}
+          %Aja.Vector{__vector__: unquote(Aja.Vector.Raw.from_first_last_ast(first, last))}
         end
 
       _ ->
@@ -311,13 +311,13 @@ defmodule A do
 
   defmacro vec({:_, _, _}) do
     quote do
-      %A.Vector{__vector__: _}
+      %Aja.Vector{__vector__: _}
     end
   end
 
   defmacro vec(call) do
     raise ArgumentError, ~s"""
-    Incorrect use of `A.vec/1`:
+    Incorrect use of `Aja.vec/1`:
       vec(#{Macro.to_string(call)}).
 
     To create a new vector from a fixed-sized list:
@@ -362,10 +362,10 @@ defmodule A do
   end
 
   defp do_ast_from_list(list) do
-    internal_ast = A.Vector.Raw.from_list_ast(list)
+    internal_ast = Aja.Vector.Raw.from_list_ast(list)
 
     quote do
-      %A.Vector{__vector__: unquote(internal_ast)}
+      %Aja.Vector{__vector__: unquote(internal_ast)}
     end
   end
 
@@ -374,21 +374,21 @@ defmodule A do
 
   It is implemented as a macro so that it can be used in guards.
 
-  When used outside of a guard, it will just be replaced by a call to `A.Vector.size/1`.
+  When used outside of a guard, it will just be replaced by a call to `Aja.Vector.size/1`.
 
-  When used in guards, it will fail if called on something else than an `A.Vector`.
+  When used in guards, it will fail if called on something else than an `Aja.Vector`.
   It is recommended to verify the type first.
 
   Runs in constant time.
 
   ## Examples
 
-      iex> import A
-      iex> match?(v when vec_size(v) > 20, A.Vector.new(1..10))
+      iex> import Aja
+      iex> match?(v when vec_size(v) > 20, Aja.Vector.new(1..10))
       false
-      iex> match?(v when vec_size(v) < 5, A.Vector.new([1, 2, 3]))
+      iex> match?(v when vec_size(v) < 5, Aja.Vector.new([1, 2, 3]))
       true
-      iex> vec_size(A.Vector.new([1, 2, 3]))
+      iex> vec_size(Aja.Vector.new([1, 2, 3]))
       3
 
   """
@@ -396,11 +396,11 @@ defmodule A do
     case __CALLER__.context do
       nil ->
         quote do
-          A.Vector.size(unquote(vector))
+          Aja.Vector.size(unquote(vector))
         end
 
       :match ->
-        raise ArgumentError, "`A.vec_size/1` cannot be used in match"
+        raise ArgumentError, "`Aja.vec_size/1` cannot be used in match"
 
       :guard ->
         quote do
@@ -419,15 +419,15 @@ defmodule A do
     @doc """
     Convenience operator to concatenate an enumerable `right` to a vector `left`.
 
-    `left` has to be an `A.Vector`, `right` can be any `Enumerable`.
+    `left` has to be an `Aja.Vector`, `right` can be any `Enumerable`.
 
-    It is just an alias for `A.Vector.concat/2`.
+    It is just an alias for `Aja.Vector.concat/2`.
 
     Only available on Elixir versions >= 1.11.
 
     ## Examples
 
-        iex> import A
+        iex> import Aja
         iex> vec(5..1) +++ vec([:boom, nil])
         vec([5, 4, 3, 2, 1, :boom, nil])
         iex> vec(5..1) +++ 0..3
@@ -436,7 +436,7 @@ defmodule A do
     """
     # TODO remove hack to support 1.10
     defdelegate unquote(if(plus_enabled?, do: String.to_atom("+++"), else: :++))(left, right),
-      to: A.Vector,
+      to: Aja.Vector,
       as: :concat
   end
 end

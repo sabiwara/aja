@@ -13,19 +13,19 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking A.Enum.flat_map/2 (list)...
-Benchmarking A.Enum.flat_map/2 (vector)...
-Benchmarking A.Vector.flat_map/2 (vector)...
+Benchmarking Aja.Enum.flat_map/2 (list)...
+Benchmarking Aja.Enum.flat_map/2 (vector)...
+Benchmarking Aja.Vector.flat_map/2 (vector)...
 Benchmarking Enum.flat_map/2 (list)...
 
-Name                                   ips        average  deviation         median         99th %
-A.Enum.flat_map/2 (list)          396.08 K        2.52 μs   ±673.97%        2.22 μs        3.37 μs
-Enum.flat_map/2 (list)            377.16 K        2.65 μs   ±776.79%        2.33 μs        4.19 μs
-A.Enum.flat_map/2 (vector)        276.50 K        3.62 μs   ±463.19%        3.22 μs        5.82 μs
-A.Vector.flat_map/2 (vector)      234.64 K        4.26 μs   ±353.39%        3.89 μs        7.29 μs
+Name                                     ips        average  deviation         median         99th %
+Aja.Enum.flat_map/2 (list)          396.08 K        2.52 μs   ±673.97%        2.22 μs        3.37 μs
+Enum.flat_map/2 (list)              377.16 K        2.65 μs   ±776.79%        2.33 μs        4.19 μs
+Aja.Enum.flat_map/2 (vector)        276.50 K        3.62 μs   ±463.19%        3.22 μs        5.82 μs
+Aja.Vector.flat_map/2 (vector)      234.64 K        4.26 μs   ±353.39%        3.89 μs        7.29 μs
 
-Comparison: 
-A.Enum.flat_map/2 (list)          396.08 K
-Enum.flat_map/2 (list)            377.16 K - 1.05x slower +0.127 μs
-A.Enum.flat_map/2 (vector)        276.50 K - 1.43x slower +1.09 μs
-A.Vector.flat_map/2 (vector)      234.64 K - 1.69x slower +1.74 μs
+Comparison:
+Aja.Enum.flat_map/2 (list)          396.08 K
+Enum.flat_map/2 (list)              377.16 K - 1.05x slower +0.127 μs
+Aja.Enum.flat_map/2 (vector)        276.50 K - 1.43x slower +1.09 μs
+Aja.Vector.flat_map/2 (vector)      234.64 K - 1.69x slower +1.74 μs

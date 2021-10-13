@@ -1,4 +1,4 @@
-defmodule A.TestDataGenerators do
+defmodule Aja.TestDataGenerators do
   import StreamData
 
   def simple_value do
@@ -24,7 +24,7 @@ defmodule A.TestDataGenerators do
   end
 
   defp do_enumerable_of(value_generator) do
-    [& &1, &MapSet.new/1, &A.Vector.new/1, fn list -> Stream.map(list, & &1) end]
+    [& &1, &MapSet.new/1, &Aja.Vector.new/1, fn list -> Stream.map(list, & &1) end]
     |> Enum.map(fn fun -> map(list_of(value_generator), fun) end)
     |> one_of()
   end
@@ -41,13 +41,13 @@ defmodule A.TestDataGenerators do
   end
 
   defp do_collectable_of(value_generator) do
-    [&MapSet.new/1, &A.Vector.new/1]
+    [&MapSet.new/1, &Aja.Vector.new/1]
     |> Enum.map(fn fun -> map(list_of(value_generator), fun) end)
     |> one_of()
   end
 
   def do_map_of(key_generator, value_generator) do
-    [&Map.new/1, &A.OrdMap.new/1]
+    [&Map.new/1, &Aja.OrdMap.new/1]
     |> Enum.map(fn fun -> map(list_of({key_generator, value_generator}), fun) end)
     |> one_of()
   end

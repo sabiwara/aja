@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Enum.intersperse/2 (vector)...
-Benchmarking A.Vector.intersperse/1...
+Benchmarking Aja.Enum.intersperse/2 (vector)...
+Benchmarking Aja.Vector.intersperse/1...
 Benchmarking Enum.intersperse/2 (list)...
 
-Name                                    ips        average  deviation         median         99th %
-A.Enum.intersperse/2 (vector)        2.57 M      388.72 ns  ±9865.17%         260 ns         634 ns
-Enum.intersperse/2 (list)            1.04 M      962.33 ns  ±2958.32%         789 ns        1221 ns
-A.Vector.intersperse/1               0.98 M     1024.03 ns  ±2922.40%         861 ns        1369 ns
+Name                                      ips        average  deviation         median         99th %
+Aja.Enum.intersperse/2 (vector)        2.57 M      388.72 ns  ±9865.17%         260 ns         634 ns
+Enum.intersperse/2 (list)              1.04 M      962.33 ns  ±2958.32%         789 ns        1221 ns
+Aja.Vector.intersperse/1               0.98 M     1024.03 ns  ±2922.40%         861 ns        1369 ns
 
-Comparison: 
-A.Enum.intersperse/2 (vector)        2.57 M
-Enum.intersperse/2 (list)            1.04 M - 2.48x slower +573.61 ns
-A.Vector.intersperse/1               0.98 M - 2.63x slower +635.31 ns
+Comparison:
+Aja.Enum.intersperse/2 (vector)        2.57 M
+Enum.intersperse/2 (list)              1.04 M - 2.48x slower +573.61 ns
+Aja.Vector.intersperse/1               0.98 M - 2.63x slower +635.31 ns

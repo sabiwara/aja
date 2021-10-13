@@ -1,4 +1,4 @@
-defmodule A.OrdMap do
+defmodule Aja.OrdMap do
   base_doc = ~S"""
   A map preserving key insertion order, with efficient lookups, updates and enumeration.
 
@@ -6,30 +6,30 @@ defmodule A.OrdMap do
 
       iex> %{"one" => 1, "two" => 2, "three" => 3}
       %{"one" => 1, "three" => 3, "two" => 2}
-      iex> A.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
+      iex> Aja.OrdMap.new([{"one", 1}, {"two", 2}, {"three", 3}])
       ord(%{"one" => 1, "two" => 2, "three" => 3})
 
   There is an unavoidable overhead compared to natively implemented maps, so
   keep using regular maps when you do not care about the insertion order.
 
-  `A.OrdMap`:
+  `Aja.OrdMap`:
   - provides efficient (logarithmic) access: it is not a simple list of tuples
   - implements the `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   ## Examples
 
-  `A.OrdMap` offers the same API as `Map` :
+  `Aja.OrdMap` offers the same API as `Map` :
 
-      iex> ord_map = A.OrdMap.new([b: "Bat", a: "Ant", c: "Cat"])
+      iex> ord_map = Aja.OrdMap.new([b: "Bat", a: "Ant", c: "Cat"])
       ord(%{b: "Bat", a: "Ant", c: "Cat"})
-      iex> A.OrdMap.get(ord_map, :c)
+      iex> Aja.OrdMap.get(ord_map, :c)
       "Cat"
-      iex> A.OrdMap.fetch(ord_map, :a)
+      iex> Aja.OrdMap.fetch(ord_map, :a)
       {:ok, "Ant"}
-      iex> A.OrdMap.put(ord_map, :d, "Dinosaur")
+      iex> Aja.OrdMap.put(ord_map, :d, "Dinosaur")
       ord(%{b: "Bat", a: "Ant", c: "Cat", d: "Dinosaur"})
-      iex> A.OrdMap.put(ord_map, :b, "Buffalo")
+      iex> Aja.OrdMap.put(ord_map, :b, "Buffalo")
       ord(%{b: "Buffalo", a: "Ant", c: "Cat"})
       iex> Enum.to_list(ord_map)
       [b: "Bat", a: "Ant", c: "Cat"]
@@ -38,25 +38,25 @@ defmodule A.OrdMap do
 
   ## Specific functions
 
-  Due to its ordered nature, `A.OrdMap` also offers some extra methods not present in `Map`, like:
+  Due to its ordered nature, `Aja.OrdMap` also offers some extra methods not present in `Map`, like:
   - `first/1` and `last/1` to efficiently retrieve the first / last key-value pair
   - `foldl/3` and `foldr/3` to efficiently fold (reduce) from left-to-right or right-to-left
 
   Examples:
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
-      iex> A.OrdMap.first(ord_map)
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
+      iex> Aja.OrdMap.first(ord_map)
       {:b, "Bat"}
-      iex> A.OrdMap.last(ord_map)
+      iex> Aja.OrdMap.last(ord_map)
       {:c, "Cat"}
-      iex> A.OrdMap.foldr(ord_map, [], fn {_key, value}, acc -> [value <> "man" | acc] end)
+      iex> Aja.OrdMap.foldr(ord_map, [], fn {_key, value}, acc -> [value <> "man" | acc] end)
       ["Batman", "Antman", "Catman"]
 
   ## Access behaviour
 
-  `A.OrdMap` implements the `Access` behaviour.
+  `Aja.OrdMap` implements the `Access` behaviour.
 
-      iex> ord_map = A.OrdMap.new([a: "Ant", b: "Bat", c: "Cat"])
+      iex> ord_map = Aja.OrdMap.new([a: "Ant", b: "Bat", c: "Cat"])
       iex> ord_map[:a]
       "Ant"
       iex> put_in(ord_map[:b], "Buffalo")
@@ -66,11 +66,11 @@ defmodule A.OrdMap do
       iex> {"Cat", updated} = pop_in(ord_map[:c]); updated
       ord(%{a: "Ant", b: "Bat"})
 
-  ## Convenience [`ord/1`](`A.ord/1`) and [`ord_size/1`](`A.ord_size/1`) macros
+  ## Convenience [`ord/1`](`Aja.ord/1`) and [`ord_size/1`](`Aja.ord_size/1`) macros
 
-  The `A.OrdMap` module can be used without any macro.
+  The `Aja.OrdMap` module can be used without any macro.
 
-  The `A.ord/1` macro does however provide some syntactic sugar to make
+  The `Aja.ord/1` macro does however provide some syntactic sugar to make
   it more convenient to work with ordered maps, namely:
   - construct new ordered maps without the clutter of a entry list
   - pattern match on key-values like regular maps
@@ -78,7 +78,7 @@ defmodule A.OrdMap do
 
   Examples:
 
-      iex> import A
+      iex> import Aja
       iex> ord_map = ord(%{"一" => 1, "二" => 2, "三" => 3})
       ord(%{"一" => 1, "二" => 2, "三" => 3})
       iex> ord(%{"三" => three, "一" => one}) = ord_map
@@ -89,18 +89,18 @@ defmodule A.OrdMap do
 
   Notes:
   - pattern-matching on keys is not affected by insertion order.
-  - For expressions with constant keys, `A.ord/1` is able to generate the AST at compile time like the `A.vec/1` macro.
+  - For expressions with constant keys, `Aja.ord/1` is able to generate the AST at compile time like the `Aja.vec/1` macro.
 
-  The `A.ord_size/1` macro can be used in guards:
+  The `Aja.ord_size/1` macro can be used in guards:
 
-      iex> import A
+      iex> import Aja
       iex> match?(v when ord_size(v) > 2, ord%{"一" => 1, "二" => 2, "三" => 3})
       true
 
 
   ## With `Jason`
 
-      iex> A.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
+      iex> Aja.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
       "{\"un\":1,\"deux\":2,\"trois\":3}"
 
   JSON encoding preserves the insertion order. Comparing with a regular map:
@@ -108,7 +108,7 @@ defmodule A.OrdMap do
       iex> Map.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
       "{\"deux\":2,\"trois\":3,\"un\":1}"
 
-  There is no way as of now to decode JSON using `A.OrdMap`.
+  There is no way as of now to decode JSON using `Aja.OrdMap`.
 
   ## Key deletion and sparse maps
 
@@ -121,22 +121,22 @@ defmodule A.OrdMap do
   The implications of sparse structures are multiple:
   - unlike dense structures, they cannot be compared as erlang terms
     (using either `==/2`, `===/2` or the pin operator `^`)
-  - `A.OrdMap.equal?/2` can safely compare both sparse and dense structures, but is slower for sparse
+  - `Aja.OrdMap.equal?/2` can safely compare both sparse and dense structures, but is slower for sparse
   - enumerating sparse structures is less efficient than dense ones
 
-  Calling `A.OrdMap.new/1` on a sparse ord map will rebuild a new dense one from scratch (which can be expensive).
+  Calling `Aja.OrdMap.new/1` on a sparse ord map will rebuild a new dense one from scratch (which can be expensive).
 
-      iex> dense = A.OrdMap.new(a: "Ant", b: "Bat")
+      iex> dense = Aja.OrdMap.new(a: "Ant", b: "Bat")
       ord(%{a: "Ant", b: "Bat"})
-      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
+      iex> sparse = Aja.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> Aja.OrdMap.delete(:c)
+      #Aja.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
       iex> dense == sparse
       false
       iex> match?(^dense, sparse)
       false
-      iex> A.OrdMap.equal?(dense, sparse)  # works with sparse maps, but less efficient
+      iex> Aja.OrdMap.equal?(dense, sparse)  # works with sparse maps, but less efficient
       true
-      iex> new_dense = A.OrdMap.new(sparse)  # rebuild a dense map from a sparse one
+      iex> new_dense = Aja.OrdMap.new(sparse)  # rebuild a dense map from a sparse one
       ord(%{a: "Ant", b: "Bat"})
       iex> new_dense === dense
       true
@@ -144,18 +144,18 @@ defmodule A.OrdMap do
   In order to avoid having to worry about memory issues when adding and deleting keys successively,
   ord maps cannot be more than half sparse, and are periodically rebuilt as dense upon deletion.
 
-      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
-      iex> A.OrdMap.delete(sparse, :a)
+      iex> sparse = Aja.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> Aja.OrdMap.delete(:c)
+      #Aja.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
+      iex> Aja.OrdMap.delete(sparse, :a)
       ord(%{b: "Bat"})
 
   Note: Deleting the last key does not make a dense ord map sparse. This is not a bug,
   but an expected behavior due to how data is stored.
 
-      iex> A.OrdMap.new([one: 1, two: 2, three: 3]) |> A.OrdMap.delete(:three)
+      iex> Aja.OrdMap.new([one: 1, two: 2, three: 3]) |> Aja.OrdMap.delete(:three)
       ord(%{one: 1, two: 2})
 
-  The `dense?/1` and `sparse?/1` functions can be used to check if a `A.OrdMap` is dense or sparse.
+  The `dense?/1` and `sparse?/1` functions can be used to check if a `Aja.OrdMap` is dense or sparse.
 
   While this design puts some burden on the developer, the idea behind it is:
   - to keep it as convenient and performant as possible unless deletion is necessary
@@ -166,20 +166,20 @@ defmodule A.OrdMap do
 
   ## Pattern-matching and opaque type
 
-  An `A.OrdMap` is represented internally using the `%A.OrdMap{}` struct. This struct
-  can be used whenever there's a need to pattern match on something being an `A.OrdMap`:
-      iex> match?(%A.OrdMap{}, A.OrdMap.new())
+  An `Aja.OrdMap` is represented internally using the `%Aja.OrdMap{}` struct. This struct
+  can be used whenever there's a need to pattern match on something being an `Aja.OrdMap`:
+      iex> match?(%Aja.OrdMap{}, Aja.OrdMap.new())
       true
 
-  Note, however, than `A.OrdMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
+  Note, however, than `Aja.OrdMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
   its struct internal fields must not be accessed directly.
 
-  As discussed in the previous section, [`ord/1`](`A.ord/1`) and [`ord_size/1`](`A.ord_size/1`) makes it
+  As discussed in the previous section, [`ord/1`](`Aja.ord/1`) and [`ord_size/1`](`Aja.ord_size/1`) makes it
   possible to pattern match on keys as well as check the type and size.
 
   ## Memory overhead
 
-  `A.OrdMap` takes roughly 2~3x more memory than a regular map depending on the type of data:
+  `Aja.OrdMap` takes roughly 2~3x more memory than a regular map depending on the type of data:
 
   """
 
@@ -189,7 +189,7 @@ defmodule A.OrdMap do
         ~S"""
             iex> map_size = Map.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
             366
-            iex> ord_map_size = A.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
+            iex> ord_map_size = Aja.OrdMap.new(1..100, fn i -> {i, i} end) |> :erts_debug.size()
             1019
             iex> Float.round(ord_map_size / map_size, 2)
             2.78
@@ -200,7 +200,7 @@ defmodule A.OrdMap do
 
   @moduledoc module_doc
 
-  require A.Vector.Raw, as: RawVector
+  require Aja.Vector.Raw, as: RawVector
 
   @behaviour Access
 
@@ -226,10 +226,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.size(ord_map)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.size(ord_map)
       3
-      iex> A.OrdMap.size(A.OrdMap.new())
+      iex> Aja.OrdMap.size(Aja.OrdMap.new())
       0
 
   """
@@ -245,8 +245,8 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
-      iex> A.OrdMap.keys(ord_map)
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
+      iex> Aja.OrdMap.keys(ord_map)
       [:b, :c, :a]
 
   """
@@ -265,8 +265,8 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
-      iex> A.OrdMap.values(ord_map)
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
+      iex> Aja.OrdMap.values(ord_map)
       ["Bat", "Cat", "Ant"]
 
   """
@@ -285,8 +285,8 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
-      iex> A.OrdMap.to_list(ord_map)
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", c: "Cat", a: "Ant")
+      iex> Aja.OrdMap.to_list(ord_map)
       [b: "Bat", c: "Cat", a: "Ant"]
 
   """
@@ -306,7 +306,7 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.new()
+      iex> Aja.OrdMap.new()
       ord(%{})
 
   """
@@ -323,18 +323,18 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
+      iex> Aja.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
       ord(%{b: "Bat", a: "Ant", c: "Cat"})
-      iex> A.OrdMap.new(b: "Bat", a: "Ant", b: "Buffalo", a: "Antelope")
+      iex> Aja.OrdMap.new(b: "Bat", a: "Ant", b: "Buffalo", a: "Antelope")
       ord(%{b: "Buffalo", a: "Antelope"})
 
   `new/1` will return dense ord maps untouched, but will rebuild sparse ord maps from scratch.
   This can be used to build a dense ord map from from a sparse one.
   See the [section about sparse structures](#module-key-deletion-and-sparse-maps) for more information.
 
-      iex> sparse = A.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> A.OrdMap.delete(:c)
-      #A.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
-      iex> A.OrdMap.new(sparse)
+      iex> sparse = Aja.OrdMap.new(c: "Cat", a: "Ant", b: "Bat") |> Aja.OrdMap.delete(:c)
+      #Aja.OrdMap<%{a: "Ant", b: "Bat"}, sparse?: true>
+      iex> Aja.OrdMap.new(sparse)
       ord(%{a: "Ant", b: "Bat"})
 
   """
@@ -344,7 +344,7 @@ defmodule A.OrdMap do
   def new(enumerable) do
     # TODO add from_vector to avoid intermediate list?
     enumerable
-    |> A.EnumHelper.to_list()
+    |> Aja.EnumHelper.to_list()
     |> from_list()
   end
 
@@ -356,14 +356,14 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.new([:a, :b], fn x -> {x, x} end)
+      iex> Aja.OrdMap.new([:a, :b], fn x -> {x, x} end)
       ord(%{a: :a, b: :b})
 
   """
   @spec new(Enumerable.t(), (term -> {k, v})) :: t(k, v) when k: key, v: value
   def new(enumerable, fun) when is_function(fun, 1) do
     enumerable
-    |> A.EnumHelper.map(fun)
+    |> Aja.EnumHelper.map(fun)
     |> from_list()
   end
 
@@ -372,10 +372,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.has_key?(ord_map, :a)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.has_key?(ord_map, :a)
       true
-      iex> A.OrdMap.has_key?(ord_map, :d)
+      iex> Aja.OrdMap.has_key?(ord_map, :d)
       false
 
   """
@@ -392,10 +392,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "A", b: "B", c: "C")
-      iex> A.OrdMap.fetch(ord_map, :c)
+      iex> ord_map = Aja.OrdMap.new(a: "A", b: "B", c: "C")
+      iex> Aja.OrdMap.fetch(ord_map, :c)
       {:ok, "C"}
-      iex> A.OrdMap.fetch(ord_map, :z)
+      iex> Aja.OrdMap.fetch(ord_map, :z)
       :error
 
   """
@@ -421,10 +421,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "A", b: "B", c: "C")
-      iex> A.OrdMap.fetch!(ord_map, :c)
+      iex> ord_map = Aja.OrdMap.new(a: "A", b: "B", c: "C")
+      iex> Aja.OrdMap.fetch!(ord_map, :c)
       "C"
-      iex> A.OrdMap.fetch!(ord_map, :z)
+      iex> Aja.OrdMap.fetch!(ord_map, :z)
       ** (KeyError) key :z not found in: ord(%{a: "A", b: "B", c: "C"})
 
   """
@@ -445,10 +445,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat")
-      iex> A.OrdMap.put_new(ord_map, :a, "Ant")
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.put_new(ord_map, :a, "Ant")
       ord(%{b: "Bat", c: "Cat", a: "Ant"})
-      iex> A.OrdMap.put_new(ord_map, :b, "Buffalo")
+      iex> Aja.OrdMap.put_new(ord_map, :b, "Buffalo")
       ord(%{b: "Bat", c: "Cat"})
 
   """
@@ -472,10 +472,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.replace(ord_map, :b, "Buffalo")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.replace(ord_map, :b, "Buffalo")
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
-      iex> A.OrdMap.replace(ord_map, :d, "Dinosaur")
+      iex> Aja.OrdMap.replace(ord_map, :d, "Dinosaur")
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   """
@@ -501,10 +501,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.replace!(ord_map, :b, "Buffalo")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.replace!(ord_map, :b, "Buffalo")
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
-      iex> A.OrdMap.replace!(ord_map, :d, "Dinosaur")
+      iex> Aja.OrdMap.replace!(ord_map, :d, "Dinosaur")
       ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
 
   """
@@ -533,11 +533,11 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", c: "Cat")
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", c: "Cat")
       iex> expensive_fun = fn -> "Ant" end
-      iex> A.OrdMap.put_new_lazy(ord_map, :a, expensive_fun)
+      iex> Aja.OrdMap.put_new_lazy(ord_map, :a, expensive_fun)
       ord(%{b: "Bat", c: "Cat", a: "Ant"})
-      iex> A.OrdMap.put_new_lazy(ord_map, :b, expensive_fun)
+      iex> Aja.OrdMap.put_new_lazy(ord_map, :b, expensive_fun)
       ord(%{b: "Bat", c: "Cat"})
 
   """
@@ -564,8 +564,8 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.take(ord_map, [:c, :e, :a])
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.take(ord_map, [:c, :e, :a])
       ord(%{c: "Cat", a: "Ant"})
 
   """
@@ -609,12 +609,12 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.get(ord_map, :a)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.get(ord_map, :a)
       "Ant"
-      iex> A.OrdMap.get(ord_map, :z)
+      iex> Aja.OrdMap.get(ord_map, :z)
       nil
-      iex> A.OrdMap.get(ord_map, :z, "Zebra")
+      iex> Aja.OrdMap.get(ord_map, :z, "Zebra")
       "Zebra"
 
   """
@@ -642,11 +642,11 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       iex> expensive_fun = fn -> "Zebra" end
-      iex> A.OrdMap.get_lazy(ord_map, :a, expensive_fun)
+      iex> Aja.OrdMap.get_lazy(ord_map, :a, expensive_fun)
       "Ant"
-      iex> A.OrdMap.get_lazy(ord_map, :z, expensive_fun)
+      iex> Aja.OrdMap.get_lazy(ord_map, :z, expensive_fun)
       "Zebra"
 
   """
@@ -671,10 +671,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.put(ord_map, :b, "Buffalo")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.put(ord_map, :b, "Buffalo")
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
-      iex> A.OrdMap.put(ord_map, :d, "Dinosaur")
+      iex> Aja.OrdMap.put(ord_map, :d, "Dinosaur")
       ord(%{a: "Ant", b: "Bat", c: "Cat", d: "Dinosaur"})
 
   """
@@ -702,10 +702,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.delete(ord_map, :b)
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> A.OrdMap.delete(ord_map, :z)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.delete(ord_map, :b)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> Aja.OrdMap.delete(ord_map, :z)
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
 
   """
@@ -731,9 +731,9 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), A.OrdMap.new(%{a: 3, d: 4}))
+      iex> Aja.OrdMap.merge(Aja.OrdMap.new(%{a: 1, b: 2}), Aja.OrdMap.new(%{a: 3, d: 4}))
       ord(%{a: 3, b: 2, d: 4})
-      iex> A.OrdMap.merge(A.OrdMap.new(%{a: 1, b: 2}), %{a: 3, d: 4})
+      iex> Aja.OrdMap.merge(Aja.OrdMap.new(%{a: 1, b: 2}), %{a: 3, d: 4})
       ord(%{a: 3, b: 2, d: 4})
 
   """
@@ -757,10 +757,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.update(ord_map, :b, "N/A", &String.upcase/1)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.update(ord_map, :b, "N/A", &String.upcase/1)
       ord(%{a: "Ant", b: "BAT", c: "Cat"})
-      iex> A.OrdMap.update(ord_map, :z, "N/A", &String.upcase/1)
+      iex> Aja.OrdMap.update(ord_map, :z, "N/A", &String.upcase/1)
       ord(%{a: "Ant", b: "Bat", c: "Cat", z: "N/A"})
 
   """
@@ -792,14 +792,14 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> {"Bat", updated} = A.OrdMap.pop(ord_map, :b)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> {"Bat", updated} = Aja.OrdMap.pop(ord_map, :b)
       iex> updated
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> {nil, updated} = A.OrdMap.pop(ord_map, :z)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> {nil, updated} = Aja.OrdMap.pop(ord_map, :z)
       iex> updated
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
-      iex> {"Z", updated} = A.OrdMap.pop(ord_map, :z, "Z")
+      iex> {"Z", updated} = Aja.OrdMap.pop(ord_map, :z, "Z")
       iex> updated
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
@@ -826,11 +826,11 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> {"Bat", updated} = A.OrdMap.pop!(ord_map, :b)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> {"Bat", updated} = Aja.OrdMap.pop!(ord_map, :b)
       iex> updated
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> A.OrdMap.pop!(ord_map, :z)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> Aja.OrdMap.pop!(ord_map, :z)
       ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
@@ -860,12 +860,12 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
+      iex> ord_map = Aja.OrdMap.new(b: "Bat", a: "Ant", c: "Cat")
       iex> expensive_fun = fn -> "Zebra" end
-      iex> {"Ant", updated} = A.OrdMap.pop_lazy(ord_map, :a, expensive_fun)
+      iex> {"Ant", updated} = Aja.OrdMap.pop_lazy(ord_map, :a, expensive_fun)
       iex> updated
-      #A.OrdMap<%{b: "Bat", c: "Cat"}, sparse?: true>
-      iex> {"Zebra", not_updated} = A.OrdMap.pop_lazy(ord_map, :z, expensive_fun)
+      #Aja.OrdMap<%{b: "Bat", c: "Cat"}, sparse?: true>
+      iex> {"Zebra", not_updated} = Aja.OrdMap.pop_lazy(ord_map, :z, expensive_fun)
       iex> not_updated
       ord(%{b: "Bat", a: "Ant", c: "Cat"})
 
@@ -893,9 +893,9 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.drop(ord_map, [:b, :d])
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.drop(ord_map, [:b, :d])
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
 
   """
   @spec drop(t(k, v), [k]) :: t(k, v) when k: key, v: value
@@ -923,10 +923,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> A.OrdMap.update!(ord_map, :b,  &String.upcase/1)
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> Aja.OrdMap.update!(ord_map, :b,  &String.upcase/1)
       ord(%{a: "Ant", b: "BAT", c: "Cat"})
-      iex> A.OrdMap.update!(ord_map, :d, &String.upcase/1)
+      iex> Aja.OrdMap.update!(ord_map, :d, &String.upcase/1)
       ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
 
   """
@@ -953,21 +953,21 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> {"bat", updated} = A.OrdMap.get_and_update(ord_map, :b, fn current_value ->
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> {"bat", updated} = Aja.OrdMap.get_and_update(ord_map, :b, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Buffalo"}
       ...> end)
       iex> updated
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
-      iex> {nil, updated} = A.OrdMap.get_and_update(ord_map, :z, fn current_value ->
+      iex> {nil, updated} = Aja.OrdMap.get_and_update(ord_map, :z, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Zebra"}
       ...> end)
       iex> updated
       ord(%{a: "Ant", b: "Bat", c: "Cat", z: "Zebra"})
-      iex> {"Bat", updated} = A.OrdMap.get_and_update(ord_map, :b, fn _ -> :pop end)
+      iex> {"Bat", updated} = Aja.OrdMap.get_and_update(ord_map, :b, fn _ -> :pop end)
       iex> updated
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> {nil, updated} = A.OrdMap.get_and_update(ord_map, :z, fn _ -> :pop end)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> {nil, updated} = Aja.OrdMap.get_and_update(ord_map, :z, fn _ -> :pop end)
       iex> updated
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
   """
@@ -987,13 +987,13 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
-      iex> {"bat", updated} = A.OrdMap.get_and_update!(ord_map, :b, fn current_value ->
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> {"bat", updated} = Aja.OrdMap.get_and_update!(ord_map, :b, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Buffalo"}
       ...> end)
       iex> updated
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
-      iex> A.OrdMap.get_and_update!(ord_map, :z, fn current_value ->
+      iex> Aja.OrdMap.get_and_update!(ord_map, :z, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Zebra"}
       ...> end)
       ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
@@ -1032,10 +1032,10 @@ defmodule A.OrdMap do
         defstruct [:name, :age]
       end
 
-      A.OrdMap.from_struct(User)
+      Aja.OrdMap.from_struct(User)
       ord(%{age: nil, name: nil})
 
-      A.OrdMap.from_struct(%User{name: "john", age: 44})
+      Aja.OrdMap.from_struct(%User{name: "john", age: 44})
       ord(%{age: 44, name: "john"})
 
   """
@@ -1050,18 +1050,18 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.equal?(A.OrdMap.new(a: 1, b: 2), A.OrdMap.new(a: 1, b: 2))
+      iex> Aja.OrdMap.equal?(Aja.OrdMap.new(a: 1, b: 2), Aja.OrdMap.new(a: 1, b: 2))
       true
-      iex> A.OrdMap.equal?(A.OrdMap.new(a: 1, b: 2), A.OrdMap.new(b: 2, a: 1))
+      iex> Aja.OrdMap.equal?(Aja.OrdMap.new(a: 1, b: 2), Aja.OrdMap.new(b: 2, a: 1))
       false
-      iex> A.OrdMap.equal?(A.OrdMap.new(a: 1, b: 2), A.OrdMap.new(a: 3, b: 2))
+      iex> Aja.OrdMap.equal?(Aja.OrdMap.new(a: 1, b: 2), Aja.OrdMap.new(a: 3, b: 2))
       false
 
   """
   @spec equal?(t, t) :: boolean
   def equal?(ord_map1, ord_map2)
 
-  def equal?(%A.OrdMap{__ord_map__: map1} = ord_map1, %A.OrdMap{__ord_map__: map2} = ord_map2) do
+  def equal?(%Aja.OrdMap{__ord_map__: map1} = ord_map1, %Aja.OrdMap{__ord_map__: map2} = ord_map2) do
     case {map_size(map1), map_size(map2)} do
       {size, size} ->
         case {RawVector.size(ord_map1.__ord_vector__), RawVector.size(ord_map2.__ord_vector__)} do
@@ -1090,25 +1090,25 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"]) |> A.OrdMap.first()
+      iex> Aja.OrdMap.new([b: "B", d: "D", a: "A", c: "C"]) |> Aja.OrdMap.first()
       {:b, "B"}
-      iex> A.OrdMap.new([]) |> A.OrdMap.first()
+      iex> Aja.OrdMap.new([]) |> Aja.OrdMap.first()
       nil
-      iex> A.OrdMap.new([]) |> A.OrdMap.first(:error)
+      iex> Aja.OrdMap.new([]) |> Aja.OrdMap.first(:error)
       :error
 
   """
   @spec first(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
   def first(ord_map, default \\ nil)
 
-  def first(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
+  def first(%Aja.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
     case vector do
       RawVector.first_pattern(first) -> first
       _ -> default
     end
   end
 
-  def first(%A.OrdMap{__ord_vector__: vector}, default) do
+  def first(%Aja.OrdMap{__ord_vector__: vector}, default) do
     RawVector.find(vector, default, fn value -> value end)
   end
 
@@ -1120,25 +1120,25 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> A.OrdMap.new([b: "B", d: "D", a: "A", c: "C"]) |> A.OrdMap.last()
+      iex> Aja.OrdMap.new([b: "B", d: "D", a: "A", c: "C"]) |> Aja.OrdMap.last()
       {:c, "C"}
-      iex> A.OrdMap.new([]) |> A.OrdMap.last()
+      iex> Aja.OrdMap.new([]) |> Aja.OrdMap.last()
       nil
-      iex> A.OrdMap.new([]) |> A.OrdMap.last(:error)
+      iex> Aja.OrdMap.new([]) |> Aja.OrdMap.last(:error)
       :error
 
   """
   @spec last(t(k, v), default) :: {k, v} | default when k: key, v: value, default: term
   def last(ord_map, default \\ nil)
 
-  def last(%A.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
+  def last(%Aja.OrdMap{__ord_vector__: vector} = ord_map, default) when is_dense(ord_map) do
     case vector do
       RawVector.last_pattern(last) -> last
       _ -> default
     end
   end
 
-  def last(%A.OrdMap{__ord_vector__: vector}, default) do
+  def last(%Aja.OrdMap{__ord_vector__: vector}, default) do
     try do
       RawVector.foldr(vector, nil, fn value, _acc ->
         if value, do: throw(value)
@@ -1157,10 +1157,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldl(ord_map, "", fn {_key, value}, acc -> value <> acc end)
+      iex> ord_map = Aja.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
+      iex> Aja.OrdMap.foldl(ord_map, "", fn {_key, value}, acc -> value <> acc end)
       "AntCatBat"
-      iex> A.OrdMap.foldl(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
+      iex> Aja.OrdMap.foldl(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
       [a: "Antman", c: "Catman", b: "Batman"]
 
   """
@@ -1182,10 +1182,10 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
-      iex> A.OrdMap.foldr(ord_map, "", fn {_key, value}, acc -> value <> acc end)
+      iex> ord_map = Aja.OrdMap.new([b: "Bat", c: "Cat", a: "Ant"])
+      iex> Aja.OrdMap.foldr(ord_map, "", fn {_key, value}, acc -> value <> acc end)
       "BatCatAnt"
-      iex> A.OrdMap.foldr(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
+      iex> Aja.OrdMap.foldr(ord_map, [], fn {key, value}, acc -> [{key, value <> "man"} | acc] end)
       [b: "Batman", c: "Catman", a: "Antman"]
 
   """
@@ -1205,13 +1205,13 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
-      iex> A.OrdMap.dense?(ord_map)
+      iex> Aja.OrdMap.dense?(ord_map)
       true
-      iex> sparse = A.OrdMap.delete(ord_map, :b)
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> A.OrdMap.dense?(sparse)
+      iex> sparse = Aja.OrdMap.delete(ord_map, :b)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> Aja.OrdMap.dense?(sparse)
       false
 
   """
@@ -1226,13 +1226,13 @@ defmodule A.OrdMap do
 
   ## Examples
 
-      iex> ord_map = A.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
+      iex> ord_map = Aja.OrdMap.new(a: "Ant", b: "Bat", c: "Cat")
       ord(%{a: "Ant", b: "Bat", c: "Cat"})
-      iex> A.OrdMap.sparse?(ord_map)
+      iex> Aja.OrdMap.sparse?(ord_map)
       false
-      iex> sparse = A.OrdMap.delete(ord_map, :b)
-      #A.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
-      iex> A.OrdMap.sparse?(sparse)
+      iex> sparse = Aja.OrdMap.delete(ord_map, :b)
+      #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
+      iex> Aja.OrdMap.sparse?(sparse)
       true
 
   """
@@ -1497,12 +1497,12 @@ defmodule A.OrdMap do
 
   defimpl Enumerable do
     def count(ord_map) do
-      {:ok, A.OrdMap.size(ord_map)}
+      {:ok, Aja.OrdMap.size(ord_map)}
     end
 
     def member?(ord_map, key_value) do
       with {key, value} <- key_value,
-           {:ok, ^value} <- A.OrdMap.fetch(ord_map, key) do
+           {:ok, ^value} <- Aja.OrdMap.fetch(ord_map, key) do
         {:ok, true}
       else
         _ -> {:ok, false}
@@ -1511,13 +1511,13 @@ defmodule A.OrdMap do
 
     def slice(ord_map) do
       ord_map
-      |> A.EnumHelper.to_vec_or_list()
+      |> Aja.EnumHelper.to_vec_or_list()
       |> Enumerable.slice()
     end
 
     def reduce(ord_map, acc, fun) do
       ord_map
-      |> A.OrdMap.to_list()
+      |> Aja.OrdMap.to_list()
       |> Enumerable.List.reduce(acc, fun)
     end
   end
@@ -1526,7 +1526,7 @@ defmodule A.OrdMap do
     def into(map) do
       fun = fn
         map_acc, {:cont, {key, value}} ->
-          A.OrdMap.put(map_acc, key, value)
+          Aja.OrdMap.put(map_acc, key, value)
 
         map_acc, :done ->
           map_acc
@@ -1549,7 +1549,7 @@ defmodule A.OrdMap do
       close = color(close_mark, :map, opts)
       sep = color(",", :map, opts)
 
-      as_list = A.OrdMap.to_list(ord_map)
+      as_list = Aja.OrdMap.to_list(ord_map)
 
       container_doc(open, as_list, close, opts, traverse_fun(as_list, opts),
         separator: sep,
@@ -1571,8 +1571,8 @@ defmodule A.OrdMap do
     end
 
     defp open_close_marks(ord_map) do
-      if A.OrdMap.sparse?(ord_map) do
-        {"#A.OrdMap<%{", "}, sparse?: true>"}
+      if Aja.OrdMap.sparse?(ord_map) do
+        {"#Aja.OrdMap<%{", "}, sparse?: true>"}
       else
         {"ord(%{", "})"}
       end
@@ -1582,7 +1582,7 @@ defmodule A.OrdMap do
   if Code.ensure_loaded?(Jason.Encoder) do
     defimpl Jason.Encoder do
       def encode(map, opts) do
-        map |> A.OrdMap.to_list() |> Jason.Encode.keyword(opts)
+        map |> Aja.OrdMap.to_list() |> Jason.Encode.keyword(opts)
       end
     end
   end

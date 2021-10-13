@@ -13,13 +13,13 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 14 s
 
-Benchmarking A.Vector.take_while/2...
+Benchmarking Aja.Vector.take_while/2...
 Benchmarking Enum.take_while/2 (list)...
 
-Name                               ips        average  deviation         median         99th %
-A.Vector.take_while/2         858.03 K        1.17 μs  ±1372.84%        1.08 μs        1.48 μs
-Enum.take_while/2 (list)      641.42 K        1.56 μs  ±1513.91%        1.40 μs        1.84 μs
+Name                                 ips        average  deviation         median         99th %
+Aja.Vector.take_while/2         858.03 K        1.17 μs  ±1372.84%        1.08 μs        1.48 μs
+Enum.take_while/2 (list)        641.42 K        1.56 μs  ±1513.91%        1.40 μs        1.84 μs
 
-Comparison: 
-A.Vector.take_while/2         858.03 K
-Enum.take_while/2 (list)      641.42 K - 1.34x slower +0.39 μs
+Comparison:
+Aja.Vector.take_while/2         858.03 K
+Enum.take_while/2 (list)        641.42 K - 1.34x slower +0.39 μs

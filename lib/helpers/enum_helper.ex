@@ -1,20 +1,21 @@
-defmodule A.EnumHelper do
+defmodule Aja.EnumHelper do
   @moduledoc false
 
-  import A.OrdMap, only: [is_dense: 1]
+  import Aja.OrdMap, only: [is_dense: 1]
 
-  alias A.Vector.Raw, as: RawVector
+  alias Aja.Vector.Raw, as: RawVector
 
   @dialyzer :no_opaque
 
   @compile {:inline, try_get_raw_vec_or_list: 1}
-  def try_get_raw_vec_or_list(%A.Vector{__vector__: vector}), do: vector
+  def try_get_raw_vec_or_list(%Aja.Vector{__vector__: vector}), do: vector
   def try_get_raw_vec_or_list(list) when is_list(list), do: list
 
-  def try_get_raw_vec_or_list(%A.OrdMap{__ord_vector__: vector} = ord_map) when is_dense(ord_map),
-    do: vector
+  def try_get_raw_vec_or_list(%Aja.OrdMap{__ord_vector__: vector} = ord_map)
+      when is_dense(ord_map),
+      do: vector
 
-  def try_get_raw_vec_or_list(%A.OrdMap{__ord_vector__: vector}) do
+  def try_get_raw_vec_or_list(%Aja.OrdMap{__ord_vector__: vector}) do
     RawVector.sparse_to_list(vector)
   end
 
@@ -39,7 +40,7 @@ defmodule A.EnumHelper do
     case try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.to_list(enumerable)
       list when is_list(list) -> list
-      vector when is_tuple(vector) -> %A.Vector{__vector__: vector}
+      vector when is_tuple(vector) -> %Aja.Vector{__vector__: vector}
     end
   end
 
@@ -55,14 +56,14 @@ defmodule A.EnumHelper do
   @compile {:inline, map: 2}
   def map(enumerable, fun) when is_function(fun, 1) do
     case enumerable do
-      %A.Vector{__vector__: vector} ->
+      %Aja.Vector{__vector__: vector} ->
         RawVector.map_to_list(vector, fun)
 
-      %A.OrdMap{__ord_vector__: vector} = ord_map when is_dense(ord_map) ->
+      %Aja.OrdMap{__ord_vector__: vector} = ord_map when is_dense(ord_map) ->
         RawVector.map_to_list(vector, fun)
 
-      %A.OrdMap{__ord_vector__: vector} = ord_map when is_dense(ord_map) ->
-        A.Vector.Raw.foldl(vector, [], fn
+      %Aja.OrdMap{__ord_vector__: vector} = ord_map when is_dense(ord_map) ->
+        Aja.Vector.Raw.foldl(vector, [], fn
           nil, acc -> acc
           key_value, acc -> [fun.(key_value) | acc]
         end)

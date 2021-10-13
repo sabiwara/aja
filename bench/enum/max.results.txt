@@ -14,27 +14,27 @@ inputs: none specified
 Estimated total run time: 49 s
 
 Benchmarking :lists.max/1...
-Benchmarking A.Enum.max/1 (list)...
-Benchmarking A.Enum.max/1 (set)...
-Benchmarking A.Enum.max/1 (vector)...
+Benchmarking Aja.Enum.max/1 (list)...
+Benchmarking Aja.Enum.max/1 (set)...
+Benchmarking Aja.Enum.max/1 (vector)...
 Benchmarking Enum.max/1 (list)...
 Benchmarking Enum.max/1 (set)...
 Benchmarking Enum.max/1 (vector)...
 
-Name                            ips        average  deviation         median         99th %
-A.Enum.max/1 (vector)      733.50 K        1.36 μs  ±1849.87%        1.26 μs        1.59 μs
-:lists.max/1               355.17 K        2.82 μs    ±28.72%        2.58 μs        4.28 μs
-A.Enum.max/1 (list)        349.20 K        2.86 μs    ±75.26%        2.56 μs        4.21 μs
-Enum.max/1 (list)          333.66 K        3.00 μs    ±62.11%        2.68 μs        4.27 μs
-A.Enum.max/1 (set)          68.00 K       14.70 μs    ±39.69%       14.11 μs       21.82 μs
-Enum.max/1 (vector)         20.04 K       49.90 μs    ±12.51%       48.07 μs       77.39 μs
-Enum.max/1 (set)            16.67 K       60.00 μs    ±11.23%       57.84 μs       77.59 μs
+Name                              ips        average  deviation         median         99th %
+Aja.Enum.max/1 (vector)      733.50 K        1.36 μs  ±1849.87%        1.26 μs        1.59 μs
+:lists.max/1                 355.17 K        2.82 μs    ±28.72%        2.58 μs        4.28 μs
+Aja.Enum.max/1 (list)        349.20 K        2.86 μs    ±75.26%        2.56 μs        4.21 μs
+Enum.max/1 (list)            333.66 K        3.00 μs    ±62.11%        2.68 μs        4.27 μs
+Aja.Enum.max/1 (set)          68.00 K       14.70 μs    ±39.69%       14.11 μs       21.82 μs
+Enum.max/1 (vector)           20.04 K       49.90 μs    ±12.51%       48.07 μs       77.39 μs
+Enum.max/1 (set)              16.67 K       60.00 μs    ±11.23%       57.84 μs       77.59 μs
 
-Comparison: 
-A.Enum.max/1 (vector)      733.50 K
-:lists.max/1               355.17 K - 2.07x slower +1.45 μs
-A.Enum.max/1 (list)        349.20 K - 2.10x slower +1.50 μs
-Enum.max/1 (list)          333.66 K - 2.20x slower +1.63 μs
-A.Enum.max/1 (set)          68.00 K - 10.79x slower +13.34 μs
-Enum.max/1 (vector)         20.04 K - 36.60x slower +48.54 μs
-Enum.max/1 (set)            16.67 K - 44.01x slower +58.63 μs
+Comparison:
+Aja.Enum.max/1 (vector)      733.50 K
+:lists.max/1                 355.17 K - 2.07x slower +1.45 μs
+Aja.Enum.max/1 (list)        349.20 K - 2.10x slower +1.50 μs
+Enum.max/1 (list)            333.66 K - 2.20x slower +1.63 μs
+Aja.Enum.max/1 (set)          68.00 K - 10.79x slower +13.34 μs
+Enum.max/1 (vector)           20.04 K - 36.60x slower +48.54 μs
+Enum.max/1 (set)              16.67 K - 44.01x slower +58.63 μs

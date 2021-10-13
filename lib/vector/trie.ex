@@ -1,9 +1,9 @@
-defmodule A.Vector.Trie do
+defmodule Aja.Vector.Trie do
   @moduledoc false
 
-  require A.Vector.CodeGen, as: C
+  require Aja.Vector.CodeGen, as: C
 
-  alias A.Vector.{Node, Tail}
+  alias Aja.Vector.{Node, Tail}
 
   @type value :: term
   @type leaf(value) :: Node.t(value)

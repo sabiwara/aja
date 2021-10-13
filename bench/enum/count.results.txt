@@ -13,16 +13,16 @@ parallel: 1
 inputs: none specified
 Estimated total run time: 21 s
 
-Benchmarking A.Enum.count/1 (vector)...
+Benchmarking Aja.Enum.count/1 (vector)...
 Benchmarking Enum.count/1 (list)...
 Benchmarking Enum.count/1 (vector)...
 
-Name                              ips        average  deviation         median         99th %
-A.Enum.count/1 (vector)       68.13 M       14.68 ns   ±646.42%          12 ns          37 ns
-Enum.count/1 (vector)          9.76 M      102.47 ns ±37835.03%          39 ns         119 ns
-Enum.count/1 (list)            7.97 M      125.48 ns   ±139.08%         120 ns         162 ns
+Name                                ips        average  deviation         median         99th %
+Aja.Enum.count/1 (vector)       68.13 M       14.68 ns   ±646.42%          12 ns          37 ns
+Enum.count/1 (vector)            9.76 M      102.47 ns ±37835.03%          39 ns         119 ns
+Enum.count/1 (list)              7.97 M      125.48 ns   ±139.08%         120 ns         162 ns
 
-Comparison: 
-A.Enum.count/1 (vector)       68.13 M
-Enum.count/1 (vector)          9.76 M - 6.98x slower +87.79 ns
-Enum.count/1 (list)            7.97 M - 8.55x slower +110.80 ns
+Comparison:
+Aja.Enum.count/1 (vector)       68.13 M
+Enum.count/1 (vector)            9.76 M - 6.98x slower +87.79 ns
+Enum.count/1 (list)              7.97 M - 8.55x slower +110.80 ns

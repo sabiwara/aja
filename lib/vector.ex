@@ -1,11 +1,11 @@
-defmodule A.Vector do
+defmodule Aja.Vector do
   # TODO remove doc hack when stop supporting 1.10
   plusplusplus_doc = ~S"""
-  ## Convenience [`+++/2`](`A.+++/2`) operator
+  ## Convenience [`+++/2`](`Aja.+++/2`) operator
 
-  The `A.+++/2` operator can make appending to a vector more compact by aliasing `A.Vector.concat/2`:
+  The `Aja.+++/2` operator can make appending to a vector more compact by aliasing `Aja.Vector.concat/2`:
 
-      iex> import A
+      iex> import Aja
       iex> vec([1, 2, 3]) +++ vec([4, 5])
       vec([1, 2, 3, 4, 5])
   """
@@ -14,7 +14,7 @@ defmodule A.Vector do
   Fast persistent vector with efficient appends and random access.
 
   Persistent vectors have been introduced by Clojure as an efficient alternative to lists.
-  Many operations for `A.Vector` run in effective constant time (length, random access, appends...),
+  Many operations for `Aja.Vector` run in effective constant time (length, random access, appends...),
   unlike linked lists for which most operations run in linear time.
   Functions that need to go through the whole collection like `map/2` or `foldl/3` are as often fast as
   their list equivalents, or sometimes even slightly faster.
@@ -25,10 +25,10 @@ defmodule A.Vector do
   out of vectors.
 
   Erlang's [`:array`](http://erlang.org/doc/man/array.html) module offer similar functionalities.
-  However `A.Vector`:
+  However `Aja.Vector`:
   - is a better Elixir citizen: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
   - is heavily optimized and should offer higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
-  - mirrors most of the `Enum` module API (together with `A.Enum`) with highly optimized versions for vectors (`A.Enum.join/1`, `A.Enum.sum/1`, `A.Enum.random/1`...)
+  - mirrors most of the `Enum` module API (together with `Aja.Enum`) with highly optimized versions for vectors (`Aja.Enum.join/1`, `Aja.Enum.sum/1`, `Aja.Enum.random/1`...)
   - supports negative indexing (e.g. `-1` corresponds to the last element)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
@@ -40,22 +40,22 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..10)
+      iex> vector = Aja.Vector.new(1..10)
       vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-      iex> A.Vector.append(vector, :foo)
+      iex> Aja.Vector.append(vector, :foo)
       vec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, :foo])
       iex> vector[3]
       4
-      iex> A.Vector.replace_at(vector, -1, :bar)
+      iex> Aja.Vector.replace_at(vector, -1, :bar)
       vec([1, 2, 3, 4, 5, 6, 7, 8, 9, :bar])
       iex> 3 in vector
       true
 
   ## Access behaviour
 
-  `A.Vector` implements the `Access` behaviour.
+  `Aja.Vector` implements the `Access` behaviour.
 
-      iex> vector = A.Vector.new(1..10)
+      iex> vector = Aja.Vector.new(1..10)
       iex> vector[3]
       4
       iex> put_in(vector[5], :foo)
@@ -63,29 +63,29 @@ defmodule A.Vector do
       iex> {9, updated} = pop_in(vector[8]); updated
       vec([1, 2, 3, 4, 5, 6, 7, 8, 10])
 
-  ## Convenience [`vec/1`](`A.vec/1`) and [`vec_size/1`](`A.vec_size/1`) macros
+  ## Convenience [`vec/1`](`Aja.vec/1`) and [`vec_size/1`](`Aja.vec_size/1`) macros
 
-  The `A.Vector` module can be used without any macro.
+  The `Aja.Vector` module can be used without any macro.
 
-  The `A.vec/1` macro does however provide some syntactic sugar to make
+  The `Aja.vec/1` macro does however provide some syntactic sugar to make
   it more convenient to work with vectors of known size, namely:
   - pattern match on elements for vectors of known size
   - construct new vectors of known size faster, by generating the AST at compile time
 
   Examples:
 
-      iex> import A
+      iex> import Aja
       iex> vec([1, 2, 3])
       vec([1, 2, 3])
-      iex> vec([1, 2, var, _, _, _]) = A.Vector.new(1..6); var
+      iex> vec([1, 2, var, _, _, _]) = Aja.Vector.new(1..6); var
       3
-      iex> vec(first ||| last) = A.Vector.new(0..99_999); {first, last}
+      iex> vec(first ||| last) = Aja.Vector.new(0..99_999); {first, last}
       {0, 99999}
 
-  The `A.vec_size/1` macro can be used in guards:
+  The `Aja.vec_size/1` macro can be used in guards:
 
-      iex> import A
-      iex> match?(v when vec_size(v) > 99, A.Vector.new(1..100))
+      iex> import Aja
+      iex> match?(v when vec_size(v) > 99, Aja.Vector.new(1..100))
       true
 
   #{if Version.compare(System.version(), "1.11.0") != :lt do
@@ -95,15 +95,15 @@ defmodule A.Vector do
 
   ## Pattern-matching and opaque type
 
-  An `A.Vector` is represented internally using the `%A.Vector{}` struct. This struct
-  can be used whenever there's a need to pattern match on something being an `A.Vector`:
-      iex> match?(%A.Vector{}, A.Vector.new())
+  An `Aja.Vector` is represented internally using the `%Aja.Vector{}` struct. This struct
+  can be used whenever there's a need to pattern match on something being an `Aja.Vector`:
+      iex> match?(%Aja.Vector{}, Aja.Vector.new())
       true
 
-  Note, however, than `A.Vector` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
+  Note, however, than `Aja.Vector` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
   its struct internal fields must not be accessed directly.
 
-  As discussed in the previous section, [`vec/1`](`A.vec/1`) makes it
+  As discussed in the previous section, [`vec/1`](`Aja.vec/1`) makes it
   possible to pattern match on size and elements as well as checking the type.
 
   ## Memory usage
@@ -111,7 +111,7 @@ defmodule A.Vector do
   Vectors have a small overhead over lists for smaller collections, but are using
   far less memory for bigger collections:
 
-      iex> memory_for = fn n -> [Enum.to_list(1..n), A.Vector.new(1..n)] |> Enum.map(&:erts_debug.size/1) end
+      iex> memory_for = fn n -> [Enum.to_list(1..n), Aja.Vector.new(1..n)] |> Enum.map(&:erts_debug.size/1) end
       iex> memory_for.(1)
       [2, 32]
       iex> memory_for.(10)
@@ -121,19 +121,19 @@ defmodule A.Vector do
       iex> memory_for.(10_000)
       [20000, 11371]
 
-  If you need to work with vectors containing mostly the same value, `A.Vector.duplicate/2`
+  If you need to work with vectors containing mostly the same value, `Aja.Vector.duplicate/2`
   is highly efficient both in time and memory (logarithmic).
   It minimizes the number of actual copies and reuses the same nested structures under the hood:
 
-      iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.size()
+      iex> Aja.Vector.duplicate(0, 10_000) |> :erts_debug.size()
       117
-      iex> A.Vector.duplicate(0, 10_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
+      iex> Aja.Vector.duplicate(0, 10_000) |> :erts_debug.flat_size()  # when shared over processes / ETS
       11371
 
   Even a 1B x 1B matrix of the same element costs virtually nothing!
 
       big_n = 1_000_000_000
-      0 |> A.Vector.duplicate(big_n) |> A.Vector.duplicate(big_n) |> :erts_debug.size()
+      0 |> Aja.Vector.duplicate(big_n) |> Aja.Vector.duplicate(big_n) |> :erts_debug.size()
       539
 
 
@@ -153,21 +153,21 @@ defmodule A.Vector do
 
   **DON'T**
 
-      A.Vector.prepend(vector, :foo)
+      Aja.Vector.prepend(vector, :foo)
 
   **DO**
 
       [:foo | list]  # use lists
-      A.Vector.append(vector, :foo)
+      Aja.Vector.append(vector, :foo)
 
   ### Avoid deletions
 
   This implementation of persistent vectors has many advantages, but it does
   not support efficient deletion, with the exception of the last element that
-  can be popped very efficiently (`A.Vector.pop_last/1`, `A.Vector.delete_last/1`).
+  can be popped very efficiently (`Aja.Vector.pop_last/1`, `Aja.Vector.delete_last/1`).
 
-  Deleting close to the end of the vector using `A.Vector.delete_at/2` or
-  `A.Vector.pop_at/3` is still fairly fast, but deleting near the beginning needs
+  Deleting close to the end of the vector using `Aja.Vector.delete_at/2` or
+  `Aja.Vector.pop_at/3` is still fairly fast, but deleting near the beginning needs
   to reconstruct most of the vector.
 
   If you need to be able to delete arbitrary indexes, chances are you should consider
@@ -177,55 +177,55 @@ defmodule A.Vector do
 
   **DON'T**
 
-      A.Vector.pop_at(vector, 3)
-      A.Vector.delete_at(vector, 3)
+      Aja.Vector.pop_at(vector, 3)
+      Aja.Vector.delete_at(vector, 3)
       pop_in(vector[3])
 
   **DO**
 
-      A.Vector.pop_last(vector)
-      A.Vector.delete_last(vector)
-      A.Vector.delete_at(vector, -3)  # close to the end
-      A.Vector.replace_at(vector, 3, nil)
+      Aja.Vector.pop_last(vector)
+      Aja.Vector.delete_last(vector)
+      Aja.Vector.delete_at(vector, -3)  # close to the end
+      Aja.Vector.replace_at(vector, 3, nil)
 
   ### Successive appends
 
   If you just need to append all elements of an enumerable, it is more efficient to use
-  `A.Vector.concat/2` or its alias `A.+++/2` than successive calls to `A.Vector.append/2`:
+  `Aja.Vector.concat/2` or its alias `Aja.+++/2` than successive calls to `Aja.Vector.append/2`:
 
   **DON'T**
 
-      Enum.reduce(enumerable, vector, fn val, acc -> A.Vector.append(acc, val) end)
+      Enum.reduce(enumerable, vector, fn val, acc -> Aja.Vector.append(acc, val) end)
 
   **DO**
 
-      A.Vector.concat(vector, enumerable)
+      Aja.Vector.concat(vector, enumerable)
       #{if Version.compare(System.version(), "1.11.0") != :lt do
     "vector +++ enumerable"
   end}
 
-  ### Prefer `A.Enum` and `A.Vector` to `Enum` for vectors
+  ### Prefer `Aja.Enum` and `Aja.Vector` to `Enum` for vectors
 
-  The `A.Enum` module reimplements (nearly) all functions from the `Enum` module to offer
+  The `Aja.Enum` module reimplements (nearly) all functions from the `Enum` module to offer
   optimal performance when operating on vectors, and should be used over `Enum` functions whenever possible
-  (even if `A.Vector` implements the `Enumerable` and `Collectable` protocols for convienience):
+  (even if `Aja.Vector` implements the `Enumerable` and `Collectable` protocols for convienience):
 
   **DON'T**
 
       Enum.sum(vector)
       Enum.to_list(vector)
       Enum.reduce(vector, [], fun)
-      Enum.into(enumerable, %A.Vector.new())
+      Enum.into(enumerable, %Aja.Vector.new())
       Enum.into(enumerable, vector)
 
   **DO**
 
-      A.Enum.sum(vector)
-      A.Enum.to_list(vector)  # or A.Vector.to_list(vector)
-      A.Enum.reduce(vector, [], fun)  # or A.Vector.foldl(vector, [], fun)
-      A.Vector.new(enumerable)
-      A.Enum.into(enumerable, vector)
-      # or A.Vector.concat(vector, enumerable)
+      Aja.Enum.sum(vector)
+      Aja.Enum.to_list(vector)  # or Aja.Vector.to_list(vector)
+      Aja.Enum.reduce(vector, [], fun)  # or Aja.Vector.foldl(vector, [], fun)
+      Aja.Vector.new(enumerable)
+      Aja.Enum.into(enumerable, vector)
+      # or Aja.Vector.concat(vector, enumerable)
       # or vector +++ enumerable
 
   Although it depends on the function, you can expect a ~10x speed difference.
@@ -241,7 +241,7 @@ defmodule A.Vector do
 
   If using it in EEx templates, you might want to cast it to a list:
 
-      for value <- A.Vector.to_list(vector) do
+      for value <- Aja.Vector.to_list(vector) do
         do_stuff()
       end
 
@@ -255,46 +255,46 @@ defmodule A.Vector do
 
   ### Slicing optimization
 
-  Slicing any subset on the left on the vector using methods from `A.Vector` is
+  Slicing any subset on the left on the vector using methods from `Aja.Vector` is
   extremely efficient as the vector internals can be reused:
 
   **DO**
 
-      A.Vector.take(vector, 10)  # take a positive amount
-      A.Vector.drop(vector, -20)  # drop a negative amount
-      A.Vector.slice(vector, 0, 10)  # slicing from 0
-      A.Vector.slice(vector, 0..-5)  # slicing from 0
+      Aja.Vector.take(vector, 10)  # take a positive amount
+      Aja.Vector.drop(vector, -20)  # drop a negative amount
+      Aja.Vector.slice(vector, 0, 10)  # slicing from 0
+      Aja.Vector.slice(vector, 0..-5)  # slicing from 0
 
-  ### `A.Vector` and `A.Enum`
+  ### `Aja.Vector` and `Aja.Enum`
 
-  - `A.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
-  - `A.Vector` mirrors `Enum` functions that are returning lists, but returns vectors instead
+  - `Aja.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
+  - `Aja.Vector` mirrors `Enum` functions that are returning lists, but returns vectors instead
 
-      iex> vector = A.Vector.new(1..10)
-      iex> A.Enum.reverse(vector)
+      iex> vector = Aja.Vector.new(1..10)
+      iex> Aja.Enum.reverse(vector)
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-      iex> A.Vector.reverse(vector)
+      iex> Aja.Vector.reverse(vector)
       vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
-      iex> A.Enum.map(vector, & (&1 * 7))
+      iex> Aja.Enum.map(vector, & (&1 * 7))
       [7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
-      iex> A.Vector.map(vector, & (&1 * 7))
+      iex> Aja.Vector.map(vector, & (&1 * 7))
       vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])
 
   ### Additional notes
 
   * If you need to work with vectors containing mostly the same value,
-    use `A.Vector.duplicate/2` (more details in the [Memory usage section](#module-memory-usage)).
+    use `Aja.Vector.duplicate/2` (more details in the [Memory usage section](#module-memory-usage)).
 
   * If you work with functions returning vectors of known size, you can use
-    the `A.vec/1` macro to defer the generation of the AST for the internal
+    the `Aja.vec/1` macro to defer the generation of the AST for the internal
     structure to compile time instead of runtime.
 
-        A.Vector.new([%{foo: a}, %{foo: b}])  # structure created at runtime
+        Aja.Vector.new([%{foo: a}, %{foo: b}])  # structure created at runtime
         vec([%{foo: a}, %{foo: b}])  # structure AST defined at compile time
 
   """
 
-  alias A.Vector.{EmptyError, IndexError, Raw}
+  alias Aja.Vector.{EmptyError, IndexError, Raw}
   require Raw
 
   @behaviour Access
@@ -323,9 +323,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(10_000..20_000) |> A.Vector.size()
+      iex> Aja.Vector.new(10_000..20_000) |> Aja.Vector.size()
       10001
-      iex> A.Vector.new() |> A.Vector.size()
+      iex> Aja.Vector.new() |> Aja.Vector.size()
       0
 
   """
@@ -340,7 +340,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new()
+      iex> Aja.Vector.new()
       vec([])
 
   """
@@ -357,7 +357,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(10..25)
+      iex> Aja.Vector.new(10..25)
       vec([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
 
   """
@@ -367,7 +367,7 @@ defmodule A.Vector do
   end
 
   def new(enumerable) do
-    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+    case Aja.EnumHelper.to_raw_vec_or_list(enumerable) do
       list when is_list(list) -> from_list(list)
       raw -> from_internal(raw)
     end
@@ -378,13 +378,13 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10, &(&1 * &1))
+      iex> Aja.Vector.new(1..10, &(&1 * &1))
       vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])
 
   """
   @spec new(Enumerable.t(), (v1 -> v2)) :: t(v2) when v1: value, v2: value
   def new(enumerable, fun) when is_function(fun, 1) do
-    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+    case Aja.EnumHelper.to_raw_vec_or_list(enumerable) do
       list when is_list(list) -> Raw.from_mapped_list(list, fun) |> from_internal()
       raw -> Raw.map(raw, fun) |> from_internal()
     end
@@ -401,9 +401,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.duplicate(nil, 10)
+      iex> Aja.Vector.duplicate(nil, 10)
       vec([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
-      iex> A.Vector.duplicate(:foo, 0)
+      iex> Aja.Vector.duplicate(:foo, 0)
       vec([])
 
   """
@@ -419,17 +419,17 @@ defmodule A.Vector do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
-      iex> A.Vector.repeat(&:rand.uniform/0, 3)
+      iex> Aja.Vector.repeat(&:rand.uniform/0, 3)
       vec([0.7498295129076106, 0.06161655489244533, 0.7924073127680873])
 
   """
   def repeat(generator_fun, n)
       when is_function(generator_fun, 0) and is_integer(n) and n >= 0 do
-    A.List.repeat(generator_fun, n) |> from_list()
+    Aja.List.repeat(generator_fun, n) |> from_list()
   end
 
   @doc false
-  @deprecated "Use A.Vector.repeat/2 instead"
+  @deprecated "Use Aja.Vector.repeat/2 instead"
   defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
 
   @doc """
@@ -439,9 +439,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new() |> A.Vector.append(:foo)
+      iex> Aja.Vector.new() |> Aja.Vector.append(:foo)
       vec([:foo])
-      iex> A.Vector.new(1..5) |> A.Vector.append(:foo)
+      iex> Aja.Vector.new(1..5) |> Aja.Vector.append(:foo)
       vec([1, 2, 3, 4, 5, :foo])
 
   """
@@ -458,15 +458,15 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..5) |> A.Vector.concat(10..15)
+      iex> Aja.Vector.new(1..5) |> Aja.Vector.concat(10..15)
       vec([1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
-      iex> A.Vector.new() |> A.Vector.concat(10..15)
+      iex> Aja.Vector.new() |> Aja.Vector.concat(10..15)
       vec([10, 11, 12, 13, 14, 15])
 
   """
   @spec concat(t(val), Enumerable.t()) :: t(val) when val: value
   def concat(%__MODULE__{__vector__: internal}, enumerable) do
-    case A.EnumHelper.to_raw_vec_or_list(enumerable) do
+    case Aja.EnumHelper.to_raw_vec_or_list(enumerable) do
       list when is_list(list) -> Raw.concat_list(internal, list)
       vector when is_tuple(vector) -> Raw.concat_vector(internal, vector)
     end
@@ -474,7 +474,7 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Vector.concat/2 instead"
+  @deprecated "Use Aja.Vector.concat/2 instead"
   defdelegate append_many(vector, enumerable), to: __MODULE__, as: :concat
 
   @doc """
@@ -485,9 +485,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new() |> A.Vector.prepend(:foo)
+      iex> Aja.Vector.new() |> Aja.Vector.prepend(:foo)
       vec([:foo])
-      iex> A.Vector.new(1..5) |> A.Vector.prepend(:foo)
+      iex> Aja.Vector.new(1..5) |> Aja.Vector.prepend(:foo)
       vec([:foo, 1, 2, 3, 4, 5])
 
   """
@@ -503,9 +503,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10_000) |> A.Vector.first()
+      iex> Aja.Vector.new(1..10_000) |> Aja.Vector.first()
       1
-      iex> A.Vector.new() |> A.Vector.first()
+      iex> Aja.Vector.new() |> Aja.Vector.first()
       nil
 
   """
@@ -526,9 +526,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10_000) |> A.Vector.last()
+      iex> Aja.Vector.new(1..10_000) |> Aja.Vector.last()
       10_000
-      iex> A.Vector.new() |> A.Vector.last()
+      iex> Aja.Vector.new() |> Aja.Vector.last()
       nil
 
   """
@@ -552,11 +552,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..1_000) |> A.Vector.fetch(555)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.fetch(555)
       {:ok, 556}
-      iex> A.Vector.new(1..1_000) |> A.Vector.fetch(1_000)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.fetch(1_000)
       :error
-      iex> A.Vector.new(1..1_000) |> A.Vector.fetch(-1)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.fetch(-1)
       {:ok, 1000}
 
   """
@@ -589,9 +589,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..1_000) |> A.Vector.at(555)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.at(555)
       556
-      iex> A.Vector.new(1..1_000) |> A.Vector.at(1_000)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.at(1_000)
       nil
 
   """
@@ -618,19 +618,19 @@ defmodule A.Vector do
   @doc """
   Finds the element at the given `index` (zero-based).
 
-  Raises an `A.Vector.IndexError` if `index` is out of bounds.
+  Raises an `Aja.Vector.IndexError` if `index` is out of bounds.
   Supports negative indexing from the end of the `vector`.
 
   Runs in effective constant time.
 
   ## Examples
 
-      iex> A.Vector.new(1..1_000) |> A.Vector.at!(555)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.at!(555)
       556
-      iex> A.Vector.new(1..1_000) |> A.Vector.at!(-10)
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.at!(-10)
       991
-      iex> A.Vector.new(1..1_000) |> A.Vector.at!(1_000)
-      ** (A.Vector.IndexError) out of bound index: 1000 not in -1000..999
+      iex> Aja.Vector.new(1..1_000) |> Aja.Vector.at!(1_000)
+      ** (Aja.Vector.IndexError) out of bound index: 1000 not in -1000..999
 
   """
   @spec at!(t(val), index) :: val when val: value
@@ -653,11 +653,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at(5, :foo)
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at(5, :foo)
       vec([1, 2, 3, 4, 5, :foo, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at(8, :foo)
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at(8, :foo)
       vec([1, 2, 3, 4, 5, 6, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at(-2, :foo)
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at(-2, :foo)
       vec([1, 2, 3, 4, 5, 6, :foo, 8])
 
   """
@@ -678,19 +678,19 @@ defmodule A.Vector do
   @doc """
   Returns a copy of `vector` with a replaced `value` at the specified `index`.
 
-  Raises an `A.Vector.IndexError` if `index` is out of bounds.
+  Raises an `Aja.Vector.IndexError` if `index` is out of bounds.
   Supports negative indexing from the end of the `vector`.
 
   Runs in effective constant time.
 
   ## Examples
 
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at!(5, :foo)
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at!(5, :foo)
       vec([1, 2, 3, 4, 5, :foo, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at!(-2, :foo)
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at!(-2, :foo)
       vec([1, 2, 3, 4, 5, 6, :foo, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.replace_at!(8, :foo)
-      ** (A.Vector.IndexError) out of bound index: 8 not in -8..7
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.replace_at!(8, :foo)
+      ** (Aja.Vector.IndexError) out of bound index: 8 not in -8..7
 
   """
   @spec replace_at!(t(val), index, val) :: t(val) when val: value
@@ -717,11 +717,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..8) |> A.Vector.update_at(2, &(&1 * 1000))
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at(2, &(&1 * 1000))
       vec([1, 2, 3000, 4, 5, 6, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.update_at(8, &(&1 * 1000))
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at(8, &(&1 * 1000))
       vec([1, 2, 3, 4, 5, 6, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.update_at(-1, &(&1 * 1000))
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at(-1, &(&1 * 1000))
       vec([1, 2, 3, 4, 5, 6, 7, 8000])
 
   """
@@ -742,19 +742,19 @@ defmodule A.Vector do
   @doc """
   Returns a copy of `vector` with an updated value at the specified `index`.
 
-  Raises an `A.Vector.IndexError` if `index` is out of bounds.
+  Raises an `Aja.Vector.IndexError` if `index` is out of bounds.
   Supports negative indexing from the end of the `vector`.
 
   Runs in effective constant time.
 
   ## Examples
 
-      iex> A.Vector.new(1..8) |> A.Vector.update_at!(2, &(&1 * 1000))
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at!(2, &(&1 * 1000))
       vec([1, 2, 3000, 4, 5, 6, 7, 8])
-      iex> A.Vector.new(1..8) |> A.Vector.update_at!(-1, &(&1 * 1000))
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at!(-1, &(&1 * 1000))
       vec([1, 2, 3, 4, 5, 6, 7, 8000])
-      iex> A.Vector.new(1..8) |> A.Vector.update_at!(-9, &(&1 * 1000))
-      ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
+      iex> Aja.Vector.new(1..8) |> Aja.Vector.update_at!(-9, &(&1 * 1000))
+      ** (Aja.Vector.IndexError) out of bound index: -9 not in -8..7
 
   """
   @spec update_at!(t(val), index, (val -> val)) :: t(val) when val: value
@@ -780,10 +780,10 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> {8, updated} = A.Vector.pop_last(vector); updated
+      iex> vector = Aja.Vector.new(1..8)
+      iex> {8, updated} = Aja.Vector.pop_last(vector); updated
       vec([1, 2, 3, 4, 5, 6, 7])
-      iex> {nil, updated} = A.Vector.pop_last(A.Vector.new()); updated
+      iex> {nil, updated} = Aja.Vector.pop_last(Aja.Vector.new()); updated
       vec([])
 
   """
@@ -800,17 +800,17 @@ defmodule A.Vector do
   @doc """
   Removes the last value from the `vector` and returns both the value and the updated vector.
 
-  Raises an `A.Vector.EmptyError` if empty.
+  Raises an `Aja.Vector.EmptyError` if empty.
 
   Runs in effective constant time.
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> {8, updated} = A.Vector.pop_last!(vector); updated
+      iex> vector = Aja.Vector.new(1..8)
+      iex> {8, updated} = Aja.Vector.pop_last!(vector); updated
       vec([1, 2, 3, 4, 5, 6, 7])
-      iex> {nil, updated} = A.Vector.pop_last!(A.Vector.new()); updated
-      ** (A.Vector.EmptyError) empty vector error
+      iex> {nil, updated} = Aja.Vector.pop_last!(Aja.Vector.new()); updated
+      ** (Aja.Vector.EmptyError) empty vector error
 
   """
   @spec pop_last!(t(val)) :: {val, t(val)} when val: value
@@ -832,10 +832,10 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> A.Vector.delete_last(vector)
+      iex> vector = Aja.Vector.new(1..8)
+      iex> Aja.Vector.delete_last(vector)
       vec([1, 2, 3, 4, 5, 6, 7])
-      iex> A.Vector.delete_last(A.Vector.new())
+      iex> Aja.Vector.delete_last(Aja.Vector.new())
       vec([])
 
   """
@@ -852,17 +852,17 @@ defmodule A.Vector do
   @doc """
   Removes the last value from the `vector` and returns the updated vector.
 
-  Raises an `A.Vector.EmptyError` if empty.
+  Raises an `Aja.Vector.EmptyError` if empty.
 
   Runs in effective constant time.
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> A.Vector.delete_last!(vector)
+      iex> vector = Aja.Vector.new(1..8)
+      iex> Aja.Vector.delete_last!(vector)
       vec([1, 2, 3, 4, 5, 6, 7])
-      iex> A.Vector.delete_last!(A.Vector.new())
-      ** (A.Vector.EmptyError) empty vector error
+      iex> Aja.Vector.delete_last!(Aja.Vector.new())
+      ** (Aja.Vector.EmptyError) empty vector error
 
   """
   @spec delete_last!(t(val)) :: t(val) when val: value
@@ -886,10 +886,10 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> {5, updated} = A.Vector.pop_at(vector, 4); updated
+      iex> vector = Aja.Vector.new(1..8)
+      iex> {5, updated} = Aja.Vector.pop_at(vector, 4); updated
       vec([1, 2, 3, 4, 6, 7, 8])
-      iex> {nil, updated} = A.Vector.pop_at(vector, -9); updated
+      iex> {nil, updated} = Aja.Vector.pop_at(vector, -9); updated
       vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
@@ -912,7 +912,7 @@ defmodule A.Vector do
   @doc """
   (Inefficient) Returns and removes the value at the specified `index` in the `vector`.
 
-  Raises an `A.Vector.IndexError` if `index` is out of bounds.
+  Raises an `Aja.Vector.IndexError` if `index` is out of bounds.
   Supports negative indexing from the end of the `vector`.
 
   Runs in linear time. Its usage is discouraged, see the
@@ -920,11 +920,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> {5, updated} = A.Vector.pop_at!(vector, 4); updated
+      iex> vector = Aja.Vector.new(1..8)
+      iex> {5, updated} = Aja.Vector.pop_at!(vector, 4); updated
       vec([1, 2, 3, 4, 6, 7, 8])
-      iex> A.Vector.pop_at!(vector, -9)
-      ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
+      iex> Aja.Vector.pop_at!(vector, -9)
+      ** (Aja.Vector.IndexError) out of bound index: -9 not in -8..7
 
   """
   @spec pop_at!(t(val), index) :: {val, t(val)} when val: value
@@ -959,10 +959,10 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> A.Vector.delete_at(vector, 4)
+      iex> vector = Aja.Vector.new(1..8)
+      iex> Aja.Vector.delete_at(vector, 4)
       vec([1, 2, 3, 4, 6, 7, 8])
-      iex> A.Vector.delete_at(vector, -9)
+      iex> Aja.Vector.delete_at(vector, -9)
       vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
@@ -982,7 +982,7 @@ defmodule A.Vector do
   @doc """
   (Inefficient) Returns a copy of `vector` without the value at the specified `index`.
 
-  Raises an `A.Vector.IndexError` if `index` is out of bounds.
+  Raises an `Aja.Vector.IndexError` if `index` is out of bounds.
   Supports negative indexing from the end of the `vector`.
 
   Runs in linear time. Its usage is discouraged, see the
@@ -990,11 +990,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> A.Vector.delete_at!(vector, 4)
+      iex> vector = Aja.Vector.new(1..8)
+      iex> Aja.Vector.delete_at!(vector, 4)
       vec([1, 2, 3, 4, 6, 7, 8])
-      iex> A.Vector.delete_at!(vector, -9)
-      ** (A.Vector.IndexError) out of bound index: -9 not in -8..7
+      iex> Aja.Vector.delete_at!(vector, -9)
+      ** (Aja.Vector.IndexError) out of bound index: -9 not in -8..7
 
   """
   @spec delete_at!(t(val), index) :: t(val) when val: value
@@ -1019,18 +1019,18 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..8)
-      iex> {6, updated} = A.Vector.get_and_update(vector, 5, fn current_value ->
+      iex> vector = Aja.Vector.new(1..8)
+      iex> {6, updated} = Aja.Vector.get_and_update(vector, 5, fn current_value ->
       ...>   {current_value, current_value && current_value * 100}
       ...> end); updated
       vec([1, 2, 3, 4, 5, 600, 7, 8])
-      iex> {nil, updated} = A.Vector.get_and_update(vector, 8, fn current_value ->
+      iex> {nil, updated} = Aja.Vector.get_and_update(vector, 8, fn current_value ->
       ...>   {current_value, current_value && current_value * 100}
       ...> end); updated
       vec([1, 2, 3, 4, 5, 6, 7, 8])
-      iex> {4, updated} = A.Vector.get_and_update(vector, 3, fn _ -> :pop end); updated
+      iex> {4, updated} = Aja.Vector.get_and_update(vector, 3, fn _ -> :pop end); updated
       vec([1, 2, 3, 5, 6, 7, 8])
-      iex> {nil, updated} = A.Vector.get_and_update(vector, 8, fn _ -> :pop end); updated
+      iex> {nil, updated} = Aja.Vector.get_and_update(vector, 8, fn _ -> :pop end); updated
       vec([1, 2, 3, 4, 5, 6, 7, 8])
 
   """
@@ -1050,9 +1050,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(10..25) |> A.Vector.to_list()
+      iex> Aja.Vector.new(10..25) |> Aja.Vector.to_list()
       [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-      iex> A.Vector.new() |> A.Vector.to_list()
+      iex> Aja.Vector.new() |> Aja.Vector.to_list()
       []
 
   """
@@ -1069,7 +1069,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.map(&(&1 * &1))
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.map(&(&1 * &1))
       vec([1, 4, 9, 16, 25, 36, 49, 64, 81, 100])
 
   """
@@ -1086,8 +1086,8 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..100)
-      iex> A.Vector.filter(vector, fn i -> rem(i, 13) == 0 end)
+      iex> vector = Aja.Vector.new(1..100)
+      iex> Aja.Vector.filter(vector, fn i -> rem(i, 13) == 0 end)
       vec([13, 26, 39, 52, 65, 78, 91])
 
   """
@@ -1104,8 +1104,8 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..12)
-      iex> A.Vector.reject(vector, fn i -> rem(i, 3) == 0 end)
+      iex> vector = Aja.Vector.new(1..12)
+      iex> Aja.Vector.reject(vector, fn i -> rem(i, 3) == 0 end)
       vec([1, 2, 4, 5, 7, 8, 10, 11])
 
   """
@@ -1128,8 +1128,8 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(1..12)
-      iex> {filtered, rejected} = A.Vector.split_with(vector, fn i -> rem(i, 3) == 0 end)
+      iex> vector = Aja.Vector.new(1..12)
+      iex> {filtered, rejected} = Aja.Vector.split_with(vector, fn i -> rem(i, 3) == 0 end)
       iex> filtered
       vec([3, 6, 9, 12])
       iex> rejected
@@ -1149,7 +1149,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(9..1) |> A.Vector.sort()
+      iex> Aja.Vector.new(9..1) |> Aja.Vector.sort()
       vec([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
   """
@@ -1168,7 +1168,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..9) |> A.Vector.sort(:desc)
+      iex> Aja.Vector.new(1..9) |> Aja.Vector.sort(:desc)
       vec([9, 8, 7, 6, 5, 4, 3, 2, 1])
 
   """
@@ -1195,10 +1195,10 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(["some", "kind", "of", "monster"])
-      iex> A.Vector.sort_by(vector, &byte_size/1)
+      iex> vector = Aja.Vector.new(["some", "kind", "of", "monster"])
+      iex> Aja.Vector.sort_by(vector, &byte_size/1)
       vec(["of", "some", "kind", "monster"])
-      iex> A.Vector.sort_by(vector, &{byte_size(&1), String.first(&1)})
+      iex> Aja.Vector.sort_by(vector, &{byte_size(&1), String.first(&1)})
       vec(["of", "kind", "some", "monster"])
 
   """
@@ -1226,7 +1226,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new([1, 1, 2, 1, 2, 3, 2]) |> A.Vector.uniq()
+      iex> Aja.Vector.new([1, 1, 2, 1, 2, 3, 2]) |> Aja.Vector.uniq()
       vec([1, 2, 3])
 
   """
@@ -1244,9 +1244,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new([x: 1, y: 2, z: 1])
+      iex> vector = Aja.Vector.new([x: 1, y: 2, z: 1])
       vec([x: 1, y: 2, z: 1])
-      iex> A.Vector.uniq_by(vector, fn {_x, y} -> y end)
+      iex> Aja.Vector.uniq_by(vector, fn {_x, y} -> y end)
       vec([x: 1, y: 2])
 
   """
@@ -1266,9 +1266,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new([1, 2, 3, 3, 2, 1]) |> A.Vector.dedup()
+      iex> Aja.Vector.new([1, 2, 3, 3, 2, 1]) |> Aja.Vector.dedup()
       vec([1, 2, 3, 2, 1])
-      iex> A.Vector.new([1, 1, 2, 2.0, :three, :three]) |> A.Vector.dedup()
+      iex> Aja.Vector.new([1, 1, 2, 2.0, :three, :three]) |> Aja.Vector.dedup()
       vec([1, 2, 2.0, :three])
 
   """
@@ -1286,12 +1286,12 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new([{1, :a}, {2, :b}, {2, :c}, {1, :a}])
-      iex> A.Vector.dedup_by(vector, fn {x, _} -> x end)
+      iex> vector = Aja.Vector.new([{1, :a}, {2, :b}, {2, :c}, {1, :a}])
+      iex> Aja.Vector.dedup_by(vector, fn {x, _} -> x end)
       vec([{1, :a}, {2, :b}, {1, :a}])
 
-      iex> vector = A.Vector.new([5, 1, 2, 3, 2, 1])
-      iex> A.Vector.dedup_by(vector, fn x -> x > 2 end)
+      iex> vector = Aja.Vector.new([5, 1, 2, 3, 2, 1])
+      iex> Aja.Vector.dedup_by(vector, fn x -> x > 2 end)
       vec([5, 1, 3, 2])
 
 
@@ -1311,7 +1311,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..6) |> A.Vector.intersperse(nil)
+      iex> Aja.Vector.new(1..6) |> Aja.Vector.intersperse(nil)
       vec([1, nil, 2, nil, 3, nil, 4, nil, 5, nil, 6])
 
   """
@@ -1333,7 +1333,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..6) |> A.Vector.map_intersperse(nil, &(&1 * 10))
+      iex> Aja.Vector.new(1..6) |> Aja.Vector.map_intersperse(nil, &(&1 * 10))
       vec([10, nil, 20, nil, 30, nil, 40, nil, 50, nil, 60])
 
   """
@@ -1360,7 +1360,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(0..4) |> A.Vector.flat_map(fn i -> List.duplicate(i, i) end)
+      iex> Aja.Vector.new(0..4) |> Aja.Vector.flat_map(fn i -> List.duplicate(i, i) end)
       vec([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
 
   """
@@ -1368,7 +1368,7 @@ defmodule A.Vector do
         when val: value, mapped_val: value
   def flat_map(%__MODULE__{} = vector, fun) when is_function(fun, 1) do
     vector
-    |> A.EnumHelper.flat_map(fun)
+    |> Aja.EnumHelper.flat_map(fun)
     |> from_list()
   end
 
@@ -1382,9 +1382,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.foldl(0, &+/2)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.foldl(0, &+/2)
       55
-      iex> A.Vector.new(1..10) |> A.Vector.foldl([], & [&1 | &2])
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.foldl([], & [&1 | &2])
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
   """
@@ -1404,9 +1404,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.foldr(0, &+/2)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.foldr(0, &+/2)
       55
-      iex> A.Vector.new(1..10) |> A.Vector.foldr([], & [&1 | &2])
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.foldr([], & [&1 | &2])
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
   """
@@ -1416,14 +1416,14 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.reduce/2 instead"
+  @deprecated "Use Aja.Enum.reduce/2 instead"
   @spec reduce(t(val), (val, val -> val)) :: val when val: value
   def reduce(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
     Raw.reduce(internal, fun)
   end
 
   @doc false
-  @deprecated "Use A.Enum.reduce/3 instead"
+  @deprecated "Use Aja.Enum.reduce/3 instead"
   defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
 
   @doc """
@@ -1439,15 +1439,15 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new([1, 2, 3])
-      iex> {new_vec, 6} = A.Vector.map_reduce(vector, 0, fn x, acc -> {x * 2, x + acc} end)
+      iex> vector = Aja.Vector.new([1, 2, 3])
+      iex> {new_vec, 6} = Aja.Vector.map_reduce(vector, 0, fn x, acc -> {x * 2, x + acc} end)
       iex> new_vec
       vec([2, 4, 6])
 
   For example, if `with_index/2` was not implemented, you could implement it as follows:
 
-      iex> vector = A.Vector.new([1, 2, 3])
-      iex> A.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end) |> elem(0)
+      iex> vector = Aja.Vector.new([1, 2, 3])
+      iex> Aja.Vector.map_reduce(vector, 0, fn x, i -> {{x, i}, i + 1} end) |> elem(0)
       vec([{1, 0}, {2, 1}, {3, 2}])
 
   """
@@ -1468,7 +1468,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.scan(&+/2)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.scan(&+/2)
       vec([1, 3, 6, 10, 15, 21, 28, 36, 45, 55])
 
   """
@@ -1487,7 +1487,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.scan(100, &+/2)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.scan(100, &+/2)
       vec([101, 103, 106, 110, 115, 121, 128, 136, 145, 155])
 
   """
@@ -1497,35 +1497,35 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.each/2 instead"
+  @deprecated "Use Aja.Enum.each/2 instead"
   @spec each(t(val), (val -> term)) :: :ok when val: value
   def each(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.each(internal, fun)
   end
 
   @doc false
-  @deprecated "Use A.Enum.sum/1 instead"
+  @deprecated "Use Aja.Enum.sum/1 instead"
   @spec sum(t(num)) :: num when num: number
   def sum(%__MODULE__{__vector__: internal}) do
     Raw.sum(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.product/1 instead"
+  @deprecated "Use Aja.Enum.product/1 instead"
   @spec product(t(num)) :: num when num: number
   def product(%__MODULE__{__vector__: internal}) do
     Raw.product(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.join/2 instead"
+  @deprecated "Use Aja.Enum.join/2 instead"
   @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
   def join(%__MODULE__{__vector__: internal}, joiner \\ "") when is_binary(joiner) do
     Raw.join_as_iodata(internal, joiner) |> IO.iodata_to_binary()
   end
 
   @doc false
-  @deprecated "Use A.Enum.map_join/3 instead"
+  @deprecated "Use Aja.Enum.map_join/3 instead"
   @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
         when val: value
   def map_join(%__MODULE__{__vector__: internal}, joiner \\ "", mapper)
@@ -1537,14 +1537,14 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.max/3 instead"
+  @deprecated "Use Aja.Enum.max/3 instead"
   @spec max(t(val)) :: val when val: value
   def max(%__MODULE__{__vector__: internal}) do
     Raw.max(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.max/3 instead"
+  @deprecated "Use Aja.Enum.max/3 instead"
   @spec max(t(val), (val, val -> boolean) | module) :: val when val: value
   def max(%__MODULE__{__vector__: internal}, sorter) do
     Raw.custom_min_max(internal, max_sort_fun(sorter))
@@ -1554,14 +1554,14 @@ defmodule A.Vector do
   defp max_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :lt)
 
   @doc false
-  @deprecated "Use A.Enum.min/3 instead"
+  @deprecated "Use Aja.Enum.min/3 instead"
   @spec min(t(val)) :: val when val: value
   def min(%__MODULE__{__vector__: internal}) do
     Raw.min(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.min/3 instead"
+  @deprecated "Use Aja.Enum.min/3 instead"
   @spec min(t(val), (val, val -> boolean) | module) :: val when val: value
   def min(%__MODULE__{__vector__: internal}, sorter) do
     Raw.custom_min_max(internal, min_sort_fun(sorter))
@@ -1571,13 +1571,13 @@ defmodule A.Vector do
   defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
 
   @doc false
-  @deprecated "Use A.Enum.min_by/4 instead"
+  @deprecated "Use Aja.Enum.min_by/4 instead"
   def min_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &<=/2) when is_function(fun, 1) do
     Raw.custom_min_max_by(internal, fun, min_sort_fun(sorter))
   end
 
   @doc false
-  @deprecated "Use A.Enum.max_by/4 instead"
+  @deprecated "Use Aja.Enum.max_by/4 instead"
   @spec max_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
         when val: value, key: term
   def max_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &>=/2) when is_function(fun, 1) do
@@ -1585,14 +1585,14 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.frequencies/1 instead"
+  @deprecated "Use Aja.Enum.frequencies/1 instead"
   @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
   def frequencies(%__MODULE__{__vector__: internal}) do
     Raw.frequencies(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.frequencies_by/2 instead"
+  @deprecated "Use Aja.Enum.frequencies_by/2 instead"
   @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
         when val: value, key: any
   def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun, 1) do
@@ -1600,7 +1600,7 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.group_by/3 instead"
+  @deprecated "Use Aja.Enum.group_by/3 instead"
   @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
         when val: value, key: any, mapped_val: any
   def group_by(%__MODULE__{__vector__: internal}, key_fun, value_fun \\ fn x -> x end)
@@ -1609,35 +1609,35 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.any?/1 instead"
+  @deprecated "Use Aja.Enum.any?/1 instead"
   @spec any?(t(val)) :: boolean when val: value
   def any?(%__MODULE__{__vector__: internal}) do
     Raw.any?(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.any?/2 instead"
+  @deprecated "Use Aja.Enum.any?/2 instead"
   @spec any?(t(val), (val -> as_boolean(term))) :: boolean when val: value
   def any?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.any?(internal, fun)
   end
 
   @doc false
-  @deprecated "Use A.Enum.all?/1 instead"
+  @deprecated "Use Aja.Enum.all?/1 instead"
   @spec all?(t(val)) :: boolean when val: value
   def all?(%__MODULE__{__vector__: internal}) do
     Raw.all?(internal)
   end
 
   @doc false
-  @deprecated "Use A.Enum.all?/2 instead"
+  @deprecated "Use Aja.Enum.all?/2 instead"
   @spec all?(t(val), (val -> as_boolean(term))) :: boolean when val: value
   def all?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.all?(internal, fun)
   end
 
   @doc false
-  @deprecated "Use A.Enum.find/3 instead"
+  @deprecated "Use Aja.Enum.find/3 instead"
   @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
         when val: value, default: value
   def find(%__MODULE__{__vector__: internal}, default \\ nil, fun) when is_function(fun, 1) do
@@ -1645,7 +1645,7 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.find_value/3 instead"
+  @deprecated "Use Aja.Enum.find_value/3 instead"
   @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
         when val: value, new_val: value, default: value
   def find_value(%__MODULE__{__vector__: internal}, default \\ nil, fun)
@@ -1654,7 +1654,7 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.find_index/2 instead"
+  @deprecated "Use Aja.Enum.find_index/2 instead"
   @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
   def find_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
     Raw.find_index(internal, fun)
@@ -1667,7 +1667,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..12) |> A.Vector.reverse()
+      iex> Aja.Vector.new(1..12) |> Aja.Vector.reverse()
       vec([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
 
   """
@@ -1685,14 +1685,14 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..5) |> A.Vector.reverse(100..105)
+      iex> Aja.Vector.new(1..5) |> Aja.Vector.reverse(100..105)
       vec([5, 4, 3, 2, 1, 100, 101, 102, 103, 104, 105])
 
   """
   @spec reverse(t(val), Enumerable.t()) :: t(val) when val: value
   def reverse(%__MODULE__{__vector__: internal}, tail) do
     internal
-    |> Raw.reverse_to_list(A.EnumHelper.to_list(tail))
+    |> Raw.reverse_to_list(Aja.EnumHelper.to_list(tail))
     |> from_list()
   end
 
@@ -1705,11 +1705,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(0..100) |> A.Vector.slice(80..90)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(80..90)
       vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])
-      iex> A.Vector.new(0..100) |> A.Vector.slice(-40..-30)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40..-30)
       vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])
-      iex> A.Vector.new([:only_one]) |> A.Vector.slice(0..1000)
+      iex> Aja.Vector.new([:only_one]) |> Aja.Vector.slice(0..1000)
       vec([:only_one])
 
   """
@@ -1742,11 +1742,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(0..100) |> A.Vector.slice(80, 10)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(80, 10)
       vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89])
-      iex> A.Vector.new(0..100) |> A.Vector.slice(-40, 10)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40, 10)
       vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70])
-      iex> A.Vector.new([:only_one]) |> A.Vector.slice(0, 1000)
+      iex> Aja.Vector.new([:only_one]) |> Aja.Vector.slice(0, 1000)
       vec([:only_one])
 
   """
@@ -1777,11 +1777,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(0..100) |> A.Vector.take(10)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.take(10)
       vec([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-      iex> A.Vector.new([:only_one]) |> A.Vector.take(1000)
+      iex> Aja.Vector.new([:only_one]) |> Aja.Vector.take(1000)
       vec([:only_one])
-      iex> A.Vector.new(0..10) |> A.Vector.take(-5)
+      iex> Aja.Vector.new(0..10) |> Aja.Vector.take(-5)
       vec([6, 7, 8, 9, 10])
 
   """
@@ -1819,11 +1819,11 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(0..15) |> A.Vector.drop(10)
+      iex> Aja.Vector.new(0..15) |> Aja.Vector.drop(10)
       vec([10, 11, 12, 13, 14, 15])
-      iex> A.Vector.new(0..5) |> A.Vector.drop(0)
+      iex> Aja.Vector.new(0..5) |> Aja.Vector.drop(0)
       vec([0, 1, 2, 3, 4, 5])
-      iex> A.Vector.new(0..10) |> A.Vector.drop(-5)
+      iex> Aja.Vector.new(0..10) |> Aja.Vector.drop(-5)
       vec([0, 1, 2, 3, 4, 5])
 
   """
@@ -1866,16 +1866,16 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new([1, 2, 3])
-      iex> A.Vector.split(vector, 2) |> inspect()
+      iex> vector = Aja.Vector.new([1, 2, 3])
+      iex> Aja.Vector.split(vector, 2) |> inspect()
       "{vec([1, 2]), vec([3])}"
-      iex> A.Vector.split(vector, 10) |> inspect()
+      iex> Aja.Vector.split(vector, 10) |> inspect()
       "{vec([1, 2, 3]), vec([])}"
-      iex> A.Vector.split(vector, 0) |> inspect()
+      iex> Aja.Vector.split(vector, 0) |> inspect()
       "{vec([]), vec([1, 2, 3])}"
-      iex> A.Vector.split(vector, -1) |> inspect()
+      iex> Aja.Vector.split(vector, -1) |> inspect()
       "{vec([1, 2]), vec([3])}"
-      iex> A.Vector.split(vector, -5) |> inspect()
+      iex> Aja.Vector.split(vector, -5) |> inspect()
       "{vec([]), vec([1, 2, 3])}"
 
   """
@@ -1904,9 +1904,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..100) |> A.Vector.take_while(fn x -> x < 7 end)
+      iex> Aja.Vector.new(1..100) |> Aja.Vector.take_while(fn x -> x < 7 end)
       vec([1, 2, 3, 4, 5, 6])
-      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.take_while(fn x -> x end)
+      iex> Aja.Vector.new([1, true, %{}, nil, "abc"]) |> Aja.Vector.take_while(fn x -> x end)
       vec([1, true, %{}])
 
   """
@@ -1928,9 +1928,9 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> A.Vector.new(1..10) |> A.Vector.drop_while(fn x -> x < 7 end)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.drop_while(fn x -> x < 7 end)
       vec([7, 8, 9, 10])
-      iex> A.Vector.new([1, true, %{}, nil, "abc"]) |> A.Vector.drop_while(fn x -> x end)
+      iex> Aja.Vector.new([1, true, %{}, nil, "abc"]) |> Aja.Vector.drop_while(fn x -> x end)
       vec([nil, "abc"])
 
   """
@@ -1965,7 +1965,7 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> {taken, dropped} = A.Vector.new(1..10) |> A.Vector.split_while(fn x -> x < 7 end)
+      iex> {taken, dropped} = Aja.Vector.new(1..10) |> Aja.Vector.split_while(fn x -> x < 7 end)
       iex> taken
       vec([1, 2, 3, 4, 5, 6])
       iex> dropped
@@ -2009,12 +2009,12 @@ defmodule A.Vector do
 
   ## Examples
 
-      iex> vector = A.Vector.new(["foo", "bar", "baz"])
-      iex> A.Vector.with_index(vector)
+      iex> vector = Aja.Vector.new(["foo", "bar", "baz"])
+      iex> Aja.Vector.with_index(vector)
       vec([{"foo", 0}, {"bar", 1}, {"baz", 2}])
-      iex> A.Vector.with_index(vector, 100)
+      iex> Aja.Vector.with_index(vector, 100)
       vec([{"foo", 100}, {"bar", 101}, {"baz", 102}])
-      iex> A.Vector.with_index(vector, fn element, index -> {index, element} end)
+      iex> Aja.Vector.with_index(vector, fn element, index -> {index, element} end)
       vec([{0, "foo"}, {1, "bar"}, {2, "baz"}])
 
   """
@@ -2032,7 +2032,7 @@ defmodule A.Vector do
   end
 
   @doc false
-  @deprecated "Use A.Enum.random/1 instead"
+  @deprecated "Use Aja.Enum.random/1 instead"
   @spec random(t(val)) :: val when val: value
   def random(%__MODULE__{__vector__: internal}) do
     Raw.random(internal)
@@ -2055,9 +2055,9 @@ defmodule A.Vector do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
-      iex> A.Vector.new(1..10) |> A.Vector.take_random(2)
+      iex> Aja.Vector.new(1..10) |> Aja.Vector.take_random(2)
       vec([7, 2])
-      iex> A.Vector.new([:foo, :bar, :baz]) |> A.Vector.take_random(100)
+      iex> Aja.Vector.new([:foo, :bar, :baz]) |> Aja.Vector.take_random(100)
       vec([:bar, :baz, :foo])
 
   """
@@ -2076,9 +2076,9 @@ defmodule A.Vector do
 
       # Although not necessary, let's seed the random algorithm
       iex> :rand.seed(:exrop, {1, 2, 3})
-      iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
+      iex> Aja.Vector.new([1, 2, 3]) |> Aja.Vector.shuffle()
       vec([3, 1, 2])
-      iex> A.Vector.new([1, 2, 3]) |> A.Vector.shuffle()
+      iex> Aja.Vector.new([1, 2, 3]) |> Aja.Vector.shuffle()
       vec([1, 3, 2])
 
   """
@@ -2098,9 +2098,9 @@ defmodule A.Vector do
 
   Runs in linear time.
 
-      iex> A.Vector.zip(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]))
+      iex> Aja.Vector.zip(Aja.Vector.new([1, 2, 3]), Aja.Vector.new([:a, :b, :c]))
       vec([{1, :a}, {2, :b}, {3, :c}])
-      iex> A.Vector.zip(A.Vector.new(0..100), A.Vector.new([:a, :b, :c]))
+      iex> Aja.Vector.zip(Aja.Vector.new(0..100), Aja.Vector.new([:a, :b, :c]))
       vec([{0, :a}, {1, :b}, {2, :c}])
 
   """
@@ -2120,9 +2120,9 @@ defmodule A.Vector do
 
   Runs in linear time.
 
-      iex> A.Vector.zip_with(A.Vector.new([1, 2, 3]), A.Vector.new([:a, :b, :c]), &{&2, &1})
+      iex> Aja.Vector.zip_with(Aja.Vector.new([1, 2, 3]), Aja.Vector.new([:a, :b, :c]), &{&2, &1})
       vec([a: 1, b: 2, c: 3])
-      iex> A.Vector.zip_with(A.Vector.new(0..100), A.Vector.new([:a, :b, :c]), &{&2, &1})
+      iex> Aja.Vector.zip_with(Aja.Vector.new(0..100), Aja.Vector.new([:a, :b, :c]), &{&2, &1})
       vec([a: 0, b: 1, c: 2])
 
   """
@@ -2145,7 +2145,7 @@ defmodule A.Vector do
 
   Runs in linear time.
 
-      iex> {vector1, vector2} = A.Vector.new([{1, :a}, {2, :b}, {3, :c}]) |> A.Vector.unzip()
+      iex> {vector1, vector2} = Aja.Vector.new([{1, :a}, {2, :b}, {3, :c}]) |> Aja.Vector.unzip()
       iex> vector1
       vec([1, 2, 3])
       iex> vector2
@@ -2169,42 +2169,43 @@ defmodule A.Vector do
 
     def inspect(vector, opts) do
       opts = %Inspect.Opts{opts | charlists: :as_lists}
-      concat(["vec(", Inspect.List.inspect(A.Vector.to_list(vector), opts), ")"])
+      concat(["vec(", Inspect.List.inspect(Aja.Vector.to_list(vector), opts), ")"])
     end
   end
 
   defimpl Enumerable do
     def count(vector) do
-      {:ok, A.Vector.size(vector)}
+      {:ok, Aja.Vector.size(vector)}
     end
 
-    def member?(%A.Vector{__vector__: internal}, value) do
+    def member?(%Aja.Vector{__vector__: internal}, value) do
       {:ok, Raw.member?(internal, value)}
     end
 
-    def slice(%A.Vector{__vector__: internal}) do
-      size = A.Vector.Raw.size(internal)
+    def slice(%Aja.Vector{__vector__: internal}) do
+      size = Aja.Vector.Raw.size(internal)
 
-      {:ok, size, fn start, length -> A.Vector.Raw.slice(internal, start, start + length - 1) end}
+      {:ok, size,
+       fn start, length -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
     end
 
-    def reduce(%A.Vector{__vector__: internal}, acc, fun) do
+    def reduce(%Aja.Vector{__vector__: internal}, acc, fun) do
       # TODO investigate best way to warn
       # flag it?
       # IO.warn(
-      #   "Enum has sub-optimal performance for A.Vector, use A.Enum (see https://hexdocs.pm/aja/A.Enum.html)"
+      #   "Enum has sub-optimal performance for Aja.Vector, use Aja.Enum (see https://hexdocs.pm/aja/Aja.Enum.html)"
       # )
 
       internal
-      |> A.Vector.Raw.to_list()
+      |> Aja.Vector.Raw.to_list()
       |> Enumerable.List.reduce(acc, fun)
     end
   end
 
   defimpl Collectable do
-    alias A.Vector.Raw
+    alias Aja.Vector.Raw
 
-    def into(%A.Vector{__vector__: internal}) do
+    def into(%Aja.Vector{__vector__: internal}) do
       {[],
        fn
          acc, {:cont, value} -> [value | acc]
@@ -2215,14 +2216,14 @@ defmodule A.Vector do
 
     defp done(internal, acc) do
       new_internal = Raw.concat_list(internal, :lists.reverse(acc))
-      %A.Vector{__vector__: new_internal}
+      %Aja.Vector{__vector__: new_internal}
     end
   end
 
   if Code.ensure_loaded?(Jason.Encoder) do
     defimpl Jason.Encoder do
       def encode(vector, opts) do
-        vector |> A.Vector.to_list() |> Jason.Encode.list(opts)
+        vector |> Aja.Vector.to_list() |> Jason.Encode.list(opts)
       end
     end
   end
