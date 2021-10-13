@@ -60,8 +60,4 @@ defmodule Aja.List do
     new_acc = [generator_fun.() | acc]
     do_repeat(generator_fun, n - 1, new_acc)
   end
-
-  @doc false
-  @deprecated "Use Aja.List.repeat/2 instead"
-  defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
 end

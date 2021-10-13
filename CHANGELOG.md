@@ -5,6 +5,8 @@
 ### Breaking changes
 
 - Rename top module from `A` to `Aja`
+- Remove deprecated Aja.ExRange module
+- Remove deprecated functions
 
 ## v0.5.3 (2021-08-20)
 

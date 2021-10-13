@@ -70,23 +70,6 @@ defmodule Aja do
     end
   end
 
-  # TODO remove in 0.6
-  @doc false
-  @deprecated "Use first..last//1 instead"
-  defmacro start ~> stop do
-    case __CALLER__.context do
-      nil ->
-        quote do
-          Aja.ExRange.new(unquote(start), unquote(stop))
-        end
-
-      _ ->
-        quote do
-          %Aja.ExRange{start: unquote(start), stop: unquote(stop)}
-        end
-    end
-  end
-
   @doc ~S"""
   Convenience macro to create or pattern match on `Aja.OrdMap`s.
 
@@ -288,13 +271,6 @@ defmodule Aja do
           """
       end
     end
-  end
-
-  # TODO remove in 0.6
-  defmacro vec({:~>, _, [first, last]}) when is_integer(first) and is_integer(last) do
-    first..last
-    |> Enum.drop(-1)
-    |> ast_from_list(__CALLER__)
   end
 
   defmacro vec({:|||, _, [first, last]}) do

@@ -428,10 +428,6 @@ defmodule Aja.Vector do
     Aja.List.repeat(generator_fun, n) |> from_list()
   end
 
-  @doc false
-  @deprecated "Use Aja.Vector.repeat/2 instead"
-  defdelegate repeatedly(vector, enumerable), to: __MODULE__, as: :repeat
-
   @doc """
   Appends a `value` at the end of a `vector`.
 
@@ -472,10 +468,6 @@ defmodule Aja.Vector do
     end
     |> from_internal()
   end
-
-  @doc false
-  @deprecated "Use Aja.Vector.concat/2 instead"
-  defdelegate append_many(vector, enumerable), to: __MODULE__, as: :concat
 
   @doc """
   (Inefficient) Prepends `value` at the beginning of the `vector`.
@@ -1415,17 +1407,6 @@ defmodule Aja.Vector do
     Raw.foldr(internal, acc, fun)
   end
 
-  @doc false
-  @deprecated "Use Aja.Enum.reduce/2 instead"
-  @spec reduce(t(val), (val, val -> val)) :: val when val: value
-  def reduce(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
-    Raw.reduce(internal, fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.reduce/3 instead"
-  defdelegate reduce(vector, acc, fun), to: __MODULE__, as: :foldl
-
   @doc """
   Invokes the given `fun` to each element in the `vector` to reduce
   it to a single element, while keeping an accumulator.
@@ -1494,170 +1475,6 @@ defmodule Aja.Vector do
   @spec scan(t(val), acc, (val, acc -> acc)) :: acc when val: value, acc: term
   def scan(%__MODULE__{__vector__: internal}, acc, fun) when is_function(fun, 2) do
     internal |> Raw.scan(acc, fun) |> from_internal()
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.each/2 instead"
-  @spec each(t(val), (val -> term)) :: :ok when val: value
-  def each(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.each(internal, fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.sum/1 instead"
-  @spec sum(t(num)) :: num when num: number
-  def sum(%__MODULE__{__vector__: internal}) do
-    Raw.sum(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.product/1 instead"
-  @spec product(t(num)) :: num when num: number
-  def product(%__MODULE__{__vector__: internal}) do
-    Raw.product(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.join/2 instead"
-  @spec join(t(val), String.t()) :: String.t() when val: String.Chars.t()
-  def join(%__MODULE__{__vector__: internal}, joiner \\ "") when is_binary(joiner) do
-    Raw.join_as_iodata(internal, joiner) |> IO.iodata_to_binary()
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.map_join/3 instead"
-  @spec map_join(t(val), String.t(), (val -> String.Chars.t())) :: String.t()
-        when val: value
-  def map_join(%__MODULE__{__vector__: internal}, joiner \\ "", mapper)
-      when is_binary(joiner) and is_function(mapper, 1) do
-    internal
-    |> Raw.map(mapper)
-    |> Raw.join_as_iodata(joiner)
-    |> IO.iodata_to_binary()
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.max/3 instead"
-  @spec max(t(val)) :: val when val: value
-  def max(%__MODULE__{__vector__: internal}) do
-    Raw.max(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.max/3 instead"
-  @spec max(t(val), (val, val -> boolean) | module) :: val when val: value
-  def max(%__MODULE__{__vector__: internal}, sorter) do
-    Raw.custom_min_max(internal, max_sort_fun(sorter))
-  end
-
-  defp max_sort_fun(sorter) when is_function(sorter, 2), do: sorter
-  defp max_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :lt)
-
-  @doc false
-  @deprecated "Use Aja.Enum.min/3 instead"
-  @spec min(t(val)) :: val when val: value
-  def min(%__MODULE__{__vector__: internal}) do
-    Raw.min(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.min/3 instead"
-  @spec min(t(val), (val, val -> boolean) | module) :: val when val: value
-  def min(%__MODULE__{__vector__: internal}, sorter) do
-    Raw.custom_min_max(internal, min_sort_fun(sorter))
-  end
-
-  defp min_sort_fun(sorter) when is_function(sorter, 2), do: sorter
-  defp min_sort_fun(module) when is_atom(module), do: &(module.compare(&1, &2) != :gt)
-
-  @doc false
-  @deprecated "Use Aja.Enum.min_by/4 instead"
-  def min_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &<=/2) when is_function(fun, 1) do
-    Raw.custom_min_max_by(internal, fun, min_sort_fun(sorter))
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.max_by/4 instead"
-  @spec max_by(t(val), (val -> key), (key, key -> boolean) | module) :: val
-        when val: value, key: term
-  def max_by(%__MODULE__{__vector__: internal}, fun, sorter \\ &>=/2) when is_function(fun, 1) do
-    Raw.custom_min_max_by(internal, fun, max_sort_fun(sorter))
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.frequencies/1 instead"
-  @spec frequencies(t(val)) :: %{optional(val) => non_neg_integer} when val: value
-  def frequencies(%__MODULE__{__vector__: internal}) do
-    Raw.frequencies(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.frequencies_by/2 instead"
-  @spec frequencies_by(t(val), (val -> key)) :: %{optional(key) => non_neg_integer}
-        when val: value, key: any
-  def frequencies_by(%__MODULE__{__vector__: internal}, key_fun) when is_function(key_fun, 1) do
-    Raw.frequencies_by(internal, key_fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.group_by/3 instead"
-  @spec group_by(t(val), (val -> key), (val -> mapped_val)) :: %{optional(key) => [mapped_val]}
-        when val: value, key: any, mapped_val: any
-  def group_by(%__MODULE__{__vector__: internal}, key_fun, value_fun \\ fn x -> x end)
-      when is_function(key_fun, 1) and is_function(value_fun, 1) do
-    Raw.group_by(internal, key_fun, value_fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.any?/1 instead"
-  @spec any?(t(val)) :: boolean when val: value
-  def any?(%__MODULE__{__vector__: internal}) do
-    Raw.any?(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.any?/2 instead"
-  @spec any?(t(val), (val -> as_boolean(term))) :: boolean when val: value
-  def any?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.any?(internal, fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.all?/1 instead"
-  @spec all?(t(val)) :: boolean when val: value
-  def all?(%__MODULE__{__vector__: internal}) do
-    Raw.all?(internal)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.all?/2 instead"
-  @spec all?(t(val), (val -> as_boolean(term))) :: boolean when val: value
-  def all?(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.all?(internal, fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.find/3 instead"
-  @spec find(t(val), default, (val -> as_boolean(term))) :: val | default
-        when val: value, default: value
-  def find(%__MODULE__{__vector__: internal}, default \\ nil, fun) when is_function(fun, 1) do
-    Raw.find(internal, default, fun)
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.find_value/3 instead"
-  @spec find_value(t(val), default, (val -> new_val)) :: new_val | default
-        when val: value, new_val: value, default: value
-  def find_value(%__MODULE__{__vector__: internal}, default \\ nil, fun)
-      when is_function(fun, 1) do
-    Raw.find_value(internal, fun) || default
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.find_index/2 instead"
-  @spec find_index(t(val), (val -> as_boolean(term))) :: non_neg_integer | nil when val: value
-  def find_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 1) do
-    Raw.find_index(internal, fun)
   end
 
   @doc """
@@ -2029,13 +1846,6 @@ defmodule Aja.Vector do
 
   def with_index(%__MODULE__{__vector__: internal}, fun) when is_function(fun, 2) do
     Raw.with_index(internal, 0, fun) |> from_internal()
-  end
-
-  @doc false
-  @deprecated "Use Aja.Enum.random/1 instead"
-  @spec random(t(val)) :: val when val: value
-  def random(%__MODULE__{__vector__: internal}) do
-    Raw.random(internal)
   end
 
   @doc """

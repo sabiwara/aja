@@ -1451,24 +1451,6 @@ defmodule Aja.Enum do
     end
   end
 
-  # TODO remove in 0.6
-
-  @doc false
-  @deprecated "Use |> Aja.Enum.sort() |> Aja.Enum.dedup() instead"
-  def sort_uniq(enumerable) do
-    enumerable
-    |> sort()
-    |> dedup_list()
-  end
-
-  @doc false
-  @deprecated "Use |> Aja.Enum.sort(fun) |> Aja.Enum.dedup() instead"
-  def sort_uniq(enumerable, fun) do
-    enumerable
-    |> sort(fun)
-    |> dedup_list()
-  end
-
   # Private functions
 
   defp dedup_list([]), do: []
