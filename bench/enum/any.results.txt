@@ -16,10 +16,10 @@ Estimated total run time: 14 s
 Benchmarking Aja.Enum.any?/2...
 Benchmarking Enum.any?/2 (list)...
 
-Name                         ips        average  deviation         median         99th %
+Name                           ips        average  deviation         median         99th %
 Aja.Enum.any?/2             1.19 M        0.84 μs  ±3105.56%        0.75 μs        1.05 μs
-Enum.any?/2 (list)        0.31 M        3.26 μs    ±23.76%        3.09 μs        4.91 μs
+Enum.any?/2 (list)          0.31 M        3.26 μs    ±23.76%        3.09 μs        4.91 μs
 
 Comparison:
 Aja.Enum.any?/2             1.19 M
-Enum.any?/2 (list)        0.31 M - 3.89x slower +2.42 μs
+Enum.any?/2 (list)          0.31 M - 3.89x slower +2.42 μs

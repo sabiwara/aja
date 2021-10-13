@@ -18,14 +18,14 @@ Benchmarking Aja.Vector.slice/3 0-optimization...
 Benchmarking Aja.Vector.take/2...
 Benchmarking Enum.take/2 (list)...
 
-Name                                      ips        average  deviation         median         99th %
+Name                                        ips        average  deviation         median         99th %
 Aja.Vector.take/2                        4.65 M      214.99 ns ±12561.34%         146 ns         439 ns
 Aja.Vector.slice/3 0-optimization        4.62 M      216.39 ns ±12374.56%         148 ns         436 ns
-Enum.take/2 (list)                     2.26 M      442.01 ns  ±6158.40%         352 ns         673 ns
+Enum.take/2 (list)                       2.26 M      442.01 ns  ±6158.40%         352 ns         673 ns
 Aja.Vector.slice/3                       1.13 M      885.13 ns  ±3221.74%         717 ns        1206 ns
 
 Comparison:
 Aja.Vector.take/2                        4.65 M
 Aja.Vector.slice/3 0-optimization        4.62 M - 1.01x slower +1.40 ns
-Enum.take/2 (list)                     2.26 M - 2.06x slower +227.02 ns
+Enum.take/2 (list)                       2.26 M - 2.06x slower +227.02 ns
 Aja.Vector.slice/3                       1.13 M - 4.12x slower +670.14 ns

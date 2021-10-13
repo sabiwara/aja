@@ -19,16 +19,16 @@ Benchmarking Aja.Vector.delete_at/2 (10)...
 Benchmarking List.delete_at/2 (-10)...
 Benchmarking List.delete_at/2 (10)...
 
-Name                                 ips        average  deviation         median         99th %
+Name                                   ips        average  deviation         median         99th %
 Aja.Vector.delete_at/2 (-1)         8.01 M      124.90 ns ±25017.57%          56 ns         191 ns
-List.delete_at/2 (10)             5.95 M      168.16 ns ±22150.59%          82 ns         293 ns
+List.delete_at/2 (10)               5.95 M      168.16 ns ±22150.59%          82 ns         293 ns
 Aja.Vector.delete_at/2 (-10)        1.67 M      598.22 ns  ±4863.95%         476 ns         889 ns
 Aja.Vector.delete_at/2 (10)        0.181 M     5534.98 ns   ±252.03%        5202 ns       13662 ns
-List.delete_at/2 (-10)           0.150 M     6668.38 ns   ±158.05%        6391 ns       14054 ns
+List.delete_at/2 (-10)             0.150 M     6668.38 ns   ±158.05%        6391 ns       14054 ns
 
 Comparison:
 Aja.Vector.delete_at/2 (-1)         8.01 M
-List.delete_at/2 (10)             5.95 M - 1.35x slower +43.26 ns
+List.delete_at/2 (10)               5.95 M - 1.35x slower +43.26 ns
 Aja.Vector.delete_at/2 (-10)        1.67 M - 4.79x slower +473.32 ns
 Aja.Vector.delete_at/2 (10)        0.181 M - 44.32x slower +5410.08 ns
-List.delete_at/2 (-10)           0.150 M - 53.39x slower +6543.47 ns
+List.delete_at/2 (-10)             0.150 M - 53.39x slower +6543.47 ns

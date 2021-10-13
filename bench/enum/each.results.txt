@@ -18,14 +18,14 @@ Benchmarking Aja.Enum.map/2 (vector)...
 Benchmarking Enum.each/2 (list)...
 Benchmarking Enum.map/2 (list)...
 
-Name                             ips        average  deviation         median         99th %
+Name                               ips        average  deviation         median         99th %
 Aja.Enum.each/2 (vector)        1.17 M        0.85 μs  ±4035.28%        0.71 μs        1.04 μs
-Enum.each/2 (list)            1.11 M        0.90 μs  ±2259.63%        0.84 μs        1.19 μs
+Enum.each/2 (list)              1.11 M        0.90 μs  ±2259.63%        0.84 μs        1.19 μs
 Aja.Enum.map/2 (vector)         0.90 M        1.11 μs  ±1762.94%        0.96 μs        1.43 μs
-Enum.map/2 (list)             0.85 M        1.18 μs  ±1837.89%        1.02 μs        1.47 μs
+Enum.map/2 (list)               0.85 M        1.18 μs  ±1837.89%        1.02 μs        1.47 μs
 
 Comparison:
 Aja.Enum.each/2 (vector)        1.17 M
-Enum.each/2 (list)            1.11 M - 1.06x slower +0.0469 μs
+Enum.each/2 (list)              1.11 M - 1.06x slower +0.0469 μs
 Aja.Enum.map/2 (vector)         0.90 M - 1.31x slower +0.26 μs
-Enum.map/2 (list)             0.85 M - 1.38x slower +0.32 μs
+Enum.map/2 (list)               0.85 M - 1.38x slower +0.32 μs

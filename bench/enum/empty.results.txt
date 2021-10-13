@@ -17,12 +17,12 @@ Benchmarking Aja.Enum.empty?/1 (vector)...
 Benchmarking Enum.empty?/1 (list)...
 Benchmarking Enum.empty?/1 (vector)...
 
-Name                               ips        average  deviation         median         99th %
-Enum.empty?/1 (list)          210.66 M        4.75 ns  ±1667.23%           3 ns          24 ns
+Name                                 ips        average  deviation         median         99th %
+Enum.empty?/1 (list)            210.66 M        4.75 ns  ±1667.23%           3 ns          24 ns
 Aja.Enum.empty?/1 (vector)       41.33 M       24.20 ns   ±380.36%          21 ns          48 ns
-Enum.empty?/1 (vector)          9.17 M      109.10 ns ±18153.96%          58 ns         177 ns
+Enum.empty?/1 (vector)            9.17 M      109.10 ns ±18153.96%          58 ns         177 ns
 
 Comparison:
-Enum.empty?/1 (list)          210.66 M
+Enum.empty?/1 (list)            210.66 M
 Aja.Enum.empty?/1 (vector)       41.33 M - 5.10x slower +19.45 ns
-Enum.empty?/1 (vector)          9.17 M - 22.98x slower +104.35 ns
+Enum.empty?/1 (vector)            9.17 M - 22.98x slower +104.35 ns

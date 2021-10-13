@@ -19,19 +19,19 @@ Benchmarking Aja.OrdMap with input n = 100...
 Benchmarking Aja.OrdMap with input n = 10000...
 
 ##### With input n = 100 #####
-Name               ips        average  deviation         median         99th %
-Map           140.72 K        7.11 μs   ±102.87%        6.93 μs        9.78 μs
+Name                 ips        average  deviation         median         99th %
+Map             140.72 K        7.11 μs   ±102.87%        6.93 μs        9.78 μs
 Aja.OrdMap      102.66 K        9.74 μs    ±56.32%        9.36 μs       19.48 μs
 
 Comparison:
-Map           140.72 K
+Map             140.72 K
 Aja.OrdMap      102.66 K - 1.37x slower +2.63 μs
 
 ##### With input n = 10000 #####
-Name               ips        average  deviation         median         99th %
-Map             589.45        1.70 ms     ±8.63%        1.63 ms        2.00 ms
+Name                 ips        average  deviation         median         99th %
+Map               589.45        1.70 ms     ±8.63%        1.63 ms        2.00 ms
 Aja.OrdMap        350.69        2.85 ms    ±11.86%        2.78 ms        3.71 ms
 
 Comparison:
-Map             589.45
+Map               589.45
 Aja.OrdMap        350.69 - 1.68x slower +1.15 ms

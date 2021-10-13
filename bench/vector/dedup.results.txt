@@ -18,14 +18,14 @@ Benchmarking Aja.Enum.dedup/2 (list)...
 Benchmarking Aja.Vector.dedup/1 (vector)...
 Benchmarking Enum.dedup/2 (list)...
 
-Name                                ips        average  deviation         median         99th %
+Name                                  ips        average  deviation         median         99th %
 Aja.Enum.dedup/1 (vector)          2.59 M      386.39 ns  ±7730.59%         277 ns         620 ns
 Aja.Enum.dedup/2 (list)            1.61 M      621.04 ns  ±3868.57%         508 ns         865 ns
 Aja.Vector.dedup/1 (vector)        1.38 M      724.83 ns  ±3710.60%         591 ns         996 ns
-Enum.dedup/2 (list)              1.20 M      835.12 ns  ±3848.98%         673 ns        1084 ns
+Enum.dedup/2 (list)                1.20 M      835.12 ns  ±3848.98%         673 ns        1084 ns
 
 Comparison:
 Aja.Enum.dedup/1 (vector)          2.59 M
 Aja.Enum.dedup/2 (list)            1.61 M - 1.61x slower +234.65 ns
 Aja.Vector.dedup/1 (vector)        1.38 M - 1.88x slower +338.45 ns
-Enum.dedup/2 (list)              1.20 M - 2.16x slower +448.74 ns
+Enum.dedup/2 (list)                1.20 M - 2.16x slower +448.74 ns

@@ -18,14 +18,14 @@ Benchmarking Aja.Enum.with_index/1 (vector)...
 Benchmarking Enum.with_index/1 (list)...
 Benchmarking Enum.with_index/1 (vector)...
 
-Name                                   ips        average  deviation         median         99th %
+Name                                     ips        average  deviation         median         99th %
 Aja.Enum.with_index/1 (vector)        1.44 M        0.69 μs  ±3662.20%        0.57 μs        1.05 μs
 Aja.Enum.with_index/1 (list)          1.03 M        0.97 μs  ±1829.90%        0.82 μs        1.37 μs
-Enum.with_index/1 (list)            0.42 M        2.39 μs   ±697.64%        2.09 μs        4.03 μs
-Enum.with_index/1 (vector)          0.23 M        4.44 μs   ±340.09%        4.08 μs        7.49 μs
+Enum.with_index/1 (list)              0.42 M        2.39 μs   ±697.64%        2.09 μs        4.03 μs
+Enum.with_index/1 (vector)            0.23 M        4.44 μs   ±340.09%        4.08 μs        7.49 μs
 
 Comparison:
 Aja.Enum.with_index/1 (vector)        1.44 M
 Aja.Enum.with_index/1 (list)          1.03 M - 1.40x slower +0.28 μs
-Enum.with_index/1 (list)            0.42 M - 3.45x slower +1.70 μs
-Enum.with_index/1 (vector)          0.23 M - 6.39x slower +3.74 μs
+Enum.with_index/1 (list)              0.42 M - 3.45x slower +1.70 μs
+Enum.with_index/1 (vector)            0.23 M - 6.39x slower +3.74 μs

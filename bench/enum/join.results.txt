@@ -16,10 +16,10 @@ Estimated total run time: 14 s
 Benchmarking Aja.Enum.join/2 (vector)...
 Benchmarking Enum.join/2 (list)...
 
-Name                             ips        average  deviation         median         99th %
+Name                               ips        average  deviation         median         99th %
 Aja.Enum.join/2 (vector)      133.94 K        7.47 μs   ±150.27%        7.07 μs       10.64 μs
-Enum.join/2 (list)          130.01 K        7.69 μs   ±173.35%        7.32 μs       17.04 μs
+Enum.join/2 (list)            130.01 K        7.69 μs   ±173.35%        7.32 μs       17.04 μs
 
 Comparison:
 Aja.Enum.join/2 (vector)      133.94 K
-Enum.join/2 (list)          130.01 K - 1.03x slower +0.23 μs
+Enum.join/2 (list)            130.01 K - 1.03x slower +0.23 μs

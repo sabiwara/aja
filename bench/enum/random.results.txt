@@ -19,16 +19,16 @@ Benchmarking Enum.random/1 (list)...
 Benchmarking Enum.random/1 (range)...
 Benchmarking Enum.random/1 (vector)...
 
-Name                               ips        average  deviation         median         99th %
-:rand.uniform/1                 8.11 M      123.24 ns ±12936.48%          88 ns         203 ns
+Name                                 ips        average  deviation         median         99th %
+:rand.uniform/1                   8.11 M      123.24 ns ±12936.48%          88 ns         203 ns
 Aja.Enum.random/1 (vector)        5.44 M      183.87 ns ±12129.76%         137 ns         265 ns
-Enum.random/1 (range)           3.28 M      305.13 ns ±11020.90%         207 ns         503 ns
-Enum.random/1 (vector)          2.74 M      365.34 ns  ±8829.92%         241 ns         547 ns
-Enum.random/1 (list)            0.37 M     2723.22 ns   ±629.20%        2633 ns        4444 ns
+Enum.random/1 (range)             3.28 M      305.13 ns ±11020.90%         207 ns         503 ns
+Enum.random/1 (vector)            2.74 M      365.34 ns  ±8829.92%         241 ns         547 ns
+Enum.random/1 (list)              0.37 M     2723.22 ns   ±629.20%        2633 ns        4444 ns
 
 Comparison:
-:rand.uniform/1                 8.11 M
+:rand.uniform/1                   8.11 M
 Aja.Enum.random/1 (vector)        5.44 M - 1.49x slower +60.63 ns
-Enum.random/1 (range)           3.28 M - 2.48x slower +181.89 ns
-Enum.random/1 (vector)          2.74 M - 2.96x slower +242.10 ns
-Enum.random/1 (list)            0.37 M - 22.10x slower +2599.98 ns
+Enum.random/1 (range)             3.28 M - 2.48x slower +181.89 ns
+Enum.random/1 (vector)            2.74 M - 2.96x slower +242.10 ns
+Enum.random/1 (list)              0.37 M - 22.10x slower +2599.98 ns

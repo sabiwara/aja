@@ -17,12 +17,12 @@ Benchmarking Aja.Enum.zip/2...
 Benchmarking Aja.Vector.zip/2...
 Benchmarking Enum.zip/2...
 
-Name                     ips        average  deviation         median         99th %
+Name                       ips        average  deviation         median         99th %
 Aja.Vector.zip/2        1.57 M      637.85 ns  ±4405.26%         462 ns        1110 ns
 Aja.Enum.zip/2          1.25 M      801.27 ns  ±3124.22%         609 ns        1444 ns
-Enum.zip/2            0.48 M     2095.31 ns  ±1032.33%        1738 ns        3404 ns
+Enum.zip/2              0.48 M     2095.31 ns  ±1032.33%        1738 ns        3404 ns
 
 Comparison:
 Aja.Vector.zip/2        1.57 M
 Aja.Enum.zip/2          1.25 M - 1.26x slower +163.42 ns
-Enum.zip/2            0.48 M - 3.28x slower +1457.45 ns
+Enum.zip/2              0.48 M - 3.28x slower +1457.45 ns
