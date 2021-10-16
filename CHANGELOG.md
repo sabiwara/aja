@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.6.0 (2021-10-16)
+
 ### Breaking changes
 
 - Rename top module from `A` to `Aja`
