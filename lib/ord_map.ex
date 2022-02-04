@@ -1081,6 +1081,54 @@ defmodule Aja.OrdMap do
     end
   end
 
+  @doc """
+  Returns a new ordered map containing only those pairs from `ord_map` for which `fun` returns a truthy value.
+
+  `fun` receives the key and value of each of the elements in `ord_map` as a key-value pair.
+  Preserves the order of `ord_map`.
+
+  Mirrors `Map.filter/2`.
+  See also `reject/2` which discards all elements where the function returns a truthy value.
+
+  ## Examples
+
+      iex> ord_map = Aja.OrdMap.new([three: 3, two: 2, one: 1, zero: 0])
+      iex> Aja.OrdMap.filter(ord_map, fn {_key, val} -> rem(val, 2) == 1 end)
+      ord(%{three: 3, one: 1})
+
+  """
+  @spec filter(t(k, v), ({k, v} -> as_boolean(term))) :: t(k, v) when k: key, v: value
+  def filter(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_function(fun, 1) do
+    case ord_map do
+      dense when is_dense(dense) -> RawVector.filter_to_list(vector, fun)
+      _sparse -> RawVector.sparse_to_list(vector) |> Enum.filter(fun)
+    end
+    |> from_list()
+  end
+
+  @doc """
+  Returns a new ordered map excluding the pairs from `ord_map` for which `fun` returns a truthy value.
+  Preserves the order of `ord_map`.
+
+  Mirrors `Map.reject/2`.
+  See also `filter/2`.
+
+  ## Examples
+
+      iex> ord_map = Aja.OrdMap.new([zero: 0, one: 1, two: 2, three: 3])
+      iex> Aja.OrdMap.reject(ord_map, fn {_key, val} -> rem(val, 2) == 1 end)
+      ord(%{zero: 0, two: 2})
+
+  """
+  @spec reject(t(k, v), ({k, v} -> as_boolean(term))) :: t(k, v) when k: key, v: value
+  def reject(%__MODULE__{__ord_vector__: vector} = ord_map, fun) when is_function(fun, 1) do
+    case ord_map do
+      dense when is_dense(dense) -> RawVector.reject_to_list(vector, fun)
+      _sparse -> RawVector.sparse_to_list(vector) |> Enum.reject(fun)
+    end
+    |> from_list()
+  end
+
   # Extra specific functions
 
   @doc """

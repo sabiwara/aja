@@ -37,7 +37,8 @@ defmodule Aja.OrdMap.PropTest do
       {:delete_random, key()},
       {:drop_random, key() |> list_of()},
       {:take_random, key() |> list_of()},
-      :delete_existing
+      :delete_existing,
+      :filter
     ])
   end
 
@@ -151,6 +152,23 @@ defmodule Aja.OrdMap.PropTest do
     assert Aja.OrdMap.new() == Aja.OrdMap.drop(new_map, keys)
 
     new_map
+  end
+
+  def apply_operation(%Aja.OrdMap{} = ord_map, :filter) do
+    fun = fn x -> :erlang.phash2(x, 10) != 0 end
+    inverse_fun = fn x -> not fun.(x) end
+
+    filtered_list = Enum.to_list(ord_map) |> Enum.filter(fun)
+    assert ^filtered_list = Enum.filter(ord_map, fun)
+    assert ^filtered_list = Aja.Enum.filter(ord_map, fun)
+    assert ^filtered_list = Aja.Enum.reject(ord_map, inverse_fun)
+
+    filtered_map = Aja.OrdMap.new(filtered_list)
+    assert ^filtered_map = Aja.OrdMap.filter(ord_map, fun)
+    assert ^filtered_map = Aja.OrdMap.reject(ord_map, inverse_fun)
+
+    assert Aja.OrdMap.size(filtered_map) <= Aja.OrdMap.size(ord_map)
+    filtered_map
   end
 
   def assert_properties(%Aja.OrdMap{} = ord_map) do
