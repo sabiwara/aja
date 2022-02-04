@@ -1129,6 +1129,22 @@ defmodule Aja.OrdMap do
     |> from_list()
   end
 
+  @doc """
+  Builds an ordered map from the given `keys` list and the fixed `value`.
+
+  Preserves the order of `keys`.
+
+  ## Examples
+
+      iex> Aja.OrdMap.from_keys([:c, :a, :d, :b], 0)
+      ord(%{c: 0, a: 0, d: 0, b: 0})
+
+  """
+  @spec from_keys([k], v) :: t(k, v) when k: key, v: value
+  def from_keys(keys, value) when is_list(keys) do
+    new(keys, &{&1, value})
+  end
+
   # Extra specific functions
 
   @doc """

@@ -5,6 +5,7 @@
 ### Enhancements
 
 - Add `Aja.OrdMap.filter/2` and `Aja.OrdMap.reject/2`
+- Add `Aja.OrdMap.from_keys/2`
 - Bump `ex_doc` to the latest version
 
 ## v0.6.0 (2021-10-16)
