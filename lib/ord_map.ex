@@ -1164,6 +1164,7 @@ defmodule Aja.OrdMap do
       [a: "Antman", c: "Catman", b: "Batman"]
 
   """
+  @spec foldl(t(k, v), acc, ({k, v}, acc -> acc)) :: acc when k: key, v: value, acc: term
   def foldl(ord_map, acc, fun)
 
   def foldl(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
@@ -1189,6 +1190,7 @@ defmodule Aja.OrdMap do
       [b: "Batman", c: "Catman", a: "Antman"]
 
   """
+  @spec foldr(t(k, v), acc, ({k, v}, acc -> acc)) :: acc when k: key, v: value, acc: term
   def foldr(ord_map, acc, fun)
 
   def foldr(%__MODULE__{__ord_vector__: vector} = ord_map, acc, fun) when is_function(fun, 2) do
