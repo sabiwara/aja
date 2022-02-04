@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.6.1 (2022-02-04)
+
 ### Enhancements
 
 - Add `Aja.OrdMap.filter/2` and `Aja.OrdMap.reject/2`
