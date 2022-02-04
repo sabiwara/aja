@@ -61,7 +61,7 @@ defmodule Aja.MixProject do
       {:stream_data, "~> 0.5", only: [:test, :dev], runtime: false},
 
       # DOCS
-      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
+      {:ex_doc, "~> 0.28", only: :docs, runtime: false},
 
       # BENCHMARKING
       {:benchee, "~> 1.0", only: :bench, runtime: false}
