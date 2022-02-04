@@ -1,7 +1,7 @@
 defmodule Aja.MixProject do
   use Mix.Project
 
-  @version "0.6.0"
+  @version "0.6.1"
 
   def project do
     [
