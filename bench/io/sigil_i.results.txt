@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking interpolation (nested)...
 Benchmarking ~i sigil (nested)...
 
 Name                             ips        average  deviation         median         99th %
-~i sigil (simple)             1.91 M        0.52 μs  ±5582.99%        0.38 μs        0.74 μs
-~i sigil (nested)             1.70 M        0.59 μs  ±5993.64%        0.43 μs        0.81 μs
-interpolation (simple)        0.23 M        4.31 μs  ±1175.19%        2.32 μs        9.39 μs
-interpolation (nested)        0.20 M        4.88 μs   ±909.55%        2.93 μs        7.11 μs
+~i sigil (simple)             3.47 M        0.29 μs  ±7029.86%           0 μs        1.00 μs
+~i sigil (nested)             3.03 M        0.33 μs  ±8383.67%           0 μs        1.00 μs
+interpolation (simple)        0.42 M        2.38 μs  ±1006.69%        2.00 μs        4.00 μs
+interpolation (nested)        0.34 M        2.93 μs   ±815.10%        2.00 μs        5.00 μs
 
 Comparison: 
-~i sigil (simple)             1.91 M
-~i sigil (nested)             1.70 M - 1.12x slower +0.0654 μs
-interpolation (simple)        0.23 M - 8.24x slower +3.79 μs
-interpolation (nested)        0.20 M - 9.33x slower +4.36 μs
+~i sigil (simple)             3.47 M
+~i sigil (nested)             3.03 M - 1.14x slower +0.0417 μs
+interpolation (simple)        0.42 M - 8.26x slower +2.09 μs
+interpolation (nested)        0.34 M - 10.18x slower +2.65 μs

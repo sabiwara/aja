@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Aja.Vector.map/2 (vector)...
 Benchmarking Enum.map/2 (list)...
 
 Name                                ips        average  deviation         median         99th %
-Aja.Vector.map/2 (vector)     1045.99 K        0.96 μs  ±3104.20%        0.81 μs        1.20 μs
-Aja.Enum.map/2 (vector)        882.96 K        1.13 μs  ±1779.05%        0.97 μs        1.48 μs
-Enum.map/2 (list)              847.15 K        1.18 μs  ±1828.09%        1.03 μs        1.45 μs
-:array.map/2 (array)           403.32 K        2.48 μs   ±802.99%        2.24 μs        3.23 μs
+Aja.Vector.map/2 (vector)        3.14 M        0.32 μs  ±8639.32%           0 μs           1 μs
+Aja.Enum.map/2 (vector)          2.27 M        0.44 μs  ±3524.65%           0 μs           1 μs
+Enum.map/2 (list)                0.95 M        1.06 μs  ±1442.60%           1 μs           2 μs
+:array.map/2 (array)             0.86 M        1.16 μs  ±1326.16%           1 μs           2 μs
 
-Comparison:
-Aja.Vector.map/2 (vector)     1045.99 K
-Aja.Enum.map/2 (vector)        882.96 K - 1.18x slower +0.177 μs
-Enum.map/2 (list)              847.15 K - 1.23x slower +0.22 μs
-:array.map/2 (array)           403.32 K - 2.59x slower +1.52 μs
+Comparison: 
+Aja.Vector.map/2 (vector)        3.14 M
+Aja.Enum.map/2 (vector)          2.27 M - 1.38x slower +0.121 μs
+Enum.map/2 (list)                0.95 M - 3.31x slower +0.74 μs
+:array.map/2 (array)             0.86 M - 3.63x slower +0.84 μs

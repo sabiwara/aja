@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -14,15 +14,21 @@ inputs: none specified
 Estimated total run time: 21 s
 
 Benchmarking Aja.Vector.Raw.member?/2...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Enum.member?/2 (list)...
 Benchmarking Enum.member?/2 (vector)...
 
-Name                                ips        average  deviation         median         99th %
-Aja.Vector.Raw.member?/2         1.05 M      950.96 ns  ±2822.70%         857 ns        1168 ns
-Enum.member?/2 (vector)          1.00 M      995.30 ns  ±2769.21%         898 ns        1224 ns
-Enum.member?/2 (list)            0.59 M     1683.29 ns    ±74.38%        1523 ns        2145 ns
+Name                               ips        average  deviation         median         99th %
+Aja.Vector.Raw.member?/2        1.96 M      509.74 ns   ±376.74%         500 ns         600 ns
+Enum.member?/2 (vector)         1.73 M      579.64 ns  ±3450.39%        1000 ns        1000 ns
+Enum.member?/2 (list)           0.94 M     1068.99 ns   ±174.85%        1000 ns        2000 ns
 
-Comparison:
-Aja.Vector.Raw.member?/2         1.05 M
-Enum.member?/2 (vector)          1.00 M - 1.05x slower +44.34 ns
-Enum.member?/2 (list)            0.59 M - 1.77x slower +732.33 ns
+Comparison: 
+Aja.Vector.Raw.member?/2        1.96 M
+Enum.member?/2 (vector)         1.73 M - 1.14x slower +69.90 ns
+Enum.member?/2 (list)           0.94 M - 2.10x slower +559.24 ns

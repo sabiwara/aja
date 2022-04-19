@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -14,18 +14,24 @@ inputs: none specified
 Estimated total run time: 28 s
 
 Benchmarking Aja.Enum.dedup/1 (vector)...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Aja.Enum.dedup/2 (list)...
 Benchmarking Aja.Vector.dedup/1 (vector)...
 Benchmarking Enum.dedup/2 (list)...
 
 Name                                  ips        average  deviation         median         99th %
-Aja.Enum.dedup/1 (vector)          2.59 M      386.39 ns  ±7730.59%         277 ns         620 ns
-Aja.Enum.dedup/2 (list)            1.61 M      621.04 ns  ±3868.57%         508 ns         865 ns
-Aja.Vector.dedup/1 (vector)        1.38 M      724.83 ns  ±3710.60%         591 ns         996 ns
-Enum.dedup/2 (list)                1.20 M      835.12 ns  ±3848.98%         673 ns        1084 ns
+Aja.Enum.dedup/1 (vector)          8.27 M      120.89 ns  ±2477.48%          97 ns         197 ns
+Enum.dedup/2 (list)                2.55 M      391.45 ns  ±5071.69%           0 ns         997 ns
+Aja.Vector.dedup/1 (vector)        2.49 M      401.12 ns  ±4917.87%           0 ns         997 ns
+Aja.Enum.dedup/2 (list)            1.10 M      911.45 ns  ±2076.34%         997 ns         997 ns
 
-Comparison:
-Aja.Enum.dedup/1 (vector)          2.59 M
-Aja.Enum.dedup/2 (list)            1.61 M - 1.61x slower +234.65 ns
-Aja.Vector.dedup/1 (vector)        1.38 M - 1.88x slower +338.45 ns
-Enum.dedup/2 (list)                1.20 M - 2.16x slower +448.74 ns
+Comparison: 
+Aja.Enum.dedup/1 (vector)          8.27 M
+Enum.dedup/2 (list)                2.55 M - 3.24x slower +270.56 ns
+Aja.Vector.dedup/1 (vector)        2.49 M - 3.32x slower +280.22 ns
+Aja.Enum.dedup/2 (list)            1.10 M - 7.54x slower +790.55 ns

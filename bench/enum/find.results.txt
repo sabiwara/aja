@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Enum.find/2 (list)...
 Benchmarking Enum.find/2 (vector)...
 
 Name                               ips        average  deviation         median         99th %
-Aja.Enum.find/2 (vector)       94.44 K       10.59 μs    ±90.27%       10.38 μs       13.89 μs
-Enum.find/2 (list)             61.75 K       16.19 μs    ±21.51%       15.88 μs       21.70 μs
-Enum.find/2 (vector)           39.07 K       25.60 μs    ±20.40%       24.64 μs       39.38 μs
+Aja.Enum.find/2 (vector)      219.89 K        4.55 μs   ±172.15%           5 μs           5 μs
+Enum.find/2 (list)            178.75 K        5.59 μs    ±89.89%           6 μs           6 μs
+Enum.find/2 (vector)          104.14 K        9.60 μs    ±60.99%           9 μs       14.03 μs
 
-Comparison:
-Aja.Enum.find/2 (vector)       94.44 K
-Enum.find/2 (list)             61.75 K - 1.53x slower +5.61 μs
-Enum.find/2 (vector)           39.07 K - 2.42x slower +15.01 μs
+Comparison: 
+Aja.Enum.find/2 (vector)      219.89 K
+Enum.find/2 (list)            178.75 K - 1.23x slower +1.05 μs
+Enum.find/2 (vector)          104.14 K - 2.11x slower +5.05 μs

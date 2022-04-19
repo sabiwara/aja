@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Aja.Vector.filter/2 (vector)...
 Benchmarking Enum.filter/2 (list)...
 
 Name                                   ips        average  deviation         median         99th %
-Aja.Enum.filter/2 (vector)        463.62 K        2.16 μs   ±968.43%        1.84 μs        3.69 μs
-Aja.Enum.filter/2 (list)          462.44 K        2.16 μs  ±1027.78%        1.86 μs        3.87 μs
-Aja.Vector.filter/2 (vector)      422.93 K        2.36 μs   ±747.32%        2.05 μs        4.14 μs
-Enum.filter/2 (list)              379.80 K        2.63 μs   ±911.88%        2.31 μs        3.96 μs
+Aja.Enum.filter/2 (vector)          2.12 M      470.62 ns  ±3879.92%           0 ns         997 ns
+Aja.Enum.filter/2 (list)            1.71 M      584.62 ns  ±3261.56%         997 ns         997 ns
+Aja.Vector.filter/2 (vector)        1.56 M      641.14 ns  ±3145.00%         997 ns         997 ns
+Enum.filter/2 (list)                1.26 M      791.31 ns  ±1829.06%         997 ns         997 ns
 
-Comparison:
-Aja.Enum.filter/2 (vector)        463.62 K
-Aja.Enum.filter/2 (list)          462.44 K - 1.00x slower +0.00553 μs
-Aja.Vector.filter/2 (vector)      422.93 K - 1.10x slower +0.21 μs
-Enum.filter/2 (list)              379.80 K - 1.22x slower +0.48 μs
+Comparison: 
+Aja.Enum.filter/2 (vector)          2.12 M
+Aja.Enum.filter/2 (list)            1.71 M - 1.24x slower +114.00 ns
+Aja.Vector.filter/2 (vector)        1.56 M - 1.36x slower +170.52 ns
+Enum.filter/2 (list)                1.26 M - 1.68x slower +320.69 ns

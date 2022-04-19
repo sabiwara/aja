@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,15 +20,15 @@ Benchmarking Enum.random/1 (range)...
 Benchmarking Enum.random/1 (vector)...
 
 Name                                 ips        average  deviation         median         99th %
-:rand.uniform/1                   8.11 M      123.24 ns ±12936.48%          88 ns         203 ns
-Aja.Enum.random/1 (vector)        5.44 M      183.87 ns ±12129.76%         137 ns         265 ns
-Enum.random/1 (range)             3.28 M      305.13 ns ±11020.90%         207 ns         503 ns
-Enum.random/1 (vector)            2.74 M      365.34 ns  ±8829.92%         241 ns         547 ns
-Enum.random/1 (list)              0.37 M     2723.22 ns   ±629.20%        2633 ns        4444 ns
+:rand.uniform/1                  11.68 M       85.58 ns ±28904.01%           0 ns         997 ns
+Aja.Enum.random/1 (vector)        9.05 M      110.52 ns ±26233.04%           0 ns         997 ns
+Enum.random/1 (range)             6.44 M      155.32 ns ±18055.19%           0 ns         997 ns
+Enum.random/1 (vector)            5.84 M      171.09 ns ±12776.11%           0 ns         997 ns
+Enum.random/1 (list)              0.55 M     1804.34 ns   ±848.67%        1997 ns        2997 ns
 
-Comparison:
-:rand.uniform/1                   8.11 M
-Aja.Enum.random/1 (vector)        5.44 M - 1.49x slower +60.63 ns
-Enum.random/1 (range)             3.28 M - 2.48x slower +181.89 ns
-Enum.random/1 (vector)            2.74 M - 2.96x slower +242.10 ns
-Enum.random/1 (list)              0.37 M - 22.10x slower +2599.98 ns
+Comparison: 
+:rand.uniform/1                  11.68 M
+Aja.Enum.random/1 (vector)        9.05 M - 1.29x slower +24.94 ns
+Enum.random/1 (range)             6.44 M - 1.81x slower +69.74 ns
+Enum.random/1 (vector)            5.84 M - 2.00x slower +85.51 ns
+Enum.random/1 (list)              0.55 M - 21.08x slower +1718.76 ns

@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,15 +20,15 @@ Benchmarking Enum.sum/1 (list)...
 Benchmarking Enum.sum/1 (vector)...
 
 Name                                 ips        average  deviation         median         99th %
-Aja.Enum.sum/1 (vector)         584.60 K        1.71 μs  ±1299.13%        1.59 μs        1.95 μs
-:lists.sum/1                    358.77 K        2.79 μs    ±26.68%        2.44 μs        4.04 μs
-Enum.sum/1 (list)               327.37 K        3.05 μs    ±25.25%        2.71 μs        4.19 μs
-Aja.Enum.reduce/3 (vector)       73.42 K       13.62 μs    ±29.12%       13.53 μs       16.96 μs
-Enum.sum/1 (vector)              67.84 K       14.74 μs    ±22.70%       14.06 μs       18.97 μs
+Aja.Enum.sum/1 (vector)        1667.48 K        0.60 μs  ±3322.71%        1.00 μs        1.00 μs
+Enum.sum/1 (list)               549.74 K        1.82 μs  ±1086.83%        2.00 μs        2.00 μs
+:lists.sum/1                    518.72 K        1.93 μs    ±19.70%        2.00 μs        2.00 μs
+Enum.sum/1 (vector)             190.63 K        5.25 μs   ±285.75%        5.00 μs       33.00 μs
+Aja.Enum.reduce/3 (vector)      149.34 K        6.70 μs    ±97.21%        7.00 μs        7.00 μs
 
-Comparison:
-Aja.Enum.sum/1 (vector)         584.60 K
-:lists.sum/1                    358.77 K - 1.63x slower +1.08 μs
-Enum.sum/1 (list)               327.37 K - 1.79x slower +1.34 μs
-Aja.Enum.reduce/3 (vector)       73.42 K - 7.96x slower +11.91 μs
-Enum.sum/1 (vector)              67.84 K - 8.62x slower +13.03 μs
+Comparison: 
+Aja.Enum.sum/1 (vector)        1667.48 K
+Enum.sum/1 (list)               549.74 K - 3.03x slower +1.22 μs
+:lists.sum/1                    518.72 K - 3.21x slower +1.33 μs
+Enum.sum/1 (vector)             190.63 K - 8.75x slower +4.65 μs
+Aja.Enum.reduce/3 (vector)      149.34 K - 11.17x slower +6.10 μs

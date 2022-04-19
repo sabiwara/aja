@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Enum.frequencies/1 (list)...
 Benchmarking Enum.frequencies_by/2 (list)...
 
 Name                                         ips        average  deviation         median         99th %
-Aja.Enum.frequencies_by/2 (vector)      194.84 K        5.13 μs   ±261.25%        4.68 μs        7.37 μs
-Enum.frequencies_by/2 (list)            179.49 K        5.57 μs   ±261.57%        5.05 μs        8.68 μs
-Aja.Enum.frequencies/1 (vector)         108.71 K        9.20 μs   ±117.93%        8.75 μs       22.22 μs
-Enum.frequencies/1 (list)               100.20 K        9.98 μs    ±62.98%        9.71 μs       14.43 μs
+Aja.Enum.frequencies_by/2 (vector)      473.41 K        2.11 μs   ±626.86%           2 μs           5 μs
+Enum.frequencies_by/2 (list)            436.00 K        2.29 μs   ±428.67%           2 μs           5 μs
+Aja.Enum.frequencies/1 (vector)         175.53 K        5.70 μs    ±97.26%           5 μs          13 μs
+Enum.frequencies/1 (list)               168.24 K        5.94 μs    ±68.08%           6 μs          10 μs
 
-Comparison:
-Aja.Enum.frequencies_by/2 (vector)      194.84 K
-Enum.frequencies_by/2 (list)            179.49 K - 1.09x slower +0.44 μs
-Aja.Enum.frequencies/1 (vector)         108.71 K - 1.79x slower +4.07 μs
-Enum.frequencies/1 (list)               100.20 K - 1.94x slower +4.85 μs
+Comparison: 
+Aja.Enum.frequencies_by/2 (vector)      473.41 K
+Enum.frequencies_by/2 (list)            436.00 K - 1.09x slower +0.181 μs
+Aja.Enum.frequencies/1 (vector)         175.53 K - 2.70x slower +3.58 μs
+Enum.frequencies/1 (list)               168.24 K - 2.81x slower +3.83 μs

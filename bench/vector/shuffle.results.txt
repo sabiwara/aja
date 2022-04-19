@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Enum.shuffle/1 (list)...
 Benchmarking Enum.shuffle/1 (vector)...
 
 Name                                    ips        average  deviation         median         99th %
-Aja.Enum.shuffle/1 (vector)          4.71 K      212.35 μs    ±16.55%      200.96 μs      349.95 μs
-Enum.shuffle/1 (list)                4.65 K      215.12 μs    ±17.85%      205.72 μs      399.87 μs
-Aja.Vector.shuffle/1 (vector)        4.46 K      223.99 μs    ±18.27%      213.90 μs      404.33 μs
-Enum.shuffle/1 (vector)              4.11 K      243.08 μs    ±18.13%      233.50 μs      445.70 μs
+Enum.shuffle/1 (list)                8.66 K      115.45 μs    ±13.00%      113.00 μs      174.00 μs
+Aja.Enum.shuffle/1 (vector)          8.29 K      120.56 μs    ±13.75%      116.00 μs      181.00 μs
+Aja.Vector.shuffle/1 (vector)        8.16 K      122.53 μs    ±13.68%      117.00 μs      187.00 μs
+Enum.shuffle/1 (vector)              8.02 K      124.73 μs    ±13.87%      118.00 μs      194.00 μs
 
-Comparison:
-Aja.Enum.shuffle/1 (vector)          4.71 K
-Enum.shuffle/1 (list)                4.65 K - 1.01x slower +2.78 μs
-Aja.Vector.shuffle/1 (vector)        4.46 K - 1.05x slower +11.65 μs
-Enum.shuffle/1 (vector)              4.11 K - 1.14x slower +30.73 μs
+Comparison: 
+Enum.shuffle/1 (list)                8.66 K
+Aja.Enum.shuffle/1 (vector)          8.29 K - 1.04x slower +5.11 μs
+Aja.Vector.shuffle/1 (vector)        8.16 K - 1.06x slower +7.09 μs
+Enum.shuffle/1 (vector)              8.02 K - 1.08x slower +9.28 μs

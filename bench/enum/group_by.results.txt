@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Enum.group_by/2  (vector)...
 Benchmarking Enum.group_by/2 (list)...
 
 Name                                   ips        average  deviation         median         99th %
-Aja.Enum.group_by/2 (vector)      167.41 K        5.97 μs   ±198.28%        5.63 μs        8.69 μs
-Enum.group_by/2 (list)            132.76 K        7.53 μs   ±122.46%        7.28 μs       15.85 μs
-Enum.group_by/2  (vector)         104.64 K        9.56 μs    ±90.01%        9.34 μs       12.51 μs
+Aja.Enum.group_by/2 (vector)      462.38 K        2.16 μs   ±542.82%        2.00 μs        5.00 μs
+Enum.group_by/2 (list)            387.25 K        2.58 μs   ±491.07%        2.00 μs        6.00 μs
+Enum.group_by/2  (vector)         312.85 K        3.20 μs   ±248.99%        3.00 μs       10.00 μs
 
-Comparison:
-Aja.Enum.group_by/2 (vector)      167.41 K
-Enum.group_by/2 (list)            132.76 K - 1.26x slower +1.56 μs
-Enum.group_by/2  (vector)         104.64 K - 1.60x slower +3.58 μs
+Comparison: 
+Aja.Enum.group_by/2 (vector)      462.38 K
+Enum.group_by/2 (list)            387.25 K - 1.19x slower +0.42 μs
+Enum.group_by/2  (vector)         312.85 K - 1.48x slower +1.03 μs

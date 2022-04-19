@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -16,10 +16,10 @@ Estimated total run time: 14 s
 Benchmarking Aja.Enum.any?/2...
 Benchmarking Enum.any?/2 (list)...
 
-Name                           ips        average  deviation         median         99th %
-Aja.Enum.any?/2             1.19 M        0.84 μs  ±3105.56%        0.75 μs        1.05 μs
-Enum.any?/2 (list)          0.31 M        3.26 μs    ±23.76%        3.09 μs        4.91 μs
+Name                         ips        average  deviation         median         99th %
+Aja.Enum.any?/2           2.06 M        0.48 μs  ±4013.10%           0 μs        1.00 μs
+Enum.any?/2 (list)        0.60 M        1.67 μs   ±106.29%        2.00 μs        2.00 μs
 
-Comparison:
-Aja.Enum.any?/2             1.19 M
-Enum.any?/2 (list)          0.31 M - 3.89x slower +2.42 μs
+Comparison: 
+Aja.Enum.any?/2           2.06 M
+Enum.any?/2 (list)        0.60 M - 3.45x slower +1.19 μs

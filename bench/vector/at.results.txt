@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -14,18 +14,24 @@ inputs: none specified
 Estimated total run time: 28 s
 
 Benchmarking :array.get/2...
-Benchmarking Aja.Vector.at/2...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Access (vector)...
+Benchmarking Aja.Vector.at/2...
 Benchmarking List.at/2...
 
-Name                        ips        average  deviation         median         99th %
-:array.get/2            29.44 M       33.97 ns   ±278.44%          31 ns          58 ns
-Aja.Vector.at/2         27.12 M       36.87 ns   ±275.31%          34 ns          61 ns
-Access (vector)          7.98 M      125.34 ns ±28100.71%          54 ns         114 ns
-List.at/2                5.20 M      192.37 ns ±18567.57%         144 ns         419 ns
+Name                      ips        average  deviation         median         99th %
+:array.get/2          66.32 M       15.08 ns  ±4947.05%           0 ns         100 ns
+Aja.Vector.at/2       26.12 M       38.28 ns  ±4347.97%           0 ns        1000 ns
+Access (vector)       16.60 M       60.23 ns ±25274.79%           0 ns        1000 ns
+List.at/2              8.12 M      123.15 ns ±11132.71%           0 ns        1000 ns
 
-Comparison:
-:array.get/2            29.44 M
-Aja.Vector.at/2         27.12 M - 1.09x slower +2.90 ns
-Access (vector)          7.98 M - 3.69x slower +91.37 ns
-List.at/2                5.20 M - 5.66x slower +158.40 ns
+Comparison: 
+:array.get/2          66.32 M
+Aja.Vector.at/2       26.12 M - 2.54x slower +23.21 ns
+Access (vector)       16.60 M - 3.99x slower +45.15 ns
+List.at/2              8.12 M - 8.17x slower +108.07 ns

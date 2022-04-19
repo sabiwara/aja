@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Enum.slice/3 (list)...
 Benchmarking Enum.slice/3 (vector)...
 
 Name                                  ips        average  deviation         median         99th %
-Enum.slice/3 (list)                2.22 M      451.43 ns  ±6005.27%         353 ns         693 ns
-Enum.slice/3 (vector)              1.99 M      502.63 ns  ±6452.90%         365 ns         730 ns
-Aja.Vector.slice/3 (vector)        1.18 M      846.84 ns  ±3319.99%         687 ns        1132 ns
+Enum.slice/3 (vector)              3.68 M      271.75 ns  ±9350.36%           0 ns        1000 ns
+Aja.Vector.slice/3 (vector)        2.32 M      431.81 ns  ±4681.17%           0 ns        1000 ns
+Enum.slice/3 (list)                1.83 M      546.22 ns  ±3744.82%        1000 ns        1000 ns
 
-Comparison:
-Enum.slice/3 (list)                2.22 M
-Enum.slice/3 (vector)              1.99 M - 1.11x slower +51.20 ns
-Aja.Vector.slice/3 (vector)        1.18 M - 1.88x slower +395.41 ns
+Comparison: 
+Enum.slice/3 (vector)              3.68 M
+Aja.Vector.slice/3 (vector)        2.32 M - 1.59x slower +160.06 ns
+Enum.slice/3 (list)                1.83 M - 2.01x slower +274.47 ns

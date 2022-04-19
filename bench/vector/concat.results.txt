@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -20,18 +20,18 @@ Benchmarking small_list ++ big_list...
 Benchmarking small_vector +++ big_vector...
 
 Name                                  ips        average  deviation         median         99th %
-small_list ++ big_list             3.03 M      330.25 ns ±12188.83%         176 ns         491 ns
-big_vector +++ small_list          1.10 M      912.79 ns  ±3149.02%         684 ns        1712 ns
-big_vector +++ small_vector        1.02 M      981.59 ns  ±2739.24%         780 ns        1659 ns
-big_list ++ small_list             0.41 M     2454.97 ns   ±699.03%        2096 ns     9422.66 ns
-small_vector +++ big_vector        0.30 M     3303.90 ns   ±752.87%        2721 ns    19966.90 ns
+small_list ++ big_list             4.23 M      236.46 ns  ±9199.77%           0 ns         997 ns
+big_vector +++ small_list          1.86 M      537.04 ns  ±3387.36%           0 ns         997 ns
+big_vector +++ small_vector        1.64 M      610.96 ns  ±3059.97%         997 ns         997 ns
+big_list ++ small_list             0.71 M     1417.95 ns   ±704.30%         997 ns        5997 ns
+small_vector +++ big_vector        0.57 M     1769.88 ns   ±585.17%        1997 ns        4997 ns
 
 Comparison: 
-small_list ++ big_list             3.03 M
-big_vector +++ small_list          1.10 M - 2.76x slower +582.55 ns
-big_vector +++ small_vector        1.02 M - 2.97x slower +651.34 ns
-big_list ++ small_list             0.41 M - 7.43x slower +2124.72 ns
-small_vector +++ big_vector        0.30 M - 10.00x slower +2973.66 ns
+small_list ++ big_list             4.23 M
+big_vector +++ small_list          1.86 M - 2.27x slower +300.57 ns
+big_vector +++ small_vector        1.64 M - 2.58x slower +374.49 ns
+big_list ++ small_list             0.71 M - 6.00x slower +1181.49 ns
+small_vector +++ big_vector        0.57 M - 7.48x slower +1533.41 ns
 
 Memory usage statistics:
 
@@ -39,7 +39,7 @@ Name                           Memory usage
 small_list ++ big_list              1.56 KB
 big_vector +++ small_list           2.06 KB - 1.32x memory usage +0.50 KB
 big_vector +++ small_vector         2.67 KB - 1.71x memory usage +1.11 KB
-big_list ++ small_list              2.77 KB - 1.77x memory usage +1.20 KB
+big_list ++ small_list              2.78 KB - 1.78x memory usage +1.22 KB
 small_vector +++ big_vector        12.99 KB - 8.31x memory usage +11.43 KB
 
 **All measurements for memory usage were the same**

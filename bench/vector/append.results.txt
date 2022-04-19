@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -21,17 +21,17 @@ Benchmarking Enum.concat/2 (lists)...
 Benchmarking Enum.into/2 (vector)...
 
 Name                                    ips        average  deviation         median         99th %
-Aja.Enum.into/2 (vector)          1221.09 K        0.82 μs  ±2935.84%        0.65 μs        1.29 μs
-Aja.Vector.concat/2               1189.22 K        0.84 μs  ±2949.79%        0.65 μs        1.34 μs
-Enum.concat/2 (lists)              400.24 K        2.50 μs   ±701.26%        2.11 μs       10.54 μs
-Enum.into/2 (vector)               286.53 K        3.49 μs   ±533.67%        2.99 μs        7.03 μs
-Aja.Vector.append/2 in reduce      164.84 K        6.07 μs   ±204.61%        5.35 μs       23.32 μs
-:array.set/3 in reduce              58.86 K       16.99 μs    ±55.73%       15.72 μs       39.60 μs
+Aja.Vector.concat/2               1777.21 K        0.56 μs  ±3254.50%           1 μs           1 μs
+Aja.Enum.into/2 (vector)          1759.71 K        0.57 μs  ±3244.33%           1 μs           1 μs
+Enum.into/2 (vector)               756.20 K        1.32 μs   ±990.91%           1 μs           2 μs
+Enum.concat/2 (lists)              698.53 K        1.43 μs   ±719.44%           1 μs           6 μs
+Aja.Vector.append/2 in reduce      282.72 K        3.54 μs   ±222.35%           3 μs          21 μs
+:array.set/3 in reduce             122.56 K        8.16 μs    ±85.68%           7 μs          34 μs
 
-Comparison:
-Aja.Enum.into/2 (vector)          1221.09 K
-Aja.Vector.concat/2               1189.22 K - 1.03x slower +0.0219 μs
-Enum.concat/2 (lists)              400.24 K - 3.05x slower +1.68 μs
-Enum.into/2 (vector)               286.53 K - 4.26x slower +2.67 μs
-Aja.Vector.append/2 in reduce      164.84 K - 7.41x slower +5.25 μs
-:array.set/3 in reduce              58.86 K - 20.75x slower +16.17 μs
+Comparison: 
+Aja.Vector.concat/2               1777.21 K
+Aja.Enum.into/2 (vector)          1759.71 K - 1.01x slower +0.00559 μs
+Enum.into/2 (vector)               756.20 K - 2.35x slower +0.76 μs
+Enum.concat/2 (lists)              698.53 K - 2.54x slower +0.87 μs
+Aja.Vector.append/2 in reduce      282.72 K - 6.29x slower +2.97 μs
+:array.set/3 in reduce             122.56 K - 14.50x slower +7.60 μs

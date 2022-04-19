@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -14,24 +14,42 @@ inputs: n = 5, n = 50
 Estimated total run time: 28 s
 
 Benchmarking IO.iodata_length() == 0 with input n = 5...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking IO.iodata_length() == 0 with input n = 50...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Aja.IO.iodata_empty?/1 with input n = 5...
 Benchmarking Aja.IO.iodata_empty?/1 with input n = 50...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 
 ##### With input n = 5 #####
-Name                                ips        average  deviation         median         99th %
-Aja.IO.iodata_empty?/1          26.71 M       37.43 ns ±10935.18%          28 ns          72 ns
-IO.iodata_length() == 0         21.12 M       47.36 ns  ±7769.58%          38 ns          83 ns
+Name                              ips        average  deviation         median         99th %
+IO.iodata_length() == 0       47.28 M       21.15 ns  ±7004.18%           0 ns          97 ns
+Aja.IO.iodata_empty?/1        24.48 M       40.85 ns ±24703.28%           0 ns         997 ns
 
-Comparison:
-Aja.IO.iodata_empty?/1          26.71 M
-IO.iodata_length() == 0         21.12 M - 1.27x slower +9.92 ns
+Comparison: 
+IO.iodata_length() == 0       47.28 M
+Aja.IO.iodata_empty?/1        24.48 M - 1.93x slower +19.70 ns
 
 ##### With input n = 50 #####
-Name                                ips        average  deviation         median         99th %
-Aja.IO.iodata_empty?/1          26.24 M       38.11 ns  ±8886.72%          30 ns          72 ns
-IO.iodata_length() == 0          7.41 M      134.89 ns  ±2402.74%         126 ns         179 ns
+Name                              ips        average  deviation         median         99th %
+Aja.IO.iodata_empty?/1        95.81 M       10.44 ns  ±1946.71%           7 ns          17 ns
+IO.iodata_length() == 0       11.90 M       84.05 ns  ±1884.19%          97 ns          97 ns
 
-Comparison:
-Aja.IO.iodata_empty?/1          26.24 M
-IO.iodata_length() == 0          7.41 M - 3.54x slower +96.77 ns
+Comparison: 
+Aja.IO.iodata_empty?/1        95.81 M
+IO.iodata_length() == 0       11.90 M - 8.05x slower +73.62 ns

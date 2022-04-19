@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -16,10 +16,10 @@ Estimated total run time: 14 s
 Benchmarking Aja.Vector.take_while/2...
 Benchmarking Enum.take_while/2 (list)...
 
-Name                                 ips        average  deviation         median         99th %
-Aja.Vector.take_while/2         858.03 K        1.17 μs  ±1372.84%        1.08 μs        1.48 μs
-Enum.take_while/2 (list)        641.42 K        1.56 μs  ±1513.91%        1.40 μs        1.84 μs
+Name                               ips        average  deviation         median         99th %
+Aja.Vector.take_while/2         1.78 M        0.56 μs  ±3359.76%           0 μs        1.00 μs
+Enum.take_while/2 (list)        0.92 M        1.08 μs  ±1294.51%        1.00 μs        2.00 μs
 
-Comparison:
-Aja.Vector.take_while/2         858.03 K
-Enum.take_while/2 (list)        641.42 K - 1.34x slower +0.39 μs
+Comparison: 
+Aja.Vector.take_while/2         1.78 M
+Enum.take_while/2 (list)        0.92 M - 1.93x slower +0.52 μs

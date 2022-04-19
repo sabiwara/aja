@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Aja.Vector.zip/2...
 Benchmarking Enum.zip/2...
 
 Name                       ips        average  deviation         median         99th %
-Aja.Vector.zip/2        1.57 M      637.85 ns  ±4405.26%         462 ns        1110 ns
-Aja.Enum.zip/2          1.25 M      801.27 ns  ±3124.22%         609 ns        1444 ns
-Enum.zip/2              0.48 M     2095.31 ns  ±1032.33%        1738 ns        3404 ns
+Aja.Vector.zip/2        3.15 M      317.76 ns  ±8911.28%           0 ns        1997 ns
+Enum.zip/2              2.42 M      413.66 ns  ±4460.51%           0 ns         997 ns
+Aja.Enum.zip/2          2.40 M      415.84 ns  ±4371.97%           0 ns         997 ns
 
-Comparison:
-Aja.Vector.zip/2        1.57 M
-Aja.Enum.zip/2          1.25 M - 1.26x slower +163.42 ns
-Enum.zip/2              0.48 M - 3.28x slower +1457.45 ns
+Comparison: 
+Aja.Vector.zip/2        3.15 M
+Enum.zip/2              2.42 M - 1.30x slower +95.90 ns
+Aja.Enum.zip/2          2.40 M - 1.31x slower +98.08 ns

@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -18,11 +18,11 @@ Benchmarking Aja.Vector.uniq/1 (vector)...
 Benchmarking Enum.uniq/2 (list)...
 
 Name                                 ips        average  deviation         median         99th %
-Aja.Enum.uniq/1 (vector)        131.63 K        7.60 μs   ±144.82%        7.07 μs       14.26 μs
-Aja.Vector.uniq/1 (vector)      127.51 K        7.84 μs    ±72.50%        7.40 μs       14.59 μs
-Enum.uniq/2 (list)              119.35 K        8.38 μs   ±105.68%        8.15 μs       10.93 μs
+Aja.Enum.uniq/1 (vector)        248.01 K        4.03 μs   ±156.03%           4 μs          10 μs
+Aja.Vector.uniq/1 (vector)      240.31 K        4.16 μs   ±186.03%           4 μs           8 μs
+Enum.uniq/2 (list)              221.33 K        4.52 μs   ±175.65%           4 μs          10 μs
 
-Comparison:
-Aja.Enum.uniq/1 (vector)        131.63 K
-Aja.Vector.uniq/1 (vector)      127.51 K - 1.03x slower +0.25 μs
-Enum.uniq/2 (list)              119.35 K - 1.10x slower +0.78 μs
+Comparison: 
+Aja.Enum.uniq/1 (vector)        248.01 K
+Aja.Vector.uniq/1 (vector)      240.31 K - 1.03x slower +0.129 μs
+Enum.uniq/2 (list)              221.33 K - 1.12x slower +0.49 μs

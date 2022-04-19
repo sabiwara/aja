@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -14,15 +14,21 @@ inputs: none specified
 Estimated total run time: 21 s
 
 Benchmarking Aja.Enum.count/1 (vector)...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Enum.count/1 (list)...
 Benchmarking Enum.count/1 (vector)...
 
 Name                                ips        average  deviation         median         99th %
-Aja.Enum.count/1 (vector)       68.13 M       14.68 ns   ±646.42%          12 ns          37 ns
-Enum.count/1 (vector)            9.76 M      102.47 ns ±37835.03%          39 ns         119 ns
-Enum.count/1 (list)              7.97 M      125.48 ns   ±139.08%         120 ns         162 ns
+Aja.Enum.count/1 (vector)       77.38 M       12.92 ns ±16974.20%           0 ns          97 ns
+Enum.count/1 (vector)           19.60 M       51.02 ns ±29142.16%           0 ns         997 ns
+Enum.count/1 (list)              8.11 M      123.26 ns   ±275.13%           0 ns         997 ns
 
-Comparison:
-Aja.Enum.count/1 (vector)       68.13 M
-Enum.count/1 (vector)            9.76 M - 6.98x slower +87.79 ns
-Enum.count/1 (list)              7.97 M - 8.55x slower +110.80 ns
+Comparison: 
+Aja.Enum.count/1 (vector)       77.38 M
+Enum.count/1 (vector)           19.60 M - 3.95x slower +38.09 ns
+Enum.count/1 (list)              8.11 M - 9.54x slower +110.34 ns

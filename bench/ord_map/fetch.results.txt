@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -15,34 +15,52 @@ Estimated total run time: 42 s
 
 Benchmarking Map with input n = 10...
 Benchmarking Map with input n = 100...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Map with input n = 10000...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Aja.OrdMap with input n = 10...
 Benchmarking Aja.OrdMap with input n = 100...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Aja.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name                 ips        average  deviation         median         99th %
-Map               3.85 M      259.82 ns ±15085.32%         178 ns         443 ns
-Aja.OrdMap        3.23 M      309.33 ns  ±8798.19%         208 ns         489 ns
+Map               7.37 M      135.70 ns ±17535.60%           0 ns        1000 ns
+Aja.OrdMap        6.20 M      161.17 ns ±20828.61%           0 ns        1000 ns
 
-Comparison:
-Map               3.85 M
-Aja.OrdMap        3.23 M - 1.19x slower +49.51 ns
+Comparison: 
+Map               7.37 M
+Aja.OrdMap        6.20 M - 1.19x slower +25.46 ns
 
 ##### With input n = 100 #####
 Name                 ips        average  deviation         median         99th %
-Map               3.03 M      329.64 ns  ±7137.13%         268 ns         542 ns
-Aja.OrdMap        2.76 M      362.86 ns  ±4442.52%         304 ns         592 ns
+Aja.OrdMap        9.20 M      108.68 ns  ±2964.55%         100 ns         200 ns
+Map               8.89 M      112.44 ns  ±2546.31%         100 ns         200 ns
 
-Comparison:
-Map               3.03 M
-Aja.OrdMap        2.76 M - 1.10x slower +33.22 ns
+Comparison: 
+Aja.OrdMap        9.20 M
+Map               8.89 M - 1.03x slower +3.76 ns
 
 ##### With input n = 10000 #####
 Name                 ips        average  deviation         median         99th %
-Map               2.48 M      403.04 ns  ±8193.03%         315 ns         581 ns
-Aja.OrdMap        2.18 M      459.26 ns  ±6114.70%         359 ns         648 ns
+Map               7.66 M      130.52 ns  ±2546.73%         100 ns         200 ns
+Aja.OrdMap        5.18 M      192.95 ns  ±8609.25%           0 ns        1000 ns
 
-Comparison:
-Map               2.48 M
-Aja.OrdMap        2.18 M - 1.14x slower +56.22 ns
+Comparison: 
+Map               7.66 M
+Aja.OrdMap        5.18 M - 1.48x slower +62.43 ns

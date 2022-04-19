@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -19,13 +19,13 @@ Benchmarking Enum.scan/2...
 Benchmarking Enum.scan/3...
 
 Name                        ips        average  deviation         median         99th %
-Aja.Vector.scan/3      502.53 K        1.99 μs  ±1084.17%        1.86 μs        2.29 μs
-Enum.scan/2            471.75 K        2.12 μs   ±757.34%        1.99 μs        2.46 μs
-Enum.scan/3            464.87 K        2.15 μs   ±751.99%        2.01 μs        2.50 μs
-Aja.Vector.scan/2      308.68 K        3.24 μs   ±562.14%        3.08 μs        4.10 μs
+Aja.Vector.scan/3     1185.06 K        0.84 μs  ±1873.54%           1 μs           1 μs
+Aja.Vector.scan/2      958.72 K        1.04 μs  ±1417.77%           1 μs           2 μs
+Enum.scan/2            711.08 K        1.41 μs   ±818.32%           1 μs           2 μs
+Enum.scan/3            709.45 K        1.41 μs   ±777.98%           1 μs           2 μs
 
-Comparison:
-Aja.Vector.scan/3      502.53 K
-Enum.scan/2            471.75 K - 1.07x slower +0.130 μs
-Enum.scan/3            464.87 K - 1.08x slower +0.161 μs
-Aja.Vector.scan/2      308.68 K - 1.63x slower +1.25 μs
+Comparison: 
+Aja.Vector.scan/3     1185.06 K
+Aja.Vector.scan/2      958.72 K - 1.24x slower +0.199 μs
+Enum.scan/2            711.08 K - 1.67x slower +0.56 μs
+Enum.scan/3            709.45 K - 1.67x slower +0.57 μs

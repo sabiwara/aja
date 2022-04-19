@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -16,9 +16,27 @@ Estimated total run time: 1.20 min
 Benchmarking :array.set/3 with input n = 100...
 Benchmarking :array.set/3 with input n = 101...
 Benchmarking :array.set/3 with input n = 1000...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking :array.set/3 with input n = 1001...
 Benchmarking :array.set/3 with input n = 10000...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking :array.set/3 with input n = 10001...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements.
+See: https://github.com/PragTob/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Benchmarking Aja.Vector.replace_at/3 with input n = 100...
 Benchmarking Aja.Vector.replace_at/3 with input n = 101...
 Benchmarking Aja.Vector.replace_at/3 with input n = 1000...
@@ -34,66 +52,66 @@ Benchmarking List.replace_at/3 with input n = 10001...
 
 ##### With input n = 100 #####
 Name                              ips        average  deviation         median         99th %
-:array.set/3                   8.60 M      116.34 ns ±12582.33%          75 ns         170 ns
-Aja.Vector.replace_at/3        6.62 M      150.99 ns ±12598.94%          89 ns         220 ns
-List.replace_at/3              2.74 M      364.67 ns  ±6567.61%         224 ns         539 ns
+:array.set/3                  11.60 M       86.18 ns ±14369.39%           0 ns         997 ns
+Aja.Vector.replace_at/3        8.95 M      111.69 ns ±23216.28%           0 ns         997 ns
+List.replace_at/3              2.20 M      454.26 ns  ±2192.43%           0 ns         997 ns
 
-Comparison:
-:array.set/3                   8.60 M
-Aja.Vector.replace_at/3        6.62 M - 1.30x slower +34.66 ns
-List.replace_at/3              2.74 M - 3.13x slower +248.33 ns
+Comparison: 
+:array.set/3                  11.60 M
+Aja.Vector.replace_at/3        8.95 M - 1.30x slower +25.50 ns
+List.replace_at/3              2.20 M - 5.27x slower +368.07 ns
 
 ##### With input n = 101 #####
 Name                              ips        average  deviation         median         99th %
-Aja.Vector.replace_at/3        6.69 M      149.39 ns ±12558.84%          88 ns         202 ns
-:array.set/3                   6.30 M      158.72 ns  ±9726.45%         110 ns         284 ns
-List.replace_at/3              2.74 M      365.29 ns  ±6628.94%         225 ns         538 ns
+Aja.Vector.replace_at/3        9.07 M      110.20 ns ±22514.39%           0 ns         997 ns
+:array.set/3                   8.50 M      117.67 ns ±15502.70%           0 ns         997 ns
+List.replace_at/3              2.17 M      460.69 ns  ±2477.27%           0 ns         997 ns
 
-Comparison:
-Aja.Vector.replace_at/3        6.69 M
-:array.set/3                   6.30 M - 1.06x slower +9.33 ns
-List.replace_at/3              2.74 M - 2.45x slower +215.90 ns
+Comparison: 
+Aja.Vector.replace_at/3        9.07 M
+:array.set/3                   8.50 M - 1.07x slower +7.47 ns
+List.replace_at/3              2.17 M - 4.18x slower +350.48 ns
 
 ##### With input n = 1000 #####
 Name                              ips        average  deviation         median         99th %
-:array.set/3                   5.65 M      176.88 ns ±14282.47%         109 ns         242 ns
-Aja.Vector.replace_at/3        4.72 M      212.06 ns ±10695.68%         112 ns         325 ns
-List.replace_at/3              0.44 M     2286.12 ns   ±275.51%        2115 ns        3896 ns
+:array.set/3                  15.38 M       65.02 ns  ±3105.83%          97 ns          97 ns
+Aja.Vector.replace_at/3        9.20 M      108.69 ns ±14862.04%           0 ns         997 ns
+List.replace_at/3              0.24 M     4242.04 ns    ±94.15%        3997 ns        6997 ns
 
-Comparison:
-:array.set/3                   5.65 M
-Aja.Vector.replace_at/3        4.72 M - 1.20x slower +35.18 ns
-List.replace_at/3              0.44 M - 12.92x slower +2109.24 ns
+Comparison: 
+:array.set/3                  15.38 M
+Aja.Vector.replace_at/3        9.20 M - 1.67x slower +43.67 ns
+List.replace_at/3              0.24 M - 65.24x slower +4177.02 ns
 
 ##### With input n = 1001 #####
 Name                              ips        average  deviation         median         99th %
-Aja.Vector.replace_at/3        4.67 M      213.98 ns ±10843.68%         112 ns         293 ns
-:array.set/3                   4.20 M      237.89 ns ±10796.66%         144 ns         313 ns
-List.replace_at/3              0.43 M     2337.05 ns   ±277.24%        2163 ns        3926 ns
+Aja.Vector.replace_at/3        9.12 M      109.66 ns ±15234.67%           0 ns         997 ns
+:array.set/3                   8.32 M      120.26 ns ±12557.27%           0 ns         997 ns
+List.replace_at/3              0.24 M     4245.39 ns    ±85.94%        3997 ns        6997 ns
 
-Comparison:
-Aja.Vector.replace_at/3        4.67 M
-:array.set/3                   4.20 M - 1.11x slower +23.91 ns
-List.replace_at/3              0.43 M - 10.92x slower +2123.07 ns
+Comparison: 
+Aja.Vector.replace_at/3        9.12 M
+:array.set/3                   8.32 M - 1.10x slower +10.60 ns
+List.replace_at/3              0.24 M - 38.72x slower +4135.74 ns
 
 ##### With input n = 10000 #####
 Name                              ips        average  deviation         median         99th %
-Aja.Vector.replace_at/3        4.15 M      241.21 ns ±11108.73%         137 ns         403 ns
-:array.set/3                   4.10 M      243.97 ns ±11599.82%         143 ns         356 ns
-List.replace_at/3            0.0362 M    27660.50 ns    ±15.66%       29010 ns    34975.16 ns
+:array.set/3                  11.78 M       84.88 ns  ±2985.91%          97 ns          97 ns
+Aja.Vector.replace_at/3        6.80 M      147.09 ns ±13360.43%           0 ns         997 ns
+List.replace_at/3            0.0212 M    47214.49 ns     ±8.88%       45997 ns       52997 ns
 
-Comparison:
-Aja.Vector.replace_at/3        4.15 M
-:array.set/3                   4.10 M - 1.01x slower +2.76 ns
-List.replace_at/3            0.0362 M - 114.67x slower +27419.29 ns
+Comparison: 
+:array.set/3                  11.78 M
+Aja.Vector.replace_at/3        6.80 M - 1.73x slower +62.21 ns
+List.replace_at/3            0.0212 M - 556.24x slower +47129.61 ns
 
 ##### With input n = 10001 #####
 Name                              ips        average  deviation         median         99th %
-:array.set/3                   4.36 M      229.29 ns  ±7632.79%         177 ns         381 ns
-Aja.Vector.replace_at/3        4.03 M      248.42 ns ±10819.08%         147 ns         380 ns
-List.replace_at/3            0.0360 M    27799.11 ns    ±17.45%    29245.50 ns    45925.55 ns
+:array.set/3                   9.42 M      106.21 ns  ±2071.10%          97 ns         197 ns
+Aja.Vector.replace_at/3        6.76 M      147.88 ns ±14141.27%           0 ns         997 ns
+List.replace_at/3            0.0213 M    47032.92 ns     ±8.91%       45997 ns       52997 ns
 
-Comparison:
-:array.set/3                   4.36 M
-Aja.Vector.replace_at/3        4.03 M - 1.08x slower +19.14 ns
-List.replace_at/3            0.0360 M - 121.24x slower +27569.82 ns
+Comparison: 
+:array.set/3                   9.42 M
+Aja.Vector.replace_at/3        6.76 M - 1.39x slower +41.67 ns
+List.replace_at/3            0.0213 M - 442.82x slower +46926.71 ns

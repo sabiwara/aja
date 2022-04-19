@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -22,27 +22,27 @@ Benchmarking Aja.OrdMap with input n = 10000...
 
 ##### With input n = 10 #####
 Name                 ips        average  deviation         median         99th %
-Map               2.34 M        0.43 μs  ±6402.93%        0.29 μs        0.58 μs
-Aja.OrdMap        0.92 M        1.09 μs  ±2800.36%        0.90 μs        1.52 μs
+Map               4.36 M      229.57 ns ±11501.83%           0 ns        1000 ns
+Aja.OrdMap        1.72 M      580.84 ns  ±4004.50%        1000 ns        1000 ns
 
-Comparison:
-Map               2.34 M
-Aja.OrdMap        0.92 M - 2.54x slower +0.66 μs
+Comparison: 
+Map               4.36 M
+Aja.OrdMap        1.72 M - 2.53x slower +351.27 ns
 
 ##### With input n = 100 #####
 Name                 ips        average  deviation         median         99th %
-Map               1.77 M        0.57 μs  ±5025.22%        0.46 μs        0.76 μs
-Aja.OrdMap        0.84 M        1.20 μs  ±2071.36%        1.03 μs        1.61 μs
+Map               3.17 M      315.89 ns  ±6715.31%           0 ns        1000 ns
+Aja.OrdMap        1.54 M      650.23 ns  ±2592.36%        1000 ns        1000 ns
 
-Comparison:
-Map               1.77 M
-Aja.OrdMap        0.84 M - 2.12x slower +0.63 μs
+Comparison: 
+Map               3.17 M
+Aja.OrdMap        1.54 M - 2.06x slower +334.34 ns
 
 ##### With input n = 10000 #####
 Name                 ips        average  deviation         median         99th %
-Map               1.27 M        0.79 μs  ±3144.81%        0.66 μs        1.04 μs
-Aja.OrdMap        0.59 M        1.71 μs  ±1522.58%        1.50 μs        2.24 μs
+Map               2.19 M      457.21 ns  ±4149.99%           0 ns        1000 ns
+Aja.OrdMap        1.05 M      955.78 ns  ±1411.19%        1000 ns        1000 ns
 
-Comparison:
-Map               1.27 M
-Aja.OrdMap        0.59 M - 2.16x slower +0.92 μs
+Comparison: 
+Map               2.19 M
+Aja.OrdMap        1.05 M - 2.09x slower +498.57 ns

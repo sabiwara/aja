@@ -1,9 +1,9 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0-rc2
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
@@ -22,19 +22,19 @@ Benchmarking Enum.max/1 (set)...
 Benchmarking Enum.max/1 (vector)...
 
 Name                              ips        average  deviation         median         99th %
-Aja.Enum.max/1 (vector)      733.50 K        1.36 μs  ±1849.87%        1.26 μs        1.59 μs
-:lists.max/1                 355.17 K        2.82 μs    ±28.72%        2.58 μs        4.28 μs
-Aja.Enum.max/1 (list)        349.20 K        2.86 μs    ±75.26%        2.56 μs        4.21 μs
-Enum.max/1 (list)            333.66 K        3.00 μs    ±62.11%        2.68 μs        4.27 μs
-Aja.Enum.max/1 (set)          68.00 K       14.70 μs    ±39.69%       14.11 μs       21.82 μs
-Enum.max/1 (vector)           20.04 K       49.90 μs    ±12.51%       48.07 μs       77.39 μs
-Enum.max/1 (set)              16.67 K       60.00 μs    ±11.23%       57.84 μs       77.59 μs
+Aja.Enum.max/1 (vector)     1603.78 K        0.62 μs  ±3436.47%           1 μs           1 μs
+Enum.max/1 (list)            556.18 K        1.80 μs   ±137.94%           2 μs           2 μs
+:lists.max/1                 556.10 K        1.80 μs    ±27.53%           2 μs           2 μs
+Aja.Enum.max/1 (list)        554.59 K        1.80 μs   ±158.61%           2 μs           2 μs
+Aja.Enum.max/1 (set)          89.95 K       11.12 μs    ±45.76%          11 μs          22 μs
+Enum.max/1 (vector)           78.70 K       12.71 μs    ±17.92%          12 μs          16 μs
+Enum.max/1 (set)              44.38 K       22.53 μs    ±10.09%          22 μs          28 μs
 
-Comparison:
-Aja.Enum.max/1 (vector)      733.50 K
-:lists.max/1                 355.17 K - 2.07x slower +1.45 μs
-Aja.Enum.max/1 (list)        349.20 K - 2.10x slower +1.50 μs
-Enum.max/1 (list)            333.66 K - 2.20x slower +1.63 μs
-Aja.Enum.max/1 (set)          68.00 K - 10.79x slower +13.34 μs
-Enum.max/1 (vector)           20.04 K - 36.60x slower +48.54 μs
-Enum.max/1 (set)              16.67 K - 44.01x slower +58.63 μs
+Comparison: 
+Aja.Enum.max/1 (vector)     1603.78 K
+Enum.max/1 (list)            556.18 K - 2.88x slower +1.17 μs
+:lists.max/1                 556.10 K - 2.88x slower +1.17 μs
+Aja.Enum.max/1 (list)        554.59 K - 2.89x slower +1.18 μs
+Aja.Enum.max/1 (set)          89.95 K - 17.83x slower +10.49 μs
+Enum.max/1 (vector)           78.70 K - 20.38x slower +12.08 μs
+Enum.max/1 (set)              44.38 K - 36.13x slower +21.91 μs
