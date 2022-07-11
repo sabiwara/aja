@@ -49,7 +49,7 @@ defmodule PeekableQueue do
   end
 
   def first(queue, default \\ nil)
-  def first(wrapped(_, [first, _]), _default), do: first
+  def first(wrapped(_, [first | _]), _default), do: first
   def first(wrapped(_, []), default), do: default
 
   def last(queue, default \\ nil)
@@ -67,20 +67,20 @@ defmodule PeekableQueue do
 
   def prepend(wrapped(left, right), value), do: wrapped(left, [value | right])
 
-  def delete_first(wrapped(_left, [])), do: wrapped([], [])
+  # def delete_first(wrapped(_left, [])), do: wrapped([], [])
 
-  def delete_first(wrapped(left, [_first | tail])) do
-    case tail do
-      [] ->
-        size = length(left)
-        {right, left} = left |> :lists.reverse() |> Enum.split(div(size, 2))
-        left = :lists.reverse(left)
-        wrapped(left, right)
+  # def delete_first(wrapped(left, [_first | tail])) do
+  #   case tail do
+  #     [] ->
+  #       size = length(left)
+  #       {right, left} = left |> :lists.reverse() |> Enum.split(div(size, 2))
+  #       left = :lists.reverse(left)
+  #       wrapped(left, right)
 
-      right ->
-        wrapped(left, right)
-    end
-  end
+  #     right ->
+  #       wrapped(left, right)
+  #   end
+  # end
 
   defimpl Inspect do
     import Inspect.Algebra

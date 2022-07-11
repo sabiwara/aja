@@ -7,7 +7,7 @@ defmodule Queue do
 
   To achieve this, we keep track of the size as well as the
   last element, and the first element is always the head of
-  the right list.
+  the left list.
 
   ## Examples
 
@@ -23,20 +23,13 @@ defmodule Queue do
 
   """
 
-  @enforce_keys [:__internal__]
-  defstruct @enforce_keys
-
-  defmacrop wrapped(internal) do
-    quote do
-      %Queue{__internal__: unquote(internal)}
-    end
-  end
+  defstruct internal: {0, [], [], nil}
 
   defmacro q({:|||, _, [first, last]}) do
     case __CALLER__.context do
       :match ->
         quote do
-          %Queue{__internal__: {_, _, [unquote(first) | _], unquote(last)}}
+          %Queue{internal: {_, [unquote(first) | _], _, unquote(last)}}
         end
 
       _ ->
@@ -46,85 +39,91 @@ defmodule Queue do
 
   defmacro queue_size(queue) do
     quote do
-      :erlang.element(1, :erlang.map_get(:__internal__, unquote(queue)))
+      :erlang.element(1, :erlang.map_get(:internal, unquote(queue)))
     end
   end
 
-  def new, do: wrapped({0})
+  def size(queue), do: queue_size(queue)
+
+  def new, do: %Queue{}
 
   def new(enumerable) do
     case Enum.count(enumerable) do
       0 ->
-        wrapped({0})
+        %Queue{}
 
       1 ->
         value = Enum.at(enumerable, 0)
-        wrapped({1, [], [value], value})
+        %Queue{internal: {1, [value], [], value}}
 
       size ->
-        {right, left} = Enum.split(enumerable, div(size, 2))
-        left = :lists.reverse(left)
+        {left, right} = Enum.split(enumerable, div(size + 1, 2))
+        [last | _] = right = :lists.reverse(right)
 
-        wrapped({size, left, right, hd(left)})
+        %Queue{internal: {size, left, right, last}}
     end
   end
 
   def first(queue, default \\ nil)
-  def first(wrapped({_}), default), do: default
-  def first(wrapped({[first | _], _, _, _}), _default), do: first
+  def first(%Queue{internal: {_, [first | _], _, _}}, _default), do: first
+  def first(%Queue{}, default), do: default
 
   def last(queue, default \\ nil)
-  def last(wrapped({_}), default), do: default
-  def last(wrapped({_, _, _, last}), _default), do: last
+  def last(%Queue{internal: {0, _, _, _}}, default), do: default
+  def last(%Queue{internal: {_, _, _, last}}, _default), do: last
 
-  def to_list(wrapped({_})), do: []
-
-  def to_list(wrapped({_, left, right, _})) do
-    right ++ :lists.reverse(left)
+  def to_list(%Queue{internal: {_, left, right, _}}) do
+    left ++ :lists.reverse(right)
   end
 
-  def append(wrapped({_}), value), do: wrapped({1, [], [value], value})
+  def append(%Queue{internal: {0, _, _, _}}, value) do
+    %Queue{internal: {1, [value], [], value}}
+  end
 
-  def append(queue = wrapped({size, left, right, _last}), value),
-    # benchmarks tend to favor this style for append
-    do: %{queue | __internal__: {size + 1, [value | left], right, value}}
+  def append(queue = %Queue{internal: {size, left, right, _last}}, value) do
+    # benchmarks seems to favor this style for append
+    %{queue | internal: {size + 1, left, [value | right], value}}
+  end
 
-  def prepend(wrapped({_}), value), do: wrapped({1, [], [value], value})
+  def prepend(%Queue{internal: {0, _, _, _}}, value),
+    do: %Queue{internal: {1, [value], [], value}}
 
-  def prepend(queue = wrapped({size, left, right, last}), value),
-    do: %{queue | __internal__: {size + 1, left, [value | right], last}}
+  def prepend(queue = %Queue{internal: {size, left, right, last}}, value),
+    do: %{queue | internal: {size + 1, [value | left], right, last}}
 
-  def delete_first(wrapped(tuple)) when :erlang.element(1, tuple) <= 1, do: wrapped({0})
+  def delete_first(%Queue{internal: {size, _, _, _}}) when size <= 1, do: %Queue{}
 
-  def delete_first(wrapped({size, left, [_first | tail], last})) do
+  def delete_first(%Queue{internal: {size, [_first | tail], right, last}}) do
     size = size - 1
 
     case tail do
       [] ->
-        {right, left} = left |> :lists.reverse() |> Enum.split(div(size, 2))
+        {right, left} = div(size, 2) |> :lists.split(right)
         left = :lists.reverse(left)
-        wrapped({size, left, right, last})
+        %Queue{internal: {size, left, right, last}}
 
-      right ->
-        wrapped({size, left, right, last})
+      left ->
+        %Queue{internal: {size, left, right, last}}
     end
   end
 
-  def delete_last(wrapped(tuple)) when :erlang.element(1, tuple) <= 1, do: wrapped({0})
+  def delete_last(%Queue{internal: {size, _, _, _}}) when size <= 1, do: %Queue{}
 
-  def delete_last(wrapped({2, _, [first | _], _last})), do: wrapped({1, [], [first], first})
+  def delete_last(%Queue{internal: {2, [first | _], _, _last}}) do
+    %Queue{internal: {1, [first], [], first}}
+  end
 
-  def delete_last(wrapped({size, [_ | tail], right, _last})) do
+  def delete_last(%Queue{internal: {size, left, [_ | tail], _last}}) do
     size = size - 1
 
     case tail do
       [] ->
-        {right, left} = right |> Enum.split(div(size, 2))
-        left = [last | _] = :lists.reverse(left)
-        wrapped({size, left, right, last})
+        {left, right} = div(size + 1, 2) |> :lists.split(left)
+        [last | _] = right = :lists.reverse(right)
+        %Queue{internal: {size, left, right, last}}
 
-      left = [last | _] ->
-        wrapped({size, left, right, last})
+      right = [last | _] ->
+        %Queue{internal: {size, left, right, last}}
     end
   end
 

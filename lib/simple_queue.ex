@@ -14,6 +14,8 @@ defmodule SimpleQueue do
     end
   end
 
+  def size(queue), do: :queue.len(queue.__internal__)
+
   def new, do: wrapped(:queue.new())
 
   def new(enumerable) do
@@ -22,11 +24,11 @@ defmodule SimpleQueue do
 
   def first(queue, default \\ nil)
   def first(wrapped({[], []}), default), do: default
-  def first(wrapped(queue), _default), do: :queue.head(queue) |> wrapped()
+  def first(wrapped(queue), _default), do: :queue.head(queue)
 
   def last(queue, default \\ nil)
   def last(wrapped({[], []}), default), do: default
-  def last(wrapped(queue), _default), do: :queue.daeh(queue) |> wrapped()
+  def last(wrapped(queue), _default), do: :queue.daeh(queue)
 
   def to_list(wrapped(queue)) do
     :queue.to_list(queue)
