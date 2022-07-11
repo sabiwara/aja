@@ -11,21 +11,24 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 28 s
+Estimated total run time: 35 s
 
 Benchmarking :queue...
+Benchmarking KeyedQueue...
 Benchmarking PeekableQueue...
 Benchmarking Queue...
 Benchmarking SimpleQueue...
 
 Name                    ips        average  deviation         median         99th %
-:queue              76.62 M       13.05 ns±184305.94%           0 ns           0 ns
-PeekableQueue       67.05 M       14.91 ns±172170.52%           0 ns           0 ns
-Queue               66.28 M       15.09 ns±168948.35%           0 ns          42 ns
-SimpleQueue         40.71 M       24.56 ns ±87816.93%           0 ns          41 ns
+:queue             101.33 M        9.87 ns±161696.94%           0 ns           0 ns
+Queue               69.03 M       14.49 ns±173932.47%           0 ns           0 ns
+PeekableQueue       61.21 M       16.34 ns±175233.58%           0 ns           0 ns
+KeyedQueue          50.73 M       19.71 ns±100211.79%           0 ns           0 ns
+SimpleQueue         36.84 M       27.14 ns ±89482.44%           0 ns           0 ns
 
 Comparison: 
-:queue              76.62 M
-PeekableQueue       67.05 M - 1.14x slower +1.86 ns
-Queue               66.28 M - 1.16x slower +2.04 ns
-SimpleQueue         40.71 M - 1.88x slower +11.51 ns
+:queue             101.33 M
+Queue               69.03 M - 1.47x slower +4.62 ns
+PeekableQueue       61.21 M - 1.66x slower +6.47 ns
+KeyedQueue          50.73 M - 2.00x slower +9.84 ns
+SimpleQueue         36.84 M - 2.75x slower +17.27 ns
