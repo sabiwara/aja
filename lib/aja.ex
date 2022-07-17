@@ -415,4 +415,32 @@ defmodule Aja do
       to: Aja.Vector,
       as: :concat
   end
+
+  defmacro queue({:|||, _, [first, last]}) do
+    case __CALLER__.context do
+      :match ->
+        quote do
+          %Aja.Queue{__queue__: {_, [unquote(first) | _], _, unquote(last)}}
+        end
+
+      _ ->
+        raise ArgumentError, "The `queue(first ||| last)` syntax can only be used in matches"
+    end
+  end
+
+  defmacro queue([]) do
+    case __CALLER__.context do
+      :match ->
+        Aja.Queue.new() |> Macro.escape()
+
+      _ ->
+        raise ArgumentError, "The `queue([])` syntax can only be used in matches"
+    end
+  end
+
+  defmacro queue_size(queue) do
+    quote do
+      :erlang.element(1, :erlang.map_get(:__queue__, unquote(queue)))
+    end
+  end
 end

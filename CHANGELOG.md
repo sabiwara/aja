@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+- Add `Aja.Queue`
+
 ## v0.6.1 (2022-02-04)
 
 ### Enhancements

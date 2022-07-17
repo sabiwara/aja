@@ -1,0 +1,31 @@
+Operating System: macOS
+CPU Information: Apple M1
+Number of Available Cores: 8
+Available memory: 16 GB
+Elixir 1.13.4
+Erlang 25.0
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+
+Benchmarking :queue...
+Benchmarking PeekableQueue...
+Benchmarking Queue...
+Benchmarking SimpleQueue...
+
+Name                    ips        average  deviation         median         99th %
+PeekableQueue       14.38 M       69.54 ns ±19899.21%          41 ns         208 ns
+:queue              12.42 M       80.52 ns ±32654.32%          41 ns          83 ns
+Queue               11.21 M       89.21 ns ±27740.53%          41 ns         208 ns
+SimpleQueue          9.81 M      101.94 ns ±20418.09%          41 ns         208 ns
+
+Comparison: 
+PeekableQueue       14.38 M
+:queue              12.42 M - 1.16x slower +10.98 ns
+Queue               11.21 M - 1.28x slower +19.67 ns
+SimpleQueue          9.81 M - 1.47x slower +32.41 ns
