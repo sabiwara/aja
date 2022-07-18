@@ -29,7 +29,8 @@ defmodule Aja.MixProject do
       # Docs
       name: "Aja",
       docs: docs(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      dialyzer: [flags: [:missing_return]]
     ]
   end
 
