@@ -1368,8 +1368,6 @@ defmodule Aja.Vector do
   Folds (reduces) the given `vector` from the left with the function `fun`.
   Requires an accumulator `acc`.
 
-  Same as `reduce/3`.
-
   Runs in linear time.
 
   ## Examples
