@@ -41,7 +41,7 @@ true
 
 `Aja.Vector` reimplements many of the functions from the `Enum` module
 specifically for vectors, with efficiency in mind. It should be easier to use
-from Elixir than Erlang's [`:array`](http://erlang.org/doc/man/array.html)
+from Elixir than Erlang's [`:array`](https://erlang.org/doc/man/array.html)
 module and faster in most cases.
 
 The `Aja.vec/1` and `Aja.vec_size/1` macros, while being totally optional, can

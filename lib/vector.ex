@@ -24,7 +24,7 @@ defmodule Aja.Vector do
   Make sure to read the [Efficiency guide section](#module-efficiency-guide) to get the best performance
   out of vectors.
 
-  Erlang's [`:array`](http://erlang.org/doc/man/array.html) module offer similar functionalities.
+  Erlang's [`:array`](`:array`) module offer similar functionalities.
   However `Aja.Vector`:
   - is a better Elixir citizen: pipe-friendliness, `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
   - is heavily optimized and should offer higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
