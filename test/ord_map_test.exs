@@ -88,10 +88,16 @@ defmodule Aja.OrdMapTest do
                Aja.OrdMap.new([{:foo, :atom}, {5, :integer}]) |> inspect()
     end
 
-    test "from_struct/1" do
-      ord_map = %User{name: "John", age: 44} |> Aja.OrdMap.from_struct()
-      expected = Aja.OrdMap.new(age: 44, name: "John")
-      assert ^expected = ord_map
+    if Version.compare(System.version(), "1.14.0") != :lt do
+      test "from_struct/1" do
+        ord_map = %User{name: "John", age: 44} |> Aja.OrdMap.from_struct()
+        expected = Aja.OrdMap.new(name: "John", age: 44)
+        assert ^expected = ord_map
+
+        ord_map = Aja.OrdMap.from_struct(User)
+        expected = Aja.OrdMap.new(name: nil, age: nil)
+        assert ^expected = ord_map
+      end
     end
 
     test "get_and_update/3" do

@@ -1019,12 +1019,17 @@ defmodule Aja.OrdMap do
     end
   end
 
+  # TODO remove when dropping support for Elixir < 1.14
+  struct_fields_available? = Version.compare(System.version(), "1.14.0") != :lt
+
   @doc """
   Converts a `struct` to an ordered map.
 
   It accepts the struct module or a struct itself and
   simply removes the `__struct__` field from the given struct
   or from a new struct generated from the given module.
+
+  Respects the field order in Elixir >= 1.14.
 
   ## Example
 
@@ -1033,15 +1038,27 @@ defmodule Aja.OrdMap do
       end
 
       Aja.OrdMap.from_struct(User)
-      ord(%{age: nil, name: nil})
+      ord(%{name: nil, age: nil})
 
       Aja.OrdMap.from_struct(%User{name: "john", age: 44})
-      ord(%{age: 44, name: "john"})
+      ord(%{name: "john", age: 44})
 
   """
-  @spec from_struct(atom | struct) :: t
-  def from_struct(struct) do
-    struct |> Map.from_struct() |> new()
+  @spec from_struct(module | struct) :: t
+  if struct_fields_available? do
+    def from_struct(struct) when is_atom(struct) do
+      struct.__struct__() |> from_struct()
+    end
+
+    def from_struct(%module{} = struct) do
+      :struct
+      |> module.__info__()
+      |> new(fn %{field: field} -> {field, Map.fetch!(struct, field)} end)
+    end
+  else
+    def from_struct(struct) do
+      struct |> Map.from_struct() |> new()
+    end
   end
 
   @doc """
