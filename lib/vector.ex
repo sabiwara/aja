@@ -270,15 +270,15 @@ defmodule Aja.Vector do
   - `Aja.Enum` mirrors `Enum` and should return identical results, therefore many functions would return lists
   - `Aja.Vector` mirrors `Enum` functions that are returning lists, but returns vectors instead
 
-      iex> vector = Aja.Vector.new(1..10)
-      iex> Aja.Enum.reverse(vector)
-      [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-      iex> Aja.Vector.reverse(vector)
-      vec([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
-      iex> Aja.Enum.map(vector, & (&1 * 7))
-      [7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
-      iex> Aja.Vector.map(vector, & (&1 * 7))
-      vec([7, 14, 21, 28, 35, 42, 49, 56, 63, 70])
+        iex> vector = Aja.Vector.new(1..5)
+        iex> Aja.Enum.reverse(vector)
+        [5, 4, 3, 2, 1]
+        iex> Aja.Vector.reverse(vector)
+        vec([5, 4, 3, 2, 1])
+        iex> Aja.Enum.map(vector, & (&1 * 7))
+        [7, 14, 21, 28, 35]
+        iex> Aja.Vector.map(vector, & (&1 * 7))
+        vec([7, 14, 21, 28, 35])
 
   ### Additional notes
 

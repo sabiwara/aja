@@ -20,7 +20,7 @@ defmodule Aja.Enum do
   Using vectors with `Enum` would defeat the purpose, hence the introduction of `Aja.Enum`.
 
       iex> vector = Aja.Vector.new(1..10000)
-      iex> Enum.sum(vector)    # slow
+      iex> Enum.sum(vector)      # slow
       50005000
       iex> Aja.Enum.sum(vector)  # same result, much faster
       50005000
