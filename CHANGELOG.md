@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.6.2 (2023-03-10)
+
 ### Enhancements
 
 - `Aja.OrdMap.from_struct/1` respects the defined field order (Elixir >= 1.14)
