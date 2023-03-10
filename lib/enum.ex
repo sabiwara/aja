@@ -619,7 +619,7 @@ defmodule Aja.Enum do
   @doc """
   Returns the product of all elements in the `enumerable`.
 
-  Mirrors Enum.product/1 from Elixir 1.12.
+  Mirrors `Enum.product/1`.
 
   Raises `ArithmeticError` if `enumerable` contains a non-numeric value.
 
@@ -1061,7 +1061,7 @@ defmodule Aja.Enum do
   @doc ~S"""
   Returns a list with with each element of `enumerable` wrapped in a tuple alongside its index.
 
-  Mirrors `Enum.with_index/2` (Elixir 1.12 version): may receive a function or an integer offset.
+  Mirrors `Enum.with_index/2`: may receive a function or an integer offset.
 
   If an integer `offset` is given, it will index from the given `offset` instead of from zero.
 
