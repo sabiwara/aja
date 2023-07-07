@@ -18,7 +18,7 @@ manipulation and performance.
 > "there is one aspect of functional programming that no amount of cleverness on
 > the part of the compiler writer is likely to mitigate — the use of inferior or
 > inappropriate data structures." --
-> [Chris Okasaki](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+> [Chris Okasaki](https://www.cs.tufts.edu/~nr/cs257/archive/chris-okasaki/dissertation.pdf)
 
 #### Persistent vectors: `Aja.Vector`
 
@@ -193,7 +193,7 @@ at the expense of compile time)
 ### Resources
 
 - Chris Okasaki's
-  [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+  [Purely Functional Data Structures](https://www.cs.tufts.edu/~nr/cs257/archive/chris-okasaki/dissertation.pdf)
 - Jean Niklas L'orange's
   [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
   and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB
