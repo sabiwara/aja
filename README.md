@@ -193,7 +193,7 @@ at the expense of compile time)
 ### Resources
 
 - Chris Okasaki's
-  [Purely Functional Data Structures](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+  [Purely Functional Data Structures](https://www.cs.tufts.edu/~nr/cs257/archive/chris-okasaki/dissertation.pdf)
 - Jean Niklas L'orange's
   [articles](https://hypirion.com/musings/understanding-persistent-vector-pt-1)
   and [thesis](https://hypirion.com/thesis.pdf) about persistent vectors and RRB
