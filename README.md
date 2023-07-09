@@ -113,33 +113,6 @@ for Aja structures such as `Aja.Vector` or `Aja.OrdMap`.
 `Aja.Enum` on vectors/ord maps can often be faster than `Enum` on lists/maps,
 depending on the function and size of the sequence.
 
-## Utility functions
-
-#### IO data
-
-[IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) are nested
-structures based on lists to work more efficiently with binary/text data without
-the need for any expensive concatenation.
-
-The `~i` sigil provides a way to build IO data using string interpolation:
-
-```elixir
-iex> import Aja
-iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
-["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
-```
-
-The `Aja.IO` module provides functions to work with IO data:
-
-```elixir
-iex> Aja.IO.to_iodata(:foo)
-"foo"
-iex> Aja.IO.to_iodata(["abc", 'def' | "ghi"])
-["abc", 'def' | "ghi"]
-iex> Aja.IO.iodata_empty?(["", []])
-true
-```
-
 ## Installation
 
 Aja can be installed by adding `aja` to your list of dependencies in `mix.exs`:
@@ -152,8 +125,7 @@ def deps do
 end
 ```
 
-Or, if you are using Elixir 1.12, you can just try it out from `iex` or an
-`.exs` script:
+Or you can just try it out from `iex` or an `.exs` script:
 
 ```elixir
 iex> Mix.install([:aja])
