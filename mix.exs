@@ -71,6 +71,7 @@ defmodule Aja.MixProject do
 
   defp aliases do
     [
+      docs: ["compile --force", "docs"],
       "test.prop": ["test --only property:true"],
       "test.unit": ["test --exclude property:true"]
     ]
