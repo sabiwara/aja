@@ -1522,7 +1522,7 @@ defmodule Aja.Vector do
 
       iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(80..90)
       vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])
-      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40..-30)
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40..-30//1)
       vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])
       iex> Aja.Vector.new([:only_one]) |> Aja.Vector.slice(0..1000)
       vec([:only_one])
