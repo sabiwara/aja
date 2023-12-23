@@ -14,12 +14,12 @@ jobs:
             otp: "21.3"
           - elixir: "1.11"
             otp: "23.3"
-          - elixir: "1.12"
-            otp: "24.3"
-          - elixir: "1.13"
-            otp: "24.3"
           - elixir: "1.14"
             otp: "25.3"
+          - elixir: "1.15"
+            otp: "26.0"
+          - elixir: "1.16"
+            otp: "26.2"
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -42,8 +42,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - elixir: "1.14"
-            otp: "25.3"
+          - elixir: "1.16"
+            otp: "26.2"
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1

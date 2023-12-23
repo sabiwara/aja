@@ -245,7 +245,10 @@ defmodule Aja.Vector.PropTest do
 
       assert list === Aja.Vector.to_list(vector)
       assert Enum.reverse(list) |> Aja.Vector.new() === Aja.Vector.reverse(vector)
-      assert Enum.reverse(list, 'abc') |> Aja.Vector.new() === Aja.Vector.reverse(vector, 'abc')
+
+      assert Enum.reverse(list, ~c"abc") |> Aja.Vector.new() ===
+               Aja.Vector.reverse(vector, ~c"abc")
+
       assert list === Aja.Vector.foldr(vector, [], &[&1 | &2])
       assert Enum.reverse(list) === Aja.Vector.foldl(vector, [], &[&1 | &2])
 

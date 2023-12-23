@@ -933,7 +933,7 @@ defmodule Aja.Enum do
   end
 
   @doc false
-  @spec min(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
+  @spec min(t(val), (-> empty_result)) :: val | empty_result when val: value, empty_result: any
   def min(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.min(enumerable, empty_fallback)
@@ -949,7 +949,7 @@ defmodule Aja.Enum do
 
   Mirrors `Enum.min/3` with higher performance for Aja structures.
   """
-  @spec min(t(val), (val, val -> boolean) | module, (() -> empty_result)) :: val | empty_result
+  @spec min(t(val), (val, val -> boolean) | module, (-> empty_result)) :: val | empty_result
         when val: value, empty_result: any
   def min(enumerable, sorter \\ &<=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
       when is_function(empty_fallback, 0) do
@@ -972,7 +972,7 @@ defmodule Aja.Enum do
   end
 
   @doc false
-  @spec max(t(val), (() -> empty_result)) :: val | empty_result when val: value, empty_result: any
+  @spec max(t(val), (-> empty_result)) :: val | empty_result when val: value, empty_result: any
   def max(enumerable, empty_fallback) when is_function(empty_fallback, 0) do
     case H.try_get_raw_vec_or_list(enumerable) do
       nil -> Enum.max(enumerable, empty_fallback)
@@ -988,7 +988,7 @@ defmodule Aja.Enum do
 
   Mirrors `Enum.max/3` with higher performance for Aja structures.
   """
-  @spec max(t(val), (val, val -> boolean) | module, (() -> empty_result)) :: val | empty_result
+  @spec max(t(val), (val, val -> boolean) | module, (-> empty_result)) :: val | empty_result
         when val: value, empty_result: any
   def max(enumerable, sorter \\ &>=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
       when is_function(empty_fallback, 0) do
@@ -1012,7 +1012,7 @@ defmodule Aja.Enum do
 
   Mirrors `Enum.min_by/4` with higher performance for Aja structures.
   """
-  @spec min_by(t(val), (val -> key), (key, key -> boolean) | module, (() -> empty_result)) ::
+  @spec min_by(t(val), (val -> key), (key, key -> boolean) | module, (-> empty_result)) ::
           val | empty_result
         when val: value, key: term, empty_result: any
   def min_by(enumerable, fun, sorter \\ &<=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)
@@ -1037,7 +1037,7 @@ defmodule Aja.Enum do
 
   Mirrors `Enum.max_by/4` with higher performance for Aja structures.
   """
-  @spec max_by(t(val), (val -> key), (key, key -> boolean) | module, (() -> empty_result)) ::
+  @spec max_by(t(val), (val -> key), (key, key -> boolean) | module, (-> empty_result)) ::
           val | empty_result
         when val: value, key: term, empty_result: any
   def max_by(enumerable, fun, sorter \\ &>=/2, empty_fallback \\ fn -> raise Enum.EmptyError end)

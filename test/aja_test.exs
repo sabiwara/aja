@@ -325,8 +325,10 @@ defmodule ATest do
       ["int: ", "99", ".\n"] = ~i"int: #{99}.\n"
       ["atom: ", "foo", ".\n"] = ~i"atom: #{:foo}.\n"
       ["string: ", "bar", ".\n"] = ~i"string: #{"bar"}.\n"
-      ["charlist: ", 'baz', ".\n"] = ~i"charlist: #{'baz'}.\n"
-      ["iolist: ", [["abc"], 'def' | "ghi"], ".\n"] = ~i"iolist: #{[["abc"], 'def' | "ghi"]}.\n"
+      ["charlist: ", ~c"baz", ".\n"] = ~i"charlist: #{~c"baz"}.\n"
+
+      ["iolist: ", [["abc"], ~c"def" | "ghi"], ".\n"] =
+        ~i"iolist: #{[["abc"], ~c"def" | "ghi"]}.\n"
 
       ["assignments: ", "3", ".\n"] =
         ~i"assignments: #{a = 1
