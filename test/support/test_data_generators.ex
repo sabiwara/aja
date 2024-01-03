@@ -48,7 +48,7 @@ defmodule Aja.TestDataGenerators do
 
   def do_map_of(key_generator, value_generator) do
     [&Map.new/1, &Aja.OrdMap.new/1]
-    |> Enum.map(fn fun -> map(list_of({key_generator, value_generator}), fun) end)
+    |> Enum.map(fn fun -> map(list_of(tuple({key_generator, value_generator})), fun) end)
     |> one_of()
   end
 end
