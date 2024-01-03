@@ -192,7 +192,7 @@ defmodule Aja.OrdMap do
   @type value :: term
   @typep index :: non_neg_integer
   @typep internals(key, value) :: %__MODULE__{
-           __ord_map__: %{optional(key) => [index | value]},
+           __ord_map__: %{optional(key) => nonempty_improper_list(index, value)},
            __ord_vector__: RawVector.t({key, value})
          }
 
