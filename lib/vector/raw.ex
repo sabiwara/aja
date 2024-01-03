@@ -47,7 +47,7 @@ defmodule Aja.Vector.Raw do
     end
   end
 
-  @spec empty :: t()
+  @spec empty :: t(none())
   def empty, do: @empty
 
   @type value :: term
@@ -56,7 +56,6 @@ defmodule Aja.Vector.Raw do
   @type shift :: non_neg_integer
   @type t(value) ::
           {0} | {size, tail_offset, shift | nil, Trie.t(value) | nil, Tail.t(value), value}
-  @type t() :: t(value)
 
   defmacro size(vector) do
     quote do
@@ -755,7 +754,7 @@ defmodule Aja.Vector.Raw do
   end
 
   def member?(empty_pattern(), _value), do: false
-  @spec any?(t()) :: boolean()
+  @spec any?(t(as_boolean(term))) :: boolean()
 
   def any?(small(size, tail, _first)) do
     Tail.partial_any?(tail, size)
@@ -780,7 +779,7 @@ defmodule Aja.Vector.Raw do
 
   def any?(empty_pattern(), _fun), do: false
 
-  @spec all?(t()) :: boolean()
+  @spec all?(t(as_boolean(term))) :: boolean()
 
   def all?(small(size, tail, _first)) do
     Tail.partial_all?(tail, size)
