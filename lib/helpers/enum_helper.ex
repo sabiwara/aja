@@ -5,8 +5,6 @@ defmodule Aja.EnumHelper do
 
   alias Aja.Vector.Raw, as: RawVector
 
-  @dialyzer :no_opaque
-
   @compile {:inline, try_get_raw_vec_or_list: 1}
   def try_get_raw_vec_or_list(%Aja.Vector{__vector__: vector}), do: vector
   def try_get_raw_vec_or_list(list) when is_list(list), do: list

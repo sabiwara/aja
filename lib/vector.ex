@@ -100,8 +100,8 @@ defmodule Aja.Vector do
       iex> match?(%Aja.Vector{}, Aja.Vector.new())
       true
 
-  Note, however, than `Aja.Vector` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
-  its struct internal fields must not be accessed directly.
+  Note, however, that `Aja.Vector` should be considered an opaque type: its struct internal fields
+  must not be accessed directly (even if not enforced by dialyzer because of pattern-matching).
 
   As discussed in the previous section, [`vec/1`](`Aja.vec/1`) makes it
   possible to pattern match on size and elements as well as checking the type.
@@ -302,12 +302,18 @@ defmodule Aja.Vector do
   @type index :: integer
   @type value :: term
 
-  @opaque raw(value) :: Raw.t(value)
-  @type t(value) :: %__MODULE__{__vector__: raw(value)}
+  @typep internals(value) :: %__MODULE__{__vector__: Raw.t(value)}
+
+  @typedoc """
+  The type of an `Aja.Vector` with elements of the type `value`.
+
+  It should be considered opaque even though it isn't enforced by dialyzer to enable pattern-matching.
+  """
+  @type t(value) :: internals(value)
+  @type t :: t(value)
+
   @enforce_keys [:__vector__]
   defstruct [:__vector__]
-
-  @type t :: t(value)
 
   @empty_raw Raw.empty()
 

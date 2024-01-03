@@ -32,8 +32,6 @@ defmodule Aja.Enum do
 
   @compile :inline_list_funcs
 
-  @dialyzer :no_opaque
-
   @type index :: integer
   @type value :: any
   @type t(value) :: Aja.Vector.t(value) | [value] | Enumerable.t()
