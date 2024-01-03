@@ -1512,7 +1512,11 @@ defmodule Aja.OrdMap do
       end
 
     vector_ast = RawVector.from_list_ast(key_values)
-    map_ast = {:%{}, [], Enum.map(map, fn {k, [i | v]} -> {k, [{:|, [], [i, v]}]} end)}
+    kvs_ast = Enum.map(map, fn {k, [i | v]} -> {k, quote(do: [unquote(i) | unquote(v)])} end)
+
+    # "generated: true" to prevent dialyzer from raising `improper_list_constr` warnings.
+    # these warnings might be removed eventually: https://github.com/erlang/otp/issues/5937
+    map_ast = quote generated: true, do: %{unquote_splicing(kvs_ast)}
 
     quote do
       %unquote(__MODULE__){__ord_map__: unquote(map_ast), __ord_vector__: unquote(vector_ast)}

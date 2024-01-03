@@ -2,7 +2,14 @@
 
 ## Dev
 
+### Bug fixes
+
+- Fix `Aja.OrdMap.t/2:t` type spec
+- Fix `improper_list_constr` dialyzer warning in `Aja.ord/1`
+
 ## v0.6.3 (2024-01-03)
+
+### Enhancements
 
 - Stop using an opaque type for `Aja.Vector.t/1:t` to enable pattern-matching.
   Rely on documentation instead, like `Aja.OrdMap.t/2:t`. Thanks @MegaRedHand!
