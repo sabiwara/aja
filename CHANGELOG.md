@@ -2,6 +2,9 @@
 
 ## Dev
 
+- Stop using an opaque type for `Aja.Vector.t/1:t` to enable pattern-matching.
+  Rely on documentation instead, like `Aja.OrdMap.t/2:t`. Thanks @MegaRedHand!
+
 ## v0.6.2 (2023-03-10)
 
 ### Enhancements

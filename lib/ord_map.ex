@@ -171,8 +171,8 @@ defmodule Aja.OrdMap do
       iex> match?(%Aja.OrdMap{}, Aja.OrdMap.new())
       true
 
-  Note, however, than `Aja.OrdMap` is an [opaque type](https://hexdocs.pm/elixir/typespecs.html#user-defined-types):
-  its struct internal fields must not be accessed directly.
+  Note, however, that `Aja.OrdMap` should be considered an opaque type: its struct internal fields
+  must not be accessed directly (even if not enforced by dialyzer because of pattern-matching).
 
   As discussed in the previous section, [`ord/1`](`Aja.ord/1`) and [`ord_size/1`](`Aja.ord_size/1`) makes it
   possible to pattern match on keys as well as check the type and size.
@@ -195,8 +195,15 @@ defmodule Aja.OrdMap do
            __ord_map__: %{optional(key) => [index | value]},
            __ord_vector__: RawVector.t({key, value})
          }
+
+  @typedoc """
+  The type of an `Aja.OrdMap` with keys of the type `key` and values of the type `value`.
+
+  It should be considered opaque even though it isn't enforced by dialyzer to enable pattern-matching.
+  """
   @type t(key, value) :: internals(key, value)
   @type t :: t(key, value)
+
   defstruct __ord_map__: %{}, __ord_vector__: RawVector.empty()
 
   @doc false
