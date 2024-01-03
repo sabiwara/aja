@@ -302,7 +302,8 @@ defmodule Aja.Vector do
   @type index :: integer
   @type value :: term
 
-  @opaque t(value) :: %__MODULE__{__vector__: Raw.t(value)}
+  @opaque raw(value) :: Raw.t(value)
+  @type t(value) :: %__MODULE__{__vector__: raw(value)}
   @enforce_keys [:__vector__]
   defstruct [:__vector__]
 
