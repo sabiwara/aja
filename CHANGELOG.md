@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.6.4 (2024-01-03)
+
 ### Bug fixes
 
 - Fix `Aja.OrdMap.t/2:t` type spec
