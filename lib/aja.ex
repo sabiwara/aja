@@ -5,48 +5,7 @@ defmodule Aja do
   Use `import Aja` to import everything, or import only the macros you need.
   """
 
-  @doc ~S"""
-  A sigil to build [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and avoid string concatenation.
-
-  Use `import Aja` to use it, or `import Aja, only: [sigil_i: 2]`.
-
-  This sigil provides a faster version of string interpolation which:
-  - will build a list with all chunks instead of concatenating them as a string
-  - uses `Aja.IO.to_iodata/1` on interpolated values instead of `to_string/1`, which:
-    * will keep lists untouched, without any validation or transformation
-    * will cast anything else using `to_string/1`
-
-  Works with both [IO data](https://hexdocs.pm/elixir/IO.html#module-io-data) and
-  [Chardata](https://hexdocs.pm/elixir/IO.html?#module-chardata).
-  See their respective documentation for more information.
-
-  ## Examples
-
-      iex> ~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
-      ["atom: ", "foo", ", charlist: ", 'abc', ", number: ", "14.35", 10]
-      iex> ~i"abc#{['def' | "ghi"]}"
-      ["abc", ['def' | "ghi"]]
-      iex> ~i"Giorno Giovanna"
-      "Giorno Giovanna"
-
-    IO data can often be used as is without ever generating the corresponding string.
-    If needed however, IO data can be cast as a string using `IO.iodata_to_binary/1`,
-    and chardata using `List.to_string/1`. In most cases, both should be the same:
-
-      iex> IO.iodata_to_binary(~i"atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n")
-      "atom: foo, charlist: abc, number: 14.35\n"
-      iex> List.to_string(~i"abc#{['def' | "ghi"]}")
-      "abcdefghi"
-
-    Those are the exact same values returned by a regular string interpolation, without
-    the `~i` sigil:
-
-      iex> "atom: #{:foo}, charlist: #{'abc'}, number: #{12 + 2.35}\n"
-      "atom: foo, charlist: abc, number: 14.35\n"
-      iex> "abc#{['def' | "ghi"]}"
-      "abcdefghi"
-
-  """
+  @deprecated "Use the :ion library instead (https://hex.pm/packages/ion)"
   defmacro sigil_i(term, modifiers)
 
   defmacro sigil_i({:<<>>, _, [piece]}, []) when is_binary(piece) do

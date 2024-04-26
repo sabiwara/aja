@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Breaking changes
+
+- Deprecate ~i sigil and Aja.IO module in favor of
+  [`Ion`](https://hex.pm/packages/ion)
+
 ## v0.6.4 (2024-01-03)
 
 ### Bug fixes
