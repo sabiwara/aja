@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+- Bump `ex_doc` to the latest version
+
 ### Breaking changes
 
 - Deprecate ~i sigil and Aja.IO module in favor of
