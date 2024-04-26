@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Breaking changes
+
+- Deprecate ~i sigil and Aja.IO module in favor of
+  [`Ion`](https://hex.pm/packages/ion)
+
 ## v0.6.4 (2024-01-03)
 
 ### Bug fixes
@@ -229,8 +234,8 @@ This release is mostly focused on vector slicing and performance ⚡️
 
 ### Enhancements
 
-- Add `Aja.sigil_i/2`
-- Add `Aja.IO.to_iodata/1`
+- Add Aja.sigil_i/2
+- Add Aja.IO.to_iodata/1
 
 ## v0.3.2 (2020-11-14)
 

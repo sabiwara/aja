@@ -318,36 +318,5 @@ defmodule ATest do
 
       assert_raise FunctionClauseError, fn -> 8 = %{__vector__: {8}} |> vec_size() end
     end
-
-    test "sigil_i" do
-      "a" = ~i"a"
-      "ゴゴゴ" = ~i"ゴゴゴ"
-      ["int: ", "99", ".\n"] = ~i"int: #{99}.\n"
-      ["atom: ", "foo", ".\n"] = ~i"atom: #{:foo}.\n"
-      ["string: ", "bar", ".\n"] = ~i"string: #{"bar"}.\n"
-      ["charlist: ", ~c"baz", ".\n"] = ~i"charlist: #{~c"baz"}.\n"
-
-      ["iolist: ", [["abc"], ~c"def" | "ghi"], ".\n"] =
-        ~i"iolist: #{[["abc"], ~c"def" | "ghi"]}.\n"
-
-      ["assignments: ", "3", ".\n"] =
-        ~i"assignments: #{a = 1
-        b = 2
-        a + b}.\n"
-
-      iodata = ~i"[#{for i <- 1..3, do: ~i({"name": "foo_#{i}"},)}]"
-
-      assert [
-               91,
-               [
-                 ["{\"name\": \"foo_", "1", "\"},"],
-                 ["{\"name\": \"foo_", "2", "\"},"],
-                 ["{\"name\": \"foo_", "3", "\"},"]
-               ],
-               93
-             ] = iodata
-
-      assert ~s([{"name": "foo_1"},{"name": "foo_2"},{"name": "foo_3"},]) = to_string(iodata)
-    end
   end
 end
