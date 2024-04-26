@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.6.5 (2024-04-26)
+
 ### Enhancements
 
 - Bump `ex_doc` to the latest version
