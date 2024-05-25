@@ -11,5 +11,5 @@ Benchee.run(
     "Enum.random/1 (vector)" => fn _ -> Enum.random(vector) end,
     "Enum.random/1 (range)" => fn _ -> Enum.random(range) end
   },
-  before_scenario: fn _ -> :rand.seed(:exrop, {101, 102, 103}) end
+  before_scenario: fn _ -> :rand.seed(:exsss, {101, 102, 103}) end
 )

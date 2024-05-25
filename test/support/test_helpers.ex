@@ -39,7 +39,7 @@ defmodule Aja.TestHelpers do
 
   def with_seed(fun) when is_function(fun, 0) do
     Task.async(fn ->
-      :rand.seed(:exrop, {101, 102, 103})
+      :rand.seed(:exsss, {101, 102, 103})
       fun.()
     end)
     |> Task.await()

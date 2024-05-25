@@ -25,9 +25,9 @@ defmodule Aja.List do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> :rand.seed(:exsss, {1, 2, 3})
       iex> Aja.List.repeat(&:rand.uniform/0, 3)
-      [0.7498295129076106, 0.06161655489244533, 0.7924073127680873]
+      [0.5455598952593053, 0.6039309974353404, 0.6684893034823949]
 
       # It is basically just syntactic sugar for the following:
       iex> Stream.repeatedly(&:rand.uniform/0) |> Enum.take(3)
