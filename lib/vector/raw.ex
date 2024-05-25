@@ -439,7 +439,7 @@ defmodule Aja.Vector.Raw do
 
       _ ->
         left = take(vector, index)
-        [popped | right] = slice(vector, index, size - 1)
+        [popped | right] = slice(vector, index, size - 1, 1)
         new_vector = concat_list(left, right)
         {popped, new_vector}
     end
@@ -452,7 +452,7 @@ defmodule Aja.Vector.Raw do
 
       amount ->
         left = take(vector, index)
-        right = slice(vector, amount, size - 1)
+        right = slice(vector, amount, size - 1, 1)
         concat_list(left, right)
     end
   end
@@ -906,15 +906,15 @@ defmodule Aja.Vector.Raw do
 
   def map(empty_pattern(), _fun), do: @empty
 
-  @compile {:inline, slice: 3}
-  @spec slice(t(val), non_neg_integer, non_neg_integer) :: [val] when val: value
-  def slice(vector, start, last)
+  @compile {:inline, slice: 4}
+  @spec slice(t(val), non_neg_integer, non_neg_integer, pos_integer) :: [val] when val: value
+  def slice(vector, start, last, step)
 
-  def slice(small(size, tail, _first), start, last) do
-    Tail.slice(tail, start, last, size)
+  def slice(small(size, tail, _first), start, last, step) do
+    Tail.slice(tail, start, last, size, step)
   end
 
-  def slice(large(size, tail_offset, level, trie, tail, _first), start, last) do
+  def slice(large(size, tail_offset, level, trie, tail, _first), start, last, step) do
     acc =
       if last < tail_offset do
         []
@@ -923,7 +923,8 @@ defmodule Aja.Vector.Raw do
           tail,
           Kernel.max(0, start - tail_offset),
           last - tail_offset,
-          size - tail_offset
+          size - tail_offset,
+          step
         )
       end
 
@@ -934,7 +935,7 @@ defmodule Aja.Vector.Raw do
     end
   end
 
-  def slice(empty_pattern(), _start, _last), do: []
+  def slice(empty_pattern(), _start, _last, _step), do: []
 
   @compile {:inline, take: 2}
   @spec take(t(val), non_neg_integer) :: t(val) when val: value

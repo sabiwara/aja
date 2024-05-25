@@ -443,6 +443,16 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new([2, 3, 4, 5, 6]) == Aja.Vector.new(1..100) |> Aja.Vector.slice(1..5)
       assert Aja.Vector.new([18, 19]) == Aja.Vector.new(1..20) |> Aja.Vector.slice(-3, 2)
       assert Aja.Vector.new(2..99) == Aja.Vector.new(1..100) |> Aja.Vector.slice(1..98)
+
+      assert Aja.Vector.new([2, 4, 6]) ==
+               Aja.Vector.new(1..10) |> Aja.Vector.slice(1..5//2)
+
+      assert Aja.Vector.new([2, 4, 6]) ==
+               Aja.Vector.new(1..10) |> Aja.Vector.slice(1..6//2)
+
+      assert_raise ArgumentError, fn ->
+        Aja.Vector.new(1..10) |> Aja.Vector.slice(1..5//-2)
+      end
     end
 
     test "take/2" do

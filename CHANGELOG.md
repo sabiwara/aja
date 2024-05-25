@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Bug fixes
+
+- Fix `Aja.Vector.slice/2` for ranges with step != 1
+- Fix `Aja.Enum.count/1` for ranges with step != 1
+
 ## v0.7.0 (2024-08-28)
 
 ### Enhancements

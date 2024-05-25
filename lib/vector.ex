@@ -1525,14 +1525,16 @@ defmodule Aja.Vector do
       vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])
       iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40..-30//1)
       vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(20..50//10)
+      vec([20, 30, 40, 50])
       iex> Aja.Vector.new([:only_one]) |> Aja.Vector.slice(0..1000)
       vec([:only_one])
 
   """
   @spec slice(t(val), Range.t()) :: t(val) when val: value
-  def slice(%__MODULE__{} = vector, first..last//1 = index_range) do
-    case first do
-      0 ->
+  def slice(%__MODULE__{} = vector, first..last//step = index_range) do
+    case {first, step} do
+      {0, 1} ->
         amount = last + 1
 
         if last < 0 do
@@ -1612,7 +1614,7 @@ defmodule Aja.Vector do
     case size + amount do
       start when start > 0 ->
         internal
-        |> Raw.slice(start, size - 1)
+        |> Raw.slice(start, size - 1, 1)
         |> Raw.from_list()
 
       _ ->
@@ -1668,7 +1670,7 @@ defmodule Aja.Vector do
       @empty_raw
     else
       internal
-      |> Raw.slice(amount, size - 1)
+      |> Raw.slice(amount, size - 1, 1)
       |> Raw.from_list()
     end
   end
@@ -1763,7 +1765,7 @@ defmodule Aja.Vector do
         size = Raw.size(internal)
 
         internal
-        |> Raw.slice(index, size - 1)
+        |> Raw.slice(index, size - 1, 1)
         |> from_list()
     end
   end
@@ -1804,7 +1806,7 @@ defmodule Aja.Vector do
 
         dropped =
           internal
-          |> Raw.slice(index, size - 1)
+          |> Raw.slice(index, size - 1, 1)
           |> from_list()
 
         {taken, dropped}
@@ -1995,7 +1997,10 @@ defmodule Aja.Vector do
       size = Aja.Vector.Raw.size(internal)
 
       {:ok, size,
-       fn start, length -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
+       fn start, length, step ->
+         #  dbg({start, length, step, size})
+         Aja.Vector.Raw.slice(internal, start, start + length - 1, step)
+       end}
     end
 
     def reduce(%Aja.Vector{__vector__: internal}, acc, fun) do
