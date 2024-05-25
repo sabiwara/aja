@@ -2,6 +2,11 @@
 
 ## Dev
 
+### Bug fixes
+
+- Fix `Aja.Vector.slice/2` for ranges with step != 1
+- Fix `Aja.Enum.count/1` for ranges with step != 1
+
 ### Enhancements
 
 - Fix compilation warnings due to supporting Elixir 1.11

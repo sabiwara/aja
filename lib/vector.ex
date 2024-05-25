@@ -1531,14 +1531,16 @@ defmodule Aja.Vector do
       vec([80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90])
       iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(-40..-30//1)
       vec([61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71])
+      iex> Aja.Vector.new(0..100) |> Aja.Vector.slice(20..50//10)
+      vec([20, 30, 40, 50])
       iex> Aja.Vector.new([:only_one]) |> Aja.Vector.slice(0..1000)
       vec([:only_one])
 
   """
   @spec slice(t(val), Range.t()) :: t(val) when val: value
-  def slice(%__MODULE__{} = vector, first..last = index_range) do
-    case first do
-      0 ->
+  def slice(%__MODULE__{} = vector, first..last//step = index_range) do
+    case {first, step} do
+      {0, 1} ->
         amount = last + 1
 
         if last < 0 do

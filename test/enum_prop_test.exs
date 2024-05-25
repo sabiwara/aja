@@ -43,6 +43,7 @@ defmodule Aja.Enum.PropTest do
         assert unique_length === Aja.Enum.count(map_set)
 
         assert Enum.count(i1..i2) == Aja.Enum.count(i1..i2)
+        assert Enum.count(i1..i2//2) == Aja.Enum.count(i1..i2//2)
 
         fun = fn x -> :erlang.phash2(x, 7) == 0 end
         count_result = Enum.count(list, fun)
