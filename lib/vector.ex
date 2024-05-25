@@ -425,9 +425,9 @@ defmodule Aja.Vector do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> :rand.seed(:exsss, {1, 2, 3})
       iex> Aja.Vector.repeat(&:rand.uniform/0, 3)
-      vec([0.7498295129076106, 0.06161655489244533, 0.7924073127680873])
+      vec([0.5455598952593053, 0.6039309974353404, 0.6684893034823949])
 
   """
   def repeat(generator_fun, n)
@@ -1869,9 +1869,9 @@ defmodule Aja.Vector do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> :rand.seed(:exsss, {1, 2, 3})
       iex> Aja.Vector.new(1..10) |> Aja.Vector.take_random(2)
-      vec([7, 2])
+      vec([6, 1])
       iex> Aja.Vector.new([:foo, :bar, :baz]) |> Aja.Vector.take_random(100)
       vec([:bar, :baz, :foo])
 
@@ -1890,11 +1890,11 @@ defmodule Aja.Vector do
   ## Examples
 
       # Although not necessary, let's seed the random algorithm
-      iex> :rand.seed(:exrop, {1, 2, 3})
+      iex> :rand.seed(:exsss, {1, 2, 3})
+      iex> Aja.Vector.new([1, 2, 3]) |> Aja.Vector.shuffle()
+      vec([1, 2, 3])
       iex> Aja.Vector.new([1, 2, 3]) |> Aja.Vector.shuffle()
       vec([3, 1, 2])
-      iex> Aja.Vector.new([1, 2, 3]) |> Aja.Vector.shuffle()
-      vec([1, 3, 2])
 
   """
   @spec shuffle(t(val)) :: t(val) when val: value

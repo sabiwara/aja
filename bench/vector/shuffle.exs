@@ -10,5 +10,5 @@ Benchee.run(
     "Enum.shuffle/1 (vector)" => fn _ -> Enum.shuffle(vector) end,
     "Aja.Enum.shuffle/1 (vector)" => fn _ -> Aja.Enum.shuffle(vector) end
   },
-  before_scenario: fn _ -> :rand.seed(:exrop, {101, 102, 103}) end
+  before_scenario: fn _ -> :rand.seed(:exsss, {101, 102, 103}) end
 )
