@@ -41,8 +41,9 @@ defmodule Aja.List do
         iex> incorrect = fn n -> for _i <- 1..n, do: :rand.uniform() end
         iex> incorrect.(0) |> length()
         2
-        iex> Enum.to_list(1..0)  # <- because of this
-        [1, 0]
+
+        # this is because:
+        Enum.to_list(1..0) == [1, 0]
 
     Elixir 1.12 solved this problem by introducing a step, `1..n//1`.
 

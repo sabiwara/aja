@@ -363,9 +363,9 @@ defmodule Aja do
     ## Examples
 
         iex> import Aja
-        iex> vec(5..1) +++ vec([:boom, nil])
+        iex> vec(5..1//-1) +++ vec([:boom, nil])
         vec([5, 4, 3, 2, 1, :boom, nil])
-        iex> vec(5..1) +++ 0..3
+        iex> vec(5..1//-1) +++ 0..3
         vec([5, 4, 3, 2, 1, 0, 1, 2, 3])
 
     """
