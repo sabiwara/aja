@@ -3,12 +3,7 @@ defmodule Aja.VectorTest do
 
   import Aja, only: [vec: 1]
 
-  # TODO remove when dropping support for Elixir < 1.12
-  stepped_range_available? = Version.compare(System.version(), "1.12.0-rc.0") != :lt
-
-  if stepped_range_available? do
-    doctest Aja.Vector
-  end
+  doctest Aja.Vector
 
   import Aja.TestHelpers
 

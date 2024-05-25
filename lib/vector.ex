@@ -1,15 +1,4 @@
 defmodule Aja.Vector do
-  # TODO remove doc hack when stop supporting 1.10
-  plusplusplus_doc = ~S"""
-  ## Convenience [`+++/2`](`Aja.+++/2`) operator
-
-  The `Aja.+++/2` operator can make appending to a vector more compact by aliasing `Aja.Vector.concat/2`:
-
-      iex> import Aja
-      iex> vec([1, 2, 3]) +++ vec([4, 5])
-      vec([1, 2, 3, 4, 5])
-  """
-
   @moduledoc ~s"""
   Fast persistent vector with efficient appends and random access.
 
@@ -88,10 +77,13 @@ defmodule Aja.Vector do
       iex> match?(v when vec_size(v) > 99, Aja.Vector.new(1..100))
       true
 
-  #{if Version.compare(System.version(), "1.11.0") != :lt do
-    plusplusplus_doc
-  end}
+  ## Convenience [`+++/2`](`Aja.+++/2`) operator
 
+  The `Aja.+++/2` operator can make appending to a vector more compact by aliasing `Aja.Vector.concat/2`:
+
+      iex> import Aja
+      iex> vec([1, 2, 3]) +++ vec([4, 5])
+      vec([1, 2, 3, 4, 5])
 
   ## Pattern-matching and opaque type
 
@@ -200,9 +192,10 @@ defmodule Aja.Vector do
   **DO**
 
       Aja.Vector.concat(vector, enumerable)
-      #{if Version.compare(System.version(), "1.11.0") != :lt do
-    "vector +++ enumerable"
-  end}
+
+  or
+
+      vector +++ enumerable
 
   ### Prefer `Aja.Enum` and `Aja.Vector` to `Enum` for vectors
 

@@ -164,239 +164,234 @@ defmodule Aja.Vector.PropTest do
     end
   end
 
-  # TODO remove when dropping support for Elixir < 1.12
-  stepped_range_available? = Version.compare(System.version(), "1.12.0-rc.0") != :lt
+  property "Aja.Vector functions should return the same as mirrored Enum functions" do
+    check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
+      vector = Aja.Vector.new(list)
 
-  if stepped_range_available? do
-    property "Aja.Vector functions should return the same as mirrored Enum functions" do
-      check all(list <- list_of(value()), i1 <- integer(), i2 <- integer()) do
-        vector = Aja.Vector.new(list)
+      assert_properties(vector)
 
-        assert_properties(vector)
+      list_length = length(list)
+      assert list_length === Aja.Vector.size(vector)
+      assert list_length === Enum.count(vector)
+      assert match?(v when vec_size(v) == list_length, vector)
+      assert match?(v when vec_size(v) >= list_length, vector)
+      refute match?(v when vec_size(v) < list_length, vector)
 
-        list_length = length(list)
-        assert list_length === Aja.Vector.size(vector)
-        assert list_length === Enum.count(vector)
-        assert match?(v when vec_size(v) == list_length, vector)
-        assert match?(v when vec_size(v) >= list_length, vector)
-        refute match?(v when vec_size(v) < list_length, vector)
+      assert capture_error_without_type(Enum.min(list)) ===
+               capture_error_without_type(Aja.Enum.min(vector))
 
-        assert capture_error_without_type(Enum.min(list)) ===
-                 capture_error_without_type(Aja.Enum.min(vector))
+      assert capture_error_without_type(Enum.max(list)) ===
+               capture_error_without_type(Aja.Enum.max(vector))
 
-        assert capture_error_without_type(Enum.max(list)) ===
-                 capture_error_without_type(Aja.Enum.max(vector))
+      assert capture_error_without_type(Enum.min(list)) ===
+               capture_error_without_type(Aja.Enum.max(vector, &<=/2))
 
-        assert capture_error_without_type(Enum.min(list)) ===
-                 capture_error_without_type(Aja.Enum.max(vector, &<=/2))
+      assert capture_error_without_type(Enum.max(list)) ===
+               capture_error_without_type(Aja.Enum.min(vector, &>=/2))
 
-        assert capture_error_without_type(Enum.max(list)) ===
-                 capture_error_without_type(Aja.Enum.min(vector, &>=/2))
+      assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(Aja.Enum.min_by(vector, &:erlang.phash2/1))
 
-        assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
-                 capture_error_without_type(Aja.Enum.min_by(vector, &:erlang.phash2/1))
+      assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(Aja.Enum.max_by(vector, &:erlang.phash2/1))
 
-        assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
-                 capture_error_without_type(Aja.Enum.max_by(vector, &:erlang.phash2/1))
+      assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(Aja.Enum.max_by(vector, &:erlang.phash2/1, &<=/2))
 
-        assert capture_error_without_type(Enum.min_by(list, &:erlang.phash2/1)) ===
-                 capture_error_without_type(Aja.Enum.max_by(vector, &:erlang.phash2/1, &<=/2))
+      assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
+               capture_error_without_type(Aja.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
 
-        assert capture_error_without_type(Enum.max_by(list, &:erlang.phash2/1)) ===
-                 capture_error_without_type(Aja.Enum.min_by(vector, &:erlang.phash2/1, &>=/2))
+      assert Enum.at(list, i1) === Aja.Vector.at(vector, i1)
+      assert Enum.at(list, i1, :default) === Aja.Vector.at(vector, i1, :default)
+      assert Enum.at(list, i1) === vector[i1]
+      assert Enum.fetch(list, i1) === Aja.Vector.fetch(vector, i1)
+      assert Enum.fetch(list, i1) === Aja.Enum.fetch(vector, i1)
 
-        assert Enum.at(list, i1) === Aja.Vector.at(vector, i1)
-        assert Enum.at(list, i1, :default) === Aja.Vector.at(vector, i1, :default)
-        assert Enum.at(list, i1) === vector[i1]
-        assert Enum.fetch(list, i1) === Aja.Vector.fetch(vector, i1)
-        assert Enum.fetch(list, i1) === Aja.Enum.fetch(vector, i1)
+      assert capture_error_without_type(Enum.fetch!(list, i1)) ===
+               capture_error_without_type(Aja.Enum.fetch!(vector, i1))
 
-        assert capture_error_without_type(Enum.fetch!(list, i1)) ===
-                 capture_error_without_type(Aja.Enum.fetch!(vector, i1))
+      assert capture_error_without_type(Enum.fetch!(list, i1)) ===
+               capture_error_without_type(Aja.Vector.fetch!(vector, i1))
 
-        assert capture_error_without_type(Enum.fetch!(list, i1)) ===
-                 capture_error_without_type(Aja.Vector.fetch!(vector, i1))
+      # amount must be >=0
+      amount = abs(i2)
+      slice_1 = Enum.slice(list, i1, amount)
+      assert slice_1 === Enum.slice(vector, i1, amount)
+      assert Aja.Vector.new(slice_1) === Aja.Vector.slice(vector, i1, amount)
 
-        # amount must be >=0
-        amount = abs(i2)
-        slice_1 = Enum.slice(list, i1, amount)
-        assert slice_1 === Enum.slice(vector, i1, amount)
-        assert Aja.Vector.new(slice_1) === Aja.Vector.slice(vector, i1, amount)
+      slice_2 = Enum.slice(list, i1..i2//1)
+      assert slice_2 === Enum.slice(vector, i1..i2//1)
+      assert Aja.Vector.new(slice_2) === Aja.Vector.slice(vector, i1..i2//1)
 
-        slice_2 = Enum.slice(list, i1..i2//1)
-        assert slice_2 === Enum.slice(vector, i1..i2//1)
-        assert Aja.Vector.new(slice_2) === Aja.Vector.slice(vector, i1..i2//1)
+      assert Enum.take(list, i1) |> Aja.Vector.new() === Aja.Vector.take(vector, i1)
+      assert Enum.drop(list, i1) |> Aja.Vector.new() === Aja.Vector.drop(vector, i1)
 
-        assert Enum.take(list, i1) |> Aja.Vector.new() === Aja.Vector.take(vector, i1)
-        assert Enum.drop(list, i1) |> Aja.Vector.new() === Aja.Vector.drop(vector, i1)
+      {l1, l2} = Enum.split(list, i1)
+      assert {Aja.Vector.new(l1), Aja.Vector.new(l2)} === Aja.Vector.split(vector, i1)
 
-        {l1, l2} = Enum.split(list, i1)
-        assert {Aja.Vector.new(l1), Aja.Vector.new(l2)} === Aja.Vector.split(vector, i1)
+      replaced_list = List.replace_at(list, i1, :replaced)
+      assert Aja.Vector.new(replaced_list) == Aja.Vector.replace_at(vector, i1, :replaced)
 
-        replaced_list = List.replace_at(list, i1, :replaced)
-        assert Aja.Vector.new(replaced_list) == Aja.Vector.replace_at(vector, i1, :replaced)
+      assert Aja.Vector.new(replaced_list) ==
+               Aja.Vector.update_at(vector, i1, fn _ -> :replaced end)
 
-        assert Aja.Vector.new(replaced_list) ==
-                 Aja.Vector.update_at(vector, i1, fn _ -> :replaced end)
+      assert Aja.Vector.new(replaced_list) == put_in(vector[i1], :replaced)
+      assert Aja.Vector.new(replaced_list) == update_in(vector[i1], fn _ -> :replaced end)
 
-        assert Aja.Vector.new(replaced_list) == put_in(vector[i1], :replaced)
-        assert Aja.Vector.new(replaced_list) == update_in(vector[i1], fn _ -> :replaced end)
+      deleted_list = List.delete_at(list, i1)
+      assert Aja.Vector.new(deleted_list) == Aja.Vector.delete_at(vector, i1)
+      assert {vector[i1], Aja.Vector.new(deleted_list)} == Aja.Vector.pop_at(vector, i1)
+      assert {vector[i1], Aja.Vector.new(deleted_list)} == pop_in(vector[i1])
 
-        deleted_list = List.delete_at(list, i1)
-        assert Aja.Vector.new(deleted_list) == Aja.Vector.delete_at(vector, i1)
-        assert {vector[i1], Aja.Vector.new(deleted_list)} == Aja.Vector.pop_at(vector, i1)
-        assert {vector[i1], Aja.Vector.new(deleted_list)} == pop_in(vector[i1])
+      assert list === Aja.Vector.to_list(vector)
+      assert Enum.reverse(list) |> Aja.Vector.new() === Aja.Vector.reverse(vector)
 
-        assert list === Aja.Vector.to_list(vector)
-        assert Enum.reverse(list) |> Aja.Vector.new() === Aja.Vector.reverse(vector)
+      assert Enum.reverse(list, ~c"abc") |> Aja.Vector.new() ===
+               Aja.Vector.reverse(vector, ~c"abc")
 
-        assert Enum.reverse(list, ~c"abc") |> Aja.Vector.new() ===
-                 Aja.Vector.reverse(vector, ~c"abc")
+      assert list === Aja.Vector.foldr(vector, [], &[&1 | &2])
+      assert Enum.reverse(list) === Aja.Vector.foldl(vector, [], &[&1 | &2])
 
-        assert list === Aja.Vector.foldr(vector, [], &[&1 | &2])
-        assert Enum.reverse(list) === Aja.Vector.foldl(vector, [], &[&1 | &2])
+      assert capture_error_without_type(Enum.reduce(list, &[&1 | &2])) ===
+               capture_error_without_type(Aja.Enum.reduce(vector, &[&1 | &2]))
 
-        assert capture_error_without_type(Enum.reduce(list, &[&1 | &2])) ===
-                 capture_error_without_type(Aja.Enum.reduce(vector, &[&1 | &2]))
+      assert Enum.scan(list, &[&1 | &2]) |> Aja.Vector.new() ===
+               Aja.Vector.scan(vector, &[&1 | &2])
 
-        assert Enum.scan(list, &[&1 | &2]) |> Aja.Vector.new() ===
-                 Aja.Vector.scan(vector, &[&1 | &2])
+      assert Enum.scan(list, [], &[&1 | &2]) |> Aja.Vector.new() ===
+               Aja.Vector.scan(vector, [], &[&1 | &2])
 
-        assert Enum.scan(list, [], &[&1 | &2]) |> Aja.Vector.new() ===
-                 Aja.Vector.scan(vector, [], &[&1 | &2])
+      inspected_list = Enum.map(list, &inspect/1)
+      assert Aja.Vector.new(inspected_list) === Aja.Vector.map(vector, &inspect/1)
+      assert Aja.Vector.new(inspected_list) === Aja.Vector.new(list, &inspect/1)
+      assert Aja.Vector.new(inspected_list) === Aja.Vector.new(vector, &inspect/1)
 
-        inspected_list = Enum.map(list, &inspect/1)
-        assert Aja.Vector.new(inspected_list) === Aja.Vector.map(vector, &inspect/1)
-        assert Aja.Vector.new(inspected_list) === Aja.Vector.new(list, &inspect/1)
-        assert Aja.Vector.new(inspected_list) === Aja.Vector.new(vector, &inspect/1)
+      filtered_list = Enum.filter(list, &hash_multiple_of_2/1)
+      filtered_vector = Aja.Vector.filter(vector, &hash_multiple_of_2/1)
+      assert Aja.Vector.new(filtered_list) === filtered_vector
 
-        filtered_list = Enum.filter(list, &hash_multiple_of_2/1)
-        filtered_vector = Aja.Vector.filter(vector, &hash_multiple_of_2/1)
-        assert Aja.Vector.new(filtered_list) === filtered_vector
+      index_list = Enum.with_index(list, i1)
+      index_vector = Aja.Vector.new(index_list)
+      assert index_vector === Aja.Vector.with_index(vector, i1)
+      assert index_vector === Aja.Vector.with_index(vector, fn x, i -> {x, i + i1} end)
 
-        index_list = Enum.with_index(list, i1)
-        index_vector = Aja.Vector.new(index_list)
-        assert index_vector === Aja.Vector.with_index(vector, i1)
-        assert index_vector === Aja.Vector.with_index(vector, fn x, i -> {x, i + i1} end)
+      assert {index_vector, list_length + i1} ===
+               Aja.Vector.map_reduce(vector, i1, fn x, i -> {{x, i}, i + 1} end)
 
-        assert {index_vector, list_length + i1} ===
-                 Aja.Vector.map_reduce(vector, i1, fn x, i -> {{x, i}, i + 1} end)
+      assert index_vector === Aja.Vector.zip(vector, Aja.Vector.new(i1..(list_length + i1)))
 
-        assert index_vector === Aja.Vector.zip(vector, Aja.Vector.new(i1..(list_length + i1)))
+      assert index_vector ===
+               Aja.Vector.zip_with(vector, Aja.Vector.new(0..list_length), &{&1, &2 + i1})
 
-        assert index_vector ===
-                 Aja.Vector.zip_with(vector, Aja.Vector.new(0..list_length), &{&1, &2 + i1})
+      assert {vector, i1..(list_length + i1) |> Enum.drop(-1) |> Aja.Vector.new()} ==
+               Aja.Vector.unzip(index_vector)
 
-        assert {vector, i1..(list_length + i1) |> Enum.drop(-1) |> Aja.Vector.new()} ==
-                 Aja.Vector.unzip(index_vector)
+      assert Enum.any?(list) === Aja.Enum.any?(vector)
+      assert Enum.all?(list) === Aja.Enum.all?(vector)
 
-        assert Enum.any?(list) === Aja.Enum.any?(vector)
-        assert Enum.all?(list) === Aja.Enum.all?(vector)
+      assert Enum.any?(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.any?(vector, &hash_multiple_of_2/1)
 
-        assert Enum.any?(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.any?(vector, &hash_multiple_of_2/1)
+      assert Enum.all?(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.all?(vector, &hash_multiple_of_2/1)
 
-        assert Enum.all?(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.all?(vector, &hash_multiple_of_2/1)
+      assert true === Aja.Enum.all?(Aja.Vector.new(filtered_list), &hash_multiple_of_2/1)
 
-        assert true === Aja.Enum.all?(Aja.Vector.new(filtered_list), &hash_multiple_of_2/1)
+      assert false ===
+               Aja.Enum.any?(Aja.Vector.new(filtered_list), fn x -> !hash_multiple_of_2(x) end)
 
-        assert false ===
-                 Aja.Enum.any?(Aja.Vector.new(filtered_list), fn x -> !hash_multiple_of_2(x) end)
+      assert Enum.find(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.find(vector, &hash_multiple_of_2/1)
 
-        assert Enum.find(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.find(vector, &hash_multiple_of_2/1)
+      assert Enum.find_value(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.find_value(vector, &hash_multiple_of_2/1)
 
-        assert Enum.find_value(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.find_value(vector, &hash_multiple_of_2/1)
+      assert Enum.find_index(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.find_index(vector, &hash_multiple_of_2/1)
 
-        assert Enum.find_index(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.find_index(vector, &hash_multiple_of_2/1)
+      assert Enum.take_while(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
+               Aja.Vector.take_while(vector, &hash_multiple_of_2/1)
 
-        assert Enum.take_while(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
-                 Aja.Vector.take_while(vector, &hash_multiple_of_2/1)
+      assert Enum.drop_while(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
+               Aja.Vector.drop_while(vector, &hash_multiple_of_2/1)
 
-        assert Enum.drop_while(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
-                 Aja.Vector.drop_while(vector, &hash_multiple_of_2/1)
+      {taken, dropped} = Enum.split_while(list, &hash_multiple_of_2/1)
 
-        {taken, dropped} = Enum.split_while(list, &hash_multiple_of_2/1)
+      assert {Aja.Vector.new(taken), Aja.Vector.new(dropped)} ===
+               Aja.Vector.split_while(vector, &hash_multiple_of_2/1)
 
-        assert {Aja.Vector.new(taken), Aja.Vector.new(dropped)} ===
-                 Aja.Vector.split_while(vector, &hash_multiple_of_2/1)
+      assert capture_error_without_type(Enum.sum(list)) ===
+               capture_error_without_type(Aja.Enum.sum(vector))
 
-        assert capture_error_without_type(Enum.sum(list)) ===
-                 capture_error_without_type(Aja.Enum.sum(vector))
+      assert capture_error_without_type(Enum.reduce(list, 1, &(&2 * &1))) ===
+               capture_error_without_type(Aja.Enum.product(vector))
 
-        assert capture_error_without_type(Enum.reduce(list, 1, &(&2 * &1))) ===
-                 capture_error_without_type(Aja.Enum.product(vector))
+      assert capture_error_without_type(Enum.join(list, ",")) ===
+               capture_error_without_type(Aja.Enum.join(vector, ","))
 
-        assert capture_error_without_type(Enum.join(list, ",")) ===
-                 capture_error_without_type(Aja.Enum.join(vector, ","))
+      assert Enum.map_join(list, ",", &inspect/1) === Aja.Enum.map_join(vector, ",", &inspect/1)
 
-        assert Enum.map_join(list, ",", &inspect/1) === Aja.Enum.map_join(vector, ",", &inspect/1)
+      assert Enum.intersperse(list, nil) === Aja.Enum.intersperse(vector, nil)
 
-        assert Enum.intersperse(list, nil) === Aja.Enum.intersperse(vector, nil)
+      assert Enum.intersperse(list, nil) |> Aja.Vector.new() ===
+               Aja.Vector.intersperse(vector, nil)
 
-        assert Enum.intersperse(list, nil) |> Aja.Vector.new() ===
-                 Aja.Vector.intersperse(vector, nil)
+      assert Enum.map_intersperse(list, nil, &inspect/1) |> Aja.Vector.new() ===
+               Aja.Vector.map_intersperse(vector, nil, &inspect/1)
 
-        assert Enum.map_intersperse(list, nil, &inspect/1) |> Aja.Vector.new() ===
-                 Aja.Vector.map_intersperse(vector, nil, &inspect/1)
+      assert Enum.map_intersperse(list, nil, &inspect/1) ===
+               Aja.Enum.map_intersperse(vector, nil, &inspect/1)
 
-        assert Enum.map_intersperse(list, nil, &inspect/1) ===
-                 Aja.Enum.map_intersperse(vector, nil, &inspect/1)
+      assert Enum.flat_map(list, &[&1, &1]) |> Aja.Vector.new() ===
+               Aja.Vector.flat_map(vector, &[&1, &1])
 
-        assert Enum.flat_map(list, &[&1, &1]) |> Aja.Vector.new() ===
-                 Aja.Vector.flat_map(vector, &[&1, &1])
+      assert Enum.frequencies(list) === Aja.Enum.frequencies(vector)
 
-        assert Enum.frequencies(list) === Aja.Enum.frequencies(vector)
+      assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.frequencies_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.frequencies_by(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.frequencies_by(vector, &hash_multiple_of_2/1)
+      assert Enum.group_by(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.group_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.group_by(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.group_by(vector, &hash_multiple_of_2/1)
+      assert Enum.group_by(list, &hash_multiple_of_2/1, &inspect/1) ===
+               Aja.Enum.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
 
-        assert Enum.group_by(list, &hash_multiple_of_2/1, &inspect/1) ===
-                 Aja.Enum.group_by(vector, &hash_multiple_of_2/1, &inspect/1)
+      assert Enum.uniq(list) === Aja.Enum.uniq(vector)
+      assert Enum.dedup(list) === Aja.Enum.dedup(vector)
+      assert Enum.uniq(list) |> Aja.Vector.new() === Aja.Vector.uniq(vector)
+      assert Enum.dedup(list) |> Aja.Vector.new() === Aja.Vector.dedup(vector)
 
-        assert Enum.uniq(list) === Aja.Enum.uniq(vector)
-        assert Enum.dedup(list) === Aja.Enum.dedup(vector)
-        assert Enum.uniq(list) |> Aja.Vector.new() === Aja.Vector.uniq(vector)
-        assert Enum.dedup(list) |> Aja.Vector.new() === Aja.Vector.dedup(vector)
+      assert Enum.uniq_by(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.uniq_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.uniq_by(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.uniq_by(vector, &hash_multiple_of_2/1)
+      assert Enum.dedup_by(list, &hash_multiple_of_2/1) ===
+               Aja.Enum.dedup_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.dedup_by(list, &hash_multiple_of_2/1) ===
-                 Aja.Enum.dedup_by(vector, &hash_multiple_of_2/1)
+      assert Enum.uniq_by(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
+               Aja.Vector.uniq_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.uniq_by(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
-                 Aja.Vector.uniq_by(vector, &hash_multiple_of_2/1)
+      assert Enum.dedup_by(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
+               Aja.Vector.dedup_by(vector, &hash_multiple_of_2/1)
 
-        assert Enum.dedup_by(list, &hash_multiple_of_2/1) |> Aja.Vector.new() ===
-                 Aja.Vector.dedup_by(vector, &hash_multiple_of_2/1)
+      shuffled = Aja.Vector.shuffle(vector)
+      assert ^list_length = Aja.Vector.size(shuffled)
 
-        shuffled = Aja.Vector.shuffle(vector)
-        assert ^list_length = Aja.Vector.size(shuffled)
+      assert min(list_length, amount) ==
+               Aja.Vector.take_random(vector, amount) |> Aja.Vector.size()
 
-        assert min(list_length, amount) ==
-                 Aja.Vector.take_random(vector, amount) |> Aja.Vector.size()
+      assert Aja.Vector.new() == Aja.Vector.take_random(vector, 0)
 
-        assert Aja.Vector.new() == Aja.Vector.take_random(vector, 0)
+      if list_length != 0 do
+        rand = Aja.Enum.random(vector)
+        assert rand in vector
+        assert rand in shuffled
 
-        if list_length != 0 do
-          rand = Aja.Enum.random(vector)
-          assert rand in vector
-          assert rand in shuffled
-
-          assert vec([rand]) = Aja.Vector.take_random(vector, 1)
-          assert rand in vector
-          assert rand in shuffled
-        end
-
-        assert inspect(vector) =~ "vec(["
+        assert vec([rand]) = Aja.Vector.take_random(vector, 1)
+        assert rand in vector
+        assert rand in shuffled
       end
+
+      assert inspect(vector) =~ "vec(["
     end
   end
 
