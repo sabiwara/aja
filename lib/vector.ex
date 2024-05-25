@@ -1536,7 +1536,7 @@ defmodule Aja.Vector do
 
   """
   @spec slice(t(val), Range.t()) :: t(val) when val: value
-  def slice(%__MODULE__{} = vector, first..last = index_range) do
+  def slice(%__MODULE__{} = vector, first..last//1 = index_range) do
     case first do
       0 ->
         amount = last + 1

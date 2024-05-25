@@ -102,7 +102,7 @@ defmodule Aja.Vector.CodeGen do
     Enum.take(@arguments_ast, i)
   end
 
-  def argument_at(i) when i in 0..(@branch_factor - 1) do
+  def argument_at(i) when i in 0..(@branch_factor - 1)//1 do
     Enum.at(@arguments_ast, i)
   end
 

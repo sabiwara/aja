@@ -7,10 +7,11 @@
 - Optimize `Aja.Vector.flat_map/2` and `Aja.Enum.flat_map/2` when used for
   filtering
 - Bump `ex_doc` to the latest version
+- Fix compilation warnings due to supporting Elixir 1.11
 
 ### Breaking changes
 
-- Drop support for Elixir 1.10
+- Drop support for Elixir 1.10 and 1.11
 
 ## v0.6.5 (2024-04-26)
 
