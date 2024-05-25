@@ -2,9 +2,13 @@
 
 ## Dev
 
+### Enhancements
+
+- Fix compilation warnings due to supporting Elixir 1.11
+
 ### Breaking changes
 
-- Drop support for Elixir 1.10
+- Drop support for Elixir 1.10 and 1.11
 
 ## v0.6.5 (2024-04-26)
 

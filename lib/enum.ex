@@ -60,7 +60,7 @@ defmodule Aja.Enum do
       %Aja.Vector{__vector__: vector} -> RawVector.size(vector)
       %Aja.OrdMap{__ord_map__: map} -> map_size(map)
       %MapSet{} -> MapSet.size(enumerable)
-      start..stop -> abs(start - stop) + 1
+      _.._//_ -> Range.size(enumerable)
       _ -> Enum.count(enumerable)
     end
   end

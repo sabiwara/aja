@@ -7,7 +7,7 @@ defmodule Aja.MixProject do
     [
       app: :aja,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       deps: deps(),
       consolidate_protocols: Mix.env() != :test,
       aliases: aliases(),
