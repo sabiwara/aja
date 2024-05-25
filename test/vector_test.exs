@@ -452,6 +452,9 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new([2, 4, 6]) ==
                Aja.Vector.new(1..10) |> Aja.Vector.slice(1..5//2)
 
+      assert Aja.Vector.new([2, 4, 6]) ==
+               Aja.Vector.new(1..10) |> Aja.Vector.slice(1..6//2)
+
       assert_raise ArgumentError, fn ->
         Aja.Vector.new(1..10) |> Aja.Vector.slice(1..5//-2)
       end
