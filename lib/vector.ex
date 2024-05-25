@@ -1148,7 +1148,7 @@ defmodule Aja.Vector do
 
   ## Examples
 
-      iex> Aja.Vector.new(9..1) |> Aja.Vector.sort()
+      iex> Aja.Vector.new(9..1//-1) |> Aja.Vector.sort()
       vec([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
   """
