@@ -1195,7 +1195,7 @@ defmodule Aja.Enum do
     size = RawVector.size(vector)
 
     if amount < size do
-      RawVector.slice(vector, 0, amount - 1)
+      RawVector.slice(vector, 0, amount - 1, 1)
     else
       RawVector.to_list(vector)
     end
@@ -1206,7 +1206,7 @@ defmodule Aja.Enum do
     start = amount + size
 
     if start > 0 do
-      RawVector.slice(vector, start, size - 1)
+      RawVector.slice(vector, start, size - 1, 1)
     else
       RawVector.to_list(vector)
     end
@@ -1232,7 +1232,7 @@ defmodule Aja.Enum do
     size = RawVector.size(vector)
 
     if amount < size do
-      RawVector.slice(vector, amount, size - 1)
+      RawVector.slice(vector, amount, size - 1, 1)
     else
       []
     end
@@ -1243,7 +1243,7 @@ defmodule Aja.Enum do
     last = amount + size
 
     if last > 0 do
-      RawVector.slice(vector, 0, last - 1)
+      RawVector.slice(vector, 0, last - 1, 1)
     else
       []
     end

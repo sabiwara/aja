@@ -260,19 +260,19 @@ defmodule Aja.Vector.Tail do
     end
   end
 
-  def slice(tail, start, last, tail_size) do
+  def slice(tail, start, last, tail_size, step) do
     offset = C.branch_factor() - tail_size
-    do_slice(tail, start + offset, last + offset + 1, [])
+    do_slice(tail, start + offset, last + offset + 1, step, [])
   end
 
-  @compile {:inline, do_slice: 4}
-  defp do_slice(_tail, i, i, acc) do
+  @compile {:inline, do_slice: 5}
+  defp do_slice(_tail, i, i, _step, acc) do
     acc
   end
 
-  defp do_slice(tail, start, i, acc) do
+  defp do_slice(tail, start, i, step, acc) do
     new_acc = [:erlang.element(i, tail) | acc]
-    do_slice(tail, start, i - 1, new_acc)
+    do_slice(tail, start, i - step, step, new_acc)
   end
 
   def partial_map_reduce(tail, _i = C.branch_factor(), acc, _fun), do: {tail, acc}

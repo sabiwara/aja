@@ -1620,7 +1620,7 @@ defmodule Aja.Vector do
     case size + amount do
       start when start > 0 ->
         internal
-        |> Raw.slice(start, size - 1)
+        |> Raw.slice(start, size - 1, 1)
         |> Raw.from_list()
 
       _ ->
@@ -1676,7 +1676,7 @@ defmodule Aja.Vector do
       @empty_raw
     else
       internal
-      |> Raw.slice(amount, size - 1)
+      |> Raw.slice(amount, size - 1, 1)
       |> Raw.from_list()
     end
   end
@@ -1771,7 +1771,7 @@ defmodule Aja.Vector do
         size = Raw.size(internal)
 
         internal
-        |> Raw.slice(index, size - 1)
+        |> Raw.slice(index, size - 1, 1)
         |> from_list()
     end
   end
@@ -1812,7 +1812,7 @@ defmodule Aja.Vector do
 
         dropped =
           internal
-          |> Raw.slice(index, size - 1)
+          |> Raw.slice(index, size - 1, 1)
           |> from_list()
 
         {taken, dropped}
@@ -2004,7 +2004,8 @@ defmodule Aja.Vector do
 
       {:ok, size,
        fn start, length, step ->
-         Aja.Vector.Raw.slice(internal, start, start + length - 1)
+         #  dbg({start, length, step, size})
+         Aja.Vector.Raw.slice(internal, start, start + length - 1, step)
        end}
     end
 
