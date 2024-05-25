@@ -103,9 +103,9 @@ defmodule Aja.VectorTest do
 
     test "reverse/1" do
       assert Aja.Vector.new() == Aja.Vector.new() |> Aja.Vector.reverse()
-      assert Aja.Vector.new(5..1) == Aja.Vector.new(1..5) |> Aja.Vector.reverse()
-      assert Aja.Vector.new(50..1) == Aja.Vector.new(1..50) |> Aja.Vector.reverse()
-      assert Aja.Vector.new(500..1) == Aja.Vector.new(1..500) |> Aja.Vector.reverse()
+      assert Aja.Vector.new(5..1//-1) == Aja.Vector.new(1..5) |> Aja.Vector.reverse()
+      assert Aja.Vector.new(50..1//-1) == Aja.Vector.new(1..50) |> Aja.Vector.reverse()
+      assert Aja.Vector.new(500..1//-1) == Aja.Vector.new(1..500) |> Aja.Vector.reverse()
     end
 
     test "take_while/2" do
@@ -114,25 +114,35 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new() == Aja.Vector.new() |> Aja.Vector.take_while(gte_zero?)
       assert [] == pop_args.()
 
-      assert Aja.Vector.new(5..0) == Aja.Vector.new(5..0) |> Aja.Vector.take_while(gte_zero?)
+      assert Aja.Vector.new(5..0//-1) ==
+               Aja.Vector.new(5..0//-1) |> Aja.Vector.take_while(gte_zero?)
+
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert Aja.Vector.new(50..0) == Aja.Vector.new(50..0) |> Aja.Vector.take_while(gte_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert Aja.Vector.new(50..0//-1) ==
+               Aja.Vector.new(50..0//-1) |> Aja.Vector.take_while(gte_zero?)
 
-      assert Aja.Vector.new(500..0) == Aja.Vector.new(500..0) |> Aja.Vector.take_while(gte_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert Aja.Vector.new(5..0) == Aja.Vector.new(5..-5) |> Aja.Vector.take_while(gte_zero?)
+      assert Aja.Vector.new(500..0//-1) ==
+               Aja.Vector.new(500..0//-1) |> Aja.Vector.take_while(gte_zero?)
+
+      assert Enum.to_list(500..0//-1) == pop_args.()
+
+      assert Aja.Vector.new(5..0//-1) ==
+               Aja.Vector.new(5..-5//-1) |> Aja.Vector.take_while(gte_zero?)
+
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert Aja.Vector.new(50..0) == Aja.Vector.new(50..-50) |> Aja.Vector.take_while(gte_zero?)
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert Aja.Vector.new(50..0//-1) ==
+               Aja.Vector.new(50..-50//-1) |> Aja.Vector.take_while(gte_zero?)
 
-      assert Aja.Vector.new(500..0) ==
-               Aja.Vector.new(500..-500) |> Aja.Vector.take_while(gte_zero?)
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert Aja.Vector.new(500..0//-1) ==
+               Aja.Vector.new(500..-500//-1) |> Aja.Vector.take_while(gte_zero?)
+
+      assert Enum.to_list(500..-1//-1) == pop_args.()
 
       assert Aja.Vector.new() == Aja.Vector.new([-1, 0, 1]) |> Aja.Vector.take_while(gte_zero?)
 
@@ -145,29 +155,29 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new() == Aja.Vector.new() |> Aja.Vector.drop_while(gte_zero?)
       assert [] == pop_args.()
 
-      assert Aja.Vector.new() == Aja.Vector.new(5..0) |> Aja.Vector.drop_while(gte_zero?)
+      assert Aja.Vector.new() == Aja.Vector.new(5..0//-1) |> Aja.Vector.drop_while(gte_zero?)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert Aja.Vector.new() == Aja.Vector.new(50..0) |> Aja.Vector.drop_while(gte_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert Aja.Vector.new() == Aja.Vector.new(50..0//-1) |> Aja.Vector.drop_while(gte_zero?)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert Aja.Vector.new() == Aja.Vector.new(500..0) |> Aja.Vector.drop_while(gte_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert Aja.Vector.new() == Aja.Vector.new(500..0//-1) |> Aja.Vector.drop_while(gte_zero?)
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
       assert Aja.Vector.new([-1, -2, -3, -4, -5]) ==
-               Aja.Vector.new(5..-5) |> Aja.Vector.drop_while(gte_zero?)
+               Aja.Vector.new(5..-5//-1) |> Aja.Vector.drop_while(gte_zero?)
 
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert Aja.Vector.new(-1..-50) ==
-               Aja.Vector.new(50..-50) |> Aja.Vector.drop_while(gte_zero?)
+      assert Aja.Vector.new(-1..-50//-1) ==
+               Aja.Vector.new(50..-50//-1) |> Aja.Vector.drop_while(gte_zero?)
 
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert Aja.Vector.new(-1..-500) ==
-               Aja.Vector.new(500..-500) |> Aja.Vector.drop_while(gte_zero?)
+      assert Aja.Vector.new(-1..-500//-1) ==
+               Aja.Vector.new(500..-500//-1) |> Aja.Vector.drop_while(gte_zero?)
 
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert Enum.to_list(500..-1//-1) == pop_args.()
 
       assert Aja.Vector.new([-1, 0, 1]) ==
                Aja.Vector.new([-1, 0, 1]) |> Aja.Vector.drop_while(gte_zero?)
@@ -183,35 +193,35 @@ defmodule Aja.VectorTest do
 
       assert [] == pop_args.()
 
-      assert {Aja.Vector.new(5..0), Aja.Vector.new()} ==
-               Aja.Vector.new(5..0) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(5..0//-1), Aja.Vector.new()} ==
+               Aja.Vector.new(5..0//-1) |> Aja.Vector.split_while(gte_zero?)
 
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert {Aja.Vector.new(50..0), Aja.Vector.new()} ==
-               Aja.Vector.new(50..0) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(50..0//-1), Aja.Vector.new()} ==
+               Aja.Vector.new(50..0//-1) |> Aja.Vector.split_while(gte_zero?)
 
-      assert Enum.to_list(50..0) == pop_args.()
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert {Aja.Vector.new(500..0), Aja.Vector.new()} ==
-               Aja.Vector.new(500..0) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(500..0//-1), Aja.Vector.new()} ==
+               Aja.Vector.new(500..0//-1) |> Aja.Vector.split_while(gte_zero?)
 
-      assert Enum.to_list(500..0) == pop_args.()
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
-      assert {Aja.Vector.new(5..0), Aja.Vector.new(-1..-5)} ==
-               Aja.Vector.new(5..-5) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(5..0//-1), Aja.Vector.new(-1..-5//-1)} ==
+               Aja.Vector.new(5..-5//-1) |> Aja.Vector.split_while(gte_zero?)
 
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert {Aja.Vector.new(50..0), Aja.Vector.new(-1..-50)} ==
-               Aja.Vector.new(50..-50) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(50..0//-1), Aja.Vector.new(-1..-50//-1)} ==
+               Aja.Vector.new(50..-50//-1) |> Aja.Vector.split_while(gte_zero?)
 
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert {Aja.Vector.new(500..0), Aja.Vector.new(-1..-500)} ==
-               Aja.Vector.new(500..-500) |> Aja.Vector.split_while(gte_zero?)
+      assert {Aja.Vector.new(500..0//-1), Aja.Vector.new(-1..-500//-1)} ==
+               Aja.Vector.new(500..-500//-1) |> Aja.Vector.split_while(gte_zero?)
 
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert Enum.to_list(500..-1//-1) == pop_args.()
 
       assert {Aja.Vector.new(), Aja.Vector.new([-1, 0, 1])} ==
                Aja.Vector.new([-1, 0, 1]) |> Aja.Vector.split_while(gte_zero?)
@@ -368,26 +378,26 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new() == Aja.Vector.zip(Aja.Vector.new(), Aja.Vector.new(1..1000))
       assert Aja.Vector.new() == Aja.Vector.zip(Aja.Vector.new(1..1000), Aja.Vector.new())
 
-      assert Aja.Vector.new(Enum.zip(-1..-5, 1..5)) ==
-               Aja.Vector.zip(Aja.Vector.new(-1..-1000), Aja.Vector.new(1..5))
+      assert Aja.Vector.new(Enum.zip(-1..-5//-1, 1..5)) ==
+               Aja.Vector.zip(Aja.Vector.new(-1..-1000//-1), Aja.Vector.new(1..5))
 
-      assert Aja.Vector.new(Enum.zip(1..5, -1..-5)) ==
-               Aja.Vector.zip(Aja.Vector.new(1..5), Aja.Vector.new(-1..-1000))
+      assert Aja.Vector.new(Enum.zip(1..5, -1..-5//-1)) ==
+               Aja.Vector.zip(Aja.Vector.new(1..5), Aja.Vector.new(-1..-1000//-1))
 
-      assert Aja.Vector.new(Enum.zip(1..5, -1..-5)) ==
-               Aja.Vector.zip(Aja.Vector.new(1..5), Aja.Vector.new(-1..-5))
+      assert Aja.Vector.new(Enum.zip(1..5, -1..-5//-1)) ==
+               Aja.Vector.zip(Aja.Vector.new(1..5), Aja.Vector.new(-1..-5//-1))
 
-      assert Aja.Vector.new(Enum.zip(-1..-50, 1..50)) ==
-               Aja.Vector.zip(Aja.Vector.new(-1..-1000), Aja.Vector.new(1..50))
+      assert Aja.Vector.new(Enum.zip(-1..-50//-1, 1..50)) ==
+               Aja.Vector.zip(Aja.Vector.new(-1..-1000//-1), Aja.Vector.new(1..50))
 
-      assert Aja.Vector.new(Enum.zip(1..50, -1..-50)) ==
-               Aja.Vector.zip(Aja.Vector.new(1..50), Aja.Vector.new(-1..-1000))
+      assert Aja.Vector.new(Enum.zip(1..50, -1..-50//-1)) ==
+               Aja.Vector.zip(Aja.Vector.new(1..50), Aja.Vector.new(-1..-1000//-1))
 
-      assert Aja.Vector.new(Enum.zip(-1..-500, 1..500)) ==
-               Aja.Vector.zip(Aja.Vector.new(-1..-1000), Aja.Vector.new(1..500))
+      assert Aja.Vector.new(Enum.zip(-1..-500//-1, 1..500)) ==
+               Aja.Vector.zip(Aja.Vector.new(-1..-1000//-1), Aja.Vector.new(1..500))
 
-      assert Aja.Vector.new(Enum.zip(1..500, -1..-500)) ==
-               Aja.Vector.zip(Aja.Vector.new(1..500), Aja.Vector.new(-1..-1000))
+      assert Aja.Vector.new(Enum.zip(1..500, -1..-500//-1)) ==
+               Aja.Vector.zip(Aja.Vector.new(1..500), Aja.Vector.new(-1..-1000//-1))
     end
 
     test "zip_with/3" do
@@ -398,38 +408,38 @@ defmodule Aja.VectorTest do
                Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(), &-/2)
 
       assert Aja.Vector.new(1..5, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-5), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-5//-1), &-/2)
 
       assert Aja.Vector.new(1..5, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..5), Aja.Vector.new(-1..-1000), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..5), Aja.Vector.new(-1..-1000//-1), &-/2)
 
       assert Aja.Vector.new(1..5, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..5), Aja.Vector.new(-1..-5), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..5), Aja.Vector.new(-1..-5//-1), &-/2)
 
       assert Aja.Vector.new(1..50, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-50), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-50//-1), &-/2)
 
       assert Aja.Vector.new(1..50, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..50), Aja.Vector.new(-1..-1000), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..50), Aja.Vector.new(-1..-1000//-1), &-/2)
 
       assert Aja.Vector.new(1..500, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-500), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..1000), Aja.Vector.new(-1..-500//-1), &-/2)
 
       assert Aja.Vector.new(1..500, &(&1 * 2)) ==
-               Aja.Vector.zip_with(Aja.Vector.new(1..500), Aja.Vector.new(-1..-1000), &-/2)
+               Aja.Vector.zip_with(Aja.Vector.new(1..500), Aja.Vector.new(-1..-1000//-1), &-/2)
     end
 
     test "unzip/2" do
       assert {Aja.Vector.new(), Aja.Vector.new()} == Aja.Vector.unzip(Aja.Vector.new())
 
-      assert {Aja.Vector.new(-1..-5), Aja.Vector.new(1..5)} ==
-               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-5, 1..5)))
+      assert {Aja.Vector.new(-1..-5//-1), Aja.Vector.new(1..5)} ==
+               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-5//-1, 1..5)))
 
-      assert {Aja.Vector.new(-1..-50), Aja.Vector.new(1..50)} ==
-               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-50, 1..50)))
+      assert {Aja.Vector.new(-1..-50//-1), Aja.Vector.new(1..50)} ==
+               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-50//-1, 1..50)))
 
-      assert {Aja.Vector.new(-1..-500), Aja.Vector.new(1..500)} ==
-               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-500, 1..500)))
+      assert {Aja.Vector.new(-1..-500//-1), Aja.Vector.new(1..500)} ==
+               Aja.Vector.unzip(Aja.Vector.new(Enum.zip(-1..-500//-1, 1..500)))
     end
 
     test "slice/2" do

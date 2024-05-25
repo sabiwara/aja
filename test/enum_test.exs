@@ -24,23 +24,23 @@ defmodule Aja.EnumTest do
       assert true == Aja.Vector.new() |> Aja.Enum.all?(gt_zero?)
       assert [] == pop_args.()
 
-      assert true == Aja.Vector.new(5..1) |> Aja.Enum.all?(gt_zero?)
+      assert true == Aja.Vector.new(5..1//-1) |> Aja.Enum.all?(gt_zero?)
       assert [5, 4, 3, 2, 1] == pop_args.()
 
-      assert true == Aja.Vector.new(50..1) |> Aja.Enum.all?(gt_zero?)
-      assert Enum.to_list(50..1) == pop_args.()
+      assert true == Aja.Vector.new(50..1//-1) |> Aja.Enum.all?(gt_zero?)
+      assert Enum.to_list(50..1//-1) == pop_args.()
 
-      assert true == Aja.Vector.new(500..1) |> Aja.Enum.all?(gt_zero?)
-      assert Enum.to_list(500..1) == pop_args.()
+      assert true == Aja.Vector.new(500..1//-1) |> Aja.Enum.all?(gt_zero?)
+      assert Enum.to_list(500..1//-1) == pop_args.()
 
-      assert false == Aja.Vector.new(5..0) |> Aja.Enum.all?(gt_zero?)
+      assert false == Aja.Vector.new(5..0//-1) |> Aja.Enum.all?(gt_zero?)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert false == Aja.Vector.new(50..0) |> Aja.Enum.all?(gt_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert false == Aja.Vector.new(50..0//-1) |> Aja.Enum.all?(gt_zero?)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert false == Aja.Vector.new(500..0) |> Aja.Enum.all?(gt_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert false == Aja.Vector.new(500..0//-1) |> Aja.Enum.all?(gt_zero?)
+      assert Enum.to_list(500..0//-1) == pop_args.()
     end
 
     test "any?/1 (vector)" do
@@ -61,23 +61,23 @@ defmodule Aja.EnumTest do
       assert false == Aja.Vector.new() |> Aja.Enum.any?(lt_zero?)
       assert [] == pop_args.()
 
-      assert false == Aja.Vector.new(5..0) |> Aja.Enum.any?(lt_zero?)
+      assert false == Aja.Vector.new(5..0//-1) |> Aja.Enum.any?(lt_zero?)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert false == Aja.Vector.new(50..0) |> Aja.Enum.any?(lt_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert false == Aja.Vector.new(50..0//-1) |> Aja.Enum.any?(lt_zero?)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert false == Aja.Vector.new(500..0) |> Aja.Enum.any?(lt_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert false == Aja.Vector.new(500..0//-1) |> Aja.Enum.any?(lt_zero?)
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
-      assert true == Aja.Vector.new(5..-5) |> Aja.Enum.any?(lt_zero?)
+      assert true == Aja.Vector.new(5..-5//-1) |> Aja.Enum.any?(lt_zero?)
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert true == Aja.Vector.new(50..-50) |> Aja.Enum.any?(lt_zero?)
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert true == Aja.Vector.new(50..-50//-1) |> Aja.Enum.any?(lt_zero?)
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert true == Aja.Vector.new(500..-500) |> Aja.Enum.any?(lt_zero?)
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert true == Aja.Vector.new(500..-500//-1) |> Aja.Enum.any?(lt_zero?)
+      assert Enum.to_list(500..-1//-1) == pop_args.()
     end
 
     test "find/2 (vector)" do
@@ -86,23 +86,23 @@ defmodule Aja.EnumTest do
       assert nil == Aja.Vector.new() |> Aja.Enum.find(lt_zero?)
       assert [] == pop_args.()
 
-      assert nil == Aja.Vector.new(5..0) |> Aja.Enum.find(lt_zero?)
+      assert nil == Aja.Vector.new(5..0//-1) |> Aja.Enum.find(lt_zero?)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert nil == Aja.Vector.new(50..0) |> Aja.Enum.find(lt_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert nil == Aja.Vector.new(50..0//-1) |> Aja.Enum.find(lt_zero?)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert nil == Aja.Vector.new(500..0) |> Aja.Enum.find(lt_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert nil == Aja.Vector.new(500..0//-1) |> Aja.Enum.find(lt_zero?)
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
-      assert -1 == Aja.Vector.new(5..-5) |> Aja.Enum.find(lt_zero?)
+      assert -1 == Aja.Vector.new(5..-5//-1) |> Aja.Enum.find(lt_zero?)
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert -1 == Aja.Vector.new(50..-50) |> Aja.Enum.find(lt_zero?)
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert -1 == Aja.Vector.new(50..-50//-1) |> Aja.Enum.find(lt_zero?)
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert -1 == Aja.Vector.new(500..-500) |> Aja.Enum.find(lt_zero?)
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert -1 == Aja.Vector.new(500..-500//-1) |> Aja.Enum.find(lt_zero?)
+      assert Enum.to_list(500..-1//-1) == pop_args.()
     end
 
     test "find_value/2 (vector)" do
@@ -115,23 +115,23 @@ defmodule Aja.EnumTest do
       assert nil == Aja.Vector.new() |> Aja.Enum.find_value(spy)
       assert [] == pop_args.()
 
-      assert nil == Aja.Vector.new(5..0) |> Aja.Enum.find_value(spy)
+      assert nil == Aja.Vector.new(5..0//-1) |> Aja.Enum.find_value(spy)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert nil == Aja.Vector.new(50..0) |> Aja.Enum.find_value(spy)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert nil == Aja.Vector.new(50..0//-1) |> Aja.Enum.find_value(spy)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert nil == Aja.Vector.new(500..0) |> Aja.Enum.find_value(spy)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert nil == Aja.Vector.new(500..0//-1) |> Aja.Enum.find_value(spy)
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
-      assert 1 == Aja.Vector.new(5..-5) |> Aja.Enum.find_value(spy)
+      assert 1 == Aja.Vector.new(5..-5//-1) |> Aja.Enum.find_value(spy)
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert 1 == Aja.Vector.new(50..-50) |> Aja.Enum.find_value(spy)
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert 1 == Aja.Vector.new(50..-50//-1) |> Aja.Enum.find_value(spy)
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert 1 == Aja.Vector.new(500..-500) |> Aja.Enum.find_value(spy)
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert 1 == Aja.Vector.new(500..-500//-1) |> Aja.Enum.find_value(spy)
+      assert Enum.to_list(500..-1//-1) == pop_args.()
     end
 
     test "find_index/2 (vector)" do
@@ -140,23 +140,23 @@ defmodule Aja.EnumTest do
       assert nil == Aja.Vector.new() |> Aja.Enum.find_index(lt_zero?)
       assert [] == pop_args.()
 
-      assert nil == Aja.Vector.new(5..0) |> Aja.Enum.find_index(lt_zero?)
+      assert nil == Aja.Vector.new(5..0//-1) |> Aja.Enum.find_index(lt_zero?)
       assert [5, 4, 3, 2, 1, 0] == pop_args.()
 
-      assert nil == Aja.Vector.new(50..0) |> Aja.Enum.find_index(lt_zero?)
-      assert Enum.to_list(50..0) == pop_args.()
+      assert nil == Aja.Vector.new(50..0//-1) |> Aja.Enum.find_index(lt_zero?)
+      assert Enum.to_list(50..0//-1) == pop_args.()
 
-      assert nil == Aja.Vector.new(500..0) |> Aja.Enum.find_index(lt_zero?)
-      assert Enum.to_list(500..0) == pop_args.()
+      assert nil == Aja.Vector.new(500..0//-1) |> Aja.Enum.find_index(lt_zero?)
+      assert Enum.to_list(500..0//-1) == pop_args.()
 
-      assert 6 == Aja.Vector.new(5..-5) |> Aja.Enum.find_index(lt_zero?)
+      assert 6 == Aja.Vector.new(5..-5//-1) |> Aja.Enum.find_index(lt_zero?)
       assert [5, 4, 3, 2, 1, 0, -1] == pop_args.()
 
-      assert 51 == Aja.Vector.new(50..-50) |> Aja.Enum.find_index(lt_zero?)
-      assert Enum.to_list(50..-1) == pop_args.()
+      assert 51 == Aja.Vector.new(50..-50//-1) |> Aja.Enum.find_index(lt_zero?)
+      assert Enum.to_list(50..-1//-1) == pop_args.()
 
-      assert 501 == Aja.Vector.new(500..-500) |> Aja.Enum.find_index(lt_zero?)
-      assert Enum.to_list(500..-1) == pop_args.()
+      assert 501 == Aja.Vector.new(500..-500//-1) |> Aja.Enum.find_index(lt_zero?)
+      assert Enum.to_list(500..-1//-1) == pop_args.()
     end
 
     test "sum/1 (vector)" do
@@ -275,9 +275,9 @@ defmodule Aja.EnumTest do
       assert 1 = Aja.Vector.new(1..50) |> Aja.Enum.min()
       assert 1 = Aja.Vector.new(1..500) |> Aja.Enum.min()
 
-      assert 1 = Aja.Vector.new(5..1) |> Aja.Enum.min()
-      assert 1 = Aja.Vector.new(50..1) |> Aja.Enum.min()
-      assert 1 = Aja.Vector.new(500..1) |> Aja.Enum.min()
+      assert 1 = Aja.Vector.new(5..1//-1) |> Aja.Enum.min()
+      assert 1 = Aja.Vector.new(50..1//-1) |> Aja.Enum.min()
+      assert 1 = Aja.Vector.new(500..1//-1) |> Aja.Enum.min()
     end
 
     test "max/1 (vector)" do
@@ -285,9 +285,9 @@ defmodule Aja.EnumTest do
       assert 50 = Aja.Vector.new(1..50) |> Aja.Enum.max()
       assert 500 = Aja.Vector.new(1..500) |> Aja.Enum.max()
 
-      assert 5 = Aja.Vector.new(5..1) |> Aja.Enum.max()
-      assert 50 = Aja.Vector.new(50..1) |> Aja.Enum.max()
-      assert 500 = Aja.Vector.new(500..1) |> Aja.Enum.max()
+      assert 5 = Aja.Vector.new(5..1//-1) |> Aja.Enum.max()
+      assert 50 = Aja.Vector.new(50..1//-1) |> Aja.Enum.max()
+      assert 500 = Aja.Vector.new(500..1//-1) |> Aja.Enum.max()
     end
 
     test "min/3" do
