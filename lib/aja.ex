@@ -209,26 +209,21 @@ defmodule Aja do
     end
   end
 
-  # TODO remove when dropping support for Elixir < 1.12
-  stepped_range_available? = Version.compare(System.version(), "1.12.0-rc.0") != :lt
+  defmacro vec({:"..//", _, [first, last, step]} = call) do
+    case Enum.map([first, last, step], &Macro.expand(&1, __CALLER__)) do
+      [first, last, step] when is_integer(first) and is_integer(last) and is_integer(step) ->
+        Range.new(first, last, step)
+        |> Enum.to_list()
+        |> ast_from_list(__CALLER__)
 
-  if stepped_range_available? do
-    defmacro vec({:"..//", _, [first, last, step]} = call) do
-      case Enum.map([first, last, step], &Macro.expand(&1, __CALLER__)) do
-        [first, last, step] when is_integer(first) and is_integer(last) and is_integer(step) ->
-          Range.new(first, last, step)
-          |> Enum.to_list()
-          |> ast_from_list(__CALLER__)
+      _ ->
+        raise ArgumentError, ~s"""
+        Incorrect use of `Aja.vec/1`:
+          vec(#{Macro.to_string(call)}).
 
-        _ ->
-          raise ArgumentError, ~s"""
-          Incorrect use of `Aja.vec/1`:
-            vec(#{Macro.to_string(call)}).
-
-          The `vec(a..b//c)` syntax can only be used with constants:
-            vec(1..100//5)
-          """
-      end
+        The `vec(a..b//c)` syntax can only be used with constants:
+          vec(1..100//5)
+        """
     end
   end
 
@@ -348,30 +343,25 @@ defmodule Aja do
     end
   end
 
-  plus_enabled? = Version.compare(System.version(), "1.11.0") != :lt
+  @doc """
+  Convenience operator to concatenate an enumerable `right` to a vector `left`.
 
-  if plus_enabled? do
-    @doc """
-    Convenience operator to concatenate an enumerable `right` to a vector `left`.
+  `left` has to be an `Aja.Vector`, `right` can be any `Enumerable`.
 
-    `left` has to be an `Aja.Vector`, `right` can be any `Enumerable`.
+  It is just an alias for `Aja.Vector.concat/2`.
 
-    It is just an alias for `Aja.Vector.concat/2`.
+  Only available on Elixir versions >= 1.11.
 
-    Only available on Elixir versions >= 1.11.
+  ## Examples
 
-    ## Examples
+      iex> import Aja
+      iex> vec(5..1//-1) +++ vec([:boom, nil])
+      vec([5, 4, 3, 2, 1, :boom, nil])
+      iex> vec(5..1//-1) +++ 0..3
+      vec([5, 4, 3, 2, 1, 0, 1, 2, 3])
 
-        iex> import Aja
-        iex> vec(5..1//-1) +++ vec([:boom, nil])
-        vec([5, 4, 3, 2, 1, :boom, nil])
-        iex> vec(5..1//-1) +++ 0..3
-        vec([5, 4, 3, 2, 1, 0, 1, 2, 3])
-
-    """
-    # TODO remove hack to support 1.10
-    defdelegate unquote(if(plus_enabled?, do: String.to_atom("+++"), else: :++))(left, right),
-      to: Aja.Vector,
-      as: :concat
-  end
+  """
+  defdelegate left +++ right,
+    to: Aja.Vector,
+    as: :concat
 end
