@@ -722,9 +722,9 @@ defmodule Aja.OrdMap do
 
   ## Examples
 
-      iex> Aja.OrdMap.merge(Aja.OrdMap.new(%{a: 1, b: 2}), Aja.OrdMap.new(%{a: 3, d: 4}))
+      iex> Aja.OrdMap.merge(Aja.OrdMap.new(a: 1, b: 2), Aja.OrdMap.new(a: 3, d: 4))
       ord(%{a: 3, b: 2, d: 4})
-      iex> Aja.OrdMap.merge(Aja.OrdMap.new(%{a: 1, b: 2}), %{a: 3, d: 4})
+      iex> Aja.OrdMap.merge(Aja.OrdMap.new(a: 1, b: 2), %{a: 3, d: 4})
       ord(%{a: 3, b: 2, d: 4})
 
   """
