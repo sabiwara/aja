@@ -59,7 +59,7 @@ defmodule Aja.MixProject do
 
       # CI
       {:dialyxir, "~> 1.0", only: :dialyzer, runtime: false},
-      {:stream_data, "~> 0.5", only: [:test, :dev], runtime: false},
+      {:stream_data, "~> 1.0", only: [:test, :dev], runtime: false},
 
       # DOCS
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
