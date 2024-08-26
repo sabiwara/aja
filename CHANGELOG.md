@@ -8,6 +8,10 @@
   filtering
 - Bump `ex_doc` to the latest version
 
+### Breaking changes
+
+- Drop support for Elixir 1.10
+
 ## v0.6.5 (2024-04-26)
 
 ### Enhancements
