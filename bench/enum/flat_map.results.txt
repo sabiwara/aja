@@ -1,31 +1,35 @@
-Operating System: Linux
-CPU Information: Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz
+Operating System: macOS
+CPU Information: Apple M1
 Number of Available Cores: 8
-Available memory: 15.41 GB
-Elixir 1.12.0
-Erlang 24.0
+Available memory: 16 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
 
 Benchmark suite executing with the following configuration:
 warmup: 2 s
 time: 5 s
 memory time: 0 ns
+reduction time: 0 ns
 parallel: 1
 inputs: none specified
 Estimated total run time: 28 s
 
-Benchmarking Aja.Enum.flat_map/2 (list)...
-Benchmarking Aja.Enum.flat_map/2 (vector)...
-Benchmarking Aja.Vector.flat_map/2 (vector)...
-Benchmarking Enum.flat_map/2 (list)...
+Benchmarking Aja.Enum.flat_map/2 (list) ...
+Benchmarking Aja.Enum.flat_map/2 (vector) ...
+Benchmarking Aja.Vector.flat_map/2 (vector) ...
+Benchmarking Enum.flat_map/2 (list) ...
+Calculating statistics...
+Formatting results...
 
 Name                                     ips        average  deviation         median         99th %
-Aja.Enum.flat_map/2 (list)          396.08 K        2.52 μs   ±673.97%        2.22 μs        3.37 μs
-Enum.flat_map/2 (list)              377.16 K        2.65 μs   ±776.79%        2.33 μs        4.19 μs
-Aja.Enum.flat_map/2 (vector)        276.50 K        3.62 μs   ±463.19%        3.22 μs        5.82 μs
-Aja.Vector.flat_map/2 (vector)      234.64 K        4.26 μs   ±353.39%        3.89 μs        7.29 μs
+Aja.Enum.flat_map/2 (vector)          1.65 M      606.92 ns  ±4835.70%         541 ns         708 ns
+Aja.Enum.flat_map/2 (list)            1.37 M      727.73 ns  ±3873.32%         625 ns         792 ns
+Aja.Vector.flat_map/2 (vector)        1.33 M      749.51 ns  ±2874.31%         667 ns         875 ns
+Enum.flat_map/2 (list)                0.63 M     1586.46 ns   ±870.49%        1541 ns        1709 ns
 
-Comparison:
-Aja.Enum.flat_map/2 (list)          396.08 K
-Enum.flat_map/2 (list)              377.16 K - 1.05x slower +0.127 μs
-Aja.Enum.flat_map/2 (vector)        276.50 K - 1.43x slower +1.09 μs
-Aja.Vector.flat_map/2 (vector)      234.64 K - 1.69x slower +1.74 μs
+Comparison: 
+Aja.Enum.flat_map/2 (vector)          1.65 M
+Aja.Enum.flat_map/2 (list)            1.37 M - 1.20x slower +120.81 ns
+Aja.Vector.flat_map/2 (vector)        1.33 M - 1.23x slower +142.60 ns
+Enum.flat_map/2 (list)                0.63 M - 2.61x slower +979.54 ns

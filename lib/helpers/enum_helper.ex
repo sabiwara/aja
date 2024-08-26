@@ -80,7 +80,13 @@ defmodule Aja.EnumHelper do
     case try_get_raw_vec_or_list(enumerable) do
       nil ->
         enumerable
-        |> Enum.reduce([], fn value, acc -> [to_list(fun.(value)) | acc] end)
+        |> Enum.reduce([], fn value, acc ->
+          case fun.(value) do
+            [] -> acc
+            list when is_list(list) -> [list | acc]
+            other -> [to_list(other) | acc]
+          end
+        end)
         |> unwrap_flat_map([])
 
       list when is_list(list) ->
@@ -88,7 +94,13 @@ defmodule Aja.EnumHelper do
 
       vector ->
         vector
-        |> RawVector.map_reverse_list(fn value -> to_list(fun.(value)) end)
+        |> RawVector.foldl([], fn value, acc ->
+          case fun.(value) do
+            [] -> acc
+            list when is_list(list) -> [list | acc]
+            other -> [to_list(other) | acc]
+          end
+        end)
         |> unwrap_flat_map([])
     end
   end
@@ -97,12 +109,20 @@ defmodule Aja.EnumHelper do
 
   defp flat_map_list([head | tail], fun) do
     case fun.(head) do
+      # The two first clauses are optimizations
+      [] -> flat_map_list(tail, fun)
+      [elem] -> [elem | flat_map_list(tail, fun)]
       list when is_list(list) -> list ++ flat_map_list(tail, fun)
       other -> to_list(other) ++ flat_map_list(tail, fun)
     end
   end
 
   defp unwrap_flat_map([], acc), do: acc
+
+  # This clause is an optimization
+  defp unwrap_flat_map([[elem] | tail], acc) do
+    unwrap_flat_map(tail, [elem | acc])
+  end
 
   defp unwrap_flat_map([head | tail], acc) do
     unwrap_flat_map(tail, head ++ acc)

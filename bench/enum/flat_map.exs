@@ -1,7 +1,7 @@
-list = Enum.to_list(1..100)
+list = Enum.to_list(-50..50)
 vector = Aja.Vector.new(list)
 
-fun = fn x -> [x, x] end
+fun = fn x -> if x > 0, do: [x], else: [] end
 
 Benchee.run(%{
   "Aja.Vector.flat_map/2 (vector)" => fn -> Aja.Vector.flat_map(vector, fun) end,
