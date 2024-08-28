@@ -5,6 +5,7 @@ defmodule Aja.Vector.Raw do
 
   require Aja.Vector.CodeGen, as: C
 
+  alias Aja.RandomHelper
   alias Aja.Vector.{Builder, Node, Tail, Trie}
 
   @empty {0}
@@ -1049,11 +1050,11 @@ defmodule Aja.Vector.Raw do
   end
 
   def take_random(vector, amount) when amount >= size(vector) do
-    vector |> to_list() |> Enum.shuffle() |> from_list()
+    vector |> to_list() |> RandomHelper.shuffle() |> from_list()
   end
 
   def take_random(vector, amount) do
-    vector |> to_list() |> Enum.take_random(amount) |> from_list()
+    vector |> to_list() |> RandomHelper.take_random(amount) |> from_list()
   end
 
   def scan(vector, fun) do

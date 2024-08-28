@@ -287,6 +287,7 @@ defmodule Aja.Vector do
 
   """
 
+  alias Aja.RandomHelper
   alias Aja.Vector.{EmptyError, IndexError, Raw}
   require Raw
 
@@ -1895,7 +1896,7 @@ defmodule Aja.Vector do
     # Note: benchmarks suggest that this is already fast without further optimization
     internal
     |> Raw.to_list()
-    |> Enum.shuffle()
+    |> RandomHelper.shuffle()
     |> from_list()
   end
 

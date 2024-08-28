@@ -5,6 +5,8 @@ defmodule Aja.Enum.PropTest do
   import Aja.TestHelpers
   import Aja.TestDataGenerators
 
+  alias Aja.RandomHelper
+
   @moduletag timeout: :infinity
   @moduletag :property
 
@@ -410,7 +412,8 @@ defmodule Aja.Enum.PropTest do
       assert ^sorted_by = Aja.Enum.sort_by(stream, fun)
       assert Enum.sort_by(map_set, fun) === Aja.Enum.sort_by(map_set, fun)
 
-      shuffled = with_seed(fn -> Enum.shuffle(list) end)
+      # TODO Replace RandomHelper by Enum when dropping support for Elixir 1.16
+      shuffled = with_seed(fn -> RandomHelper.shuffle(list) end)
       assert ^shuffled = with_seed(fn -> Aja.Enum.shuffle(list) end)
       assert ^shuffled = with_seed(fn -> Aja.Enum.shuffle(vector) end)
       assert ^shuffled = with_seed(fn -> Aja.Enum.shuffle(stream) end)
@@ -425,7 +428,8 @@ defmodule Aja.Enum.PropTest do
       assert with_seed(fn -> Enum.random(map_set) |> capture_error() end) ===
                with_seed(fn -> Aja.Enum.random(map_set) |> capture_error() end)
 
-      rand_taken = with_seed(fn -> Enum.take_random(list, amount) end)
+      # TODO Replace RandomHelper by Enum when dropping support for Elixir 1.16
+      rand_taken = with_seed(fn -> RandomHelper.take_random(list, amount) end)
       assert ^rand_taken = with_seed(fn -> Aja.Enum.take_random(list, amount) end)
       assert ^rand_taken = with_seed(fn -> Aja.Enum.take_random(vector, amount) end)
       assert ^rand_taken = with_seed(fn -> Aja.Enum.take_random(stream, amount) end)

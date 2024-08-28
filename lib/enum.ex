@@ -29,6 +29,7 @@ defmodule Aja.Enum do
 
   require Aja.Vector.Raw, as: RawVector
   alias Aja.EnumHelper, as: H
+  alias Aja.RandomHelper
 
   @compile :inline_list_funcs
 
@@ -826,7 +827,7 @@ defmodule Aja.Enum do
   def take_random(enumerable, count) do
     enumerable
     |> H.to_list()
-    |> Enum.take_random(count)
+    |> RandomHelper.take_random(count)
   end
 
   @doc """
@@ -838,7 +839,7 @@ defmodule Aja.Enum do
   def shuffle(enumerable) do
     enumerable
     |> H.to_list()
-    |> Enum.shuffle()
+    |> RandomHelper.shuffle()
   end
 
   # UNIQ
