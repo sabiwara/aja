@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.7.0 (2024-08-28)
+
 ### Enhancements
 
 - Optimize `Aja.Vector.flat_map/2` and `Aja.Enum.flat_map/2` when used for
