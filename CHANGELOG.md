@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.7.1 (2024-10-14)
+
 ### Bug fixes
 
 - Fix bug in `Aja.Vector.concat/2`
