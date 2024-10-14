@@ -69,6 +69,17 @@ defmodule Aja.VectorTest do
       assert Aja.Vector.new(1..20) == Aja.Vector.new(1..10) |> Aja.Vector.concat(11..20)
       assert Aja.Vector.new(1..100) == Aja.Vector.new(1..50) |> Aja.Vector.concat(51..100)
       assert Aja.Vector.new(1..1000) == Aja.Vector.new(1..500) |> Aja.Vector.concat(501..1000)
+
+      right_list = List.duplicate(0, 16)
+      right_vec = Aja.Vector.duplicate(0, 16)
+
+      # an attempt at finding concat edge cases near "interesting" sizes,
+      # when tries are full or partially full
+      for n <- 2..11, p <- [4 ** n, 4 ** n * 2], i <- (p - 16)..(p + 16) do
+        expected = Aja.Vector.duplicate(0, i + 16)
+        assert Aja.Vector.duplicate(0, i) |> Aja.Vector.concat(right_list) == expected
+        assert Aja.Vector.duplicate(0, i) |> Aja.Vector.concat(right_vec) == expected
+      end
     end
 
     test "pop_last!/1" do

@@ -105,4 +105,16 @@ defmodule Aja.Vector.Node do
       unquote(C.array_with_nils(i))
     end
   end
+
+  def take_reverse(node, amount)
+  def take_reverse(_node, 0), do: []
+
+  for i <- C.range() do
+    # def take({arg1, arg2, _arg3, _arg4}, _amount = 2) do
+    #   [arg2, arg1]
+    # end
+    def take_reverse(unquote(C.array_with_wildcards(i)), _amount = unquote(i)) do
+      unquote(C.reversed_arguments(i))
+    end
+  end
 end

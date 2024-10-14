@@ -115,39 +115,36 @@ defmodule Aja.Vector.Builder do
     end
   end
 
-  def from_trie(trie, level, index) do
-    case :erlang.bsr(index, level) do
+  def from_trie(trie, level, amount) do
+    do_from_trie(trie, level, amount, [])
+  end
+
+  def do_from_trie(_trie, _level, 0, acc), do: [[] | acc]
+
+  def do_from_trie(trie, level, amount, acc) do
+    case :erlang.bsr(amount, level) do
       C.branch_factor() ->
-        prepend_single_builder([[trie]], level)
+        prepend_single_builder([[trie] | acc], level)
 
-      _ ->
-        do_from_trie(trie, level, index, [])
+      full_nodes_count ->
+        reverse_full_nodes = Node.take_reverse(trie, full_nodes_count)
+        acc = [reverse_full_nodes | acc]
+
+        case amount - :erlang.bsl(full_nodes_count, level) do
+          0 ->
+            prepend_single_builder(acc, C.decr_level(level))
+
+          remaining ->
+            :erlang.element(full_nodes_count + 1, trie)
+            |> do_from_trie(C.decr_level(level), remaining, acc)
+        end
     end
-  end
-
-  defp do_from_trie(trie, level = C.bits(), index, acc) do
-    current_index = C.radix_search(index, level)
-    [subtries_list(trie, 1, current_index + 1, []) | acc]
-  end
-
-  defp do_from_trie(trie, level, index, acc) do
-    current_index = C.radix_search(index, level)
-    child = elem(trie, current_index)
-    new_acc = [subtries_list(trie, 1, current_index + 1, []) | acc]
-    do_from_trie(child, C.decr_level(level), index, new_acc)
   end
 
   defp prepend_single_builder(list, _level = 0), do: list
 
   defp prepend_single_builder(list, level) do
     prepend_single_builder([[] | list], C.decr_level(level))
-  end
-
-  defp subtries_list(_trie, _index = until, until, acc), do: acc
-
-  defp subtries_list(trie, index, until, acc) do
-    new_acc = [:erlang.element(index, trie) | acc]
-    subtries_list(trie, index + 1, until, new_acc)
   end
 
   @compile {:inline, tail_offset: 3}

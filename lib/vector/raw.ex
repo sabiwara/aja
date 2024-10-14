@@ -212,7 +212,7 @@ defmodule Aja.Vector.Raw do
   end
 
   def concat_vector(left = small(_, _, _), right) do
-    # can probably fo better
+    # can probably do better
     left |> to_list(to_list(right)) |> from_list()
   end
 
