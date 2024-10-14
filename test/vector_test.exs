@@ -75,7 +75,7 @@ defmodule Aja.VectorTest do
 
       # an attempt at finding concat edge cases near "interesting" sizes,
       # when tries are full or partially full
-      for n <- 2..11, p <- [4 ** n, 4 ** n * 2], i <- (p - 16)..(p + 16) do
+      for n <- 2..11, k = Integer.pow(4, n), p <- [k, k * 2], i <- (p - 16)..(p + 16) do
         expected = Aja.Vector.duplicate(0, i + 16)
         assert Aja.Vector.duplicate(0, i) |> Aja.Vector.concat(right_list) == expected
         assert Aja.Vector.duplicate(0, i) |> Aja.Vector.concat(right_vec) == expected
