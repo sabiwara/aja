@@ -111,10 +111,13 @@ defmodule Aja.Enum do
       %Aja.Vector{__vector__: vector} -> vector === @empty_vector
       %Aja.OrdMap{__ord_map__: map} -> map == %{}
       %MapSet{} -> MapSet.size(enumerable) == 0
-      %Range{} -> false
+      first..last//step -> empty_range?(first, last, step)
       _ -> Enum.empty?(enumerable)
     end
   end
+
+  defp empty_range?(first, last, step) when step > 0, do: first > last
+  defp empty_range?(first, last, step) when step < 0, do: first < last
 
   # Note: Could not optimize it noticeably for vectors
   @doc """
