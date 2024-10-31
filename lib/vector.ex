@@ -1991,11 +1991,21 @@ defmodule Aja.Vector do
       {:ok, Raw.member?(internal, value)}
     end
 
-    def slice(%Aja.Vector{__vector__: internal}) do
-      size = Aja.Vector.Raw.size(internal)
+    # TODO remove when dropping support for Elixir 1.12
+    if Version.compare(System.version(), "1.13.0") != :lt do
+      def slice(%Aja.Vector{__vector__: internal}) do
+        size = Aja.Vector.Raw.size(internal)
 
-      {:ok, size,
-       fn start, length, 1 -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
+        {:ok, size,
+         fn start, length, 1 -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
+      end
+    else
+      def slice(%Aja.Vector{__vector__: internal}) do
+        size = Aja.Vector.Raw.size(internal)
+
+        {:ok, size,
+         fn start, length -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
+      end
     end
 
     def reduce(%Aja.Vector{__vector__: internal}, acc, fun) do
