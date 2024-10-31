@@ -2,6 +2,8 @@
 
 ## Dev
 
+## v0.7.2 (2024-10-31)
+
 ### Bug fixes
 
 - Fail instead of returning incorrect values when using `Enum.slice/2` on
