@@ -40,8 +40,10 @@ defmodule Aja.Enum.PropTest do
       assert unique_length === Aja.Enum.count(ord_map)
       assert unique_length === Aja.Enum.count(map_set)
 
-      assert Enum.count(i1..i2) == Aja.Enum.count(i1..i2)
+      assert Enum.count(i1..i2//1) == Aja.Enum.count(i1..i2//1)
+      assert Enum.count(i1..i2//-1) == Aja.Enum.count(i1..i2//-1)
       assert Enum.count(i1..i2//2) == Aja.Enum.count(i1..i2//2)
+      assert Enum.count(i1..i2//-2) == Aja.Enum.count(i1..i2//-2)
 
       fun = fn x -> :erlang.phash2(x, 7) == 0 end
       count_result = Enum.count(list, fun)
@@ -58,7 +60,10 @@ defmodule Aja.Enum.PropTest do
       assert expected_empty == Aja.Enum.empty?(ord_map)
       assert expected_empty == Aja.Enum.empty?(map_set)
 
-      assert Enum.empty?(i1..i2) == Aja.Enum.empty?(i1..i2)
+      assert Enum.empty?(i1..i2//1) == Aja.Enum.empty?(i1..i2//1)
+      assert Enum.empty?(i1..i2//-1) == Aja.Enum.empty?(i1..i2//-1)
+      assert Enum.empty?(i1..i2//2) == Aja.Enum.empty?(i1..i2//2)
+      assert Enum.empty?(i1..i2//-2) == Aja.Enum.empty?(i1..i2//-2)
 
       min_result = Enum.min(list) |> capture_error()
       assert min_result === Aja.Enum.min(list) |> capture_error()

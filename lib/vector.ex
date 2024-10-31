@@ -1995,7 +1995,7 @@ defmodule Aja.Vector do
       size = Aja.Vector.Raw.size(internal)
 
       {:ok, size,
-       fn start, length -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
+       fn start, length, 1 -> Aja.Vector.Raw.slice(internal, start, start + length - 1) end}
     end
 
     def reduce(%Aja.Vector{__vector__: internal}, acc, fun) do

@@ -2,6 +2,12 @@
 
 ## Dev
 
+### Bug fixes
+
+- Fail instead of returning incorrect values when using `Enum.slice/2` on
+  Aja structures with a stepped range (`step != 1`)
+- Fix warnings in Elixir 1.18
+
 ## v0.7.1 (2024-10-14)
 
 ### Bug fixes

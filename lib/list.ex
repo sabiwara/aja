@@ -38,12 +38,8 @@ defmodule Aja.List do
   - It provides a less verbose way of writing one of the most common uses of `Stream.repeatedly/1`
   - (before Elixir 1.12) It removes the temptation to write the following, which is more concise but is technically incorrect:
 
-        iex> incorrect = fn n -> for _i <- 1..n, do: :rand.uniform() end
-        iex> incorrect.(0) |> length()
-        2
-
-        # this is because:
-        Enum.to_list(1..0) == [1, 0]
+        for i <- 1..n, do: ...
+        # for n=0, will infer step=-1 and run i=1 then i=0
 
     Elixir 1.12 solved this problem by introducing a step, `1..n//1`.
 
