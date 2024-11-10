@@ -208,9 +208,7 @@ defmodule Aja.OrdMap do
 
   @doc false
   defguard is_dense(ord_map)
-           # TODO simplify when stop supporting Elixir 1.10
-           when :erlang.map_get(:__ord_map__, ord_map) |> map_size() ===
-                  :erlang.map_get(:__ord_vector__, ord_map) |> RawVector.size()
+           when map_size(ord_map.__ord_map__) === RawVector.size(ord_map.__ord_vector__)
 
   @doc """
   Returns the number of keys in `ord_map`.

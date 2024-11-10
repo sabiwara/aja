@@ -150,8 +150,7 @@ defmodule Aja do
 
       :guard ->
         quote do
-          # TODO simplify when stop supporting Elixir 1.10
-          :erlang.map_get(:__ord_map__, unquote(ord_map)) |> :erlang.map_size()
+          unquote(ord_map).__ord_map__ |> :erlang.map_size()
         end
     end
   end
@@ -336,8 +335,7 @@ defmodule Aja do
         quote do
           :erlang.element(
             1,
-            # TODO simplify when stop supporting Elixir 1.10
-            :erlang.map_get(:__vector__, unquote(vector))
+            unquote(vector).__vector__
           )
         end
     end

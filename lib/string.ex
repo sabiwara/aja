@@ -52,29 +52,11 @@ defmodule Aja.String do
   end
 
   defp normalize(string, :ascii) do
-    for <<c <- nfkd_normalize(string)>>, c in 0..127, into: "", do: <<c>>
+    for <<c <- String.normalize(string, :nfkd)>>, c in 0..127, into: "", do: <<c>>
   end
 
   defp normalize(string, _mode) do
-    nfkc_normalize(string)
-  end
-
-  defp nfkc_normalize(string) do
-    # Note: same implementation as `String.normalize(string, :nfkc)` in Elixir 1.11
-    # TODO replace when removing support for 1.10
-    case :unicode.characters_to_nfkc_binary(string) do
-      normalized when is_binary(normalized) -> normalized
-      {:error, good, <<head, rest::binary>>} -> good <> <<head>> <> nfkc_normalize(rest)
-    end
-  end
-
-  defp nfkd_normalize(string) do
-    # Note: same implementation as `String.normalize(string, :nfkd)` in Elixir 1.11
-    # TODO replace when removing support for 1.10
-    case :unicode.characters_to_nfkd_binary(string) do
-      normalized when is_binary(normalized) -> normalized
-      {:error, good, <<head, rest::binary>>} -> good <> <<head>> <> nfkd_normalize(rest)
-    end
+    String.normalize(string, :nfkc)
   end
 
   defp try_replace(string, regex, new) do
