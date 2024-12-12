@@ -241,7 +241,8 @@ defmodule Aja.Vector.PropTest do
       deleted_list = List.delete_at(list, i1)
       assert Aja.Vector.new(deleted_list) == Aja.Vector.delete_at(vector, i1)
       assert {vector[i1], Aja.Vector.new(deleted_list)} == Aja.Vector.pop_at(vector, i1)
-      assert {vector[i1], Aja.Vector.new(deleted_list)} == pop_in(vector[i1])
+      ignored_vec = ignore(vector)
+      assert {vector[i1], Aja.Vector.new(deleted_list)} == pop_in(ignored_vec[i1])
 
       assert list === Aja.Vector.to_list(vector)
       assert Enum.reverse(list) |> Aja.Vector.new() === Aja.Vector.reverse(vector)

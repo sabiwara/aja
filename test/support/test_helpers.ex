@@ -1,4 +1,8 @@
 defmodule Aja.TestHelpers do
+  def ignore(expr) do
+    expr
+  end
+
   defmacro capture_error(expr) do
     quote do
       try do

@@ -62,7 +62,7 @@ defmodule ATest do
 
       assert true == match?(ord(%{b: _b, a: _a}), ordered)
 
-      assert false == match?(ord(%{}), %{})
+      assert false == match?(ord(%{}), ignore(%{}))
       assert false == match?(ord(%{c: _c}), ordered)
       assert false == match?(ord(%{a: "not A"}), ordered)
 
@@ -278,7 +278,7 @@ defmodule ATest do
       assert vec(1 ||| 20) = Aja.Vector.new(1..20)
       assert vec(1 ||| 200) = Aja.Vector.new(1..200)
       assert vec(1 ||| 2000) = Aja.Vector.new(1..2000)
-      refute match?(vec(_ ||| _), Aja.Vector.new())
+      refute match?(vec(_ ||| _), ignore(Aja.Vector.new()))
     end
 
     test "vec(x ||| y) outside patterns" do
@@ -316,7 +316,9 @@ defmodule ATest do
       assert 20 = Aja.Vector.new(1..20) |> vec_size()
       assert 1000 = Aja.Vector.new(1..1000) |> vec_size()
 
-      assert_raise FunctionClauseError, fn -> 8 = %{__vector__: {8}} |> vec_size() end
+      assert_raise FunctionClauseError, fn ->
+        ignore(%{__vector__: {8}}) |> vec_size()
+      end
     end
   end
 end
