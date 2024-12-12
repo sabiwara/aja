@@ -603,19 +603,44 @@ defmodule Aja.Enum do
   Returns the sum of all elements.
 
   Mirrors `Enum.sum/1` with higher performance for Aja structures.
+
+  Raises `ArithmeticError` if `enumerable` contains a non-numeric value.
   """
   @spec sum(t(num)) :: num when num: number
   def sum(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
+      nil -> Enum.sum(enumerable)
+      list when is_list(list) -> :lists.sum(list)
+      vector -> RawVector.sum(vector)
+    end
+  end
+
+  @doc """
+  Maps and sums the given `enumerable` in one pass.
+
+  Mirrors `Enum.sum_by/2` with higher performance for Aja structures.
+
+  Raises `ArithmeticError` if `mapper` returns a non-numeric value.
+  """
+  @spec sum_by(t(val), (val -> num)) :: num when val: value, num: number
+  def sum_by(enumerable, fun) do
+    case H.try_get_raw_vec_or_list(enumerable) do
       nil ->
-        Enum.sum(enumerable)
+        # TODO use Enum.sum_by/1 for Elixir 1.18+
+        reduce(enumerable, 0, fn el, acc -> fun.(el) + acc end)
 
       list when is_list(list) ->
-        :lists.sum(list)
+        sum_by_list(list, fun, 0)
 
       vector ->
-        RawVector.sum(vector)
+        RawVector.sum_by(vector, fun)
     end
+  end
+
+  defp sum_by_list([], _fun, acc), do: acc
+
+  defp sum_by_list([head | rest], fun, acc) do
+    sum_by_list(rest, fun, fun.(head) + acc)
   end
 
   @doc """
@@ -627,31 +652,50 @@ defmodule Aja.Enum do
 
   ## Examples
 
-      iex> 1..5 |> Aja.Enum.product()
+      iex> Aja.Enum.product(1..5)
       120
-      iex> [] |> Aja.Enum.product()
+      iex> Aja.Enum.product([])
       1
 
   """
   @spec product(t(num)) :: num when num: number
   def product(enumerable) do
     case H.try_get_raw_vec_or_list(enumerable) do
-      nil ->
-        # TODO use Enum.product/1 for Elixir 1.11
-        reduce(enumerable, 1, &*/2)
-
-      list when is_list(list) ->
-        product_list(list, 1)
-
-      vector ->
-        RawVector.product(vector)
+      nil -> Enum.product(enumerable)
+      list when is_list(list) -> Enum.product(list)
+      vector -> RawVector.product(vector)
     end
   end
 
-  defp product_list([], acc), do: acc
+  @doc """
+  Maps and computes the product of the given `enumerable` in one pass.
 
-  defp product_list([head | rest], acc) do
-    product_list(rest, head * acc)
+  Mirrors `Enum.product_by/2`.
+
+  Raises `ArithmeticError` if `mapper` returns a non-numeric value.
+
+  ## Examples
+
+      iex> Aja.Enum.product_by(1..3, & &1 + 1)
+      24
+      iex> Aja.Enum.product_by([], & &1 + 1)
+      1
+
+  """
+  @spec product_by(t(val), (val -> num)) :: num when val: value, num: number
+  def product_by(enumerable, fun) do
+    case H.try_get_raw_vec_or_list(enumerable) do
+      # TODO use Enum.product_by/1 for Elixir 1.18+
+      nil -> Enum.reduce(enumerable, 1, fn el, acc -> fun.(el) * acc end)
+      list when is_list(list) -> product_by_list(list, fun, 1)
+      vector -> RawVector.product_by(vector, fun)
+    end
+  end
+
+  defp product_by_list([], _fun, acc), do: acc
+
+  defp product_by_list([head | rest], fun, acc) do
+    product_by_list(rest, fun, fun.(head) * acc)
   end
 
   @doc """

@@ -1,0 +1,41 @@
+Operating System: macOS
+CPU Information: Apple M1
+Number of Available Cores: 8
+Available memory: 16 GB
+Elixir 1.18.0-rc.0
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 0 ns
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 42 s
+
+Benchmarking Aja.Enum.product(vector) ...
+Benchmarking Aja.Enum.product_by/2 (vector) ...
+Benchmarking Aja.Enum.reduce/3 (vector) ...
+Benchmarking Enum.product(list) ...
+Benchmarking Enum.product_by/2 (list) ...
+Benchmarking Enum.product_by/2 (vector) ...
+Calculating statistics...
+Formatting results...
+
+Name                                     ips        average  deviation         median         99th %
+Aja.Enum.product(vector)             90.68 K       11.03 μs    ±22.83%       10.92 μs       12.79 μs
+Enum.product(list)                   85.90 K       11.64 μs    ±14.89%       11.25 μs       14.63 μs
+Aja.Enum.product_by/2 (vector)       80.01 K       12.50 μs    ±16.89%          12 μs       18.63 μs
+Enum.product_by/2 (list)             74.35 K       13.45 μs    ±44.35%       12.83 μs       23.63 μs
+Aja.Enum.reduce/3 (vector)           73.37 K       13.63 μs    ±32.29%       13.25 μs       19.17 μs
+Enum.product_by/2 (vector)           51.72 K       19.34 μs    ±20.57%       18.67 μs       25.42 μs
+
+Comparison: 
+Aja.Enum.product(vector)             90.68 K
+Enum.product(list)                   85.90 K - 1.06x slower +0.61 μs
+Aja.Enum.product_by/2 (vector)       80.01 K - 1.13x slower +1.47 μs
+Enum.product_by/2 (list)             74.35 K - 1.22x slower +2.42 μs
+Aja.Enum.reduce/3 (vector)           73.37 K - 1.24x slower +2.60 μs
+Enum.product_by/2 (vector)           51.72 K - 1.75x slower +8.31 μs

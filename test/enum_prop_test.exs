@@ -273,10 +273,18 @@ defmodule Aja.Enum.PropTest do
       assert ^sum_result = Aja.Enum.sum(stream) |> capture_error()
       assert capture_error(Enum.sum(map_set)) === capture_error(Aja.Enum.sum(map_set))
 
+      assert ^sum_result = Aja.Enum.sum_by(list, & &1) |> capture_error()
+      assert ^sum_result = Aja.Enum.sum_by(vector, & &1) |> capture_error()
+      assert ^sum_result = Aja.Enum.sum_by(stream, & &1) |> capture_error()
+
       product_result = Enum.reduce(list, 1, &(&2 * &1)) |> capture_error()
       assert ^product_result = Aja.Enum.product(list) |> capture_error()
       assert ^product_result = Aja.Enum.product(vector) |> capture_error()
       assert ^product_result = Aja.Enum.product(stream) |> capture_error()
+
+      assert ^product_result = Aja.Enum.product_by(list, & &1) |> capture_error()
+      assert ^product_result = Aja.Enum.product_by(vector, & &1) |> capture_error()
+      assert ^product_result = Aja.Enum.product_by(stream, & &1) |> capture_error()
 
       join_result = Enum.join(list, ",") |> capture_error()
       assert ^join_result = Aja.Enum.join(list, ",") |> capture_error()
@@ -449,6 +457,10 @@ defmodule Aja.Enum.PropTest do
       assert Enum.sum(list) === Aja.Enum.sum(list)
       assert Enum.sum(list) === Aja.Enum.sum(vector)
       assert Enum.sum(map_set) === Aja.Enum.sum(map_set)
+
+      assert Enum.sum(list) * 2 === Aja.Enum.sum_by(list, &(&1 * 2))
+      assert Enum.sum(list) * 2 === Aja.Enum.sum_by(vector, &(&1 * 2))
+      assert Enum.sum(map_set) * 2 === Aja.Enum.sum_by(map_set, &(&1 * 2))
     end
   end
 

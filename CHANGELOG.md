@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+- Add `Aja.Enum.sum_by/2` and `Aja.Enum.product_by/2`
+
 ## v0.7.2 (2024-10-31)
 
 ### Bug fixes

@@ -531,9 +531,19 @@ defmodule Aja.Vector.Raw do
     acc + arg
   end
 
+  @spec sum_by(t(val), (val -> number)) :: number when val: value
+  C.def_foldl sum_by(arg, acc \\ 0, fun) do
+    acc + fun.(arg)
+  end
+
   @spec product(t(number)) :: number
   C.def_foldl product(arg, acc \\ 1) do
     acc * arg
+  end
+
+  @spec product_by(t(number), (val -> number)) :: number when val: value
+  C.def_foldl product_by(arg, acc \\ 1, fun) do
+    acc * fun.(arg)
   end
 
   @spec count(t(val), (val -> as_boolean(term))) :: non_neg_integer when val: value
