@@ -7,6 +7,8 @@ jobs:
     # https://github.com/erlef/setup-beam/issues/161#issuecomment-1336129218
     runs-on: ubuntu-20.04
     name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    env:
+      MIX_ENV: test
     strategy:
       matrix:
         include:

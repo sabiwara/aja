@@ -11,15 +11,6 @@ defmodule Aja.MixProject do
       deps: deps(),
       consolidate_protocols: Mix.env() != :test,
       aliases: aliases(),
-      preferred_cli_env: [
-        inch: :docs,
-        docs: :docs,
-        "hex.publish": :docs,
-        dialyzer: :dialyzer,
-        cover: :test,
-        "test.unit": :test,
-        "test.prop": :test
-      ],
 
       # Hex
       description:
@@ -74,6 +65,19 @@ defmodule Aja.MixProject do
       docs: ["compile --force", "docs"],
       "test.prop": ["test --only property:true"],
       "test.unit": ["test --exclude property:true"]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
+        docs: :docs,
+        "hex.publish": :docs,
+        dialyzer: :dialyzer,
+        cover: :test,
+        "test.unit": :test,
+        "test.prop": :test
+      ]
     ]
   end
 
