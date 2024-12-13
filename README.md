@@ -102,6 +102,7 @@ All data structures offer:
 - well-documented APIs that are consistent with the standard library
 - implementation of `Inspect`, `Enumerable` and `Collectable` protocols
 - implementation of the `Access` behaviour
+- implementation of the `JSON.Encoder` protocol (on Elixir 1.18+)
 - (optional if `Jason` is installed) implemention of the `Jason.Encoder`
   protocol
 

@@ -19,6 +19,7 @@ defmodule Aja.Vector do
   - is heavily optimized and should offer higher performance in most use cases, especially "loops" like `map/2` / `to_list/1` / `foldl/3`
   - mirrors most of the `Enum` module API (together with `Aja.Enum`) with highly optimized versions for vectors (`Aja.Enum.join/1`, `Aja.Enum.sum/1`, `Aja.Enum.random/1`...)
   - supports negative indexing (e.g. `-1` corresponds to the last element)
+  - implements the `JSON.Encoder` protocol (on Elixir 1.18+)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   Note: most of the design is inspired by
@@ -2036,6 +2037,15 @@ defmodule Aja.Vector do
     defp done(internal, acc) do
       new_internal = Raw.concat_list(internal, :lists.reverse(acc))
       %Aja.Vector{__vector__: new_internal}
+    end
+  end
+
+  if Code.ensure_loaded?(JSON.Encoder) do
+    defimpl JSON.Encoder do
+      def encode(vector, encoder) do
+        values = Aja.Enum.map_intersperse(vector, ?,, fn value -> encoder.(value, encoder) end)
+        [?[, values, ?]]
+      end
     end
   end
 

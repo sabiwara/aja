@@ -15,6 +15,7 @@ defmodule Aja.OrdMap do
   `Aja.OrdMap`:
   - provides efficient (logarithmic) access: it is not a simple list of tuples
   - implements the `Access` behaviour, `Enum` / `Inspect` / `Collectable` protocols
+  - implements the `JSON.Encoder` protocol (on Elixir 1.18+)
   - optionally implements the `Jason.Encoder` protocol if `Jason` is installed
 
   ## Examples
@@ -98,7 +99,9 @@ defmodule Aja.OrdMap do
       true
 
 
-  ## With `Jason`
+  ## JSON encoding
+
+  Both `JSON.Encoder` and `Jason.Encoder` are supported.
 
       iex> Aja.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
       "{\"un\":1,\"deux\":2,\"trois\":3}"
@@ -1652,6 +1655,25 @@ defmodule Aja.OrdMap do
       else
         {"ord(%{", "})"}
       end
+    end
+  end
+
+  if Code.ensure_loaded?(JSON.Encoder) do
+    defimpl JSON.Encoder do
+      def encode(map, encoder) do
+        key_values =
+          Aja.Enum.map_intersperse(map, ?,, fn {key, value} ->
+            [key(key, encoder), ?:, encoder.(value, encoder)]
+          end)
+
+        [?{, key_values, ?}]
+      end
+
+      # ported from :json
+      defp key(key, encode) when is_binary(key), do: encode.(key, encode)
+      defp key(key, encode) when is_atom(key), do: encode.(Atom.to_string(key), encode)
+      defp key(key, _encode) when is_integer(key), do: [?", Integer.to_string(key), ?"]
+      defp key(key, _encode) when is_float(key), do: [?", Float.to_string(key), ?"]
     end
   end
 

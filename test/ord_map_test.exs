@@ -88,16 +88,15 @@ defmodule Aja.OrdMapTest do
                Aja.OrdMap.new([{:foo, :atom}, {5, :integer}]) |> inspect()
     end
 
-    if Version.compare(System.version(), "1.14.0") != :lt do
-      test "from_struct/1" do
-        ord_map = %User{name: "John", age: 44} |> Aja.OrdMap.from_struct()
-        expected = Aja.OrdMap.new(name: "John", age: 44)
-        assert ^expected = ord_map
+    @tag skip: Version.compare(System.version(), "1.14.0") == :lt
+    test "from_struct/1" do
+      ord_map = %User{name: "John", age: 44} |> Aja.OrdMap.from_struct()
+      expected = Aja.OrdMap.new(name: "John", age: 44)
+      assert ^expected = ord_map
 
-        ord_map = Aja.OrdMap.from_struct(User)
-        expected = Aja.OrdMap.new(name: nil, age: nil)
-        assert ^expected = ord_map
-      end
+      ord_map = Aja.OrdMap.from_struct(User)
+      expected = Aja.OrdMap.new(name: nil, age: nil)
+      assert ^expected = ord_map
     end
 
     test "get_and_update/3" do
@@ -116,6 +115,17 @@ defmodule Aja.OrdMapTest do
       assert_raise RuntimeError, message, fn ->
         Aja.OrdMap.get_and_update!(ord_map, :b, fn value -> value end)
       end
+    end
+
+    @tag skip: Version.compare(System.version(), "1.18.0-rc.0") == :lt
+    test "JSON.encode!/1" do
+      result = Aja.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> JSON.encode!()
+      assert result == "{\"un\":1,\"deux\":2,\"trois\":3}"
+    end
+
+    test "Jason.encode!/1" do
+      result = Aja.OrdMap.new([{"un", 1}, {"deux", 2}, {"trois", 3}]) |> Jason.encode!()
+      assert result == "{\"un\":1,\"deux\":2,\"trois\":3}"
     end
   end
 end

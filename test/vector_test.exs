@@ -542,5 +542,16 @@ defmodule Aja.VectorTest do
       assert [18, 19] == Aja.Vector.new(1..20) |> Enum.slice(-3, 2)
       assert Enum.to_list(2..99) == Aja.Vector.new(1..100) |> Enum.slice(1..98)
     end
+
+    @tag skip: Version.compare(System.version(), "1.18.0-rc.0") == :lt
+    test "JSON.encode!/1" do
+      result = Aja.Vector.new(["un", 2, :trois]) |> JSON.encode!()
+      assert result == "[\"un\",2,\"trois\"]"
+    end
+
+    test "Jason.encode!/1" do
+      result = Aja.Vector.new(["un", 2, :trois]) |> Jason.encode!()
+      assert result == "[\"un\",2,\"trois\"]"
+    end
   end
 end
