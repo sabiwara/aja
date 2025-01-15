@@ -208,7 +208,7 @@ defmodule Aja do
     end
   end
 
-  defmacro vec({:"..//", _, [first, last, step]} = call) do
+  defmacro vec({:..//, _, [first, last, step]} = call) do
     case Enum.map([first, last, step], &Macro.expand(&1, __CALLER__)) do
       [first, last, step] when is_integer(first) and is_integer(last) and is_integer(step) ->
         Range.new(first, last, step)
