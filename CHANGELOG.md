@@ -2,6 +2,10 @@
 
 ## Dev
 
+### Enhancements
+
+- Fix warning in Elixir 1.19
+
 ## v0.7.4 (2024-12-16)
 
 - Support the `JSON.Encode` protocol in Elixir 1.18+.
