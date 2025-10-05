@@ -1979,7 +1979,8 @@ defmodule Aja.Vector do
 
     def inspect(vector, %Inspect.Opts{} = opts) do
       opts = %{opts | charlists: :as_lists}
-      concat(["vec(", Inspect.List.inspect(Aja.Vector.to_list(vector), opts), ")"])
+      list = Aja.Vector.to_list(vector) |> Inspect.Algebra.to_doc(opts)
+      concat(["vec(", list, ")"])
     end
   end
 
