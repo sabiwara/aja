@@ -417,7 +417,7 @@ defmodule Aja.OrdMap do
       iex> Aja.OrdMap.fetch!(ord_map, :c)
       "C"
       iex> Aja.OrdMap.fetch!(ord_map, :z)
-      ** (KeyError) key :z not found in: ord(%{a: "A", b: "B", c: "C"})
+      ** (KeyError) key :z not found...
 
   """
   @spec fetch!(t(k, v), k) :: v when k: key, v: value
@@ -497,7 +497,7 @@ defmodule Aja.OrdMap do
       iex> Aja.OrdMap.replace!(ord_map, :b, "Buffalo")
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> Aja.OrdMap.replace!(ord_map, :d, "Dinosaur")
-      ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
+      ** (KeyError) key :d not found...
 
   """
   @spec replace!(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -823,7 +823,7 @@ defmodule Aja.OrdMap do
       iex> updated
       #Aja.OrdMap<%{a: "Ant", c: "Cat"}, sparse?: true>
       iex> Aja.OrdMap.pop!(ord_map, :z)
-      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
+      ** (KeyError) key :z not found...
   """
   @spec pop!(t(k, v), k) :: {v, t(k, v)} when k: key, v: value
   def pop!(
@@ -919,7 +919,7 @@ defmodule Aja.OrdMap do
       iex> Aja.OrdMap.update!(ord_map, :b,  &String.upcase/1)
       ord(%{a: "Ant", b: "BAT", c: "Cat"})
       iex> Aja.OrdMap.update!(ord_map, :d, &String.upcase/1)
-      ** (KeyError) key :d not found in: ord(%{a: \"Ant\", b: \"Bat\", c: \"Cat\"})
+      ** (KeyError) key :d not found...
 
   """
   @spec update!(t(k, v), k, v) :: t(k, v) when k: key, v: value
@@ -988,7 +988,7 @@ defmodule Aja.OrdMap do
       iex> Aja.OrdMap.get_and_update!(ord_map, :z, fn current_value ->
       ...>   {current_value && String.downcase(current_value), "Zebra"}
       ...> end)
-      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
+      ** (KeyError) key :z not found...
   """
   @spec get_and_update!(t(k, v), k, (v -> {returned, v} | :pop)) :: {returned, t(k, v)}
         when k: key, v: value, returned: term

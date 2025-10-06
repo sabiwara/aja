@@ -3,7 +3,7 @@ defmodule Aja.OrdMapTest do
 
   import Aja, only: [ord: 1]
 
-  doctest Aja.OrdMap
+  doctest Aja.OrdMap, tags: [lts_only: true]
 
   defmodule User do
     defstruct name: nil, age: nil

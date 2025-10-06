@@ -4,7 +4,7 @@ defmodule ATest do
   import Aja
   import Aja.TestHelpers
 
-  doctest Aja
+  doctest Aja, tags: [lts_only: true]
 
   describe "Aja" do
     test "ord/1 - new OrdMap" do

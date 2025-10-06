@@ -52,7 +52,7 @@ defmodule Aja do
       iex> ord(%{ordered | b: "Buffalo"})
       ord(%{a: "Ant", b: "Buffalo", c: "Cat"})
       iex> ord(%{ordered | z: "Zebra"})
-      ** (KeyError) key :z not found in: ord(%{a: "Ant", b: "Bat", c: "Cat"})
+      ** (KeyError) key :z not found...
 
   """
   defmacro ord({:%{}, _context, [{:|, _context2, [ordered, key_values]}]} = call) do
@@ -168,7 +168,7 @@ defmodule Aja do
       iex> vec([1, 2, var, _, _, _]) = Aja.Vector.new(1..6); var
       3
       iex> vec([_, _, _]) = Aja.Vector.new(1..6)
-      ** (MatchError) no match of right hand side value: vec([1, 2, 3, 4, 5, 6])
+      ** (MatchError) no match of right hand side value...
 
   It also supports ranges with **constant** values:
 

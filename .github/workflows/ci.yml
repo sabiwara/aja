@@ -14,16 +14,25 @@ jobs:
         include:
           - elixir: "1.12"
             otp: "23.3"
+            testArgs: "--exclude=lts_only"
           - elixir: "1.14"
             otp: "25.3"
+            testArgs: "--exclude=lts_only"
           - elixir: "1.15"
             otp: "26.0"
+            testArgs: "--exclude=lts_only"
           - elixir: "1.16"
             otp: "26.2"
+            testArgs: "--exclude=lts_only"
           - elixir: "1.17.2"
             otp: "27.0"
-          - elixir: "1.18.0"
+            testArgs: "--exclude=lts_only"
+          - elixir: "1.18.4"
             otp: "27.0"
+            testArgs: "--exclude=lts_only"
+          - elixir: "1.19.0-rc.1"
+            otp: "28.1"
+            testArgs: ""
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -36,9 +45,9 @@ jobs:
         run: mix compile --warnings-as-errors
       # TODO add dialyzer?
       - name: Unit tests
-        run: mix test.unit
+        run: mix test.unit ${{ matrix.testArgs }}
       - name: Property-based tests
-        run: PROP_TEST_RUNTIME=30000 mix test.prop
+        run: PROP_TEST_RUNTIME=30000 mix test.prop ${{ matrix.testArgs }}
 
   format:
     runs-on: ubuntu-latest
